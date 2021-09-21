@@ -38,10 +38,9 @@ def channels_create_v1(auth_user_id, name, is_public):
     channels = store['channels']
     channels.append('CAMEL')
     print(store)
-    '''
+    
     store = data_store.get()
     print(store) # Prints { 'names': ['Nick', 'Emily', 'Hayden', 'Rob'] }
-    # 目前只有users才能用，想如何建立多一個channel
     names = store['users']
     names.append('Jake')
     names.sort()
@@ -50,6 +49,7 @@ def channels_create_v1(auth_user_id, name, is_public):
     data_store.set(store)
     print(store) # Prints { 'names': ['Emily', 'Hayden', 'Jake', 'Nick'] }
     print('hi')
+    '''
     return {
         'channel_id': 1,
     }
