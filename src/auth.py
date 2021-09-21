@@ -16,7 +16,7 @@ def auth_register_v1(email, password, name_first, name_last):
         raise InputError("This email is of invalid form")
 
     for user in store['users']:
-        if user[len(store['users'])] == email:
+        if user == email:
            raise InputError("This email address has already been registered by another user") 
 
     if len(password) < 6:
@@ -29,7 +29,18 @@ def auth_register_v1(email, password, name_first, name_last):
          raise InputError("name_last is not between 1 - 50 characters in length")
          
     user_id = len(store['users'])
-    store['users'].append((user_id, email))
+    store['users'].append(email)
+
+    handle = (name_first + name_last).lower()
+    if len(handle) > 20:
+        handle = handle[0:20]
+    
+    store['users'].append(handle)
+    for user in store['users']:
+        number = 0
+        if user == handle:
+            handle = handle + 'number'
+        number += 1
     data_store.set(store)
 
     return {

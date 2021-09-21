@@ -34,13 +34,11 @@ def test_register_invalid_name():
     with pytest.raises(InputError):
         # Invalid first name
         auth_register_v1('abc@gmail.com', 'password', '', 'last_name')
-        auth_register_v1('abc@gmail.com', '12345', 
-        'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz', 'last_name')
+        auth_register_v1('abc@gmail.com', '12345', 'a' * 50, 'last_name')
 
         # Invalid last name
         auth_register_v1('abc@gmail.com', 'password', 'first_name', '')
-        auth_register_v1('abc@gmail.com', '12345', 'first_name', 
-        'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz')
+        auth_register_v1('abc@gmail.com', '12345', 'first_name', 'a' * 50)
         
         
 # Valid email, password, first name and last name
