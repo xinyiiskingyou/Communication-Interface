@@ -6,7 +6,7 @@ from src.other import clear_v1
 
 # Email and password is valid and user is able to successfully login
 def valid_email_password():
-    clear_v1():
+    clear_v1()
     auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
     auth_login_v1('email@unsw.edu.au', 'password')
     pass
