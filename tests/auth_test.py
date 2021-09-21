@@ -22,13 +22,6 @@ def test_register_duplicate_email():
     with pytest.raises(InputError):
         auth_register_v1('abc@gmail.com', 'password', 'first_name_2', 'last_name_2')
 
-# Duplicate email all
-def test_register_duplicate_all():
-    clear_v1()
-    auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    with pytest.raises(InputError):
-        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-
 # Password is < 6 characters
 def test_register_invalid_password():
     clear_v1()
