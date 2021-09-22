@@ -51,3 +51,5 @@ def test_register_valid():
     auth_user_id_2 = register_return['auth_user_id']
 
     assert auth_user_id_1 == auth_user_id_2
+    print(auth_user_id_1)
+    
