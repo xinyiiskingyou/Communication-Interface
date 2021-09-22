@@ -1,5 +1,5 @@
-from data_store import data_store
-from error import InputError
+from src.data_store import data_store
+from src.error import InputError
 
 def channels_list_v1(auth_user_id):
     return {
@@ -35,27 +35,31 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     channels = List of dictionaries, where each dictionary contains types { channel_id, name }
     '''
-
+    #print(type(auth_user_id))
     ## to do:
-    # check if the user id exist (is a valid user)
+    # !!!check if the user id exist (is a valid user) !!!
     # channel name cannot be duplicate
     # error handling
-    if len(name) < 1 or len(name) > 20:
+    if len(name) not in range(1, 21):
         raise InputError('length of name is less than 1 or more than 20 characters')
     if name[0] == ' ':
         raise InputError('name cannot be blank')
+    if is_public not in range(0,2):
+        raise InputError('the channel has to be either public or private')
+    if not isinstance(auth_user_id,int):
+        raise InputError('this is an invalid auth user id')
     store = data_store.get()
     channels = store['channels']
     channel_id = len(channels) + 1
-    new = {'channel_id': channel_id, 'name': name}
+    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': auth_user_id, 'all_members': auth_user_id}
     
     #print('number of channels', channel_id)
     channels.append(new)
-    #print(store)
+    print(store)
     return {
         'channel_id': channel_id,
     }
-print(channels_create_v1(1,'CAMEL',1))
+print(channels_create_v1(1,'CAMEL',0))
 print(channels_create_v1(2,'CAMEL',1))
-print(channels_create_v1(2,'1531',1))
-print(channels_create_v1(2,'  ',1))
+
+#print(channels_create_v1(2,'normal',1))
