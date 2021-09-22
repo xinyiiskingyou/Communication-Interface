@@ -9,6 +9,12 @@ def channels_list_v1(auth_user_id):
     }
 
 def channels_listall_v1(auth_user_id):
+    '''
+    Provides a list of all channels, including private channels (and their associated 
+    details)
+
+    auth_user_id is the name of the user we connecting from 
+    '''
     return {
         'channels': [
         	{
