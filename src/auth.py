@@ -36,12 +36,17 @@ def auth_register_v1(email, password, name_first, name_last):
     if len(handle) > 20:
         handle = handle[0:20]
     
-    store['users'].append(handle)
+    store['users'].append({email, handle})
+    
+    number = 0
     for user in store['users']:
-        number = 0
         if user == handle:
             handle = handle + str(number)
-        number += 1
+            number += 1
+            if number == 10:
+                number = 0
+    
+    store['users'].append({email, handle})
     data_store.set(store)
 
     return {
