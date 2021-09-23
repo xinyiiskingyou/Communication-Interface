@@ -10,7 +10,6 @@ def test_no_channels():
 
 # test if more and more authorised users can be appended in the list 
 def test_channels_list():
-
 	x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
 	x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
 	assert(channels_list_v1(x_register['auth_user_id']) ==
