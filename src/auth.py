@@ -66,10 +66,6 @@ def auth_register_v1(email, password, name_first, name_last):
 
     data_store.set(store)
 
-    for user in initial_object['users']:
-        for part in user:
-            print(f" {part}: {user[part]}")
-
     return {
         'auth_user_id': user_id,
     }
