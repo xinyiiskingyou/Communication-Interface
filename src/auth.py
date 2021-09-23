@@ -5,12 +5,15 @@ import re
 def auth_login_v1(email, password):
     store = data_store.get()
     
+    # Iterate through the initial_object list 
     for user in initial_object['users']:
+        # If the email and password the user inputs to login match and exist in data_store
         if (user['email'] == email) & (user['password'] == password):
             return user['auth_user_id']
         else:
             raise InputError("Email and/or password is not valid!")
 
+    data_store.set(store)
 
 
 def auth_register_v1(email, password, name_first, name_last):
@@ -47,9 +50,9 @@ def auth_register_v1(email, password, name_first, name_last):
     if len(name_last) not in range(1, 51):
          raise InputError("name_last is not between 1 - 50 characters in length")
          
-    # Creating unique user_id and adding to dict_user
-    user_id = len(initial_object['users'])
-    dict_user[user_id] = user_id
+    # Creating unique auth_user_id and adding to dict_user
+    auth_user_id = len(initial_object['users'])
+    dict_user[auth_user_id] = auth_user_id
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -58,20 +61,19 @@ def auth_register_v1(email, password, name_first, name_last):
         handle = handle[0:20]
     dict_user[handle] = handle
     
-    # if list is not empty check for duplicate handles
+    # If list is not empty check for duplicate handles in the existing initial_object list. 
     number = 0
     if len(initial_object['users']) > 1:
         for user in initial_object['users']:
             if user['handle'] == handle:
                 handle = handle + str(number)
                 number += 1
-
-    # If list not empty append new dict_user
-    if len(initial_object['users']) > 1:
+                
+        # Then append onto the initial_object list if there are not duplicate handles
         initial_object['users'].append(dict_user)
 
     data_store.set(store)
 
     return {
-        'auth_user_id': user_id,
+        'auth_user_id': auth_user_id,
     }
