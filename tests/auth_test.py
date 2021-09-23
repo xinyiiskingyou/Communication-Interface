@@ -9,7 +9,6 @@ def valid_email_password():
     clear_v1()
     auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
     auth_login_v1('email@unsw.edu.au', 'password')
-    pass
 
 # Email tested does not belong to user 
 def test_email_not_belong_user():
