@@ -40,26 +40,16 @@ def test_register_invalid_name():
         # Invalid last name
         auth_register_v1('abc@gmail.com', 'password', 'first_name', '')
         auth_register_v1('abc@gmail.com', '12345', 'first_name', 'a' * 50)
-        
-        
-# Valid email, password, first name and last name
-def test_register_valid():
-    clear_v1()
-    register_return = auth_register_v1('abc@gmail.com', 'password', 'first_name', 'last_name')
-    auth_user_id_1 = register_return['auth_user_id']
-
-    login_return = auth_login_v1('abc@gmail.com', 'password')
-    auth_user_id_2 = register_return['auth_user_id']
-
-    assert auth_user_id_1 == auth_user_id_2
-    
+ 
 
 ######### auth_login tests ##########
 # Email and password is valid and user is able to successfully login
 def valid_email_password():
     clear_v1()
-    auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
-    auth_login_v1('email@unsw.edu.au', 'password')
+    user_id_register = auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
+    user_id_login = auth_login_v1('email@unsw.edu.au', 'password')
+    assert user_id_register == user_id_login
+
 
 # Email tested does not belong to user 
 def test_email_not_belong_user():
