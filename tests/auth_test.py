@@ -43,6 +43,19 @@ def test_register_invalid_name():
  
 
 ######### auth_login tests ##########
+# Testing different auth_user_id
+def unique_auth_user_id():
+    user1_reg = auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
+    user2_reg = auth_register_v1('abc@unsw.edu.au', 'password', 'name_first', 'name_last')
+
+    user1_log = auth_login_v1('email@unsw.edu.au', 'password')
+    user2_log = auth_login_v1('abc@unsw.edu.au', 'password')
+
+    assert user1_reg != user2_reg
+    assert user1_log != user2_log
+    assert user1_reg == user1_log
+    assert user2_reg == user2_log
+
 # Email and password is valid and user is able to successfully login
 def valid_email_password():
     clear_v1()
