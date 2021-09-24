@@ -66,8 +66,14 @@ def auth_register_v1(email, password, name_first, name_last):
     if len(initial_object['users']) > 1:
         for user in initial_object['users']:
             if user['handle'] == handle:
-                handle = handle + str(number)
-                number += 1
+                if number == 0: 
+                    handle = handle +str(number)
+                elif number in range(1,10):  
+                    handle = handle[:-1] + str(number)
+                else:
+                    handle = handle[:-2] + str(number)
+
+            number += 1
                 
         # Then append onto the initial_object list if there are not duplicate handles
         initial_object['users'].append(dict_user)
@@ -77,3 +83,4 @@ def auth_register_v1(email, password, name_first, name_last):
     return {
         'auth_user_id': auth_user_id,
     }
+
