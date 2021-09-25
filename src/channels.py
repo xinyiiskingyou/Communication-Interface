@@ -22,8 +22,7 @@ def channels_listall_v1(auth_user_id):
 
     listchannel = []
     for channels in initial_object['channels']:
-        # if channels['auth_user_id'] == auth_user_id:
-        listchannel.append({'channel_id' : channel['channel_id'], name: channel['name']})
+        listchannel.append({'channel_id' : channel['channel_id'], "name": channel['name']})
     return {'channels': listchannel}
         # 'channels': [
         # 	{
