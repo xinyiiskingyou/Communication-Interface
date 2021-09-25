@@ -1,6 +1,6 @@
 from src.data_store import data_store, initial_object
 from src.error import InputError
-
+from src.auth import auth_register_v1
 def channels_list_v1(auth_user_id):
     return {
         'channels': [
@@ -35,6 +35,7 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     channels = List of dictionaries, where each dictionary contains types { channel_id, name }
     '''
+    
     ## to do:
     # channel name cannot be duplicate
 
@@ -49,12 +50,12 @@ def channels_create_v1(auth_user_id, name, is_public):
         raise InputError('this is an invalid auth user id')
     if not channels_create_check_valid_user(auth_user_id):
         raise InputError('this is an invalid auth user id')
-
+    #channels_create_check_valid_user(auth_user_id)
     channels = initial_object['channels']
     channel_id = len(channels) + 1
     new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': auth_user_id, 'all_members': {auth_user_id}}
     channels.append(new)
-
+    #channels_create_check_valid_user(auth_user_id)
     return {
         'channel_id': channel_id,
     }
@@ -67,8 +68,12 @@ def channels_create_check_valid_user(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return True
     return False
-
+print(auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1'))
+print(auth_register_v1('validemail@gmail.com', '123abc!@#', 'Hayden', 'Everest'))
+print(auth_register_v1('abcedfg@gmail.com', 'password', 'first_name_3', 'last_name_3'))
 print(channels_create_v1(1,'CAMEL',0))
 print(channels_create_v1(2,'1531',1))
+print(channels_create_v1(3,'1531',1))
+print(channels_create_v1(4,'1531',1))
 
 
