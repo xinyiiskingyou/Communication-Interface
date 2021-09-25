@@ -10,6 +10,7 @@ def test_channel_maker():
     a_register = auth_register_v1('ashemail@gmail.com', 'password', 'anna', 'wong')
     a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', False)
     assert(channels_listall_v1(a_register['auth_user_id']) ==  
+        {
             'channels' :[ 
                 {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
                     'channel_id': a_channel['channel_id'],
@@ -31,6 +32,10 @@ def test_listall_channels():
                 {
                     'channel_id' : ashv1_channel['channel_id'],
                     'name' : 'ash' 
+                },
+                {
+                    'channel_id': a_channel['channel_id'],
+                    'name': 'anna' 
                 }
             ],
         })
