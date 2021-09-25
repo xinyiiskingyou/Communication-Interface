@@ -10,7 +10,7 @@ def auth_login_v1(email, password):
     for user in initial_object['users']:
         # If the email and password the user inputs to login match and exist in data_store
         if (user['email'] == email) & (user['password'] == password):
-            return user['auth_user_id']
+            return {'auth_user_id': user['auth_user_id']}
         else:
             raise InputError("Email and/or password is not valid!")
 
@@ -35,6 +35,7 @@ def auth_register_v1(email, password, name_first, name_last):
 
     # If list is empty add new user info (dict) into initial_objects list
     # else check for duplicates
+
     if len(initial_object['users']) == 0:
         initial_object['users'].append(dict_user)
     else:
@@ -53,18 +54,18 @@ def auth_register_v1(email, password, name_first, name_last):
          
     # Creating unique auth_user_id and adding to dict_user
     auth_user_id = len(initial_object['users'])
-    dict_user[auth_user_id] = auth_user_id
+    dict_user['auth_user_id'] = auth_user_id
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
     handle = re.sub(r'[^a-z0-9]', '', handle)
     if len(handle) > 20:
         handle = handle[0:20]
-    dict_user[handle] = handle
-    
+    dict_user['handle'] = handle
+
     # If list is not empty check for duplicate handles in the existing initial_object list. 
     number = 0
-    if len(initial_object['users']) > 1:
+    if len(initial_object['users']) >= 1:
         for user in initial_object['users']:
             if user['handle'] == handle:
                 if number == 0: 
@@ -78,9 +79,9 @@ def auth_register_v1(email, password, name_first, name_last):
                 
         # Then append onto the initial_object list if there are not duplicate handles
         initial_object['users'].append(dict_user)
-
+    
     data_store.set(store)
-
+    #print(initial_object)
     return {
         'auth_user_id': auth_user_id,
     }
