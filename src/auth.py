@@ -59,11 +59,11 @@ def auth_register_v1(email, password, name_first, name_last):
     handle = re.sub(r'[^a-z0-9]', '', handle)
     if len(handle) > 20:
         handle = handle[0:20]
-    dict_user[handle] = handle
+    dict_user["handle"] = handle
     
     # If list is not empty check for duplicate handles in the existing initial_object list. 
     number = 0
-    if len(initial_object['users']) > 1:
+    if len(initial_object['users']) >= 1:
         for user in initial_object['users']:
             if user['handle'] == handle:
                 if number == 0: 
