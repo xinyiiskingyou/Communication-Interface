@@ -74,6 +74,6 @@ print(auth_register_v1('abcedfg@gmail.com', 'password', 'first_name_3', 'last_na
 print(channels_create_v1(1,'CAMEL',0))
 print(channels_create_v1(2,'1531',1))
 print(channels_create_v1(3,'1531',1))
-print(channels_create_v1(4,'1531',1))
+#print(channels_create_v1(4,'1531',1))
 
 
