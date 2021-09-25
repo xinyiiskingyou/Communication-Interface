@@ -17,13 +17,15 @@ def channels_list_v1(auth_user_id):
     # return to the new list
 
     new_list = []
-
     for channel in initial_object['channels']:
-        for user in channel['all_members']:
-            if user['user_id'] == auth_user_id:
-                new_list.append({'channel_id' : channel['channel_id'],
-                'name': channel['name']})
+        for member in channel['all_members']:
+            for user in initial_object['users']:
+                if member['u_id'] == user['auth_user_id']:
+                    new_list.append({'channel_id' : channel['channel_id'],
+                    'name': channel['name']})
+                
     return {'channels': new_list}
+
 
 def channels_listall_v1(auth_user_id):
     return {
@@ -47,17 +49,17 @@ def channels_create_v1(auth_user_id, name, is_public):
         raise InputError('this is an invalid auth user id')
 
     store = data_store.get()
-    channels = store['channels']
+    channels = initial_object['channels']
     channel_id = len(channels) + 1
     new = {
         'channel_id': channel_id, 
         'name': name, 
-        'is_public': is_public, 
+        'is_public': bool(is_public), 
         'owner_members': [],
         'all_members': []
     }
     
-    new['all_members'].append({'user_id': auth_user_id})
+    new['all_members'].append({'u_id': auth_user_id})
     #print('number of channels', channel_id)
     initial_object['channels'].append(new)
     data_store.set(store)
@@ -65,4 +67,13 @@ def channels_create_v1(auth_user_id, name, is_public):
         'channel_id': new['channel_id']
     }
 
+
+def channels_create_check_valid_user(auth_user_id):
+    '''
+    return type: bool
+    '''
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            return True
+    return False
 
