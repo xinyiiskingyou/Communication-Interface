@@ -23,11 +23,15 @@ Example usage:
     print(store) # Prints { 'names': ['Emily', 'Hayden', 'Jake', 'Nick'] }
     data_store.set(store)
 '''
+import string
 
 ## YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
     'users': [],
+    'channels': []
 }
+
+
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
 class Datastore:
