@@ -17,7 +17,7 @@ def auth_login_v1(email, password):
 
 
 def auth_register_v1(email, password, name_first, name_last):
-   store = data_store.get()
+    store = data_store.get()
 
     # Creating the basic dictionary to be put into the initial_objects list
     dict_user = {
