@@ -11,6 +11,7 @@ def channels_list_v2(auth_user_id):
     Return Value:
         returns channel_id and name if an authorised user has channel
     '''
+    
     # for all channels
     # -> if the users are authorised
     # -> append to an empty list
