@@ -3,6 +3,7 @@ from src.data_store import data_store
 from src.channels import channels_create_v1
 from src.error import InputError
 from src.other import clear_v1
+from src.auth import auth_register_v1
 def test_create_invalid_name():
     clear_v1()
     with pytest.raises(InputError):

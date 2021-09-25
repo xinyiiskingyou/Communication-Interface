@@ -1,6 +1,6 @@
-from src.data_store import data_store
+from src.data_store import data_store, initial_object
 
 def clear_v1():
     store = data_store.get()
-    store['users'] = []
+    initial_object['users'] = []
     data_store.set(store)
