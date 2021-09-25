@@ -1,7 +1,7 @@
 from src.data_store import data_store, initial_object
 from src.error import InputError
 
-def channels_list_v1(auth_user_id):
+def channels_list_v2(auth_user_id):
     '''
     Provide a list of all channels (and their associated details) 
     that the authorised user is part of.
