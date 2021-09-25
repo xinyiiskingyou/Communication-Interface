@@ -12,6 +12,7 @@ sally_register = auth_register_v1('email1@gmail.com','comp1531', 'sally','zhou')
 sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
 
 y_register = auth_register_v1('email2@gmail.com', 'password', 'y', 'lin')
+
 def test_channel_invite_input_error():
     clear_v1()
     with pytest.raises(InputError):
@@ -43,6 +44,10 @@ def test_valid_invite_public_member():
 				'channel_id': x_channel['channel_id'],
 				'name': 'x'
 			},
+            {
+				'channel_id': sally_channel['channel_id'],
+				'name': 'sally'
+			},
 			{
 				'channel_id': y_channel['channel_id'],
 				'name': 'y'
@@ -63,9 +68,14 @@ def test_valid_invite_private_member():
 				'channel_id': sally_channel['channel_id'],
 				'name': 'sally'
 			},
+            {
+				'channel_id': sally_channel['channel_id'],
+				'name': 'sally'
+			},
 			{
 				'channel_id': z_channel['channel_id'],
 				'name': 'z'
 			}
+            
 		],
 	})
