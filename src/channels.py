@@ -24,15 +24,6 @@ def channels_listall_v1(auth_user_id):
     for channels in initial_object['channels']:
         listchannel.append({'channel_id' : channel['channel_id'], "name": channel['name']})
     return {'channels': listchannel}
-        # 'channels': [
-        # 	{
-        # 		'channel_id': channels,
-        # 		'name': name,
-        #         'is public': is_public,
-        #         'owner_members': auth_user_id, 
-        #         'all_members': {auth_user_id}
-        # 	}
-        # ],
 
 def channels_create_v1(auth_user_id, name, is_public):
     '''
