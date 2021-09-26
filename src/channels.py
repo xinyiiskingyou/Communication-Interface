@@ -1,6 +1,31 @@
 from src.data_store import data_store, initial_object
 from src.error import InputError
-from src.auth import auth_register_v1
+
+def channels_list_v2(auth_user_id):
+    '''
+    Provide a list of all channels (and their associated details) 
+    that the authorised user is part of.
+
+    Arguments:
+        auth_user_id
+    Return Value:
+        returns channel_id and name if an authorised user has channel
+    '''
+    # for all channels
+    # -> if the users are authorised
+    # -> append to an empty list
+    # return to the new list
+
+    new_list = []
+
+    for channel in initial_object['channels']:
+        for member in channel['all_members']:
+            for user in initial_object['users']:
+                if member['auth_user_id'] == user['auth_user_id']:
+                    new_list.append({'channel_id' : channel['channel_id'],
+                    'name': channel['name']})       
+    return {'channels': new_list}
+
 def channels_list_v1(auth_user_id):
     return {
         'channels': [
@@ -10,7 +35,7 @@ def channels_list_v1(auth_user_id):
         	}
         ],
     }
-
+    
 def channels_listall_v1(auth_user_id):
     return {
         'channels': [
@@ -69,5 +94,4 @@ def channels_user_details(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return user
     return {}
-
 
