@@ -1,5 +1,4 @@
 import pytest
-
 from src.auth import auth_register_v1
 from src.auth import auth_login_v1
 from src.error import InputError
@@ -7,7 +6,6 @@ from src.other import clear_v1
 
 ######### auth_register tests ##########
 # Email does not have proper format
-
 def test_register_invalid_email():
     clear_v1()
     with pytest.raises(InputError):
@@ -43,28 +41,28 @@ def test_register_invalid_name():
         auth_register_v1('abc@gmail.com', '12345', 'first_name', 'a' * 50)
  
 
-######### auth_login tests ##########
-# Testing different auth_user_id
-def test_unique_auth_user_id():
-    user1_reg = auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
-    user2_reg = auth_register_v1('abc@unsw.edu.au', 'password', 'name_first', 'name_last')
-
-    user1_log = auth_login_v1('email@unsw.edu.au', 'password')
-    user2_log = auth_login_v1('abc@unsw.edu.au', 'password')
-
-    assert user1_reg != user2_reg
-    assert user1_log != user2_log
-    assert user1_reg == user1_log
-    assert user2_reg == user2_log
-
-# Email and password is valid and user is able to successfully login
-def test_valid_email_password():
+# That auth_user_id's of different emails are unique
+def test_unique_auth_id():
     clear_v1()
-    user_id_register = auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
-    user_id_login = auth_login_v1('email@unsw.edu.au', 'password')
-    assert user_id_register == user_id_login
+    user1_reg = auth_register_v1('elephant@unsw.edu.au', 'password', 'name_first', 'name_last')
+    user2_reg = auth_register_v1('cat@unsw.edu.au', 'password', 'name_first', 'name_last')
+    assert user1_reg != user2_reg
 
+# That auth reg and auth login return the same value
+def test_auth_reg_and_log1():
+    clear_v1()
+    user1_reg = auth_register_v1('abc@unsw.edu.au', 'password', 'name_first', 'name_last')
+    user2_log = auth_login_v1('abc@unsw.edu.au', 'password')
+    assert user1_reg == user2_log
 
+# That auth reg and auth login return the same value
+def test_auth_reg_and_log2():
+    clear_v1()
+    user3_reg = auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
+    user4_log = auth_login_v1('email@unsw.edu.au', 'password')
+    assert user3_reg == user4_log
+
+######### auth_login tests ##########
 # Email tested does not belong to user 
 def test_email_not_belong_user():
     clear_v1()
@@ -78,5 +76,4 @@ def test_incorrect_password():
     with pytest.raises(InputError):
         auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
         auth_login_v1('email@unsw.edu.au', 'wrong password')
-
 
