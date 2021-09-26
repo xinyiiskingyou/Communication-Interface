@@ -2,14 +2,18 @@ from src.data_store import data_store, initial_object
 from src.error import InputError
 import re
 
+
 def auth_login_v1(email, password):
     store = data_store.get()
     
     # Iterate through the initial_object list 
     for user in initial_object['users']:
         # If the email and password the user inputs to login match and exist in data_store
-        if (user['email'] == email) & (user['password'] == password):
-            return user['auth_user_id']
+        if (user['email'] == email) and (user['password'] == password):
+            auth_user_id = user['auth_user_id']
+            return {
+                'auth_user_id': auth_user_id,
+            }
         else:
             raise InputError("Email and/or password is not valid!")
 
@@ -17,7 +21,6 @@ def auth_login_v1(email, password):
 
 
 def auth_register_v1(email, password, name_first, name_last):
-
     store = data_store.get()
 
     # Error handling
@@ -51,7 +54,7 @@ def auth_register_v1(email, password, name_first, name_last):
     #Check for duplicate handles
     number = 0
     for user in initial_object['users']:
-        if user['handle'] == handle:
+        if user['handle_str'] == handle:
             if number == 0: 
                 handle = handle +str(number)
             elif number in range(1,10):  
@@ -68,7 +71,7 @@ def auth_register_v1(email, password, name_first, name_last):
         'name_first': name_first,
         'name_last' : name_last,
         'auth_user_id' : auth_user_id,
-        'handle' : handle 
+        'handle_str' : handle 
     })
 
     data_store.set(store)
