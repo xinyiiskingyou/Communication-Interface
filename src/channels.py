@@ -40,9 +40,11 @@ def channels_create_v1(auth_user_id, name, is_public):
         raise InputError('this is an invalid auth user id')
 
     channels = initial_object['channels']
+    # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
     owner = (channels_user_details(auth_user_id))
-    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': owner, 'all_members': owner}
+    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': [owner], 'all_members': [owner]}
+
     channels.append(new)
     return {
         'channel_id': channel_id,
@@ -67,6 +69,5 @@ def channels_user_details(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return user
     return {}
-
 
 
