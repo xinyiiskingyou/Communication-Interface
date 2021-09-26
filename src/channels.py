@@ -22,11 +22,8 @@ def channels_list_v2(auth_user_id):
         for member in channel['all_members']:
             for user in initial_object['users']:
                 if member['auth_user_id'] == user['auth_user_id']:
-                    print(member['auth_user_id'])
                     new_list.append({'channel_id' : channel['channel_id'],
-                    'name': channel['name']})
-            
-                    
+                    'name': channel['name']})       
     return {'channels': new_list}
 
 def channels_listall_v1(auth_user_id):
@@ -53,6 +50,7 @@ def channels_create_v1(auth_user_id, name, is_public):
     if is_public not in range(0,2):
         raise InputError('the channel has to be either public or private')
     if not isinstance(auth_user_id, int):
+<<<<<<< HEAD
         raise InputError('this is an invalid auth user id')
     if not channels_create_check_valid_user(auth_user_id):
         raise InputError('this is an invalid auth user id')
@@ -62,11 +60,26 @@ def channels_create_v1(auth_user_id, name, is_public):
     owner = (channels_user_details(auth_user_id))
     new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': [owner], 'all_members': [owner]}
     channels.append(new)
+=======
+        raise InputError('this is an invalid auth user id')
+    if not channels_create_check_valid_user(auth_user_id):
+        raise InputError('this is an invalid auth user id')
+    #channels_create_check_valid_user(auth_user_id)
+    channels = initial_object['channels']
+    channel_id = len(channels) + 1
+    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': auth_user_id, 'all_members': []}
+    new['all_members'].append({'u_id':auth_user_id})
+    channels.append(new)
+    #channels_create_check_valid_user(auth_user_id)
+>>>>>>> 168e168952d3ed7952765e4946bcb26c5d134bb3
     return {
         'channel_id': channel_id,
     }
 
+<<<<<<< HEAD
 # helper function to check if the auth_user_id given is registered
+=======
+>>>>>>> 168e168952d3ed7952765e4946bcb26c5d134bb3
 def channels_create_check_valid_user(auth_user_id):
     '''
     return type: bool
@@ -75,6 +88,7 @@ def channels_create_check_valid_user(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return True
     return False
+<<<<<<< HEAD
 
 # helper function to access to details of the given auth_user_id
 def channels_user_details(auth_user_id):
@@ -85,3 +99,5 @@ def channels_user_details(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return user
     return {}
+=======
+>>>>>>> 168e168952d3ed7952765e4946bcb26c5d134bb3
