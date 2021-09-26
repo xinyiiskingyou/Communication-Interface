@@ -26,7 +26,7 @@ def channels_list_v2(auth_user_id):
                     'name': channel['name']})       
     return {'channels': new_list}
 
-def channels_listall_v1(auth_user_id):
+def channels_list_v1(auth_user_id):
     return {
         'channels': [
         	{
@@ -36,7 +36,17 @@ def channels_listall_v1(auth_user_id):
         ],
     }
     
-# Creates a new channel with the given name that is either a public or private channel.
+def channels_listall_v1(auth_user_id):
+    return {
+        'channels': [
+        	{
+        		'channel_id': 1,
+        		'name': 'My Channel',
+        	}
+        ],
+    }
+
+# Creates a new channel with the given name that is either a public or private channel. 
 def channels_create_v1(auth_user_id, name, is_public):
     '''    
     return type: dict contains type 'channels_id' 
@@ -84,6 +94,4 @@ def channels_user_details(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return user
     return {}
-
-
 

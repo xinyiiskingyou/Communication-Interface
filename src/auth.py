@@ -80,4 +80,3 @@ def auth_register_v1(email, password, name_first, name_last):
         'auth_user_id': auth_user_id,
     }
 
-
