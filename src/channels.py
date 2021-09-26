@@ -11,7 +11,7 @@ def channels_list_v2(auth_user_id):
     Return Value:
         returns channel_id and name if an authorised user has channel
     '''
-    
+
     # for all channels
     # -> if the users are authorised
     # -> append to an empty list
@@ -29,14 +29,13 @@ def channels_list_v2(auth_user_id):
 
 
 def channels_listall_v1(auth_user_id):
-    return {
-        'channels': [
-        	{
-        		'channel_id': 1,
-        		'name': 'My Channel',
-        	}
-        ],
-    }
+
+    listchannel = []
+    for channel in initial_object['channels']:
+        # if channels['auth_user_id'] == auth_user_id:
+        listchannel.append({'channel_id' : channel['channel_id'], "name": channel['name']})
+    return {'channels': listchannel}
+
 
 def channels_create_v1(auth_user_id, name, is_public):
 
@@ -46,28 +45,20 @@ def channels_create_v1(auth_user_id, name, is_public):
         raise InputError('name cannot be blank')
     if is_public not in range(0,2):
         raise InputError('the channel has to be either public or private')
-    if not isinstance(auth_user_id,int):
+    if not isinstance(auth_user_id, int):
         raise InputError('this is an invalid auth user id')
-
-    store = data_store.get()
+    if not channels_create_check_valid_user(auth_user_id):
+        raise InputError('this is an invalid auth user id')
+    #channels_create_check_valid_user(auth_user_id)
     channels = initial_object['channels']
     channel_id = len(channels) + 1
-    new = {
-        'channel_id': channel_id, 
-        'name': name, 
-        'is_public': bool(is_public), 
-        'owner_members': [],
-        'all_members': []
-    }
-    
-    new['all_members'].append({'u_id': auth_user_id})
-    #print('number of channels', channel_id)
-    initial_object['channels'].append(new)
-    data_store.set(store)
+    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': auth_user_id, 'all_members': []}
+    new['all_members'].append({'u_id':auth_user_id})
+    channels.append(new)
+    #channels_create_check_valid_user(auth_user_id)
     return {
-        'channel_id': new['channel_id']
+        'channel_id': channel_id,
     }
-
 
 def channels_create_check_valid_user(auth_user_id):
     '''
@@ -77,4 +68,3 @@ def channels_create_check_valid_user(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return True
     return False
-
