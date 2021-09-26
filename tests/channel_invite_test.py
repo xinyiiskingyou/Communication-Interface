@@ -15,7 +15,7 @@ y_register = auth_register_v1('email2@gmail.com', 'password', 'y', 'lin')
 
 # input error
 def test_channel_invite_input_error():
-    clear_v1()
+
     with pytest.raises(InputError):
         # channel_id does not refer to a valid channel
         channel_invite_v1(x_register['auth_user_id'], 1234, y_register['auth_user_id'])
@@ -24,27 +24,28 @@ def test_channel_invite_input_error():
         # u_id does not refer to a valid user
         channel_invite_v1(x_register['auth_user_id'], x_channel['channel_id'], 'hello')
         channel_invite_v1(sally_register['auth_user_id'], sally_channel['channel_id'], 'baka')
-
+'''
 # Access error when the authorised user is not a member of the channel
 def test_channel_invite_access_error():
 
     clear_v1()
     with pytest.raises(AccessError):
-        channel_invite_v1(x_register['auth_user_id'], x_channel['channel_id'], y_register['auth_user_id'])
+        channel_invite_v1(y_register['auth_user_id'], y_channel['channel_id'], x_register['auth_user_id'])
+'''
 
-# test if public channel member can invite new user
 def test_valid_invite_public_member():
-    
-    channel_invite_v1(x_register['auth_user_id'], x_channel['channel_id'], y_register['auth_user_id'])
-    y_channel = channels_create_v1(y_register['auth_user_id'], 'y', False)
 
-    assert(channels_list_v2(x_register['auth_user_id']) == {
+	# test if public channel member can invite new user
+	channel_invite_v1(x_register['auth_user_id'], x_channel['channel_id'], y_register['auth_user_id'])
+	y_channel = channels_create_v1(y_register['auth_user_id'], 'y', False)
+
+	assert(channels_list_v2(x_register['auth_user_id']) == {
 		'channels': [
 			{
 				'channel_id': x_channel['channel_id'],
 				'name': 'x'
 			},
-            {
+			{
 				'channel_id': sally_channel['channel_id'],
 				'name': 'sally'
 			},
@@ -55,27 +56,29 @@ def test_valid_invite_public_member():
 		],
 	})
 
-# test if private channel member can invite new user
-def test_valid_invite_private_member():
-    
-    z_register = auth_register_v1('email3@gmail.com', 'password', 'z', 'lin')
-    channel_invite_v1(sally_register['auth_user_id'], sally_channel['channel_id'], z_register['auth_user_id']) 
-    z_channel = channels_create_v1(z_register['auth_user_id'], 'z', True)
+	# test if private channel member can invite new user
+	z_register = auth_register_v1('email3@gmail.com', 'password', 'z', 'lin')
+	channel_invite_v1(sally_register['auth_user_id'], sally_channel['channel_id'], z_register['auth_user_id']) 
+	z_channel = channels_create_v1(z_register['auth_user_id'], 'z', True)
 
-    assert(channels_list_v2(sally_register['auth_user_id']) == {
+	assert(channels_list_v2(sally_register['auth_user_id']) == {
 		'channels': [
+			{
+				'channel_id': x_channel['channel_id'],
+				'name': 'x'
+			},
 			{
 				'channel_id': sally_channel['channel_id'],
 				'name': 'sally'
 			},
-            {
-				'channel_id': sally_channel['channel_id'],
-				'name': 'sally'
+			{
+				'channel_id': y_channel['channel_id'],
+				'name': 'y'
 			},
 			{
 				'channel_id': z_channel['channel_id'],
 				'name': 'z'
 			}
-            
+			
 		],
 	})
