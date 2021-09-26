@@ -7,6 +7,7 @@ from src.other import clear_v1
 
 ######### auth_register tests ##########
 # Email does not have proper format
+
 def test_register_invalid_email():
     clear_v1()
     with pytest.raises(InputError):
@@ -44,7 +45,7 @@ def test_register_invalid_name():
 
 ######### auth_login tests ##########
 # Testing different auth_user_id
-def unique_auth_user_id():
+def test_unique_auth_user_id():
     user1_reg = auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
     user2_reg = auth_register_v1('abc@unsw.edu.au', 'password', 'name_first', 'name_last')
 
@@ -57,7 +58,7 @@ def unique_auth_user_id():
     assert user2_reg == user2_log
 
 # Email and password is valid and user is able to successfully login
-def valid_email_password():
+def test_valid_email_password():
     clear_v1()
     user_id_register = auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
     user_id_login = auth_login_v1('email@unsw.edu.au', 'password')
@@ -77,4 +78,5 @@ def test_incorrect_password():
     with pytest.raises(InputError):
         auth_register_v1('email@unsw.edu.au', 'password', 'name_first', 'name_last')
         auth_login_v1('email@unsw.edu.au', 'wrong password')
+
 
