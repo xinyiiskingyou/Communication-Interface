@@ -68,7 +68,7 @@ def auth_register_v1(email, password, name_first, name_last):
         permission_id = 1
     else:
         permission_id = 2
-                
+    
     # Then append dictionary of user email onto initial_objects
     initial_object['users'].append({
         'email' : email,
