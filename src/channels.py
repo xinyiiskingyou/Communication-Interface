@@ -18,23 +18,26 @@ def channels_list_v2(auth_user_id):
 
     new_list = []
 
-    for channel in initial_object['channels']:
-        for member in channel['all_members']:
+    for channels in initial_object['channels']:
+        for member in channels['all_members']:
             for user in initial_object['users']:
                 if member['auth_user_id'] == user['auth_user_id']:
-                    new_list.append({'channel_id' : channel['channel_id'],
-                    'name': channel['name']})       
+                    new_list.append({'channel_id' : channels['channel_id'],
+                    'name': channels['name']})       
     return {'channels': new_list}
     
 def channels_listall_v1(auth_user_id):
-    return {
-        'channels': [
-        	{
-        		'channel_id': 1,
-        		'name': 'My Channel',
-        	}
-        ],
-    }
+    '''
+    Provides a list of all channels, including private channels (and their associated 
+    details)
+
+    auth_user_id is the name of the user we connecting from 
+    '''
+
+    listchannel = []
+    for channels in initial_object['channels']:
+        listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
+    return {'channels': listchannel}
 
 # Creates a new channel with the given name that is either a public or private channel. 
 def channels_create_v1(auth_user_id, name, is_public):
