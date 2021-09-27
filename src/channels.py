@@ -36,7 +36,7 @@ def channels_listall_v1(auth_user_id):
 
     listchannel = []
     for channels in initial_object['channels']:
-        listchannel.append({'channel_id' : channel['channel_id'], "name": channel['name']})
+        listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
     return {'channels': listchannel}
 
 # Creates a new channel with the given name that is either a public or private channel. 
