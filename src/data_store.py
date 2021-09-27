@@ -23,11 +23,15 @@ Example usage:
     print(store) # Prints { 'names': ['Emily', 'Hayden', 'Jake', 'Nick'] }
     data_store.set(store)
 '''
+import string
 
 ## YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
     'users': [],
+    'channels': [] # create a dict in a list
 }
+
+
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
 class Datastore:
@@ -46,4 +50,6 @@ print('Loading Datastore...')
 
 global data_store
 data_store = Datastore()
+
+
 

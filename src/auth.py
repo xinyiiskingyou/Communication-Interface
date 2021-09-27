@@ -2,7 +2,6 @@ from src.data_store import data_store, initial_object
 from src.error import InputError
 import re
 
-
 def auth_login_v1(email, password):
     store = data_store.get()
     
