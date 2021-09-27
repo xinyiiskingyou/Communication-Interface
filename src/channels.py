@@ -21,13 +21,11 @@ def channels_list_v2(auth_user_id):
     for channel in initial_object['channels']:
         for member in channel['all_members']:
             for user in initial_object['users']:
-                if member['u_id'] == user['auth_user_id']:
+                if member['auth_user_id'] == user['auth_user_id']:
                     new_list.append({'channel_id' : channel['channel_id'],
-                    'name': channel['name']})
-                    
+                    'name': channel['name']})       
     return {'channels': new_list}
-
-
+    
 def channels_listall_v1(auth_user_id):
     '''
     Provides a list of all channels, including private channels (and their associated 
@@ -41,23 +39,12 @@ def channels_listall_v1(auth_user_id):
         listchannel.append({'channel_id' : channel['channel_id'], "name": channel['name']})
     return {'channels': listchannel}
 
+# Creates a new channel with the given name that is either a public or private channel. 
 def channels_create_v1(auth_user_id, name, is_public):
+    '''    
+    return type: dict contains type 'channels_id' 
     '''
-    Creates a new channel with the given name that is either a public or private channel. 
-    The user who created it automatically joins the channel. 
-    For this iteration, the only channel owner is the user who created the channel.
     
-    parameter {auth_user_id, name, is_public}
-    return type {channel_id}
-    suffix id = integer
-    name = strings
-    is_public = bool
-
-    channels = List of dictionaries, where each dictionary contains types { channel_id, name }
-    '''
-    ## to do:
-    # channel name cannot be duplicate
-
     # error handling
     if len(name) not in range(1, 21):
         raise InputError('length of name is less than 1 or more than 20 characters')
@@ -69,17 +56,19 @@ def channels_create_v1(auth_user_id, name, is_public):
         raise InputError('this is an invalid auth user id')
     if not channels_create_check_valid_user(auth_user_id):
         raise InputError('this is an invalid auth user id')
-    #channels_create_check_valid_user(auth_user_id)
+
     channels = initial_object['channels']
+    # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
-    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': auth_user_id, 'all_members': []}
-    new['all_members'].append({'u_id':auth_user_id})
+    owner = (channels_user_details(auth_user_id))
+    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': [owner], 'all_members': [owner]}
+
     channels.append(new)
-    #channels_create_check_valid_user(auth_user_id)
     return {
         'channel_id': channel_id,
     }
 
+# helper function to check if the auth_user_id given is registered
 def channels_create_check_valid_user(auth_user_id):
     '''
     return type: bool
@@ -88,3 +77,14 @@ def channels_create_check_valid_user(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return True
     return False
+
+# helper function to access to details of the given auth_user_id
+def channels_user_details(auth_user_id):
+    '''
+    return type: dict
+    '''
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            return user
+    return {}
+

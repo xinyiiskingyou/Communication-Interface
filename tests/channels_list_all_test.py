@@ -1,5 +1,5 @@
 import pytest
-from src.channels import channels_listall_v1, channels_create_v1
+from src.channels import channels_listall_v1, channels_create_v1, channels_list_v2
 from src.data_store import data_store, initial_object
 from src.auth import auth_register_v1
 from src.other import clear_v1
@@ -28,7 +28,11 @@ def test_listall_channels():
     ashv1_channel = channels_create_v1(ash_register['auth_user_id'], 'ash', True)
     assert (channels_listall_v1(ash_register['auth_user_id']) == 
         {
-            'channels' :[ 
+            'channels' :[
+                {
+                    'channel_id': a_channel['channel_id'],
+                    'name': 'anna' 
+                }, 
                 {
                     'channel_id' : ash_channel['channel_id'],
                     'name' : 'ashley'
@@ -36,11 +40,8 @@ def test_listall_channels():
                 {
                     'channel_id' : ashv1_channel['channel_id'],
                     'name' : 'ash' 
-                },
-                {
-                    'channel_id': a_channel['channel_id'],
-                    'name': 'anna' 
                 }
+
             ],
         })
     assert ((channels_listall_v1(ash_register['auth_user_id']))== (channels_list_v2(ash_register['auth_user_id'])))

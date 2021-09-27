@@ -28,7 +28,7 @@ import string
 ## YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
     'users': [],
-    'channels': []
+    'channels': [] # create a dict in a list
 }
 
 
