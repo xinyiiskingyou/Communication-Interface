@@ -43,4 +43,4 @@ def test_listall_channels():
                 }
             ],
         })
-    assert ((channels_listall_v1(ash_register['auth_user_id']))== (channels_list_v1(ash_register['auth_user_id'])))
+    assert ((channels_listall_v1(ash_register['auth_user_id']))== (channels_list_v2(ash_register['auth_user_id'])))
