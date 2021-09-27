@@ -62,7 +62,13 @@ def auth_register_v1(email, password, name_first, name_last):
                 handle = handle[:-2] + str(number)
 
         number += 1
-                
+    
+    # Permission id for streams users
+    if auth_user_id == 1:
+        permission_id = 1
+    else:
+        permission_id = 2
+    
     # Then append dictionary of user email onto initial_objects
     initial_object['users'].append({
         'email' : email,
@@ -70,7 +76,8 @@ def auth_register_v1(email, password, name_first, name_last):
         'name_first': name_first,
         'name_last' : name_last,
         'auth_user_id' : auth_user_id,
-        'handle_str' : handle 
+        'handle_str' : handle, 
+        'permission_id' : permission_id
     })
 
     data_store.set(store)
