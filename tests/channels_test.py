@@ -51,7 +51,16 @@ def test_create_invalid_public():
         auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
         channels_create_v1(1, '1531_CAMEL', 100)
 
-# test if a user is authorised but dosen't have channel
+def test_create_invalid_channel_id():
+    clear_v1()
+    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channel_id = channels_create_v1(auth_id, '1531_CAMEL', 0)
+    assert channel_id != -1
+
+'''
+The following functions test both channels_list and channel_list_all function
+'''
+# test if an authorised user that dosen't have channel
 # it should return empty
 def test_no_channels():
 
@@ -65,6 +74,7 @@ def test_no_channels():
 def test_channels_list():
 	
 	clear_v1()
+    # test if public channel can be appened in the list
 	x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
 	x_channel = channels_create_v1(x_register, 'x', True)
 	assert(channels_list_v2(x_register) ==
@@ -88,8 +98,7 @@ def test_channels_list():
 
 	assert(channels_list_v2(x_register)) == channels_listall_v1(x_register)
 
-	# test if there are 2 authorised users join the channels
-	# and including the private channels
+    # test if private channels can be appened in the list
 	sally_register = auth_register_v1('email2@gmail.com','comp1531', 'sally','zhou')
 	sally_channel = channels_create_v1(sally_register, 'sally', False)
 	assert(channels_list_v2(sally_register) == {
@@ -126,6 +135,7 @@ def test_channels_list():
 		],
 	})
 
+# Test channels_list_all function
 def test_listall_channels():
     clear_v1()
     ash_register = auth_register_v1('ashley@gmail.com', 'ashpass', 'ashley', 'wong')
@@ -152,9 +162,3 @@ def test_listall_channels():
             ],
         })
     assert ((channels_listall_v1(ash_register))== (channels_list_v2(ash_register)))
-
-def test_create_invalid_channel_id():
-    clear_v1()
-    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channel_id = channels_create_v1(auth_id, '1531_CAMEL', 0)
-    assert channel_id != -1
