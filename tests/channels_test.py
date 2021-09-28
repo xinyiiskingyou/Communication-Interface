@@ -3,26 +3,26 @@ from src.channels import channels_list_v2, channels_create_v1, channels_listall_
 from src.auth import auth_register_v1
 from src.other import clear_v1
 from src.data_store import data_store
-from src.error import InputError
+from src.error import InputError, AccessError
 
 # test if a user is authorised but dosen't have channel
 # it should return empty
 def test_no_channels():
 	clear_v1()
 	no_channel = auth_register_v1('email1@gmail.com', 'Password1', 'anna','duong')
-	assert(channels_list_v2(no_channel['auth_user_id']) == {'channels':[]})
+	assert(channels_list_v2(no_channel) == {'channels':[]})
 
 # test if more and more authorised users can be appended in the list 
 def test_channels_list():
 	
 	clear_v1()
 	x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
-	x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
-	assert(channels_list_v2(x_register['auth_user_id']) ==
+	x_channel = channels_create_v1(x_register, 'x', True)
+	assert(channels_list_v2(x_register) ==
 		{
 		'channels':[
 		{
-			'channel_id': x_channel['channel_id'],
+			'channel_id': x_channel,
 			'name': 'x'
         },
 		]
@@ -31,36 +31,36 @@ def test_channels_list():
 	# test if there are 2 authorised users join the channels
 	# and including the private channels
 	sally_register = auth_register_v1('email2@gmail.com','comp1531', 'sally','zhou')
-	sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
-	assert(channels_list_v2(sally_register['auth_user_id']) == {
+	sally_channel = channels_create_v1(sally_register, 'sally', False)
+	assert(channels_list_v2(sally_register) == {
 		'channels': [
 			{
-				'channel_id': x_channel['channel_id'],
+				'channel_id': x_channel,
 				'name': 'x'
 			},
 			{
-				'channel_id': sally_channel['channel_id'],
+				'channel_id': sally_channel,
 				'name': 'sally'
 			}
 		],
 	})
 
 	emma_register = auth_register_v1('email3@gmail.com', 'comp1521', 'emma','sun')
-	emma_channel = channels_create_v1(emma_register ['auth_user_id'],'emma', True)
-	assert(channels_list_v2(emma_register['auth_user_id']) == {
+	emma_channel = channels_create_v1(emma_register,'emma', True)
+	assert(channels_list_v2(emma_register) == {
 		'channels': [
 			{
-				'channel_id': x_channel['channel_id'],
+				'channel_id': x_channel,
 				'name': 'x'
 			},
 
 			{
-				'channel_id': sally_channel['channel_id'],
+				'channel_id': sally_channel,
 				'name': 'sally'
 			},
 
 			{
-				'channel_id': emma_channel['channel_id'],
+				'channel_id': emma_channel,
 				'name': 'emma'
 			}
 		],
@@ -96,10 +96,10 @@ def test_create_valid_private():
 
 def test_create_invalid_id():
     clear_v1()
-    with pytest.raises(InputError):
+    with pytest.raises(AccessError):
         channels_create_v1('', '1531_CAMEL', 1)
     clear_v1()
-    with pytest.raises(InputError):
+    with pytest.raises(AccessError):
         channels_create_v1('not_a_id', '1531_CAMEL', 1)
 
 def test_create_invalid_public():

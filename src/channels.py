@@ -1,5 +1,5 @@
 from src.data_store import data_store, initial_object
-from src.error import InputError
+from src.error import InputError, AccessError
 
 def channels_list_v2(auth_user_id):
     '''
@@ -53,9 +53,9 @@ def channels_create_v1(auth_user_id, name, is_public):
     if is_public not in range(0,2):
         raise InputError('the channel has to be either public or private')
     if not isinstance(auth_user_id, int):
-        raise InputError('this is an invalid auth user id')
+        raise AccessError('this is an invalid auth user id')
     if not channels_create_check_valid_user(auth_user_id):
-        raise InputError('this is an invalid auth user id')
+        raise AccessError('this is an invalid auth user id')
 
     channels = initial_object['channels']
     # generate channel_id according the number of existing channels
@@ -64,9 +64,7 @@ def channels_create_v1(auth_user_id, name, is_public):
     new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': [owner], 'all_members': [owner]}
 
     channels.append(new)
-    return {
-        'channel_id': channel_id,
-    }
+    return channel_id
 
 # helper function to check if the auth_user_id given is registered
 def channels_create_check_valid_user(auth_user_id):
