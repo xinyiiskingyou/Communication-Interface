@@ -1,7 +1,8 @@
 import pytest
-from src.channels import channels_list_v2, channels_create_v1
+from src.channels import channels_list_v2, channels_create_v1, channels_listall_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
+from src.error import InputError
 
 # test if a user is authorised but dosen't have channel
 # it should return empty

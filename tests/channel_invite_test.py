@@ -13,26 +13,28 @@ sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', Fals
 
 y_register = auth_register_v1('email2@gmail.com', 'password', 'y', 'lin')
 
+'''
 # input error
 def test_channel_invite_input_error():
 
     with pytest.raises(InputError):
         # channel_id does not refer to a valid channel
         channel_invite_v1(x_register['auth_user_id'], 1234, y_register['auth_user_id'])
-        channel_invite_v1(sally_register['auth_user_id'], 456, x_register['auth_user_id'])
+        channel_invite_v1(sally_register['auth_user_id'], 456, y_register['auth_user_id'])
         
         # u_id does not refer to a valid user
         channel_invite_v1(x_register['auth_user_id'], x_channel['channel_id'], 'hello')
         channel_invite_v1(sally_register['auth_user_id'], sally_channel['channel_id'], 'baka')
-'''
+
+
 # Access error when the authorised user is not a member of the channel
 def test_channel_invite_access_error():
 
     clear_v1()
     with pytest.raises(AccessError):
-        channel_invite_v1(y_register['auth_user_id'], y_channel['channel_id'], x_register['auth_user_id'])
-'''
+        channel_invite_v1(y_register['auth_user_id'], x_channel['channel_id'], y_register['auth_user_id'])
 
+'''
 def test_valid_invite_public_member():
 
 	# test if public channel member can invite new user
