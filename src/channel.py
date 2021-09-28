@@ -54,7 +54,7 @@ def channel_join_v1(auth_user_id, channel_id):
     ''' 
     if channels_create_check_valid_user(auth_user_id) == False:
         raise AccessError ('Auth_user_id is not a valid id')
-    if check_check_channel_id(channel_id) == False: 
+    if details_check_channel_id(channel_id) == False: 
         raise InputError('Channel id is not valid')
     if check_valid_member_in_channel(channel_id, auth_user_id) == True:
         raise InputError ('Already a member of this channel')
