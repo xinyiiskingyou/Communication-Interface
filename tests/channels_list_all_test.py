@@ -4,13 +4,14 @@ from src.data_store import data_store, initial_object
 from src.auth import auth_register_v1
 from src.other import clear_v1
 def test_empty_channel(): 
+    clear_v1()
     empty = auth_register_v1('email@gmail.com', 'password', 'hie', 'bye')
     assert(channels_listall_v1(empty) == {'channels':[]})
 
 def test_channel_maker(): 
+    clear_v1()
     a_register = auth_register_v1('ashemail@gmail.com', 'password', 'anna', 'wong')
     a_channel = channels_create_v1(a_register, 'anna', False)
-    print(a_channel)
     assert(channels_listall_v1(a_register) ==  
         {
             'channels' :[ 
