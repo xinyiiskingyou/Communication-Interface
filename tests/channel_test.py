@@ -14,14 +14,9 @@ sally_channel = channels_create_v1(sally_register, 'sally', False)
 y_register = auth_register_v1('email2@gmail.com', 'password', 'y', 'lin')
 
 # input error
-def test_channel_invite_input_error():
-
+# u_id does not refer to a valid user
+def test_channel_invite_u_id_input_error():
     with pytest.raises(InputError):
-        # channel_id does not refer to a valid channel
-        channel_invite_v1(x_register, 1234, y_register)
-        channel_invite_v1(sally_register, 456, y_register)
-        
-        # u_id does not refer to a valid user
         channel_invite_v1(x_register, x_channel, '0')
         channel_invite_v1(sally_register, sally_channel, '-1')
 
