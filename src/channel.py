@@ -1,6 +1,6 @@
 from src.channels import channels_user_details
 from src.error import InputError, AccessError
-from src.data_store import data_store, initial_object
+from src.data_store import initial_object
 from src.helper import check_valid_channel_id, check_valid_member_in_channel
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -31,6 +31,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         if channel['channel_id'] == channel_id:
             # append the new user details to all_member
             channel['all_members'].append(new_user)
+            
 
     return {}
 
