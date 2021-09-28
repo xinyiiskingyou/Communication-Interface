@@ -86,13 +86,15 @@ def test_create_invalid_name():
 
 def test_create_valid_public():
     clear_v1()
-    auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channels_create_v1(1, '1531_CAMEL', 1)
+    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channel_id = channels_create_v1(auth_id, '1531_CAMEL', 1)
+    assert channel_id == 1
 
 def test_create_valid_private():
     clear_v1()
-    auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channels_create_v1(1, 'channel', 0)
+    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channel_id = channels_create_v1(auth_id, '1531_CAMEL', 0)
+    assert channel_id == 1
 
 def test_create_invalid_id():
     clear_v1()
@@ -112,3 +114,8 @@ def test_create_invalid_public():
         auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
         channels_create_v1(1, '1531_CAMEL', 100)
 
+def test_create_invalid_channel_id():
+    clear_v1()
+    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channel_id = channels_create_v1(auth_id, '1531_CAMEL', 0)
+    assert channel_id != -1
