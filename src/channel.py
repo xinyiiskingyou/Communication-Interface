@@ -1,7 +1,6 @@
 from src.data_store import data_store, initial_object 
-from src.auth import auth_register_v1
 from src.error import InputError, AccessError
-from channels import channels_create_check_valid_user
+from src.channels import channels_create_check_valid_user
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -61,7 +60,7 @@ def channel_join_v1(auth_user_id, channel_id):
         raise AccessError ('Auth_user_id is not a valid id')
     if check_valid_channel_id(channel_id) == False: 
         raise InputError('Channel id is not valid')
-    if check_valid_member_in_channel(channel_id, auth_user_id) == True
+    if check_valid_member_in_channel(channel_id, auth_user_id) == True:
         raise InputError ('Already a member of this channel')
     elif check_valid_member_in_channel (channel_id, auth_user_id) == False: 
         if check_channel_private(channel_id) == True: 
@@ -97,9 +96,9 @@ def check_valid_member_in_channel(channel_id, auth_user_id):
 
 def check_channel_private(channel_id): 
     store = data_store.get()
-    for channel in initial_object['channels']:
-        if channel['channel_id'] = channel_id: 
-            if channel['is_public'] == False: 
+    for channels in initial_object['channels']:
+        if channels['channel_id'] == channel_id: 
+            if channels['is_public'] == False: 
                 return True
             else: 
                 return False
