@@ -1,5 +1,5 @@
-from data_store import data_store, initial_object
-from error import InputError
+from src.data_store import data_store, initial_object
+from src.error import InputError
 
 def channels_list_v2(auth_user_id):
     '''
@@ -11,19 +11,17 @@ def channels_list_v2(auth_user_id):
     Return Value:
         returns channel_id and name if an authorised user has channel
     '''
-    # for all channels
-    # -> if the users are authorised
-    # -> append to an empty list
-    # return to the new list
-
     new_list = []
 
     for channel in initial_object['channels']:
         for member in channel['all_members']:
             for user in initial_object['users']:
+                # if the users are authorised (the auth_user_id can be found in the user list)
                 if member['auth_user_id'] == user['auth_user_id']:
+                    # append to an empty list
                     new_list.append({'channel_id' : channel['channel_id'],
-                    'name': channel['name']})       
+                    'name': channel['name']})   
+    # return to the new list    
     return {'channels': new_list}
     
 def channels_listall_v1(auth_user_id):
@@ -66,6 +64,7 @@ def channels_create_v1(auth_user_id, name, is_public):
         'all_members': [owner]}
 
     channels.append(new)
+    
     return {
         'channel_id': channel_id,
     }
@@ -77,7 +76,7 @@ def channels_create_check_valid_user(auth_user_id):
     '''
     for user in initial_object['users']:
         if user['auth_user_id'] == auth_user_id:
-            return True
+            return user['auth_user_id']
     return False
 
 # helper function to access to details of the given auth_user_id
