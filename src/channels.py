@@ -11,22 +11,21 @@ def channels_list_v2(auth_user_id):
     Return Value:
         returns channel_id and name if an authorised user has channel
     '''
-    # for all channels
-    # -> if the users are authorised
-    # -> append to an empty list
-    # return to the new list
-
     new_list = []
 
-    for channels in initial_object['channels']:
-        for member in channels['all_members']:
+    for channel in initial_object['channels']:
+        for member in channel['all_members']:
             for user in initial_object['users']:
+                # if the users are authorised (the auth_user_id can be found in the user list)
                 if member['auth_user_id'] == user['auth_user_id']:
-                    new_list.append({'channel_id' : channels['channel_id'],
-                    'name': channels['name']})       
+                    # append to an empty list
+                    new_list.append({'channel_id' : channel['channel_id'],
+                    'name': channel['name']})   
+    # return to the new list    
     return {'channels': new_list}
     
 def channels_listall_v1(auth_user_id):
+
     '''
     Provides a list of all channels, including private channels (and their associated 
     details)
