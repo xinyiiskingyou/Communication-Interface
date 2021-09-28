@@ -1,4 +1,4 @@
-from src.channels import channels_create_check_valid_user
+from src.channels import channels_user_details
 from src.error import InputError, AccessError
 from src.data_store import data_store, initial_object
 from src.helper import check_valid_channel_id, check_valid_member_in_channel
@@ -16,7 +16,8 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     # Input error
     if not check_valid_channel_id(channel_id):
         raise InputError("Channel_id does not refer to a valid channel")
-   
+    
+    # how do you check valid u_id
     if not check_valid_u_id(u_id):
         raise InputError("u_id does not refer to a valid user")
     
@@ -24,9 +25,11 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError("The authorised user is not a member of the channel")
     
-    new_user = channels_create_check_valid_user(auth_user_id)
-    for channel in initial_object['channels']:
+    channels = initial_object['channels']
+    new_user = channels_user_details(u_id)
+    for channel in channels:
         if channel['channel_id'] == channel_id:
+            # append the new user details to all_member
             channel['all_members'].append(new_user)
 
     return {}
@@ -80,23 +83,4 @@ def check_valid_u_id(u_id):
         return False
     return True
 
-def check_valid_channel_id(channel_id):
-    for channel in initial_object['channels']:
-        if int(channel_id) == int(channel['channel_id']):
-            return True
-    
-    return False
 
-def check_valid_member_in_channel(channel_id, auth_user_id):
-
-    # for all channels
-    # if the user has channel_id
-    # if the users are authorised
-    # return True
-    for channel in initial_object['channels']:
-        if channel['channel_id'] == channel_id:
-            for member in channel['all_members']:
-                if member['auth_user_id'] == auth_user_id:
-                    return True
-    
-    return False
