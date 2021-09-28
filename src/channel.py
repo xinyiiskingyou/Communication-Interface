@@ -10,14 +10,14 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
 def channel_details_v1(auth_user_id, channel_id):
     # Inavlid channel_id
-    if check_valid_channel_id(channel_id) == False:
+    if details_check_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
 
     # Authorised user not a member of channel
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("Authorised user is not a member of channel with channel_id")
 
-    channel_info = check_valid_channel_id(channel_id)
+    channel_info = details_check_channel_id(channel_id)
     return {
         'name': channel_info['name'],
         'is_public': channel_info['is_public'],
@@ -54,7 +54,7 @@ def channel_join_v1(auth_user_id, channel_id):
     ''' 
     if channels_create_check_valid_user(auth_user_id) == False:
         raise AccessError ('Auth_user_id is not a valid id')
-    if check_valid_channel_id(channel_id) == False: 
+    if check_check_channel_id(channel_id) == False: 
         raise InputError('Channel id is not valid')
     if check_valid_member_in_channel(channel_id, auth_user_id) == True:
         raise InputError ('Already a member of this channel')
@@ -68,7 +68,9 @@ def channel_join_v1(auth_user_id, channel_id):
     return {
     }
 
-def check_valid_channel_id(channel_id):
+# Helper function for channel_details
+# Checks if a valid channel_id is being passed in or not
+def details_check_channel_id(channel_id):
     store = data_store.get()
     for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
