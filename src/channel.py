@@ -1,3 +1,9 @@
+from src.data_store import data_store, initial_object 
+from src.auth import auth_register_v1
+from src.error import InputError, AccessError
+from channels import channels_create_check_valid_user
+
+
 def channel_invite_v1(auth_user_id, channel_id, u_id):
     return {
     }
@@ -40,5 +46,22 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     }
 
 def channel_join_v1(auth_user_id, channel_id):
+    '''
+    raise error :
+    input  
+    - channel id not valid/doesn't have a valid channel 
+    - authoried user is alreadt a member of the channel 
+    access
+    - when a channel is private and authorised user is not a member - also not global owner 
+
+    to do: 
+    take in an authuserid and channel id and append them to the member list in channels dictionary 
+    ''' 
+    if channels_create_check_valid_user(auth_user_id) == False:
+        raise AccessError ('Auth_user_id is not a valid id')
+    if 
+
+
+
     return {
     }
