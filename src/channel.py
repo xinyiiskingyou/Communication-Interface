@@ -13,22 +13,6 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     u_id refers to a user who is already a member of the channel
     '''
 
-    # Input error
-    if not check_valid_channel_id(channel_id):
-        raise InputError("Channel_id does not refer to a valid channel")
-   
-    if not check_valid_u_id(u_id):
-        raise InputError("u_id does not refer to a valid user")
-    
-    # Access error channel_id is valid and the authorised user is not a member of the channel
-    if not check_valid_member_in_channel(channel_id, auth_user_id):
-        raise AccessError("The authorised user is not a member of the channel")
-    
-    new_user = channels_create_check_valid_user(auth_user_id)
-    for channel in initial_object['channels']:
-        if channel['channel_id'] == channel_id:
-            channel['all_members'].append(new_user)
-
     return {}
 
 def channel_details_v1(auth_user_id, channel_id):
@@ -72,31 +56,3 @@ def channel_join_v1(auth_user_id, channel_id):
     return {
     }
 
-# A helper function to check for valid u_id
-def check_valid_u_id(u_id):
-    
-    # negative u_id
-    if u_id <= 0:
-        return False
-    return True
-
-def check_valid_channel_id(channel_id):
-    for channel in initial_object['channels']:
-        if int(channel_id) == int(channel['channel_id']):
-            return True
-    
-    return False
-
-def check_valid_member_in_channel(channel_id, auth_user_id):
-
-    # for all channels
-    # if the user has channel_id
-    # if the users are authorised
-    # return True
-    for channel in initial_object['channels']:
-        if channel['channel_id'] == channel_id:
-            for member in channel['all_members']:
-                if member['auth_user_id'] == auth_user_id:
-                    return True
-    
-    return False
