@@ -1,7 +1,6 @@
 import pytest
 from src.channel import channel_invite_v1
 from src.error import InputError, AccessError
-from src.other import clear_v1
 from src.channels import channels_create_v1, channels_list_v2, channels_listall_v1
 from src.auth import auth_register_v1
 
