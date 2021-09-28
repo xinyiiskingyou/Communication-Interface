@@ -2,15 +2,64 @@ import pytest
 from src.channels import channels_list_v2, channels_create_v1, channels_listall_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
-from src.data_store import data_store
 from src.error import InputError, AccessError
+
+# InputError when length of name is less than 1 or more than 20 characters
+def test_create_invalid_name():
+    clear_v1()
+    with pytest.raises(InputError):
+        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+        channels_create_v1(1, '', 1)
+    clear_v1()
+    with pytest.raises(InputError):
+        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+        channels_create_v1(1, ' ', 1)
+    clear_v1()
+    with pytest.raises(InputError):
+        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+        channels_create_v1(1, '                      ', 1)
+    clear_v1()
+    with pytest.raises(InputError):
+        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+        channels_create_v1(1, 'abcdefghijklmlaqwertq', 1)
+
+def test_create_valid_public():
+    clear_v1()
+    auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channels_create_v1(1, '1531_CAMEL', 1)
+
+def test_create_valid_private():
+    clear_v1()
+    auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channels_create_v1(1, 'channel', 0)
+
+def test_create_invalid_id():
+    clear_v1()
+    with pytest.raises(AccessError):
+        channels_create_v1('', '1531_CAMEL', 1)
+    clear_v1()
+    with pytest.raises(AccessError):
+        channels_create_v1('not_a_id', '1531_CAMEL', 1)
+
+def test_create_invalid_public():
+    clear_v1()
+    with pytest.raises(InputError):
+        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+        channels_create_v1(1, '1531_CAMEL', -1)
+    clear_v1()
+    with pytest.raises(InputError):
+        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+        channels_create_v1(1, '1531_CAMEL', 100)
 
 # test if a user is authorised but dosen't have channel
 # it should return empty
 def test_no_channels():
+
 	clear_v1()
 	no_channel = auth_register_v1('email1@gmail.com', 'Password1', 'anna','duong')
 	assert(channels_list_v2(no_channel) == {'channels':[]})
+	assert(channels_listall_v1(no_channel) == {'channels':[]})
+	assert(channels_list_v2(no_channel)) == channels_listall_v1(no_channel)
 
 # test if more and more authorised users can be appended in the list 
 def test_channels_list():
@@ -26,7 +75,18 @@ def test_channels_list():
 			'name': 'x'
         },
 		]
-		})
+	})
+
+	assert(channels_listall_v1(x_register) ==  
+        {
+            'channels' :[ 
+                {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+                    'channel_id': x_channel,
+                    'name': 'x'
+                },]
+    })
+
+	assert(channels_list_v2(x_register)) == channels_listall_v1(x_register)
 
 	# test if there are 2 authorised users join the channels
 	# and including the private channels
@@ -66,53 +126,32 @@ def test_channels_list():
 		],
 	})
 
-def test_create_invalid_name():
+def test_listall_channels():
     clear_v1()
-    with pytest.raises(InputError):
-        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-        channels_create_v1(1, '', 1)
-    clear_v1()
-    with pytest.raises(InputError):
-        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-        channels_create_v1(1, ' ', 1)
-    clear_v1()
-    with pytest.raises(InputError):
-        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-        channels_create_v1(1, '                      ', 1)
-    clear_v1()
-    with pytest.raises(InputError):
-        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-        channels_create_v1(1, 'abcdefghijklmlaqwertq', 1)
+    ash_register = auth_register_v1('ashley@gmail.com', 'ashpass', 'ashley', 'wong')
+    a_register = auth_register_v1('ashemail@gmail.com', 'password', 'anna', 'wong')
+    a_channel = channels_create_v1(a_register, 'anna', False)
+    ash_channel = channels_create_v1(ash_register, 'ashley', False)
+    ashv1_channel = channels_create_v1(ash_register, 'ash', True)
+    assert (channels_listall_v1(ash_register) == 
+        {
+            'channels' :[
+                {
+                    'channel_id': a_channel,
+                    'name': 'anna' 
+                }, 
+                {
+                    'channel_id' : ash_channel,
+                    'name' : 'ashley'
+                },
+                {
+                    'channel_id' : ashv1_channel,
+                    'name' : 'ash' 
+                }
 
-def test_create_valid_public():
-    clear_v1()
-    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channel_id = channels_create_v1(auth_id, '1531_CAMEL', 1)
-    assert channel_id == 1
-
-def test_create_valid_private():
-    clear_v1()
-    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channel_id = channels_create_v1(auth_id, '1531_CAMEL', 0)
-    assert channel_id == 1
-
-def test_create_invalid_id():
-    clear_v1()
-    with pytest.raises(AccessError):
-        channels_create_v1('', '1531_CAMEL', 1)
-    clear_v1()
-    with pytest.raises(AccessError):
-        channels_create_v1('not_a_id', '1531_CAMEL', 1)
-
-def test_create_invalid_public():
-    clear_v1()
-    with pytest.raises(InputError):
-        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-        channels_create_v1(1, '1531_CAMEL', -1)
-    clear_v1()
-    with pytest.raises(InputError):
-        auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-        channels_create_v1(1, '1531_CAMEL', 100)
+            ],
+        })
+    assert ((channels_listall_v1(ash_register))== (channels_list_v2(ash_register)))
 
 def test_create_invalid_channel_id():
     clear_v1()
