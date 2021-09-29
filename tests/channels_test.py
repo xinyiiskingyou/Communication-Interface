@@ -52,12 +52,17 @@ def test_create_invalid_channel_id():
     channel_id = channels_create_v1(auth_id['auth_user_id'], '1531_CAMEL', 0)
     assert channel_id != -1
 
+def test_create_invalid_channel_id():
+    clear_v1()
+    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channel_id = channels_create_v1(auth_id['auth_user_id'], '1531_CAMEL', 0)
+    assert channel_id != -1
 
 #################################################
 ### channels_list and channels_list_all tests ###
 #################################################
 
-# test if a user is authorised but dosen't have channel
+# test if an authorised user that dosen't have channel
 # it should return empty
 def test_no_channels():
 	clear_v1()
