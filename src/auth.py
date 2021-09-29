@@ -13,7 +13,6 @@ def auth_login_v1(email, password):
             return {
                 'auth_user_id': auth_user_id
             }
-
         else:
             raise InputError("Email and/or password is not valid!")
 
@@ -86,4 +85,3 @@ def auth_register_v1(email, password, name_first, name_last):
     return {
         'auth_user_id': auth_user_id
     }
-
