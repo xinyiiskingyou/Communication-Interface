@@ -1,9 +1,10 @@
 import pytest
-from src.channel import channel_invite_v1, channel_details_v1, channel_join_v1
+from src.channel import channel_invite_v1, channel_details_v1, channel_join_v1, channel_messages_v1
 from src.error import InputError, AccessError
 from src.channels import channels_create_v1, channels_listall_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
+
 
 # Public: channel_id does not refer to a valid channel
 def test_channel_invalid_id():
@@ -148,3 +149,68 @@ def test_valid_channel_join ():
 	channel_join_v1(j_register['auth_user_id'], a_channel['channel_id'])
 	assert channel_details_v1(j_register['auth_user_id'], a_channel['channel_id']) == (
 	channel_details_v1(a_register['auth_user_id'], a_channel['channel_id']))
+
+
+
+##########################################
+######### channel_messages tests #########
+##########################################
+
+########## Implementation Tests (To be completed when adding messages is added) ##########
+
+# Start at most recent message (index = 0) and number of messages > 50
+
+
+# Start at most recent message (index = 0) and number of messages < 50
+
+
+# Start at most recent message (index = 0) and number of messages = 50
+
+
+# Start at neither most or least recent and number of messages > 50
+
+
+# Start at neither most or least recent and number of messages < 50
+
+
+# No messages currently in channel
+def test_no_messages():
+    clear_v1()
+    r_user_id = auth_register_v1('rebecca@gmail.com', 'rebeccapass', 'rebecca', 'hsu')
+    r_channel_id = channels_create_v1(r_user_id['auth_user_id'], 'rebecca_channel', False)
+    assert (channel_messages_v1(r_user_id['auth_user_id'], r_channel_id['channel_id'], 0) == 
+        {
+            'messages' :[],
+            'start': 0, 
+            'end': -1
+        }
+    )
+
+########## Input Error Tests ##########
+# channel_id does not refer to a valid channel
+def test_invalid_channel_id():
+    clear_v1()
+    r_user_id = auth_register_v1('rebecca@gmail.com', 'rebeccapass', 'rebecca', 'hsu')
+    channels_create_v1(r_user_id['auth_user_id'], 'rebecca_channel', False)
+    with pytest.raises(InputError):
+        channel_messages_v1(r_user_id['auth_user_id'], -1, 0)
+
+
+# Start is greater than the total number of messages in the channel
+def test_start_gt_total_messages():
+    clear_v1()
+    r_user_id = auth_register_v1('rebecca@gmail.com', 'rebeccapass', 'rebecca', 'hsu')
+    r_channel_id = channels_create_v1(r_user_id['auth_user_id'], 'rebecca_channel', False)
+    with pytest.raises(InputError):
+        channel_messages_v1(r_user_id['auth_user_id'], r_channel_id['channel_id'], 10)
+
+
+########## Access Error Tests ##########
+# channel_id is valid and the authorised user is not a member of the channel 
+def test_user_not_authorised_to_channel():
+    clear_v1()
+    r_user_id = auth_register_v1('rebecca@gmail.com', 'rebeccapass', 'rebecca', 'hsu')
+    r_channel_id = channels_create_v1(r_user_id['auth_user_id'], 'rebecca_channel', False)
+    a_user_id = auth_register_v1('ashley@gmail.com', 'ashleypass', 'ashley', 'wong')
+    with pytest.raises(AccessError):
+        channel_messages_v1(a_user_id['auth_user_id'], r_channel_id['channel_id'], 0)

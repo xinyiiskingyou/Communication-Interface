@@ -54,18 +54,39 @@ def channel_details_v1(auth_user_id, channel_id):
 
 
 def channel_messages_v1(auth_user_id, channel_id, start):
+    # Invalid channel_id
+    if check_channel_id(channel_id) == False:
+        raise InputError("The channel_id does not refer to a valid channel")
+
+    # Channel_id is valid and the authorised user is not a member of the channel
+    if check_valid_member_in_channel(channel_id, auth_user_id) == False:
+        raise AccessError("Authorised user is not a member of channel with channel_id")
+
+    messages = []
+    num_messages = len(messages)
+
+    # Start is greater than the total number of messages in the channel
+    if check_start_lt_total_messages(num_messages, start) == False:
+        raise InputError("Index 'start' is greater than the total number of messages in channel")
+
+    end = start + 50
+    if end >= num_messages:
+        end = -1
+    
+
     return {
-        'messages': [
-            {
-                'message_id': 1,
-                'u_id': 1,
-                'message': 'Hello world',
-                'time_created': 1582426789,
-            }
-        ],
-        'start': 0,
-        'end': 50,
+        'messages': messages,
+        'start': start,
+        'end': end,
     }
+
+# Checks if the start is greater than total number of messages
+def check_start_lt_total_messages(num_messages, start):
+    if start > num_messages:
+        return False
+    else:
+        return True
+
 
 def channel_join_v1(auth_user_id, channel_id):
     '''
