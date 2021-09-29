@@ -1,5 +1,5 @@
 import pytest
-from src.channels import channels_list_v2, channels_create_v1, channels_listall_v1
+from src.channels import channels_list_v1, channels_create_v1, channels_listall_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
 from src.error import InputError, AccessError
@@ -61,9 +61,9 @@ def test_create_invalid_channel_id():
 def test_no_channels():
 	clear_v1()
 	no_channel = auth_register_v1('email1@gmail.com', 'Password1', 'anna','duong')
-	assert(channels_list_v2(no_channel['auth_user_id']) == {'channels':[]})
+	assert(channels_list_v1(no_channel['auth_user_id']) == {'channels':[]})
 	assert(channels_listall_v1(no_channel['auth_user_id']) == {'channels':[]})
-	assert(channels_list_v2(no_channel['auth_user_id'])) == channels_listall_v1(no_channel['auth_user_id'])
+	assert(channels_list_v1(no_channel['auth_user_id'])) == channels_listall_v1(no_channel['auth_user_id'])
 
 # Test channels_list_function
 def test_channels_list():
@@ -72,7 +72,7 @@ def test_channels_list():
     # test if a public channel can be appened in the list
     x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
     x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
-    assert(channels_list_v2(x_register['auth_user_id']) ==
+    assert(channels_list_v1(x_register['auth_user_id']) ==
         {
         'channels':[
         {
@@ -82,12 +82,12 @@ def test_channels_list():
         ]
     })
 
-    assert(channels_list_v2(x_register['auth_user_id'])) == channels_listall_v1(x_register['auth_user_id'])
+    assert(channels_list_v1(x_register['auth_user_id'])) == channels_listall_v1(x_register['auth_user_id'])
 
     # test if a private channel can be appened in the list
     sally_register = auth_register_v1('email2@gmail.com','comp1531', 'sally','zhou')
     sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
-    assert(channels_list_v2(sally_register['auth_user_id']) == {
+    assert(channels_list_v1(sally_register['auth_user_id']) == {
         'channels': [
             {
                 'channel_id': x_channel['channel_id'],
@@ -100,7 +100,7 @@ def test_channels_list():
         ],
     })
 
-    assert(channels_list_v2(sally_register['auth_user_id']) == (channels_listall_v1(sally_register['auth_user_id'])))
+    assert(channels_list_v1(sally_register['auth_user_id']) == (channels_listall_v1(sally_register['auth_user_id'])))
 
 
 # Test channels_list_all function
@@ -130,5 +130,5 @@ def test_listall_channels():
             ],
         })
 
-    assert ((channels_listall_v1(ash_register['auth_user_id']))== (channels_list_v2(ash_register['auth_user_id'])))
+    assert ((channels_listall_v1(ash_register['auth_user_id']))== (channels_list_v1(ash_register['auth_user_id'])))
 
