@@ -97,6 +97,7 @@ def channels_user_details(auth_user_id):
             return user
     return {}
 
+# helper function to return the specific details of user
 def user_info(auth_user_id):
     user = channels_user_details(auth_user_id)
     return {
