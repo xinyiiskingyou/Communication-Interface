@@ -10,7 +10,9 @@ def auth_login_v1(email, password):
         # If the email and password the user inputs to login match and exist in data_store
         if (user['email'] == email) and (user['password'] == password):
             auth_user_id = user['auth_user_id']
-            return auth_user_id
+            return {
+                'auth_user_id': auth_user_id
+            }
         else:
             raise InputError("Email and/or password is not valid!")
 
@@ -80,4 +82,7 @@ def auth_register_v1(email, password, name_first, name_last):
 
     data_store.set(store)
 
-    return auth_user_id
+    return {
+        'auth_user_id': auth_user_id
+    }
+
