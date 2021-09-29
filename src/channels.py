@@ -1,5 +1,5 @@
-from src.data_store import data_store, initial_object
-from src.error import InputError, AccessError
+from data_store import data_store, initial_object
+from error import InputError, AccessError
 
 def channels_list_v2(auth_user_id):
     '''
@@ -60,7 +60,13 @@ def channels_create_v1(auth_user_id, name, is_public):
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
     owner = (channels_user_details(auth_user_id))
-    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': [owner], 'all_members': [owner]}
+    new = {
+        'channel_id': channel_id, 
+        'name': name, 
+        'is_public': bool(is_public), 
+        'owner_members': [owner], 
+        'all_members': [owner]
+    }
     channels.append(new)
     data_store.set(store)
 
