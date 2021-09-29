@@ -10,81 +10,79 @@ def test_c_details_invalid_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-	channel_id = channels_create_v1(auth_user_id2, 'anna', True)
+	channel_id = channels_create_v1(auth_user_id2['auth_user_id'], 'anna', True)
 	with pytest.raises(InputError):
-		channel_details_v1(auth_user_id1, 0)
-		channel_details_v1(auth_user_id1, -1)
-		channel_details_v1(auth_user_id1, -116)
+		channel_details_v1(auth_user_id1['auth_user_id'], 0)
+		channel_details_v1(auth_user_id1['auth_user_id'], -1)
+		channel_details_v1(auth_user_id1['auth_user_id'], -116)
 		
-		channel_invite_v1(auth_user_id1, -1, auth_user_id2)
-		channel_invite_v1(auth_user_id1, -116, auth_user_id2)
+		channel_invite_v1(auth_user_id1['auth_user_id'], -1, auth_user_id2)
+		channel_invite_v1(auth_user_id1['auth_user_id'], -116, auth_user_id2)
 
 # Private: Invalid channel_id 
 def test_c_details_invalid_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-	channel_id = channels_create_v1(auth_user_id2, 'anna', True)
+	channel_id = channels_create_v1(auth_user_id2['auth_user_id'], 'anna', False)
 	with pytest.raises(InputError):
-		channel_details_v1(auth_user_id2, 0)
-		channel_details_v1(auth_user_id2, -1)
-		channel_details_v1(auth_user_id2, -116)
+		channel_details_v1(auth_user_id2['auth_user_id'], 0)
+		channel_details_v1(auth_user_id2['auth_user_id'], -1)
+		channel_details_v1(auth_user_id2['auth_user_id'], -116)
 
-		channel_invite_v1(auth_user_id2, -1, auth_user_id1)
-		channel_invite_v1(auth_user_id2, -116, auth_user_id1)
+		channel_invite_v1(auth_user_id2['auth_user_id'], -1, auth_user_id1)
+		channel_invite_v1(auth_user_id2['auth_user_id'], -116, auth_user_id1)
 
 # Public: Authorised user is not a memner of the channel
 def test_c_details_not_member():
 	clear_v1()
-	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id3 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-	channel_id = channels_create_v1(auth_user_id2, 'anna', True)
+	channel_id = channels_create_v1(auth_user_id2['auth_user_id'], 'anna', True)
 
 	with pytest.raises(AccessError):
-		channel_details_v1(auth_user_id1, 1)
-		channel_invite_v1(auth_user_id2, channel_id, auth_user_id3)
-
+		channel_details_v1(auth_user_id2, auth_user_id3['auth_user_id'])
+		channel_invite_v1(auth_user_id2['auth_user_id'], channel_id['channel_id'], auth_user_id3['auth_user_id'])
 
 # Private: Authorised user is not a memner of the channel
 def test_c_details_not_member():
 	clear_v1()
 	auth_user_id2 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id3 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-	channel_id = channels_create_v1(auth_user_id2, 'anna', False)
+	channel_id = channels_create_v1(auth_user_id2['auth_user_id'], 'anna', False)
 	with pytest.raises(AccessError):
-		channel_details_v1(auth_user_id3, 1)
-		channel_invite_v1(auth_user_id2, channel_id, auth_user_id3)
+		channel_details_v1(auth_user_id3['auth_user_id'], 1)
+		channel_invite_v1(auth_user_id2['auth_user_id'], channel_id['channel_id'], auth_user_id3['auth_user_id'])
 
 # Test Invalid u_id
 def test_invalid_u_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-	channel_id = channels_create_v1(auth_user_id1, 'anna', True)
+	channel_id = channels_create_v1(auth_user_id1['auth_user_id'], 'anna', True)
 	with pytest.raises(InputError):
-		channel_invite_v1(auth_user_id1, channel_id, -1)
-		channel_invite_v1(auth_user_id1, channel_id, -116)
+		channel_invite_v1(auth_user_id1['auth_user_id'], channel_id['channel_id'], -1)
+		channel_invite_v1(auth_user_id1['auth_user_id'], channel_id['channel_id'], -116)
 
+# Test if public channel member can invite new user
 def test_valid_invite_member():
 	
 	clear_v1()
 	# create a public channel
 	x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
-	x_channel = channels_create_v1(x_register, 'x', True)
+	x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
 	# create an auth_user but currently did not join the channel
 	y_register = auth_register_v1('email2@gmail.com', 'password', 'y', 'lin')
-	y_channel = channels_create_v1(y_register, 'y', False)
+	y_channel = channels_create_v1(y_register['auth_user_id'], 'y', False)
 
-	# test if public channel member can invite new user
-	channel_invite_v1(x_register, x_channel, y_register)
-	assert(channels_listall_v1(x_register) == {
+	channel_invite_v1(x_register['auth_user_id'], x_channel['channel_id'], y_register['auth_user_id'])
+	assert(channels_listall_v1(x_register['auth_user_id']) == {
 		'channels': [
 			{
-				'channel_id': x_channel,
+				'channel_id': x_channel['channel_id'],
 				'name': 'x'
 			},
 			{
-				'channel_id': y_channel,
+				'channel_id': y_channel['channel_id'],
 				'name': 'y'
 			}
 		],
@@ -95,20 +93,20 @@ def test_valid_invite_member_private():
 	clear_v1()
 	# create a private channel
 	sally_register = auth_register_v1('email1@gmail.com', 'comp1531', 'sally', 'zhou')
-	sally_channel = channels_create_v1(sally_register, 'sally', False)
+	sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
 
 	z_register = auth_register_v1('email3@gmail.com', 'password', 'z', 'lin')
-	channel_invite_v1(sally_register, sally_channel, z_register) 
-	z_channel = channels_create_v1(z_register, 'z', True)
+	channel_invite_v1(sally_register['auth_user_id'], sally_channel['channel_id'], z_register['auth_user_id']) 
+	z_channel = channels_create_v1(z_register['auth_user_id'], 'z', True)
 
-	assert(channels_listall_v1(sally_register) == {
+	assert(channels_listall_v1(sally_register['auth_user_id']) == {
 		'channels': [
 			{
-				'channel_id': sally_channel,
+				'channel_id': sally_channel['channel_id'],
 				'name': 'sally'
 			},
 			{
-				'channel_id': z_channel,
+				'channel_id': z_channel['channel_id'],
 				'name': 'z'
 			}
 		],
