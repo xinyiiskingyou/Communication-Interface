@@ -60,11 +60,19 @@ def channels_create_v1(auth_user_id, name, is_public):
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
     owner = (channels_user_details(auth_user_id))
-    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': [owner], 'all_members': [owner]}
+    new = {
+        'channel_id': channel_id, 
+        'name': name, 
+        'is_public': bool(is_public), 
+        'owner_members': [owner], 
+        'all_members': [owner]
+    }
     channels.append(new)
     data_store.set(store)
 
-    return channel_id
+    return {
+        'channel_id': channel_id,
+    }
 
 # helper function to check if the auth_user_id given is registered
 def channels_create_check_valid_user(auth_user_id):
