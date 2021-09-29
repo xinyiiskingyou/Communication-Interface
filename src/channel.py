@@ -32,7 +32,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
 def channel_details_v1(auth_user_id, channel_id):
 
-   # Inavlid channel_id
+    # Inavlid channel_id
     if check_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
 
@@ -50,6 +50,7 @@ def channel_details_v1(auth_user_id, channel_id):
 
 
 def channel_messages_v1(auth_user_id, channel_id, start):
+    
     # Invalid channel_id
     if check_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
