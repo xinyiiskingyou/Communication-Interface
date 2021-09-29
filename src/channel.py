@@ -2,15 +2,12 @@ from src.data_store import data_store, initial_object
 from src.error import InputError, AccessError
 from src.channels import channels_create_check_valid_user, channels_user_details
 
-
-
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     '''
     Invites a user with ID u_id to join a channel with ID channel_id. 
     Once invited, the user is added to the channel immediately. 
     In both public and private channels, all members are able to invite users.
-
     '''
 
     # Input error
@@ -109,6 +106,7 @@ def channel_join_v1(auth_user_id, channel_id):
     elif check_valid_member_in_channel (channel_id, auth_user_id) == False: 
         if check_channel_private(channel_id) == True: 
             raise AccessError ('Not authorised to join channel')
+            
     new_user = channels_user_details(auth_user_id)
     for channels in initial_object['channels']: 
         if channels['channel_id'] == channel_id:
