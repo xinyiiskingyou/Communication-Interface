@@ -1,6 +1,6 @@
-from data_store import data_store, initial_object 
-from error import InputError, AccessError
-from channels import channels_create_check_valid_user, user_info
+from src.data_store import data_store, initial_object 
+from src.error import InputError, AccessError
+from src.channels import channels_create_check_valid_user, user_info
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
