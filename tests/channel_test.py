@@ -6,7 +6,7 @@ from src.auth import auth_register_v1
 from src.other import clear_v1
 
 # Public: channel_id does not refer to a valid channel
-def test_c_details_invalid_id():
+def test_channel_invalid_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
@@ -22,7 +22,7 @@ def test_c_details_invalid_id():
 		channel_join_v1(auth_user_id1['auth_user_id'], 3456)
 
 # Private: channel_id does not refer to a valid channel
-def test_c_details_invalid_id():
+def test_channel_invalid_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
@@ -38,7 +38,7 @@ def test_c_details_invalid_id():
 		channel_join_v1(auth_user_id1['auth_user_id'], -1)
 
 # Public: Authorised user is not a memner of the channel
-def test_c_details_not_member():
+def test_channel_not_member():
 	clear_v1()
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id3 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
@@ -49,7 +49,7 @@ def test_c_details_not_member():
 		channel_invite_v1(auth_user_id2['auth_user_id'], channel_id['channel_id'], auth_user_id3['auth_user_id'])
 
 # Private: Authorised user is not a memner of the channel
-def test_c_details_not_member():
+def test_channel_not_member():
 	clear_v1()
 	auth_user_id2 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id3 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
@@ -59,7 +59,7 @@ def test_c_details_not_member():
 		channel_invite_v1(auth_user_id2['auth_user_id'], channel_id['channel_id'], auth_user_id3['auth_user_id'])
 
 # channel_invite function: Input error when the user has invalid u_id
-def test_invalid_u_id():
+def test_invite_invalid_u_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	channel_id = channels_create_v1(auth_user_id1['auth_user_id'], 'anna', True)
