@@ -1,6 +1,6 @@
 from src.data_store import data_store, initial_object 
 from src.error import InputError, AccessError
-from src.channels import channels_create_check_valid_user, channels_user_details
+from src.channels import channels_create_check_valid_user, channels_user_details, channels_create_v1
 
 
 
@@ -43,14 +43,29 @@ def channel_details_v1(auth_user_id, channel_id):
     # Authorised user not a member of channel
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("Authorised user is not a member of channel with channel_id")
-
+    channels = initial_object['channels']
     channel_info = check_channel_id(channel_id)
     return {
         'name': channel_info['name'],
         'is_public': channel_info['is_public'],
+        'owner_members': [
+            {
+                channels['owner_members'],
+            }
+        ],
+        'all_members': [
+            {
+                channels['all_members'],
+            }
+        ],
+    }
+
+    '''return {
+        'name': channel_info['name'],
+        'is_public': channel_info['is_public'],
         'owner_members': channel_info['owner_members'],
         'all_members': channel_info['all_members'],
-    }
+    }'''
 
 
 def channel_messages_v1(auth_user_id, channel_id, start):
