@@ -1,6 +1,6 @@
-from src.data_store import data_store, initial_object 
-from src.error import InputError, AccessError
-from src.channels import channels_create_check_valid_user, channels_user_details
+from data_store import data_store, initial_object 
+from error import InputError, AccessError
+from channels import channels_create_check_valid_user, user_info
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
@@ -22,7 +22,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         raise AccessError("The authorised user is not a member of the channel")
     
     channels = initial_object['channels']
-    new_user = channels_user_details(u_id)
+    new_user = user_info(auth_user_id)
     for channel in channels:
         if channel['channel_id'] == channel_id:
             # append the new user details to all_member
@@ -41,6 +41,7 @@ def channel_details_v1(auth_user_id, channel_id):
         raise AccessError("Authorised user is not a member of channel with channel_id")
 
     channel_info = check_channel_id(channel_id)
+
     return {
         'name': channel_info['name'],
         'is_public': channel_info['is_public'],
@@ -109,8 +110,9 @@ def channel_join_v1(auth_user_id, channel_id):
     elif check_valid_member_in_channel (channel_id, auth_user_id) == False: 
         if check_channel_private(channel_id) == True: 
             raise AccessError ('Not authorised to join channel')
-            
-    new_user = channels_user_details(auth_user_id)
+
+    new_user = user_info(auth_user_id)
+
     for channels in initial_object['channels']: 
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_user)
