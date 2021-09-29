@@ -5,13 +5,11 @@ from src.channels import channels_create_v1, channels_listall_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
 
-
 # Public: channel_id does not refer to a valid channel
 def test_channel_invalid_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-	channel_id = channels_create_v1(auth_user_id2['auth_user_id'], 'anna', True)
 	with pytest.raises(InputError):
 		channel_details_v1(auth_user_id1['auth_user_id'], 0)
 		channel_details_v1(auth_user_id1['auth_user_id'], -1)
@@ -27,7 +25,6 @@ def test_channel_invalid_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	auth_user_id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-	channel_id = channels_create_v1(auth_user_id2['auth_user_id'], 'anna', False)
 	with pytest.raises(InputError):
 		channel_details_v1(auth_user_id2['auth_user_id'], 0)
 		channel_details_v1(auth_user_id2['auth_user_id'], -1)
@@ -37,6 +34,7 @@ def test_channel_invalid_id():
 		channel_invite_v1(auth_user_id2['auth_user_id'], -116, auth_user_id1)
 
 		channel_join_v1(auth_user_id1['auth_user_id'], -1)
+		channel_join_v1(auth_user_id1['auth_user_id'], -116)
 
 # Public: Authorised user is not a memner of the channel
 def test_channel_not_member():
@@ -59,40 +57,20 @@ def test_channel_not_member():
 		channel_details_v1(auth_user_id3['auth_user_id'], 1)
 		channel_invite_v1(auth_user_id2['auth_user_id'], channel_id['channel_id'], auth_user_id3['auth_user_id'])
 
-# channel_invite function: Input error when the user has invalid u_id
+##########################################
+########### channel_invite tests #########
+##########################################
+
+# Input error when the user has invalid u_id
 def test_invite_invalid_u_id():
 	clear_v1()
 	auth_user_id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	channel_id = channels_create_v1(auth_user_id1['auth_user_id'], 'anna', True)
 	with pytest.raises(InputError):
-		channel_invite_v1(auth_user_id1['auth_user_id'], channel_id['channel_id'], -1)
+		channel_invite_v1(auth_user_id1['auth_user_id'], channel_id['channel_id'], 115)
 		channel_invite_v1(auth_user_id1['auth_user_id'], channel_id['channel_id'], -116)
 
-# channel_join function: Input error when the authorised user is already a member of the channel
-def test_join_already_in(): 
-    clear_v1()
-    a_register = auth_register_v1('email@gmail.com', 'password', 'lily','wong')
-    a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', True)
-    with pytest.raises(InputError): 
-        channel_join_v1(a_register['auth_user_id'], a_channel['channel_id'])
-
-# channel_join function: AccessError when channel_id refers to a channel that is private 
-# and the authorised user is not already a channel member and is not a global owner
-def test_join_access_error (): 
-	clear_v1()
-	a_register = auth_register_v1('email@gmail.com', 'password', 'lily','wong')
-	a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', False)
-	j_register = auth_register_v1('ashemail@gmail.com', 'password', 'jilly','wong')
-	with pytest.raises(AccessError): 
-		channel_join_v1(j_register['auth_user_id'], a_channel['channel_id'])
-
-	clear_v1()
-	a_register = auth_register_v1('email@gmail.com', 'password', 'lily','wong')
-	a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', True)
-	with pytest.raises(AccessError):
-		channel_join_v1(123, a_channel['channel_id'])
-
-# channel invite function: Test if public channel member can invite new user
+# Test if public channel member can invite new user
 def test_valid_invite_member():
 	clear_v1()
 	# create a public channel
@@ -116,7 +94,7 @@ def test_valid_invite_member():
 		],
 	})
 
-# channel invite function: test if private channel member can invite new user
+# Test if private channel member can invite new user
 def test_valid_invite_member_private():
 	clear_v1()
 	# create a private channel
@@ -140,6 +118,34 @@ def test_valid_invite_member_private():
 		],
 	})
 
+##########################################
+########### channel_join tests ###########
+##########################################
+
+# Input error when the authorised user is already a member of the channel
+def test_join_already_in(): 
+    clear_v1()
+    a_register = auth_register_v1('email@gmail.com', 'password', 'lily','wong')
+    a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', True)
+    with pytest.raises(InputError): 
+        channel_join_v1(a_register['auth_user_id'], a_channel['channel_id'])
+
+# AccessError when channel_id refers to a channel that is private 
+# and the authorised user is not already a channel member and is not a global owner
+def test_join_access_error (): 
+	clear_v1()
+	a_register = auth_register_v1('email@gmail.com', 'password', 'lily','wong')
+	a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', False)
+	j_register = auth_register_v1('ashemail@gmail.com', 'password', 'jilly','wong')
+	with pytest.raises(AccessError): 
+		channel_join_v1(j_register['auth_user_id'], a_channel['channel_id'])
+
+	clear_v1()
+	a_register = auth_register_v1('email@gmail.com', 'password', 'lily','wong')
+	a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', True)
+	with pytest.raises(AccessError):
+		channel_join_v1(123, a_channel['channel_id'])
+
 # Test channel_join function
 def test_valid_channel_join (): 
 	clear_v1()
@@ -149,7 +155,6 @@ def test_valid_channel_join ():
 	channel_join_v1(j_register['auth_user_id'], a_channel['channel_id'])
 	assert channel_details_v1(j_register['auth_user_id'], a_channel['channel_id']) == (
 	channel_details_v1(a_register['auth_user_id'], a_channel['channel_id']))
-
 
 
 ##########################################
