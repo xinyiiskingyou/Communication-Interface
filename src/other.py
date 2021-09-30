@@ -5,3 +5,6 @@ def clear_v1():
     initial_object['users'] = []
     initial_object['channels'] = []
     data_store.set(store)
+
+    return {
+    }
