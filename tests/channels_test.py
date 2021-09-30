@@ -71,18 +71,22 @@ def test_channels_list():
     clear_v1()
     # test if a public channel can be appened in the list
     x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
-    x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
+    x_channel = channels_create_v1(x_register['auth_user_id'], 'public', True)
+    x_channel1 = channels_create_v1(x_register['auth_user_id'], 'private', False)
+
     assert(channels_list_v1(x_register['auth_user_id']) ==
         {
         'channels':[
         {
             'channel_id': x_channel['channel_id'],
-            'name': 'x'
+            'name': 'public'
         },
+        {
+            'channel_id': x_channel1['channel_id'],
+            'name': 'private'
+        }
         ]
     })
-
-    assert(channels_list_v1(x_register['auth_user_id'])) == channels_listall_v1(x_register['auth_user_id'])
 
     # test if a private channel can be appened in the list
     sally_register = auth_register_v1('email2@gmail.com','comp1531', 'sally','zhou')
@@ -90,18 +94,11 @@ def test_channels_list():
     assert(channels_list_v1(sally_register['auth_user_id']) == {
         'channels': [
             {
-                'channel_id': x_channel['channel_id'],
-                'name': 'x'
-            },
-            {
                 'channel_id': sally_channel['channel_id'],
                 'name': 'sally'
             }
         ],
     })
-
-    assert(channels_list_v1(sally_register['auth_user_id']) == (channels_listall_v1(sally_register['auth_user_id'])))
-
 
 # Test channels_list_all function
 def test_listall_channels():
@@ -130,5 +127,4 @@ def test_listall_channels():
             ],
         })
 
-    assert ((channels_listall_v1(ash_register['auth_user_id']))== (channels_list_v1(ash_register['auth_user_id'])))
 
