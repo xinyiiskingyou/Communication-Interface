@@ -12,11 +12,9 @@ handle produced in not empty.
 
 For channels_create_v1:
 Assume the user alawys inputs auth_user_id that exist
-Assume the user always inputs valid is_public either 0 or 1
 Assume the user who created this channel is always the owner of the channels
-Assume the name cannot be blank
-Assume the channel name cannot be duplicate (?)
-Assume one can only create one channel(?)
+Assume the name cannot be blank -> there is at least one alphabetical or numerical character
+
 
 
     
