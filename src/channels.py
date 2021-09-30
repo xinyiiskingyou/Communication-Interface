@@ -1,7 +1,7 @@
 from src.data_store import data_store, initial_object
 from src.error import InputError, AccessError
 
-def channels_list_v2(auth_user_id):
+def channels_list_v1(auth_user_id):
     '''
     Provide a list of all channels (and their associated details) 
     that the authorised user is part of.
@@ -59,13 +59,21 @@ def channels_create_v1(auth_user_id, name, is_public):
     channels = initial_object['channels']
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
-    owner = (channels_user_details(auth_user_id))
-    new = {'channel_id': channel_id, 'name': name, 'is_public': is_public, 'owner_members': [owner], 'all_members': [owner]}
+
+    user = user_info(auth_user_id)
+    new = {
+        'channel_id': channel_id, 
+        'name': name, 
+        'is_public': bool(is_public), 
+        'owner_members': [user],  
+        'all_members': [user]
+    }
+
     channels.append(new)
     data_store.set(store)
 
     return {
-        'channel_id': channel_id
+        'channel_id': channel_id,
     }
 
 # helper function to check if the auth_user_id given is registered
@@ -83,8 +91,19 @@ def channels_user_details(auth_user_id):
     '''
     return type: dict
     '''
+
     for user in initial_object['users']:
         if user['auth_user_id'] == auth_user_id:
             return user
     return {}
 
+# helper function to return the specific details of user
+def user_info(auth_user_id):
+    user = channels_user_details(auth_user_id)
+    return {
+        'auth_user_id': user['auth_user_id'], 
+        'email': user['email'], 
+        'name_first': user['name_first'], 
+        'name_last': user['name_last'], 
+        'handle_str': user['handle_str']
+    }
