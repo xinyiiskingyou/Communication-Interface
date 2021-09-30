@@ -61,10 +61,6 @@ def channel_details_v1(auth_user_id, channel_id):
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
 
-    # Inavlid auth_user_id
-    if channels_create_check_valid_user(auth_user_id) == False:
-        raise AccessError("The auth_user_id does not refer to a valid user")
-
     # Authorised user not a member of channel
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("Authorised user is not a member of channel with channel_id")
