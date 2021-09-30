@@ -9,10 +9,19 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     Once invited, the user is added to the channel immediately. 
     In both public and private channels, all members are able to invite users.
     '''
+
+    # Inpu error when u_id refers to a user who is already a member of the channel
+    if check_valid_member_in_channel(channel_id, u_id) == True:
+        raise InputError("u_id is already a member of the channel")
+
     # Input error when channel_id does not refer to a valid channel
     if check_channel_id(channel_id) == False:
         raise InputError("Channel_id does not refer to a valid channel")
-    
+
+    # Inavlid auth_user_id
+    if channels_create_check_valid_user(auth_user_id) == False:
+        raise AccessError("The auth_user_id does not refer to a valid user")
+
     # Input error when u_id does not refer to a valid user
     if int(u_id) > len(initial_object['users']) or int(u_id) < 0:
         raise InputError("u_id does not refer to a valid user")
@@ -21,25 +30,27 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("The authorised user is not a member of the channel")
     
-    channels = initial_object['channels']
-    new_user = user_info(auth_user_id)
-    for channel in channels:
+    new_user = user_info(u_id)
+    for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
             # append the new user details to all_member
             channel['all_members'].append(new_user)
-            
+
     return {}
 
 def channel_details_v1(auth_user_id, channel_id):
-
     # Inavlid channel_id
     if check_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
 
+    # Inavlid auth_user_id
+    if channels_create_check_valid_user(auth_user_id) == False:
+        raise AccessError("The auth_user_id does not refer to a valid user")
+
     # Authorised user not a member of channel
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("Authorised user is not a member of channel with channel_id")
-
+    
     channel_info = check_channel_id(channel_id)
 
     return {
