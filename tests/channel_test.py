@@ -5,8 +5,8 @@ from src.channels import channels_create_v1, channels_listall_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
 
-# Public: Invalid channel_id 
-def test_c_details_invalid_id():
+# Public: Invalid channel_id for details and invite functions
+def test_invalid_channel_id_public():
 	clear_v1()
 	id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
@@ -19,8 +19,8 @@ def test_c_details_invalid_id():
 		channel_invite_v1(id1['auth_user_id'], -1, id2)
 		channel_invite_v1(id1['auth_user_id'], -116, id2)
 
-# Private: Invalid channel_id 
-def test_c_details_invalid_id():
+# Private: Invalid channel_id for details and invite functions
+def test_invalid_channel_id_private():
 	clear_v1()
 	id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
@@ -33,8 +33,8 @@ def test_c_details_invalid_id():
 		channel_invite_v1(id2['auth_user_id'], -1, id1['auth_user_id'])
 		channel_invite_v1(id2['auth_user_id'], -116, id1['auth_user_id'])
 
-# Public: Authorised user is not a memner of the channel
-def test_c_details_not_member():
+# Public: Authorised user is not a member of the channel for details and invite functions
+def test_user_not_member_public():
 	clear_v1()
 	id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
 	id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
@@ -46,8 +46,8 @@ def test_c_details_not_member():
 		channel_invite_v1(id2['auth_user_id'], channel_id['channel_id'], id3['auth_user_id'])
 
 
-# Private: Authorised user is not a memner of the channel
-def test_c_details_not_member():
+# Private: Authorised user is not a member of the channel for details and imvite functions
+def test_user_not_member_private():
 	clear_v1()
 	id2 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
 	id3 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
@@ -56,7 +56,16 @@ def test_c_details_not_member():
 		channel_details_v1(id3['auth_user_id'], 1)
 		channel_invite_v1(id2['auth_user_id'], channel_id['channel_id'], id3['auth_user_id'])
 
-# Test Invalid u_id
+
+def test_invalid_auth_user_id():
+	clear_v1()
+	id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
+	channel_id = channels_create_v1(id1['auth_user_id'], 'anna', True)
+	with pytest.raises(AccessError):
+		channel_invite_v1(-1, channel_id['channel_id'], 1)
+		channel_invite_v1(-1, channel_id['channel_id'], 1)
+
+
 def test_invalid_u_id():
 	clear_v1()
 	id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
@@ -65,8 +74,8 @@ def test_invalid_u_id():
 		channel_invite_v1(id1['auth_user_id'], channel_id['channel_id'], -1)
 		channel_invite_v1(id1['auth_user_id'], channel_id['channel_id'], -116)
 
+# test if public channel member can invite new user
 def test_valid_invite_member():
-	
 	clear_v1()
 	# create a public channel
 	x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
@@ -75,7 +84,6 @@ def test_valid_invite_member():
 	y_register = auth_register_v1('email2@gmail.com', 'password', 'y', 'lin')
 	y_channel = channels_create_v1(y_register['auth_user_id'], 'y', False)
 
-	# test if public channel member can invite new user
 	channel_invite_v1(x_register['auth_user_id'], x_channel['channel_id'], y_register['auth_user_id'])
 	assert(channels_listall_v1(x_register['auth_user_id']) == {
 		'channels': [

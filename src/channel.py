@@ -36,9 +36,13 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
 
 def channel_details_v1(auth_user_id, channel_id):
-   # Inavlid channel_id
+    # Inavlid channel_id
     if check_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
+
+    # Inavlid channel_id
+    if check_valid_u_id(auth_user_id) == False:
+        raise AccessError("The auth_user_id does not refer to a valid user")
 
     # Authorised user not a member of channel
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
