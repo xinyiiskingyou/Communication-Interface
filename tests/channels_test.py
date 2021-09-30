@@ -79,11 +79,11 @@ def test_create_invalid_channel_id():
 def test_list_auth_user_id():
     clear_v1()
     with pytest.raises(AccessError):
-        assert(channels_list_v1(-16)
-        assert(channels_list_v1(0)
-        assert(channels_list_v1(256)
-        assert(channels_list_v1('')
-        assert(channels_list_v1('not_an_id')
+        assert(channels_list_v1(-16))
+        assert(channels_list_v1(0))
+        assert(channels_list_v1(256))
+        assert(channels_list_v1(''))
+        assert(channels_list_v1('not_an_id'))
 
 # test if an authorised user that dosen't have channel
 # it should return empty

@@ -23,11 +23,10 @@ def channels_list_v1(auth_user_id):
 
     for channel in initial_object['channels']:
         for member in channel['all_members']:
-            for user in initial_object['users']:
-                # if the users are authorised (the auth_user_id can be found in the user list)
-                if member['auth_user_id'] == user['auth_user_id']:
-                    # append to an empty list
-                    new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})   
+            # if the users are authorised (the auth_user_id can be found in the user list)
+            if member['auth_user_id'] == auth_user_id:
+                # append to an empty list
+                new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})   
     
     data_store.set(store)
     # return to the new list    

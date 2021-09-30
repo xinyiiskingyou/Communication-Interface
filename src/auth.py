@@ -55,13 +55,6 @@ def auth_register_v1(email, password, name_first, name_last):
     for user in initial_object['users']:
         if user['handle_str'] == handle:
             handle = handle[0:20] + str(number)
-           ''' if number == 0: 
-                handle = handle + str(number)
-            elif number in range(1,10):  
-                handle = handle[:-1] + str(number)
-            else:
-                handle = handle[:-2] + str(number)'''
-
         number += 1
     
     # Permission id for streams users

@@ -43,7 +43,7 @@ def test_invite_u_id():
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
-    with pytest.raises(InputError):
+    with pytest.raises(AccessError):
 
         # Public 
         channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], -16)
@@ -55,7 +55,7 @@ def test_invite_u_id():
         # Private
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], -16)
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], 0)
-        channel_invite_v1(id4['auth_user_id'], channel_id24['channel_id'], 256)
+        channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], 256)
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], '')
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], 'not_an_id')
 
