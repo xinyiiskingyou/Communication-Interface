@@ -9,6 +9,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     Once invited, the user is added to the channel immediately. 
     In both public and private channels, all members are able to invite users.
     '''
+
     # Input error when channel_id does not refer to a valid channel
     if check_channel_id(channel_id) == False:
         raise InputError("Channel_id does not refer to a valid channel")
@@ -21,13 +22,14 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("The authorised user is not a member of the channel")
     
-    channels = initial_object['channels']
-    new_user = user_info(auth_user_id)
-    for channel in channels:
+    store = data_store.get()
+    new_user = user_info(u_id)
+    for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
             # append the new user details to all_member
             channel['all_members'].append(new_user)
-            
+
+    data_store.set(store)
     return {}
 
 def channel_details_v1(auth_user_id, channel_id):
@@ -48,7 +50,6 @@ def channel_details_v1(auth_user_id, channel_id):
         'owner_members': channel_info['owner_members'],
         'all_members': channel_info['all_members'],
     }
-
 
 def channel_messages_v1(auth_user_id, channel_id, start):
     
