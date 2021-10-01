@@ -77,7 +77,7 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     # Invalid privacy setting
     if not isinstance(is_public, int):
-        raise AccessError('This is an invalid privacy setting')
+        raise InputError('This is an invalid privacy setting')
     if is_public not in range(0,2):
         raise InputError('The channel has to be either public or private')    
 
