@@ -1,6 +1,8 @@
 from src.data_store import data_store, initial_object 
 from src.error import InputError, AccessError
-from src.channels import channels_create_check_valid_user, user_info
+from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
+from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
+from src.helper import channels_create_check_valid_user
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -27,7 +29,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    if check_channel_id(channel_id) == False:
+    if check_valid_channel_id(channel_id) == False:
         raise InputError("Channel_id does not refer to a valid channel")
 
     # Input error when u_id refers to a user who is already a member of the channel
@@ -59,7 +61,7 @@ def channel_details_v1(auth_user_id, channel_id):
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    if check_channel_id(channel_id) == False:
+    if check_valid_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
    
 
@@ -67,7 +69,7 @@ def channel_details_v1(auth_user_id, channel_id):
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("Authorised user is not a member of channel with channel_id")
     
-    channel_info = check_channel_id(channel_id)
+    channel_info = get_channel_details(channel_id)
 
     return {
         'name': channel_info['name'],
@@ -88,7 +90,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    if check_channel_id(channel_id) == False:
+    if check_valid_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
 
     # Channel_id is valid and the authorised user is not a member of the channel
@@ -112,17 +114,6 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         'start': start,
         'end': end,
     }
-
-# Checks if the start is greater than total number of messages
-def check_valid_start(num_messages, start):
-    if not isinstance(start, int):
-        return False
-    elif start > num_messages:
-        return False
-    elif start < 0:
-        return False
-    else:
-        return True
 
 
 def channel_join_v1(auth_user_id, channel_id):
@@ -148,7 +139,7 @@ def channel_join_v1(auth_user_id, channel_id):
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    if check_channel_id(channel_id) == False: 
+    if check_valid_channel_id(channel_id) == False: 
         raise InputError('Channel id is not valid')
 
     if check_valid_member_in_channel(channel_id, auth_user_id) == True:
@@ -168,39 +159,3 @@ def channel_join_v1(auth_user_id, channel_id):
     return {
     }
 
-# Checks if a valid channel_id is being passed in or not
-def check_channel_id(channel_id):
-    for channel in initial_object['channels']:
-        if int(channel['channel_id']) == int(channel_id):
-            return channel
-    return False
-
-# 
-def check_valid_member_in_channel(channel_id, auth_user_id):
-    for channel in initial_object['channels']:
-        if int(channel['channel_id']) == int(channel_id):
-            for member in channel['all_members']:
-                if int(member['auth_user_id']) == int(auth_user_id):
-                    return True
-    
-    return False
-
-# Checks if the channel is public or private
-def check_channel_private(channel_id): 
-    store = data_store.get()
-    for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id: 
-            if channels['is_public'] == False: 
-                return True
-            else: 
-                return False
-
-# Check if authorised user is a global owner of streams
-def check_permision_id(auth_user_id):
-    for user in initial_object['users']:
-        if user['auth_user_id'] == auth_user_id:
-            # If the user is a global owner
-            if user['permission_id'] == 1:
-                return True
-            else:
-                return False

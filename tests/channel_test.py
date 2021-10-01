@@ -232,7 +232,7 @@ def test_details_valid_channel():
         'is_public': True,
         'owner_members':[
             {
-                'auth_user_id': 1,
+                'u_id': 1,
                 'email': 'abc@gmail.com',
                 'name_first': 'afirst',
                 'name_last': 'alast',
@@ -242,14 +242,14 @@ def test_details_valid_channel():
         ],
         'all_members': [
             {
-                'auth_user_id': 1,
+                'u_id': 1,
                 'email': 'abc@gmail.com',
                 'name_first': 'afirst',
                 'name_last': 'alast',
                 'handle_str': 'afirstalast'
             }, 
             {
-                'auth_user_id': 2,
+                'u_id': 2,
                 'email': 'email@gmail.com',
                 'name_first': 'afirst',
                 'name_last': 'alast',
