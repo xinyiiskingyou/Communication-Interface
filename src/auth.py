@@ -1,5 +1,5 @@
-from data_store import data_store, initial_object
-from error import InputError
+from src.data_store import data_store, initial_object
+from src.error import InputError
 import re
 
 def auth_login_v1(email, password):
