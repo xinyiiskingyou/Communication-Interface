@@ -50,7 +50,7 @@ def auth_register_v1(email, password, name_first, name_last):
     if len(handle) > 20:
         handle = handle[0:20]
     
-    #Check for duplicate handles
+    # Check for duplicate handles
     number = 0
     for user in initial_object['users']:
         if user['handle_str'] == handle:
