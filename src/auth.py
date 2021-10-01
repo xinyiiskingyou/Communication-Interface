@@ -13,7 +13,6 @@ def auth_login_v1(email, password):
             return {
                 'auth_user_id': auth_user_id
             }
-
         else:
             raise InputError("Email and/or password is not valid!")
 
@@ -51,17 +50,11 @@ def auth_register_v1(email, password, name_first, name_last):
     if len(handle) > 20:
         handle = handle[0:20]
     
-    #Check for duplicate handles
+    # Check for duplicate handles
     number = 0
     for user in initial_object['users']:
         if user['handle_str'] == handle:
-            if number == 0: 
-                handle = handle +str(number)
-            elif number in range(1,10):  
-                handle = handle[:-1] + str(number)
-            else:
-                handle = handle[:-2] + str(number)
-
+            handle = handle[0:20] + str(number)
         number += 1
     
     # Permission id for streams users
@@ -86,4 +79,3 @@ def auth_register_v1(email, password, name_first, name_last):
     return {
         'auth_user_id': auth_user_id
     }
-
