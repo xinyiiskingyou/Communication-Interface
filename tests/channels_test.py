@@ -97,7 +97,7 @@ def test_no_channels():
 # Test channels_list_function
 def test_channels_list():
     clear_v1()
-    # test if a public channel can be appened in the list
+    # test if a public channel can be appended in the list
     x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
     x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
     assert(channels_list_v1(x_register['auth_user_id']) ==
@@ -112,7 +112,7 @@ def test_channels_list():
 
     assert(channels_list_v1(x_register['auth_user_id'])) == channels_listall_v1(x_register['auth_user_id'])
 
-    # test if a private channel can be appened in the list
+    # test if a private channel can be appended in the list
     sally_register = auth_register_v1('email2@gmail.com','comp1531', 'sally','zhou')
     sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
     assert(channels_listall_v1(sally_register['auth_user_id']) == {
@@ -172,6 +172,16 @@ def test_listall_channels():
             }
 
         ],
+    })
+
+    assert (channels_list_v1(a_register['auth_user_id']) == 
+    {
+        'channels' :[
+            {
+                'channel_id': a_channel['channel_id'],
+                'name': 'anna' 
+            }
+        ]
     })
 
     # Testing that listall returns all the channels regardless of auth_user_id

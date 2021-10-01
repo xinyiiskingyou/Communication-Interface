@@ -124,7 +124,7 @@ def test_invite_already_member_priv():
         # WHen someone tries to invite owner
         channel_invite_v1(id2['auth_user_id'], channel_id4['channel_id'], id4['auth_user_id'])
 
-# Authorised user is not a memnber of the channel
+# Authorised user is not a member of the channel
 def test_invite_not_member1():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
@@ -297,6 +297,7 @@ def test_user_not_authorised_to_channel():
     with pytest.raises(AccessError):
         channel_messages_v1(id3['auth_user_id'], channel_id4['channel_id'], 0)
 
+
 # No messages currently in channel
 def test_no_messages():
     clear_v1()
@@ -319,6 +320,20 @@ def test_start_gt_total_messages():
 
     with pytest.raises(InputError):
         channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 10)
+
+
+# Start is not a valid positive integer
+def test_invalid_start():
+    clear_v1()
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
+
+    with pytest.raises(InputError):
+        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], -16)
+        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 256)
+        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], '')
+        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 'not_an_id')
+
 
 
 ##########################################
