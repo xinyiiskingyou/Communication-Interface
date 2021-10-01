@@ -2,6 +2,7 @@ from src.data_store import data_store, initial_object
 from src.error import InputError, AccessError
 from src.channels import channels_create_check_valid_user, user_info
 
+
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     '''
@@ -12,22 +13,22 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     store = data_store.get()
 
     # Invalid auth_user_id
-    if channels_create_check_valid_user(auth_user_id) == False:
-        raise AccessError("The auth_user_id does not refer to a valid user")
     if not isinstance(auth_user_id, int):
         raise AccessError("This is an invalid auth_user_id")
+    if channels_create_check_valid_user(auth_user_id) == False:
+        raise AccessError("The auth_user_id does not refer to a valid user")
 
     # Invalid u_id
-    if channels_create_check_valid_user(u_id) == False:
-        raise AccessError("The u_id does not refer to a valid user")
     if not isinstance(u_id, int):
-        raise AccessError("This is an invalid u_id")    
+        raise AccessError("This is an invalid u_id")
+    if channels_create_check_valid_user(u_id) == False:
+        raise AccessError("The u_id does not refer to a valid user")    
 
     # Input error when channel_id does not refer to a valid channel
-    if check_channel_id(channel_id) == False:
-        raise InputError("Channel_id does not refer to a valid channel")
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
+    if check_channel_id(channel_id) == False:
+        raise InputError("Channel_id does not refer to a valid channel")
 
     # Input error when u_id refers to a user who is already a member of the channel
     if check_valid_member_in_channel(channel_id, u_id) == True:
@@ -50,16 +51,17 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 def channel_details_v1(auth_user_id, channel_id):
 
     # Invalid auth_user_id
+    if not isinstance(auth_user_id, int):
+        raise AccessError('This is an invalid auth_user_id')
     if channels_create_check_valid_user(auth_user_id) == False:
         raise AccessError("The auth_user_id does not refer to a valid user")
-    if not isinstance(auth_user_id, int):
-        raise AccessError('This is an invalid auth user id')
-
+    
     # Invalid channel_id
-    if check_channel_id(channel_id) == False:
-        raise InputError("The channel_id does not refer to a valid channel")
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
+    elif check_channel_id(channel_id) == False:
+        raise InputError("The channel_id does not refer to a valid channel")
+   
 
     # Authorised user not a member of channel
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
@@ -78,16 +80,16 @@ def channel_details_v1(auth_user_id, channel_id):
 def channel_messages_v1(auth_user_id, channel_id, start):
     
     # Invalid auth_user_id
-    if channels_create_check_valid_user(auth_user_id) == False:
-        raise AccessError("The auth_user_id does not refer to a valid user")
     if not isinstance(auth_user_id, int):
         raise AccessError('This is an invalid auth user id')
+    if channels_create_check_valid_user(auth_user_id) == False:
+        raise AccessError("The auth_user_id does not refer to a valid user")
 
     # Invalid channel_id
-    if check_channel_id(channel_id) == False:
-        raise InputError("The channel_id does not refer to a valid channel")
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
+    if check_channel_id(channel_id) == False:
+        raise InputError("The channel_id does not refer to a valid channel")
 
     # Channel_id is valid and the authorised user is not a member of the channel
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
@@ -113,7 +115,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
 
 # Checks if the start is greater than total number of messages
 def check_start_lt_total_messages(num_messages, start):
-    if start > num_messages:
+    if int(start) > int(num_messages):
         return False
     else:
         return True
@@ -134,16 +136,16 @@ def channel_join_v1(auth_user_id, channel_id):
     store = data_store.get()
     
     # Invalid auth_user_id
-    if channels_create_check_valid_user(auth_user_id) == False:
-        raise AccessError("The auth_user_id does not refer to a valid user")
     if not isinstance(auth_user_id, int):
         raise AccessError('This is an invalid auth user id')
-
+    if channels_create_check_valid_user(auth_user_id) == False:
+        raise AccessError("The auth_user_id does not refer to a valid user")
+    
     # Invalid channel_id
-    if check_channel_id(channel_id) == False: 
-        raise InputError('Channel id is not valid')
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
+    if check_channel_id(channel_id) == False: 
+        raise InputError('Channel id is not valid')
 
     if check_valid_member_in_channel(channel_id, auth_user_id) == True:
         raise InputError ('Already a member of this channel')
