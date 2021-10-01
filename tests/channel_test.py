@@ -12,10 +12,10 @@ from src.other import clear_v1
 # Invalid auth_user_id
 def test_invite_auth_user_id():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('elephant@gmail.com', 'password', 'cfirst', 'clast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'dfirst', 'dlast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
 
@@ -36,8 +36,8 @@ def test_invite_auth_user_id():
 # Invalid u_id
 def test_invite_u_id():
     clear_v1()
-    id2 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
@@ -60,8 +60,8 @@ def test_invite_u_id():
 # Invalid channel_id
 def test_invite_invalid_channel_id():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
 
     with pytest.raises(InputError):
@@ -74,9 +74,9 @@ def test_invite_invalid_channel_id():
 # Public: u_id refers to a user who is already a member of the channel
 def test_invite_already_member_pub():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst','blast')
+    id3 = auth_register_v1('elephant@gmail.com', 'password', 'cfirst', 'clast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
@@ -91,9 +91,9 @@ def test_invite_already_member_pub():
 # Private: u_id refers to a user who is already a member of the channel
 def test_invite_already_member_priv():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'cfirst', 'clast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], id1['auth_user_id'])
@@ -109,10 +109,10 @@ def test_invite_already_member_priv():
 # Authorised user is not a member of the channel
 def test_invite_not_member1():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('elephant@gmail.com', 'password', 'cfirst', 'clast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'dfirst', 'dlast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
     
@@ -131,8 +131,8 @@ def test_invite_not_member1():
 # Public: Test channel_invite function
 def test_valid_channel_invite_pub(): 
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'first', 'last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'first', 'last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
 
     channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], id1['auth_user_id'])
@@ -146,9 +146,9 @@ def test_valid_channel_invite_pub():
 # Private: Test channel_invite function
 def test_valid_channel_invite_priv(): 
     clear_v1()
-    id2 = auth_register_v1('email@gmail.com', 'password', 'first', 'last')
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
+    id3 = auth_register_v1('elephant@gmail.com', 'password', 'bfirst', 'blast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'cfirst', 'clast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], id3['auth_user_id'])
@@ -167,8 +167,8 @@ def test_valid_channel_invite_priv():
 # Invalid auth_user_id
 def test_details_auth_user_id():
     clear_v1()
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
 
@@ -190,7 +190,7 @@ def test_details_auth_user_id():
 # Invalid channel_id
 def test_details_channel_id():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
 
     with pytest.raises(InputError):
         channel_details_v1(id1['auth_user_id'], -1)
@@ -201,10 +201,10 @@ def test_details_channel_id():
 # Authorised user is not a member of the channel
 def test_details_not_member():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('elephant@gmail.com', 'password', 'cfirst', 'clast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'dfirst', 'dlast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
@@ -222,8 +222,8 @@ def test_details_not_member():
 ##### Implementation #####
 def test_details_valid_channel():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'dog', 'a')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'dog', 'a')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     channel_id1 = channels_create_v1(id1['auth_user_id'], 'anna', True)
     channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id2['auth_user_id'])
     assert(channel_details_v1(id1['auth_user_id'], channel_id1['channel_id']) ==
@@ -234,9 +234,9 @@ def test_details_valid_channel():
             {
                 'auth_user_id': 1,
                 'email': 'abc@gmail.com',
-                'name_first': 'dog',
-                'name_last': 'a',
-                'handle_str': 'doga'
+                'name_first': 'afirst',
+                'name_last': 'alast',
+                'handle_str': 'afirstalast'
 
             },
         ],
@@ -244,16 +244,16 @@ def test_details_valid_channel():
             {
                 'auth_user_id': 1,
                 'email': 'abc@gmail.com',
-                'name_first': 'dog',
-                'name_last': 'a',
-                'handle_str': 'doga'
+                'name_first': 'afirst',
+                'name_last': 'alast',
+                'handle_str': 'afirstalast'
             }, 
             {
                 'auth_user_id': 2,
                 'email': 'email@gmail.com',
-                'name_first': 'dog',
-                'name_last': 'a',
-                'handle_str': 'doga0'
+                'name_first': 'afirst',
+                'name_last': 'alast',
+                'handle_str': 'afirstalast0'
             }
         ]
     })
@@ -265,8 +265,8 @@ def test_details_valid_channel():
 # Invalid auth_user_id
 def test_messages_auth_user_id():
     clear_v1()
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
 
@@ -287,7 +287,7 @@ def test_messages_auth_user_id():
 # channel_id does not refer to a valid channel
 def test_invalid_channel_id():
     clear_v1()
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'alast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     with pytest.raises(InputError):
@@ -299,8 +299,8 @@ def test_invalid_channel_id():
 # channel_id is valid and the authorised user is not a member of the channel 
 def test_user_not_authorised_to_channel():
     clear_v1()
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id3 = auth_register_v1('elephant@gmail.com', 'password', 'afirst', 'alast')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     with pytest.raises(AccessError):
@@ -309,7 +309,7 @@ def test_user_not_authorised_to_channel():
 # Start is not a valid positive integer
 def test_invalid_start():
     clear_v1()
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'alast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     with pytest.raises(InputError):
@@ -337,7 +337,7 @@ def test_invalid_start():
 # No messages currently in channel
 def test_no_messages():
     clear_v1()
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'alast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     assert (channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 0) == 
@@ -356,7 +356,7 @@ def test_no_messages():
 # Invalid auth_user_id
 def test_join_auth_user_id():
     clear_v1()
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
 
     with pytest.raises(AccessError):
@@ -368,7 +368,7 @@ def test_join_auth_user_id():
 # Invalid channel_id
 def test_join_channel_id():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
 
     with pytest.raises(InputError):
         channel_join_v1(id1['auth_user_id'], -1)
@@ -379,8 +379,8 @@ def test_join_channel_id():
 # Input error when the authorised user is already a member of the channel
 def test_join_already_in(): 
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
 
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
@@ -393,9 +393,9 @@ def test_join_already_in():
 # and the authorised user is not already a channel member and is not a global owner
 def test_join_access_error(): 
     clear_v1()
-    id1 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-    id3 = auth_register_v1('dog@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('elephant@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('dog@gmail.com', 'password', 'cfirst', 'clast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
 
     with pytest.raises(AccessError): 
@@ -406,9 +406,9 @@ def test_join_access_error():
 # Test channel_join function for joining a public channel
 def test_valid_public_channel_join(): 
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id3 = auth_register_v1('dog@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('dog@gmail.com', 'password', 'cfirst', 'clast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
@@ -423,8 +423,8 @@ def test_valid_public_channel_join():
 # Test channel_join function for joining a private channel
 def test_valid_private_channel_join():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', False)
     
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])

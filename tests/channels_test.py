@@ -28,7 +28,7 @@ def test_create_auth_user_id():
 # InputError when length of name is less than 1 or more than 20 characters
 def test_create_invalid_name():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], ' ', True)
         channels_create_v1(id1['auth_user_id'], '                      ', True)
@@ -38,7 +38,7 @@ def test_create_invalid_name():
 # InputError for setting invalid privacy
 def test_create_invalid_public():
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', -1)
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', 256)
@@ -49,14 +49,14 @@ def test_create_invalid_public():
 # Assert channel_id for one, two and three channels created by two different users
 def test_create_valid_channel_id():
     clear_v1()
-    auth_id1 = auth_register_v1('abc1@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    auth_id1 = auth_register_v1('abc1@gmail.com', 'password', 'afirst', 'alast')
     channel_id1 = channels_create_v1(auth_id1['auth_user_id'], '1531_CAMEL_1', True)
     assert channel_id1['channel_id'] == 1
 
     channel_id2 = channels_create_v1(auth_id1['auth_user_id'], '1531_CAMEL_2', True)
     assert channel_id2['channel_id'] == 2
 
-    auth_id2 = auth_register_v1('abc2@gmail.com', 'password', 'first_name_2', 'last_name_2')
+    auth_id2 = auth_register_v1('abc2@gmail.com', 'password', 'bfirst', 'blast')
     channel_id3 = channels_create_v1(auth_id2['auth_user_id'], '1531_CAMEL_3', True)
     assert channel_id3['channel_id'] == 3
     
@@ -64,7 +64,7 @@ def test_create_valid_channel_id():
 # Assert channel_id can never be a negative number
 def test_negative_channel_id():
     clear_v1()
-    auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    auth_id = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     channel_id1 = channels_create_v1(auth_id['auth_user_id'], '1531_CAMEL', True)
     assert channel_id1['channel_id'] > 0
     
@@ -87,7 +87,7 @@ def test_list_auth_user_id():
 # it should return empty
 def test_no_channels():
     clear_v1()
-    no_channel = auth_register_v1('email1@gmail.com', 'Password1', 'anna','duong')
+    no_channel = auth_register_v1('email1@gmail.com', 'password1', 'afirst', 'alast')
     assert(channels_list_v1(no_channel['auth_user_id']) == {'channels':[]})
     assert(channels_listall_v1(no_channel['auth_user_id']) == {'channels':[]})
     assert(channels_list_v1(no_channel['auth_user_id'])) == channels_listall_v1(no_channel['auth_user_id'])
@@ -96,7 +96,7 @@ def test_no_channels():
 def test_channels_list():
     clear_v1()
     # test if a public channel can be appended in the list
-    x_register = auth_register_v1('email@gmail.com', 'password', 'x', 'lin')
+    x_register = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
     assert(channels_list_v1(x_register['auth_user_id']) ==
         {
@@ -112,7 +112,7 @@ def test_channels_list():
     assert(len(channels_listall_v1(x_register['auth_user_id'])['channels']) == 1)
 
     # Test if a private channel can be appended in the list
-    sally_register = auth_register_v1('email2@gmail.com','comp1531', 'sally','zhou')
+    sally_register = auth_register_v1('email2@gmail.com','comp1531', 'afirst','alast')
     sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
     
     assert(len(channels_list_v1(sally_register['auth_user_id'])['channels']) == 1)
@@ -123,9 +123,9 @@ def test_channels_list():
 # Test channels_list_all function
 def test_listall_channels():
     clear_v1()
-    id1 = auth_register_v1('ashley@gmail.com', 'ashpass', 'ashley', 'wong')
-    id2 = auth_register_v1('ashemail@gmail.com', 'password', 'anna', 'wong')
-    id3 = auth_register_v1('id3@gmail.com', 'password', 'id3', 'wong')
+    id1 = auth_register_v1('ashley@gmail.com', 'ashpass', 'afirst', 'alast')
+    id2 = auth_register_v1('ashemail@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('id3@gmail.com', 'password', 'cfirst', 'clast')
     id2_channel = channels_create_v1(id2['auth_user_id'], 'anna', False)
     id1_channel_1 = channels_create_v1(id1['auth_user_id'], 'ashley', False)
     id1_channel_2 = channels_create_v1(id1['auth_user_id'], 'ash', True)
