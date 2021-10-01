@@ -17,22 +17,19 @@ def test_create_auth_user_id():
         channels_create_v1(-16, '1531_CAMEL', True)
         channels_create_v1(0, '1531_CAMEL', True)
         channels_create_v1(256, '1531_CAMEL', True)
-        channels_create_v1('', '1531_CAMEL', True)
         channels_create_v1('not_an_id', '1531_CAMEL', True)
 
         #Private
         channels_create_v1(-16, '1531_CAMEL', False)
         channels_create_v1(0, '1531_CAMEL', False)
         channels_create_v1(256, '1531_CAMEL', False)
-        channels_create_v1('', '1531_CAMEL', True)
-        channels_create_v1('not_an_id', '1531_CAMEL', True)
+        channels_create_v1('not_an_id', '1531_CAMEL', False)
 
 # InputError when length of name is less than 1 or more than 20 characters
 def test_create_invalid_name():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
     with pytest.raises(InputError):
-        channels_create_v1(id1['auth_user_id'], '', True)
         channels_create_v1(id1['auth_user_id'], ' ', True)
         channels_create_v1(id1['auth_user_id'], '                      ', True)
         channels_create_v1(id1['auth_user_id'], 'a' * 21, True)
@@ -44,32 +41,33 @@ def test_create_invalid_public():
     id1 = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
     with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', -1)
-        channels_create_v1(id1['auth_user_id'], '1531_CAMEL', 0)
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', 256)
-        channels_create_v1(id1['auth_user_id'], '1531_CAMEL', '')
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', 'not_an_id')
 
-# Test if we can create a valid public channel
-# DON'T KNOW WHAT THIS IS TESTING 
-def test_create_valid_public():
-    clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channels_create_v1(id1['auth_user_id'], '1531_CAMEL', True)
 
-# Test if we can create a valid private channel
-# DON'T KNOW WHAT THIS IS TESTING
-def test_create_valid_private():
+##### Implementation #####
+# Assert channel_id for one, two and three channels created by two different users
+def test_create_valid_channel_id():
     clear_v1()
-    id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channels_create_v1(id['auth_user_id'], 'channel', False)
+    auth_id1 = auth_register_v1('abc1@gmail.com', 'password', 'first_name_1', 'last_name_1')
+    channel_id1 = channels_create_v1(auth_id1['auth_user_id'], '1531_CAMEL_1', True)
+    assert channel_id1['channel_id'] == 1
 
-# Assert channel_id would never be negative number
-# DON'T KNOW WHAT TO DO
-def test_create_invalid_channel_id():
+    channel_id2 = channels_create_v1(auth_id1['auth_user_id'], '1531_CAMEL_2', True)
+    assert channel_id2['channel_id'] == 2
+
+    auth_id2 = auth_register_v1('abc2@gmail.com', 'password', 'first_name_2', 'last_name_2')
+    channel_id3 = channels_create_v1(auth_id2['auth_user_id'], '1531_CAMEL_3', True)
+    assert channel_id3['channel_id'] == 3
+    
+
+# Assert channel_id can never be a negative number
+def test_negative_channel_id():
     clear_v1()
     auth_id = auth_register_v1('abc@gmail.com', 'password', 'first_name_1', 'last_name_1')
-    channel_id = channels_create_v1(auth_id['auth_user_id'], '1531_CAMEL', True)
-    assert channel_id != -1
+    channel_id1 = channels_create_v1(auth_id['auth_user_id'], '1531_CAMEL', True)
+    assert channel_id1['channel_id'] > 0
+    
 
 #################################################
 ### channels_list and channels_list_all tests ###
@@ -79,13 +77,13 @@ def test_create_invalid_channel_id():
 def test_list_auth_user_id():
     clear_v1()
     with pytest.raises(AccessError):
-        assert(channels_list_v1(-16))
-        assert(channels_list_v1(0))
-        assert(channels_list_v1(256))
-        assert(channels_list_v1(''))
-        assert(channels_list_v1('not_an_id'))
+        channels_list_v1(-16)
+        channels_list_v1(0)
+        channels_list_v1(256)
+        channels_list_v1('not_an_id')
 
-# test if an authorised user that dosen't have channel
+##### Implementation ######
+# Test if an authorised user that dosen't have channel
 # it should return empty
 def test_no_channels():
     clear_v1()
@@ -110,80 +108,33 @@ def test_channels_list():
         ]
     })
 
-    assert(channels_list_v1(x_register['auth_user_id'])) == channels_listall_v1(x_register['auth_user_id'])
+    assert(len(channels_list_v1(x_register['auth_user_id'])['channels']) == 1)
+    assert(len(channels_listall_v1(x_register['auth_user_id'])['channels']) == 1)
 
-    # test if a private channel can be appended in the list
+    # Test if a private channel can be appended in the list
     sally_register = auth_register_v1('email2@gmail.com','comp1531', 'sally','zhou')
     sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
-    assert(channels_listall_v1(sally_register['auth_user_id']) == {
-        'channels': [
-            {
-                'channel_id': x_channel['channel_id'],
-                'name': 'x'
-            },
-            {
-                'channel_id': sally_channel['channel_id'],
-                'name': 'sally'
-            }
-        ],
-    })
-
-    # Testing when a user is part of one channel but not the other -> list != list_all
-    assert(channels_list_v1(sally_register['auth_user_id']) != (channels_listall_v1(sally_register['auth_user_id'])))
-
+    
+    assert(len(channels_list_v1(sally_register['auth_user_id'])['channels']) == 1)
+    assert(len(channels_listall_v1(sally_register['auth_user_id'])['channels']) == 2)
+    assert(len(channels_listall_v1(x_register['auth_user_id'])['channels']) == 2)
+    
 
 # Test channels_list_all function
 def test_listall_channels():
     clear_v1()
-    ash_register = auth_register_v1('ashley@gmail.com', 'ashpass', 'ashley', 'wong')
-    a_register = auth_register_v1('ashemail@gmail.com', 'password', 'anna', 'wong')
-    a_channel = channels_create_v1(a_register['auth_user_id'], 'anna', False)
-    ash_channel = channels_create_v1(ash_register['auth_user_id'], 'ashley', False)
-    ashv1_channel = channels_create_v1(ash_register['auth_user_id'], 'ash', True)
-    assert (channels_listall_v1(ash_register['auth_user_id']) == 
-        {
-            'channels' :[
-                {
-                    'channel_id': a_channel['channel_id'],
-                    'name': 'anna' 
-                }, 
-                {
-                    'channel_id' : ash_channel['channel_id'],
-                    'name' : 'ashley'
-                },
-                {
-                    'channel_id' : ashv1_channel['channel_id'],
-                    'name' : 'ash' 
-                }
+    id1 = auth_register_v1('ashley@gmail.com', 'ashpass', 'ashley', 'wong')
+    id2 = auth_register_v1('ashemail@gmail.com', 'password', 'anna', 'wong')
+    id3 = auth_register_v1('id3@gmail.com', 'password', 'id3', 'wong')
+    id2_channel = channels_create_v1(id2['auth_user_id'], 'anna', False)
+    id1_channel_1 = channels_create_v1(id1['auth_user_id'], 'ashley', False)
+    id1_channel_2 = channels_create_v1(id1['auth_user_id'], 'ash', True)
 
-            ],
-        })
+    assert(len(channels_listall_v1(id1['auth_user_id'])['channels']) == 3)
+    assert(len(channels_listall_v1(id2['auth_user_id'])['channels']) == 3)
+    assert(len(channels_listall_v1(id3['auth_user_id'])['channels']) == 3)
 
-    assert (channels_list_v1(ash_register['auth_user_id']) == 
-    {
-        'channels' :[ 
-            {
-                'channel_id' : ash_channel['channel_id'],
-                'name' : 'ashley'
-            },
-            {
-                'channel_id' : ashv1_channel['channel_id'],
-                'name' : 'ash' 
-            }
-
-        ],
-    })
-
-    assert (channels_list_v1(a_register['auth_user_id']) == 
-    {
-        'channels' :[
-            {
-                'channel_id': a_channel['channel_id'],
-                'name': 'anna' 
-            }
-        ]
-    })
-
-    # Testing that listall returns all the channels regardless of auth_user_id
-    assert ((channels_listall_v1(ash_register['auth_user_id'])) == (channels_listall_v1(a_register['auth_user_id'])))
+    assert(len(channels_list_v1(id1['auth_user_id'])['channels']) == 2)
+    assert(len(channels_list_v1(id2['auth_user_id'])['channels']) == 1)
+    assert(len(channels_list_v1(id3['auth_user_id'])['channels']) == 0)
 

@@ -25,14 +25,12 @@ def test_invite_auth_user_id():
         channel_invite_v1(-16, channel_id2['channel_id'], id1['auth_user_id'])
         channel_invite_v1(0, channel_id2['channel_id'], id3['auth_user_id'])
         channel_invite_v1(256, channel_id2['channel_id'], id4['auth_user_id'])
-        channel_invite_v1('', channel_id2['channel_id'], id1['auth_user_id'])
         channel_invite_v1('not_an_id', channel_id2['channel_id'], id4['auth_user_id'])
 
         #Private
         channel_invite_v1(-16, channel_id4['channel_id'], id2['auth_user_id'])
         channel_invite_v1(0, channel_id4['channel_id'], id3['auth_user_id'])
         channel_invite_v1(256, channel_id4['channel_id'], id1['auth_user_id'])
-        channel_invite_v1('', channel_id4['channel_id'], id1['auth_user_id'])
         channel_invite_v1('not_an_id', channel_id4['channel_id'], id3['auth_user_id'])
 
 # Invalid u_id
@@ -49,20 +47,18 @@ def test_invite_u_id():
         channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], -16)
         channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], 0)
         channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], 256)
-        channel_invite_v1(id2['auth_user_id'], channel_id4['channel_id'], '')
         channel_invite_v1(id2['auth_user_id'], channel_id4['channel_id'], 'not_an_id')
 
         # Private
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], -16)
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], 0)
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], 256)
-        channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], '')
         channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], 'not_an_id')
 
 
 
-# Invalid channel_id - id1 invites id2
-def test_invite_channel_id_1():
+# Invalid channel_id
+def test_invite_invalid_channel_id():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
     id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
@@ -72,22 +68,8 @@ def test_invite_channel_id_1():
         channel_invite_v1(id1['auth_user_id'], -16, id2['auth_user_id'])
         channel_invite_v1(id1['auth_user_id'], 0, id2['auth_user_id'])
         channel_invite_v1(id1['auth_user_id'], 256, id2['auth_user_id'])
-        channel_invite_v1(id1['auth_user_id'], '', id2['auth_user_id'])
         channel_invite_v1(id1['auth_user_id'], 'not_an_id', id2['auth_user_id'])
 
-# Invalid channel_id - id2 invites id1
-def test_invite_channel_id_2():
-    clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
-
-    with pytest.raises(InputError):
-        channel_invite_v1(id2['auth_user_id'], -16, id1['auth_user_id'])
-        channel_invite_v1(id2['auth_user_id'], 0, id1['auth_user_id'])
-        channel_invite_v1(id2['auth_user_id'], 256, id1['auth_user_id'])
-        channel_invite_v1(id2['auth_user_id'], '', id1['auth_user_id'])
-        channel_invite_v1(id2['auth_user_id'], 'not_an_id', id1['auth_user_id'])
 
 # Public: u_id refers to a user who is already a member of the channel
 def test_invite_already_member_pub():
@@ -103,7 +85,7 @@ def test_invite_already_member_pub():
     with pytest.raises(InputError):
         channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], id1['auth_user_id'])
         channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], id3['auth_user_id'])
-        # WHen someone tries to invite owner
+        # When someone tries to invite owner
         channel_invite_v1(id1['auth_user_id'], channel_id2['channel_id'], id2['auth_user_id'])
 
 # Private: u_id refers to a user who is already a member of the channel
@@ -132,29 +114,34 @@ def test_invite_not_member1():
     id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
     id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
-    channel_id4 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
+    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
     
     with pytest.raises(AccessError):
 
         # Public
         channel_invite_v1(id1['auth_user_id'], channel_id2['channel_id'], id3['auth_user_id'])
-        channel_invite_v1(id1['auth_user_id'], channel_id2['channel_id'], id2['auth_user_id'])
+        channel_invite_v1(id1['auth_user_id'], channel_id2['channel_id'], id4['auth_user_id'])
 
         # Private
         channel_invite_v1(id3['auth_user_id'], channel_id4['channel_id'], id1['auth_user_id'])
-        channel_invite_v1(id3['auth_user_id'], channel_id4['channel_id'], id4['auth_user_id'])
+        channel_invite_v1(id3['auth_user_id'], channel_id4['channel_id'], id2['auth_user_id'])
 
+
+##### Implementation #####
 # Public: Test channel_invite function
 def test_valid_channel_invite_pub(): 
     clear_v1()
-    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'first', 'last')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'first', 'last')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
 
     channel_invite_v1(id2['auth_user_id'], channel_id2['channel_id'], id1['auth_user_id'])
     details1 = channel_details_v1(id1['auth_user_id'], channel_id2['channel_id'])
     details2 = channel_details_v1(id2['auth_user_id'], channel_id2['channel_id'])
-    assert details1 == details2
+    assert len(details1['all_members']) == 2
+    assert len(details2['all_members']) == 2
+    assert len(details1['owner_members']) == 1
+    assert len(details2['owner_members']) == 1
 
 # Private: Test channel_invite function
 def test_valid_channel_invite_priv(): 
@@ -166,7 +153,10 @@ def test_valid_channel_invite_priv():
     channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], id3['auth_user_id'])
     details3 = channel_details_v1(id3['auth_user_id'], channel_id4['channel_id'])
     details4 = channel_details_v1(id4['auth_user_id'], channel_id4['channel_id'])
-    assert details3 == details4
+    assert len(details3['all_members']) == 2
+    assert len(details4['all_members']) == 2
+    assert len(details3['owner_members']) == 1
+    assert len(details4['owner_members']) == 1
 
 ##########################################
 ######### channel_details tests ##########
