@@ -146,15 +146,17 @@ def test_valid_channel_invite_pub():
 # Private: Test channel_invite function
 def test_valid_channel_invite_priv(): 
     clear_v1()
+    id2 = auth_register_v1('email@gmail.com', 'password', 'first', 'last')
     id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
     id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], id3['auth_user_id'])
+    channel_invite_v1(id4['auth_user_id'], channel_id4['channel_id'], id2['auth_user_id'])
     details3 = channel_details_v1(id3['auth_user_id'], channel_id4['channel_id'])
     details4 = channel_details_v1(id4['auth_user_id'], channel_id4['channel_id'])
-    assert len(details3['all_members']) == 2
-    assert len(details4['all_members']) == 2
+    assert len(details3['all_members']) == 3
+    assert len(details4['all_members']) == 3
     assert len(details3['owner_members']) == 1
     assert len(details4['owner_members']) == 1
 
@@ -176,7 +178,6 @@ def test_details_auth_user_id():
         channel_details_v1(-1, channel_id2['channel_id'])
         channel_details_v1(0, channel_id2['channel_id'])
         channel_details_v1(256, channel_id2['channel_id'])
-        channel_details_v1('', channel_id2['channel_id'])
         channel_details_v1('not_an_id', channel_id2['channel_id'])
         
 
@@ -184,7 +185,6 @@ def test_details_auth_user_id():
         channel_details_v1(-1, channel_id4['channel_id'])
         channel_details_v1(0, channel_id4['channel_id'])
         channel_details_v1(256, channel_id4['channel_id'])
-        channel_details_v1('', channel_id4['channel_id'])
         channel_details_v1('not_an_id', channel_id4['channel_id'])
 
 # Invalid channel_id
@@ -196,7 +196,6 @@ def test_details_channel_id():
         channel_details_v1(id1['auth_user_id'], -1)
         channel_details_v1(id1['auth_user_id'], 0)
         channel_details_v1(id1['auth_user_id'], 256)
-        channel_details_v1(id1['auth_user_id'], '')
         channel_details_v1(id1['auth_user_id'], 'not_an_id')
 
 # Authorised user is not a member of the channel
@@ -207,7 +206,7 @@ def test_details_not_member():
     id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
     id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
-    channel_id4 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
+    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     with pytest.raises(AccessError):
 
@@ -219,11 +218,106 @@ def test_details_not_member():
         channel_details_v1(id2['auth_user_id'], channel_id4['channel_id'])
         channel_details_v1(id3['auth_user_id'], channel_id4['channel_id'])
 
+
+##### Implementation #####
+def test_details_valid_channel():
+    clear_v1()
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'dog', 'a')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'dog', 'a')
+    channel_id1 = channels_create_v1(id1['auth_user_id'], 'anna', True)
+    channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id2['auth_user_id'])
+    assert(channel_details_v1(id1['auth_user_id'], channel_id1['channel_id']) ==
+        {
+        'name': 'anna',
+        'is_public': True,
+        'owner_members':[
+            {
+                'auth_user_id': 1,
+                'email': 'abc@gmail.com',
+                'name_first': 'dog',
+                'name_last': 'a',
+                'handle_str': 'doga'
+
+            },
+        ],
+        'all_members': [
+            {
+                'auth_user_id': 1,
+                'email': 'abc@gmail.com',
+                'name_first': 'dog',
+                'name_last': 'a',
+                'handle_str': 'doga'
+            }, 
+            {
+                'auth_user_id': 2,
+                'email': 'email@gmail.com',
+                'name_first': 'dog',
+                'name_last': 'a',
+                'handle_str': 'doga0'
+            }
+        ]
+    })
+
 ##########################################
 ######### channel_messages tests #########
 ##########################################
 
-########## Implementation Tests (To be completed when adding messages is added) ##########
+# Invalid auth_user_id
+def test_messages_auth_user_id():
+    clear_v1()
+    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
+    channel_id4 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
+
+    with pytest.raises(AccessError):
+
+        # Public
+        channel_messages_v1(-16, channel_id2['channel_id'], 0)
+        channel_messages_v1(0, channel_id2['channel_id'], 0)
+        channel_messages_v1(256, channel_id2['channel_id'], 0)
+        channel_messages_v1('not_an_id', channel_id2['channel_id'], 0)
+
+        # Private
+        channel_messages_v1(-16, channel_id4['channel_id'], 0)
+        channel_messages_v1(0, channel_id4['channel_id'], 0)
+        channel_messages_v1(256, channel_id4['channel_id'], 0)
+        channel_messages_v1('not_an_id', channel_id4['channel_id'], 0)
+
+# channel_id does not refer to a valid channel
+def test_invalid_channel_id():
+    clear_v1()
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
+
+    with pytest.raises(InputError):
+        channel_messages_v1(id4['auth_user_id'], -16, 0)
+        channel_messages_v1(id4['auth_user_id'], 0, 0)
+        channel_messages_v1(id4['auth_user_id'], 256, 0)
+        channel_messages_v1(id4['auth_user_id'], 'not_an_id', 0)
+
+# channel_id is valid and the authorised user is not a member of the channel 
+def test_user_not_authorised_to_channel():
+    clear_v1()
+    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
+
+    with pytest.raises(AccessError):
+        channel_messages_v1(id3['auth_user_id'], channel_id4['channel_id'], 0)
+
+# Start is not a valid positive integer
+def test_invalid_start():
+    clear_v1()
+    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
+
+    with pytest.raises(InputError):
+        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], -16)
+        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 256)
+        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 'not_an_id')
+
+##### Implementation ##### (To be completed when adding messages is added)
 
 # Start at most recent message (index = 0) and number of messages > 50
 
@@ -240,54 +334,6 @@ def test_details_not_member():
 # Start at neither most or least recent and number of messages < 50
 
 
-# Inavlid auth_user_id
-def test_messages_auth_user_id():
-    clear_v1()
-    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-    channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
-    channel_id4 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
-
-    with pytest.raises(AccessError):
-
-        # Public
-        channel_messages_v1(-16, channel_id2['channel_id'], 0)
-        channel_messages_v1(0, channel_id2['channel_id'], 0)
-        channel_messages_v1(256, channel_id2['channel_id'], 0)
-        channel_messages_v1('', channel_id2['channel_id'], 0)
-        channel_messages_v1('not_an_id', channel_id2['channel_id'], 0)
-
-        # Private
-        channel_messages_v1(-16, channel_id4['channel_id'], 0)
-        channel_messages_v1(0, channel_id4['channel_id'], 0)
-        channel_messages_v1(256, channel_id4['channel_id'], 0)
-        channel_messages_v1('', channel_id4['channel_id'], 0)
-        channel_messages_v1('not_an_id', channel_id4['channel_id'], 0)
-
-# channel_id does not refer to a valid channel
-def test_invalid_channel_id():
-    clear_v1()
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
-
-    with pytest.raises(InputError):
-        channel_messages_v1(id4['auth_user_id'], -16, 0)
-        channel_messages_v1(id4['auth_user_id'], 0, 0)
-        channel_messages_v1(id4['auth_user_id'], 256, 0)
-        channel_messages_v1(id4['auth_user_id'], '', 0)
-        channel_messages_v1(id4['auth_user_id'], 'not_an_id', 0)
-
-# channel_id is valid and the authorised user is not a member of the channel 
-def test_user_not_authorised_to_channel():
-    clear_v1()
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
-
-    with pytest.raises(AccessError):
-        channel_messages_v1(id3['auth_user_id'], channel_id4['channel_id'], 0)
-
-
 # No messages currently in channel
 def test_no_messages():
     clear_v1()
@@ -301,29 +347,6 @@ def test_no_messages():
             'end': -1
         }
     )
-
-# Start is greater than the total number of messages in the channel
-def test_start_gt_total_messages():
-    clear_v1()
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
-
-    with pytest.raises(InputError):
-        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 10)
-
-
-# Start is not a valid positive integer
-def test_invalid_start():
-    clear_v1()
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
-
-    with pytest.raises(InputError):
-        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], -16)
-        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 256)
-        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], '')
-        channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], 'not_an_id')
-
 
 
 ##########################################
@@ -340,7 +363,6 @@ def test_join_auth_user_id():
         channel_join_v1(-1, channel_id2['channel_id'])
         channel_join_v1(0, channel_id2['channel_id'])
         channel_join_v1(256, channel_id2['channel_id'])
-        channel_join_v1('', channel_id2['channel_id'])
         channel_join_v1('not_an_id', channel_id2['channel_id'])
 
 # Invalid channel_id
@@ -352,7 +374,6 @@ def test_join_channel_id():
         channel_join_v1(id1['auth_user_id'], -1)
         channel_join_v1(id1['auth_user_id'], 0)
         channel_join_v1(id1['auth_user_id'], 256)
-        channel_join_v1(id1['auth_user_id'], '')
         channel_join_v1(id1['auth_user_id'], 'not_an_id')
 
 # Input error when the authorised user is already a member of the channel
@@ -372,21 +393,44 @@ def test_join_already_in():
 # and the authorised user is not already a channel member and is not a global owner
 def test_join_access_error(): 
     clear_v1()
-    id3 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
-    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
+    id1 = auth_register_v1('elephant@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('cat@gmail.com', 'password', 'name_first', 'name_last')
+    id3 = auth_register_v1('dog@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id2 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
 
     with pytest.raises(AccessError): 
-        channel_join_v1(id3['auth_user_id'], channel_id4['channel_id'])
+        channel_join_v1(id3['auth_user_id'], channel_id2['channel_id'])
 
-# Test channel_join function
-def test_valid_channel_join(): 
+
+##### Implementation #####
+# Test channel_join function for joining a public channel
+def test_valid_public_channel_join(): 
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
     id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    id3 = auth_register_v1('dog@gmail.com', 'password', 'name_first', 'name_last')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
+    
+    channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    channel_join_v1(id3['auth_user_id'], channel_id2['channel_id'])
+    details1 = channel_details_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    details2 = channel_details_v1(id2['auth_user_id'], channel_id2['channel_id'])
+    assert len(details1['all_members']) == 3
+    assert len(details2['all_members']) == 3
+    assert len(details1['owner_members']) == 1
+    assert len(details2['owner_members']) == 1
+
+# Test channel_join function for joining a private channel
+def test_valid_private_channel_join():
+    clear_v1()
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', False)
     
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
     details1 = channel_details_v1(id1['auth_user_id'], channel_id2['channel_id'])
     details2 = channel_details_v1(id2['auth_user_id'], channel_id2['channel_id'])
-    assert details1 == details2
+    assert len(details1['all_members']) == 2
+    assert len(details2['all_members']) == 2
+    assert len(details1['owner_members']) == 1
+    assert len(details2['owner_members']) == 1

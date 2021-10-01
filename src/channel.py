@@ -59,7 +59,7 @@ def channel_details_v1(auth_user_id, channel_id):
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    elif check_channel_id(channel_id) == False:
+    if check_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
    
 
@@ -99,7 +99,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     num_messages = len(messages)
 
     # Start is greater than the total number of messages in the channel
-    if check_start_lt_total_messages(num_messages, start) == False:
+    if check_valid_start(num_messages, start) == False:
         raise InputError("Index 'start' is greater than the total number of messages in channel")
 
     end = start + 50
@@ -114,8 +114,12 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     }
 
 # Checks if the start is greater than total number of messages
-def check_start_lt_total_messages(num_messages, start):
-    if int(start) > int(num_messages):
+def check_valid_start(num_messages, start):
+    if not isinstance(start, int):
+        return False
+    elif start > num_messages:
+        return False
+    elif start < 0:
         return False
     else:
         return True
@@ -151,7 +155,7 @@ def channel_join_v1(auth_user_id, channel_id):
         raise InputError ('Already a member of this channel')
 
     elif check_valid_member_in_channel (channel_id, auth_user_id) == False: 
-        if check_channel_private(channel_id) == True: 
+        if check_channel_private(channel_id) == True and check_permision_id(auth_user_id) == False: 
             raise AccessError ('Not authorised to join channel')
 
     new_user = user_info(auth_user_id)
@@ -171,6 +175,7 @@ def check_channel_id(channel_id):
             return channel
     return False
 
+# 
 def check_valid_member_in_channel(channel_id, auth_user_id):
     for channel in initial_object['channels']:
         if int(channel['channel_id']) == int(channel_id):
@@ -180,6 +185,7 @@ def check_valid_member_in_channel(channel_id, auth_user_id):
     
     return False
 
+# Checks if the channel is public or private
 def check_channel_private(channel_id): 
     store = data_store.get()
     for channels in initial_object['channels']:
@@ -187,4 +193,14 @@ def check_channel_private(channel_id):
             if channels['is_public'] == False: 
                 return True
             else: 
+                return False
+
+# Check if authorised user is a global owner of streams
+def check_permision_id(auth_user_id):
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            # If the user is a global owner
+            if user['permission_id'] == 1:
+                return True
+            else:
                 return False
