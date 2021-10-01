@@ -385,3 +385,22 @@ def test_valid_channel_join():
     details1 = channel_details_v1(id1['auth_user_id'], channel_id2['channel_id'])
     details2 = channel_details_v1(id2['auth_user_id'], channel_id2['channel_id'])
     assert details1 == details2
+
+
+
+def test_many_channel_join(): 
+    clear_v1() 
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'name_first', 'name_last')
+    id2 = auth_register_v1('email@gmail.com', 'password', 'name_first', 'name_last')
+    channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
+    channel_id1 = channels_create_v1(id1['auth_user_id'], 'ashley', True)
+
+    channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    channel_join_v1(id2['auth_user_id'], channel_id1['channel_id'])
+
+    details1 = channel_details_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    details2 = channel_details_v1(id2['auth_user_id'], channel_id2['channel_id'])
+    details3 = channel_details_v1(id1['auth_user_id'], channel_id1['channel_id'])
+    details4 = channel_details_v1(id2['auth_user_id'], channel_id1['channel_id'])
+
+    assert details1 == details2 and details3 == details4
