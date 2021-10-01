@@ -23,9 +23,9 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     # Invalid u_id
     if not isinstance(u_id, int):
-        raise AccessError("This is an invalid u_id")
+        raise InputError("This is an invalid u_id")
     if channels_create_check_valid_user(u_id) == False:
-        raise AccessError("The u_id does not refer to a valid user")    
+        raise InputError("The u_id does not refer to a valid user")    
 
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int):

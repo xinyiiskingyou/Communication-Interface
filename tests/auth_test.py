@@ -12,8 +12,8 @@ from src.other import clear_v1
 def test_register_invalid_email():
     clear_v1()
     with pytest.raises(InputError):
-        auth_register_v1('abc', 'password', 'afirst', 'alast')
-        auth_register_v1('abc@gmail', 'password', 'bfirst', 'blast')
+        auth_register_v1('abc', 'password', 'first1', 'last1')
+        auth_register_v1('abc@gmail', 'password', 'first2', 'last2')
 
 
 # Duplicate email address

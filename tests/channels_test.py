@@ -11,28 +11,44 @@ from src.error import InputError, AccessError
 # AccessError Invalid auth_user_id
 def test_create_auth_user_id():
     clear_v1()
+
+    # Public
     with pytest.raises(AccessError):
-
-        # Public
         channels_create_v1(-16, '1531_CAMEL', True)
+    with pytest.raises(AccessError):
         channels_create_v1(0, '1531_CAMEL', True)
+    with pytest.raises(AccessError):
         channels_create_v1(256, '1531_CAMEL', True)
+    with pytest.raises(AccessError):
         channels_create_v1('not_an_id', '1531_CAMEL', True)
+    with pytest.raises(AccessError):
+        channels_create_v1('', '1531_CAMEL', True)
 
-        #Private
+    # Private
+    with pytest.raises(AccessError):
         channels_create_v1(-16, '1531_CAMEL', False)
+    with pytest.raises(AccessError):
         channels_create_v1(0, '1531_CAMEL', False)
+    with pytest.raises(AccessError):
         channels_create_v1(256, '1531_CAMEL', False)
+    with pytest.raises(AccessError):
         channels_create_v1('not_an_id', '1531_CAMEL', False)
+    with pytest.raises(AccessError):
+        channels_create_v1('', '1531_CAMEL', False)
 
 # InputError when length of name is less than 1 or more than 20 characters
 def test_create_invalid_name():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
+        channels_create_v1(id1['auth_user_id'], '', True)
+    with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], ' ', True)
+    with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], '                      ', True)
+    with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], 'a' * 21, True)
+    with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], 'a' * 50, True)
 
 # InputError for setting invalid privacy
@@ -41,9 +57,12 @@ def test_create_invalid_public():
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', -1)
+    with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', 256)
+    with pytest.raises(InputError):
         channels_create_v1(id1['auth_user_id'], '1531_CAMEL', 'not_an_id')
-
+    with pytest.raises(InputError):
+        channels_create_v1(id1['auth_user_id'], '1531_CAMEL', '')
 
 ##### Implementation #####
 # Assert channel_id for one, two and three channels created by two different users
@@ -59,6 +78,10 @@ def test_create_valid_channel_id():
     auth_id2 = auth_register_v1('abc2@gmail.com', 'password', 'bfirst', 'blast')
     channel_id3 = channels_create_v1(auth_id2['auth_user_id'], '1531_CAMEL_3', True)
     assert channel_id3['channel_id'] == 3
+
+    auth_id3 = auth_register_v1('abc3@gmail.com', 'password', 'cfirst', 'clast')
+    channel_id4 = channels_create_v1(auth_id3['auth_user_id'], '1531_CAMEL_3', False)
+    assert channel_id4['channel_id'] == 4
     
 
 # Assert channel_id can never be a negative number
@@ -78,9 +101,15 @@ def test_list_auth_user_id():
     clear_v1()
     with pytest.raises(AccessError):
         channels_list_v1(-16)
+    with pytest.raises(AccessError):
         channels_list_v1(0)
+    with pytest.raises(AccessError):
         channels_list_v1(256)
+    with pytest.raises(AccessError):
         channels_list_v1('not_an_id')
+    with pytest.raises(AccessError):
+        channels_list_v1('')
+
 
 ##### Implementation ######
 # Test if an authorised user that dosen't have channel
