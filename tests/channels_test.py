@@ -1,5 +1,6 @@
 import pytest
 from src.channels import channels_list_v1, channels_create_v1, channels_listall_v1
+from src.channel import channel_invite_v1, channel_join_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
 from src.error import InputError, AccessError
@@ -92,7 +93,7 @@ def test_negative_channel_id():
 ### channels_list and channels_list_all tests ###
 #################################################
 
-# AccessError Invalid auth_user_id
+# Access Error for invalid auth_user_id for channels_list
 def test_list_auth_user_id():
     clear_v1()
     with pytest.raises(AccessError):
@@ -105,6 +106,20 @@ def test_list_auth_user_id():
         channels_list_v1('not_an_id')
     with pytest.raises(AccessError):
         channels_list_v1('')
+
+# Access Error for invalid auth_user_id for channels_listall
+def test_listall_invalid_auth_user_id():
+    clear_v1()
+    with pytest.raises(AccessError):
+        channels_listall_v1(-16)
+    with pytest.raises(AccessError):
+        channels_listall_v1(0)
+    with pytest.raises(AccessError):
+        channels_listall_v1(256)
+    with pytest.raises(AccessError):
+        channels_listall_v1('not_an_id')
+    with pytest.raises(AccessError):
+        channels_listall_v1('')
 
 
 ##### Implementation ######
@@ -125,13 +140,13 @@ def test_channels_list():
     x_channel = channels_create_v1(x_register['auth_user_id'], 'x', True)
     assert(channels_list_v1(x_register['auth_user_id']) ==
         {
-        'channels':[
-        {
-            'channel_id': x_channel['channel_id'],
-            'name': 'x'
-        },
-        ]
-    })
+            'channels':[
+                {
+                    'channel_id': x_channel['channel_id'],
+                    'name': 'x'
+                },
+            ]
+        })
 
     assert(len(channels_list_v1(x_register['auth_user_id'])['channels']) == 1)
     assert(len(channels_listall_v1(x_register['auth_user_id'])['channels']) == 1)
@@ -163,8 +178,81 @@ def test_listall_channels():
     assert(len(channels_list_v1(id2['auth_user_id'])['channels']) == 1)
     assert(len(channels_list_v1(id3['auth_user_id'])['channels']) == 0)
 
-    print(channels_listall_v1(id1['auth_user_id'])['channels'])
-    print(channels_list_v1(id1['auth_user_id'])['channels'])
-    print(channels_list_v1(id2['auth_user_id'])['channels'])
-    print(channels_list_v1(id3['auth_user_id'])['channels'])
 
+# Tests channels_list and channels_listall with channel_invite and channel_join
+def test_list_listall_with_invite_join():
+    clear_v1()
+    id1 = auth_register_v1('ashley@gmail.com', 'ashpass', 'afirst', 'alast')
+    id2 = auth_register_v1('ashemail@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('id3@gmail.com', 'password', 'cfirst', 'clast')
+    id4 = auth_register_v1('id4@gmail.com', 'password', 'dfirst', 'dlast')
+
+    id1_channel = channels_create_v1(id1['auth_user_id'], 'anna', True)
+    channel_join_v1(id2['auth_user_id'], id1_channel['channel_id'])
+    channel_invite_v1(id1['auth_user_id'], id1_channel['channel_id'], id3['auth_user_id'])
+    
+    id2_channel = channels_create_v1(id2['auth_user_id'], 'id2_channel', False)
+    channel_invite_v1(id2['auth_user_id'], id2_channel['channel_id'], id4['auth_user_id'])
+
+    assert(channels_listall_v1(id4['auth_user_id']) == 
+        {
+            'channels':[
+                {
+                    'channel_id': id1_channel['channel_id'],
+                    'name': 'anna'
+                }, 
+                {
+                    'channel_id': id2_channel['channel_id'],
+                    'name': 'id2_channel'
+                }
+            ]
+        }
+    )
+
+    assert(channels_list_v1(id1['auth_user_id']) ==
+        {
+            'channels':[
+                {
+                    'channel_id': id1_channel['channel_id'],
+                    'name': 'anna'
+                }
+            ]
+        }
+    )
+
+    assert(channels_list_v1(id2['auth_user_id']) ==
+        {
+            'channels':[
+                {
+                    'channel_id': id1_channel['channel_id'],
+                    'name': 'anna'
+                }, 
+                {
+                    'channel_id': id2_channel['channel_id'],
+                    'name': 'id2_channel'
+                }
+            ]
+        }
+    )
+
+    assert(channels_list_v1(id3['auth_user_id']) ==
+        {
+            'channels':[
+                {
+                    'channel_id': id1_channel['channel_id'],
+                    'name': 'anna'
+                }
+            ]
+        }
+    )
+
+    assert(channels_list_v1(id4['auth_user_id']) ==
+        {
+            'channels':[
+                {
+                    'channel_id': id2_channel['channel_id'],
+                    'name': 'id2_channel'
+                }
+            ]
+        }
+    )

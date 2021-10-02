@@ -66,14 +66,20 @@ def test_join_already_in():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('dog@gmail.com', 'password', 'cfirst', 'clast')
+
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
+    channel_id3 = channels_create_v1(id3['auth_user_id'], 'beta', True)
 
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    channel_invite_v1(id3['auth_user_id'], channel_id3['channel_id'], id1['auth_user_id'])
 
     with pytest.raises(InputError): 
         channel_join_v1(id2['auth_user_id'], channel_id2['channel_id'])
     with pytest.raises(InputError): 
         channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    with pytest.raises(InputError):
+        channel_join_v1(id1['auth_user_id'], channel_id3['channel_id'])
 
 # AccessError when channel_id refers to a channel that is private 
 # and the authorised user is not already a channel member and is not a global owner
