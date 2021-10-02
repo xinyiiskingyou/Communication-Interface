@@ -1,5 +1,5 @@
-from src.data_store import data_store, initial_object
-from src.error import InputError
+from data_store import data_store, initial_object
+from error import InputError
 import re
 
 def auth_login_v1(email, password):
@@ -33,13 +33,13 @@ def auth_register_v1(email, password, name_first, name_last):
             raise InputError("This email address has already been registered by another user") 
 
     if len(password) < 6:
-         raise InputError("This password is less then 6 characters in length")
+        raise InputError("This password is less then 6 characters in length")
 
     if len(name_first) not in range(1, 51):
-         raise InputError("name_first is not between 1 - 50 characters in length")
+        raise InputError("name_first is not between 1 - 50 characters in length")
 
     if len(name_last) not in range(1, 51):
-         raise InputError("name_last is not between 1 - 50 characters in length")
+        raise InputError("name_last is not between 1 - 50 characters in length")
          
     # Creating unique auth_user_id and adding to dict_user
     auth_user_id = len(initial_object['users']) + 1
@@ -55,7 +55,7 @@ def auth_register_v1(email, password, name_first, name_last):
     for user in initial_object['users']:
         if user['handle_str'] == handle:
             if number == 0: 
-                handle = handle +str(number)
+                handle = handle + str(number)
             elif number in range(1,10):  
                 handle = handle[:-1] + str(number)
             else:

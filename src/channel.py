@@ -1,7 +1,7 @@
-from src.data_store import data_store, initial_object 
-from src.error import InputError, AccessError
-from src.channels import channels_create_check_valid_user, user_info
-
+from data_store import data_store, initial_object 
+from error import InputError, AccessError
+from channels import channels_create_check_valid_user, user_info
+from other import clear_v1
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     '''
@@ -9,7 +9,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     Once invited, the user is added to the channel immediately. 
     In both public and private channels, all members are able to invite users.
     '''
-
+    store = data_store.get()
     # Input error when channel_id does not refer to a valid channel
     if check_channel_id(channel_id) == False:
         raise InputError("Channel_id does not refer to a valid channel")
@@ -22,13 +22,11 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("The authorised user is not a member of the channel")
     
-    store = data_store.get()
     new_user = user_info(u_id)
     for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
             # append the new user details to all_member
             channel['all_members'].append(new_user)
-
     data_store.set(store)
     return {}
 
@@ -43,7 +41,7 @@ def channel_details_v1(auth_user_id, channel_id):
         raise AccessError("Authorised user is not a member of channel with channel_id")
 
     channel_info = check_channel_id(channel_id)
-
+    
     return {
         'name': channel_info['name'],
         'is_public': channel_info['is_public'],
@@ -72,7 +70,6 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     if end >= num_messages:
         end = -1
     
-
     return {
         'messages': messages,
         'start': start,
@@ -99,6 +96,8 @@ def channel_join_v1(auth_user_id, channel_id):
     to do: 
     take in an auth_user_id and channel id and append them to the member list in channels dictionary 
     ''' 
+    store = data_store.get()
+
     if channels_create_check_valid_user(auth_user_id) == False:
         raise AccessError ('Auth_user_id is not a valid id')
 
@@ -106,11 +105,11 @@ def channel_join_v1(auth_user_id, channel_id):
         raise InputError('Channel id is not valid')
 
     if check_valid_member_in_channel(channel_id, auth_user_id) == True:
-        raise InputError ('Already a member of this channel')
+        raise InputError('Already a member of this channel')
 
     elif check_valid_member_in_channel (channel_id, auth_user_id) == False: 
         if check_channel_private(channel_id) == True: 
-            raise AccessError ('Not authorised to join channel')
+            raise AccessError('Not authorised to join channel')
 
     new_user = user_info(auth_user_id)
 
@@ -118,6 +117,7 @@ def channel_join_v1(auth_user_id, channel_id):
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_user)
 
+    data_store.set(store)
     return {
     }
 
