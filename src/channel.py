@@ -7,15 +7,31 @@ from src.helper import channels_create_check_valid_user
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
-
     '''
     Invites a user with ID u_id to join a channel with ID channel_id. 
     Once invited, the user is added to the channel immediately. 
     In both public and private channels, all members are able to invite users.
+
+    Arguments:
+        <auth_user_id> (<int>)    - unique id of an authorised user who is doing the inviting
+        <channel_id>   (<int>)    - unique id if a channel
+        <u_id>         (<int>)    - unique id of an authorised user who is being invited
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Occurs when u_id does not refer to a valid user
+                    - Occurs when u_id refers to a user who is already a member of the channel
+                    
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+                    - Occurs when channel_id is valid and the authorised user is not a 
+                      member of the channel
+
+    Return Value:
+        N/A
     '''
+
     store = data_store.get()
-
-
 
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int) or channels_create_check_valid_user(auth_user_id) == False:
@@ -68,6 +84,28 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
 
 def channel_details_v1(auth_user_id, channel_id):
+    '''
+    Given a channel with ID channel_id that the authorised user 
+    is a member of, provide basic details about the channel.
+
+    Arguments:
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        <channel_id>   (<int>)    - unique id if a channel
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+                    - Occurs when channel_id is valid and the authorised user is not a member
+                      of the channel
+
+    Return Value:
+        Returns <name> of valid channel requested by authorised user
+        Returns <is_public> of valid channel requested by authorised user
+        Returns <owner_members> of valid channel requested by authorised user
+        Returns <all_members> of valid channel requested by authorised user
+    '''
 
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
@@ -97,6 +135,29 @@ def channel_details_v1(auth_user_id, channel_id):
 
 
 def channel_messages_v1(auth_user_id, channel_id, start):
+    '''
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    return up to 50 messages between index "start" and "start + 50". 
+
+    Arguments:
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        <channel_id>   (<int>)    - unique id of a channel
+        <start>        (<int>)    - starting index of message pagination
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Occurs when start is greater than the total number of messages in the channel
+
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+                    - Occurs when channel_id is valid and the authorised user is not a member of the channel
+
+    Return Value:
+        Returns <messages> of valid channel requested by authorised user with valid starting index
+        Returns <start> of valid channel requested by authorised user with valid starting index
+        Returns <end> of valid channel requested by authorised user with valid starting index, 
+            -1 if function has returned the least recent messages in the channel
+    '''
     
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
@@ -135,15 +196,24 @@ def channel_messages_v1(auth_user_id, channel_id, start):
 
 def channel_join_v1(auth_user_id, channel_id):
     '''
-    raise error :
-    input  
-    - channel id not valid/doesn't have a valid channel 
-    - authoried user is alreadt a member of the channel 
-    access
-    - when a channel is private and authorised user is not a member - also not global owner 
+    Given a channel_id of a channel that the authorised user can join, 
+    adds them to that channel.
 
-    to do: 
-    take in an auth_user_id and channel id and append them to the member list in channels dictionary 
+    Arguments:
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        <channel_id>   (<int>)    - unique id of a channel
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Occurs when the authorised user is already a member of the channel
+
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+                    - channel_id refers to a channel that is private and the authorised 
+                      user is not already a channel member and is not a global owner
+
+    Return Value:
+        N/A
     ''' 
     store = data_store.get()
     
