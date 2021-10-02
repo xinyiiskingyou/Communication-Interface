@@ -66,14 +66,20 @@ def test_join_already_in():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v1('dog@gmail.com', 'password', 'cfirst', 'clast')
+
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
+    channel_id3 = channels_create_v1(id3['auth_user_id'], 'beta', True)
 
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    channel_invite_v1(id3['auth_user_id'], channel_id3['channel_id'], id1['auth_user_id'])
 
     with pytest.raises(InputError): 
         channel_join_v1(id2['auth_user_id'], channel_id2['channel_id'])
     with pytest.raises(InputError): 
         channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
+    with pytest.raises(InputError):
+        channel_join_v1(id1['auth_user_id'], channel_id3['channel_id'])
 
 # AccessError when channel_id refers to a channel that is private 
 # and the authorised user is not already a channel member and is not a global owner
@@ -113,9 +119,11 @@ def test_valid_private_channel_join():
     id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', False)
     
+    # Tests that global owner of Streams is able to join any private channel
     channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
     details1 = channel_details_v1(id1['auth_user_id'], channel_id2['channel_id'])
     details2 = channel_details_v1(id2['auth_user_id'], channel_id2['channel_id'])
+    
     assert len(details1['all_members']) == 2
     assert len(details2['all_members']) == 2
     assert len(details1['owner_members']) == 1
@@ -134,3 +142,4 @@ def test_join_invite_public():
     channel_invite_v1(id2['auth_user_id'], channel_id1['channel_id'], id3['auth_user_id'])
     details1 = channel_details_v1(id3['auth_user_id'], channel_id1['channel_id'])
     assert len(details1['all_members']) == 3    
+

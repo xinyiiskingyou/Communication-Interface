@@ -111,7 +111,7 @@ def test_details_valid_channel():
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     channel_id1 = channels_create_v1(id1['auth_user_id'], 'anna', True)
-    channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id2['auth_user_id'])
+    
     assert(channel_details_v1(id1['auth_user_id'], channel_id1['channel_id']) ==
         {
         'name': 'anna',
@@ -133,13 +133,10 @@ def test_details_valid_channel():
                 'name_first': 'afirst',
                 'name_last': 'alast',
                 'handle_str': 'afirstalast'
-            }, 
-            {
-                'u_id': 2,
-                'email': 'email@gmail.com',
-                'name_first': 'afirst',
-                'name_last': 'alast',
-                'handle_str': 'afirstalast0'
             }
         ]
     })
+
+    channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id2['auth_user_id'])
+    assert(len(channel_details_v1(id1['auth_user_id'], channel_id1['channel_id'])['owner_members']) ==  1)
+    assert(len(channel_details_v1(id1['auth_user_id'], channel_id1['channel_id'])['all_members']) ==  2)
