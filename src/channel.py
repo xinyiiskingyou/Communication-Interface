@@ -195,24 +195,26 @@ def channel_messages_v1(auth_user_id, channel_id, start):
 
 
 def channel_join_v1(auth_user_id, channel_id):
-		'''
-	if the channel is public or the user is part of a private channel, 
-	if adds the given person to the channel.
+    '''
+    Given a channel_id of a channel that the authorised user can join, 
+    adds them to that channel.
 
-	Arguments:
-		auth_user_id (int)    - the user's unique id that identifies their account
-		channel_id (int)   - a channel's unique id that identifies the channel
+    Arguments:
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        <channel_id>   (<int>)    - unique id of a channel
 
-	Exceptions:
-		InputError  - Occurs when the channel_id is not valid, or the person 
-						has already been added to the server 
-		AccessError - Occurs when the auth_user_id is invalid or is not of a valid type 
-					- channel_id refers to a channel that is private and the authorised 
-						user is not already a channel member and is not a global owner
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Occurs when the authorised user is already a member of the channel
 
-	Return Value:
-		- N/A
-		'''
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+                    - channel_id refers to a channel that is private and the authorised 
+                      user is not already a channel member and is not a global owner
+
+    Return Value:
+        N/A
+    ''' 
     store = data_store.get()
     
     # Invalid auth_user_id
