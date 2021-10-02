@@ -489,6 +489,18 @@ def test_messages_auth_user_id():
     with pytest.raises(AccessError):
         channel_messages_v1('', channel_id4['channel_id'], 0)
 
+    # Invalid channel_id
+    with pytest.raises(AccessError):
+        channel_messages_v1(-16, -16, 0)  
+    with pytest.raises(AccessError):
+        channel_messages_v1(0, '', 0)  
+
+    # invalid_start
+    with pytest.raises(AccessError):
+        channel_messages_v1(0, channel_id4['channel_id'], 256)   
+    with pytest.raises(AccessError):
+        channel_messages_v1(-256, channel_id4['channel_id'], 'not_valid') 
+
 # channel_id does not refer to a valid channel
 def test_invalid_channel_id():
     clear_v1()
@@ -516,6 +528,11 @@ def test_user_not_authorised_to_channel():
     with pytest.raises(AccessError):
         channel_messages_v1(id3['auth_user_id'], channel_id4['channel_id'], 0)
 
+    # invalid start
+    with pytest.raises(AccessError):
+        channel_messages_v1(id3['auth_user_id'], channel_id4['channel_id'], 256)   
+    with pytest.raises(AccessError):
+        channel_messages_v1(id3['auth_user_id'], channel_id4['channel_id'], 'not_valid')
 # Start is not a valid positive integer
 def test_invalid_start():
     clear_v1()
