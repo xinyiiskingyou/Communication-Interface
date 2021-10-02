@@ -3,8 +3,7 @@ from src.error import InputError
 import re
 
 def auth_login_v1(email, password):
-    store = data_store.get()
-    
+
     # Iterate through the initial_object list 
     for user in initial_object['users']:
         # If the email and password the user inputs to login match and exist in data_store
@@ -13,10 +12,7 @@ def auth_login_v1(email, password):
             return {
                 'auth_user_id': auth_user_id
             }
-        else:
-            raise InputError("Email and/or password is not valid!")
-
-    data_store.set(store)
+    raise InputError("Email and/or password is not valid!")
 
 
 def auth_register_v1(email, password, name_first, name_last):

@@ -196,7 +196,7 @@ def test_valid_channel_invite_priv():
 ##########################################
 
 # Invalid auth_user_id
-def test_details_auth_user_id():
+def test_details_invalid_auth_user_id():
     clear_v1()
     id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
@@ -230,9 +230,10 @@ def test_details_auth_user_id():
         channel_details_v1('', channel_id4['channel_id'])
 
 # Invalid channel_id
-def test_details_channel_id():
+def test_details_invalid_channel_id():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    channel_id1 = channels_create_v1(id1['auth_user_id'], 'anna', True)
 
     with pytest.raises(InputError):
         channel_details_v1(id1['auth_user_id'], -1)
@@ -244,6 +245,26 @@ def test_details_channel_id():
         channel_details_v1(id1['auth_user_id'], 'not_an_id')
     with pytest.raises(InputError):
         channel_details_v1(id1['auth_user_id'], '')
+
+
+# Invalid auth_user_id and invalid channel_id
+# Raises Access Error as both Input and Access error are raised
+def test_details_invalid_auth_user_id_and_channel_id():
+    clear_v1()
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    channel_id1 = channels_create_v1(id1['auth_user_id'], 'anna', True)
+
+    with pytest.raises(AccessError):
+        channel_details_v1('', -16)
+    with pytest.raises(AccessError):
+        channel_details_v1('not_an_id', 0)
+    with pytest.raises(AccessError):
+        channel_details_v1(256, 256)
+    with pytest.raises(AccessError):
+        channel_details_v1(0, 'not_an_id')
+    with pytest.raises(AccessError):
+        channel_details_v1(-16, '')
+
 
 # Authorised user is not a member of the channel
 def test_details_not_member():
@@ -386,6 +407,7 @@ def test_invalid_start():
     with pytest.raises(InputError):
         channel_messages_v1(id4['auth_user_id'], channel_id4['channel_id'], '')
 
+
 ##### Implementation ##### (To be completed when adding messages is added)
 
 # Start at most recent message (index = 0) and number of messages > 50
@@ -423,7 +445,7 @@ def test_no_messages():
 ##########################################
 
 # Invalid auth_user_id
-def test_join_auth_user_id():
+def test_join_invalid_auth_user_id():
     clear_v1()
     id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
@@ -440,7 +462,7 @@ def test_join_auth_user_id():
         channel_join_v1('', channel_id2['channel_id'])
 
 # Invalid channel_id
-def test_join_channel_id():
+def test_join_invalid_channel_id():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
 
@@ -454,6 +476,24 @@ def test_join_channel_id():
         channel_join_v1(id1['auth_user_id'], 'not_an_id')
     with pytest.raises(InputError):
         channel_join_v1(id1['auth_user_id'], '')
+
+# Invalid auth_user_id and invalid channel_id
+# Raises Access Error as both Access and Input Errors are raised
+def test_join_invalid_auth_user_id_and_channel_id():
+    clear_v1()
+    id1 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
+    channel_id1 = channels_create_v1(id1['auth_user_id'], 'anna', True)
+
+    with pytest.raises(AccessError):
+        channel_join_v1('', -16)
+    with pytest.raises(AccessError):
+        channel_join_v1('not_an_id', 0)
+    with pytest.raises(AccessError):
+        channel_join_v1(256, 256)
+    with pytest.raises(AccessError):
+        channel_join_v1(0, 'not_an_id')
+    with pytest.raises(AccessError):
+        channel_join_v1(-16, '')
 
 # Input error when the authorised user is already a member of the channel
 def test_join_already_in(): 
