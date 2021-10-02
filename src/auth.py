@@ -1,5 +1,5 @@
-from src.data_store import data_store, initial_object
-from src.error import InputError
+from data_store import data_store, initial_object
+from error import InputError
 import re
 
 def auth_login_v1(email, password):
@@ -54,12 +54,17 @@ def auth_register_v1(email, password, name_first, name_last):
     
     # Check for duplicate handles
     num_dup = 0
-    for user in initial_object['users']:
+    i = 0
+    while i < len(initial_object['users']):
+        user = initial_object['users'][i]
         if user['handle_str'] == handle:   
             handle = handle[0:new_len]  
-            handle = handle[0:20 - num_dup] + str(num_dup)
+            handle = handle[0:20] + str(num_dup)
             num_dup += 1
-  
+            i = 0
+        else:
+            i += 1
+
     # Permission id for streams users
     if auth_user_id == 1:
         permission_id = 1

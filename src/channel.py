@@ -1,6 +1,7 @@
-from src.data_store import data_store, initial_object 
-from src.error import InputError, AccessError
-from src.channels import channels_create_check_valid_user, user_info
+from data_store import data_store, initial_object 
+from error import InputError, AccessError
+from channels import channels_create_check_valid_user, user_info, channels_create_v1
+from auth import auth_register_v1
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -188,3 +189,18 @@ def check_channel_private(channel_id):
                 return True
             else: 
                 return False
+
+
+id1 = auth_register_v1('elephant@gmail.com', 'password', 'afirst', 'dog0')
+id2 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'dog')
+channel_id1 = channels_create_v1(id1['auth_user_id'], 'shelly', False)
+
+id3 = auth_register_v1('catfgh@gmail.com', 'password', 'afirst', 'dog')
+id4 = auth_register_v1('catfghj@gmail.com', 'password', 'afirst', 'dog1')
+#id4 = auth_register_v1('cagtfgh@gmail.com', 'password', 'afirst', 'dogjjjjjjjjjjj')
+
+channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id2['auth_user_id'])
+channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id3['auth_user_id'])
+channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id4['auth_user_id'])
+#channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id4['auth_user_id'])
+print(channel_details_v1(id3['auth_user_id'], channel_id1['channel_id']))
