@@ -36,10 +36,18 @@ def channels_list_v1(auth_user_id):
 def channels_listall_v1(auth_user_id):
 
     '''
-    Provides a list of all channels, including private channels (and their associated 
-    details)
+   <provides a list of all channels including all private channels>
 
-    auth_user_id is the name of the user we connecting from 
+Arguments:
+    auth_user_id (int)    - the user's unique id to identify their account 
+
+Exceptions:
+    AccessError - Occurs when the auth_user_id is not valid or doesn't 
+                    have a valid user
+
+Return Value:
+    Returns channels: listchannel 
+
     '''
     store = data_store.get()
 
@@ -94,8 +102,7 @@ def channels_create_v1(auth_user_id, name, is_public):
         'all_members': [user]
     }
 
-    channels.append(new)
-    data_store.set(store)
+y5    data_store.set(store)
 
     return {
         'channel_id': channel_id,
