@@ -163,3 +163,8 @@ def test_listall_channels():
     assert(len(channels_list_v1(id2['auth_user_id'])['channels']) == 1)
     assert(len(channels_list_v1(id3['auth_user_id'])['channels']) == 0)
 
+    print(channels_listall_v1(id1['auth_user_id'])['channels'])
+    print(channels_list_v1(id1['auth_user_id'])['channels'])
+    print(channels_list_v1(id2['auth_user_id'])['channels'])
+    print(channels_list_v1(id3['auth_user_id'])['channels'])
+

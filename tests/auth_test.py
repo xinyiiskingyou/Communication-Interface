@@ -88,4 +88,6 @@ def test_correct_auth_login_output():
     user2_log = auth_login_v1('cat@unsw.edu.au', 'password')
     assert user1_log == {'auth_user_id': 1}
     assert user2_log == {'auth_user_id': 2}
+
+    print(auth_login_v1('cat@unsw.edu.au', 'password'))
     

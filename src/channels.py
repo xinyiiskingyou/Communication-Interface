@@ -8,10 +8,18 @@ def channels_list_v1(auth_user_id):
     that the authorised user is part of.
 
     Arguments:
-        auth_user_id
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        ...
+
+    Exceptions:
+        AccessError  - Occurs when the auth_user_id input is not a valid type
+                     - Occurs when the auth_user_id doesn't refer to a valid user
+       
     Return Value:
-        returns channel_id and name if an authorised user has channel
+        Returns <{channels}> when all channels (and its details) that user 
+        is part of are successfully listed by authorised user
     '''
+
     store = data_store.get()
 
     # Invalid auth_user_id
@@ -30,17 +38,30 @@ def channels_list_v1(auth_user_id):
                 new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})   
     
     data_store.set(store)
+
     # return to the new list    
-    return {'channels': new_list}
+    return {
+        'channels': new_list
+    }
     
 def channels_listall_v1(auth_user_id):
-
     '''
-    Provides a list of all channels, including private channels (and their associated 
-    details)
+    Provide a list of all channels, including private channels, 
+    (and their associated details)
 
-    auth_user_id is the name of the user we connecting from 
+    Arguments:
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        ...
+
+    Exceptions:
+        AccessError  - Occurs when the auth_user_id input is not a valid type
+                     - Occurs when the auth_user_id doesn't refer to a valid user
+       
+    Return Value:
+        Returns <{channels}> when all channels (and its details) in Streams 
+        are successfully listed by authorised user
     '''
+
     store = data_store.get()
 
     # Invalid auth_user_id
@@ -54,7 +75,9 @@ def channels_listall_v1(auth_user_id):
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
    
     data_store.set(store)
-    return {'channels': listchannel}
+    return {
+        'channels': listchannel
+    }
 
 # Creates a new channel with the given name that is either a public or private channel. 
 def channels_create_v1(auth_user_id, name, is_public):
@@ -65,11 +88,11 @@ def channels_create_v1(auth_user_id, name, is_public):
         <is_public>    (<boolean>) - privacy setting: True - Public ; False - Private
     
     Exceptions:
-        InputError - Occurs when the length of name is less than 1 or more than 20 characters;
-                            when then name is blank e.g., ' '
+        InputError  - Occurs when the length of name is less than 1 or more than 20 characters;
+                    - Occurs when then name is blank e.g., ' '
 
-        AccessErro - Occurs when the auth_user_id input is not a valid type
-                            when the auth_user_id doesn't refer to a valid user
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
 
     Return Value: 
         Returns <{channel_id}> when the channel is sucessfully created
