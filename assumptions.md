@@ -1,6 +1,7 @@
+
 For auth_register_v1 & auth_login_v1:
-First name and last name can only contain alphabetical characters, dashes or spaces
-The first and last name have to have at least 1 alphabetical character and cannot contain any numbers
+First name and last name can only contain alphanumeric characters, dashes or spaces
+The first and last name have to have at least 1 alphabetical character.
 Assume user always enters input for email and password
 
 For auth_register_v1:
@@ -9,7 +10,7 @@ has at least 1 alphabetical character
 
 For channels_create_v1:
 Assume the user who created this channel is always the owner of the channels
-Assume the name cannot be blank -> there is at least one alphabetical or numerical character
+Assume the name cannot be blank. There is at least one alphabetical or numerical character
 
 
 
