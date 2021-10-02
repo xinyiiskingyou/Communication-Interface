@@ -8,10 +8,18 @@ def channels_list_v1(auth_user_id):
     that the authorised user is part of.
 
     Arguments:
-        auth_user_id
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        ...
+
+    Exceptions:
+        AccessError  - Occurs when the auth_user_id input is not a valid type
+                     - Occurs when the auth_user_id doesn't refer to a valid user
+       
     Return Value:
-        returns channel_id and name if an authorised user has channel
+        Returns <{channels}> when all channels (and its details) that user 
+        is part of are successfully listed by authorised user
     '''
+
     store = data_store.get()
 
     # Invalid auth_user_id
@@ -30,12 +38,15 @@ def channels_list_v1(auth_user_id):
                 new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})   
     
     data_store.set(store)
+
     # return to the new list    
-    return {'channels': new_list}
+    return {
+        'channels': new_list
+    }
     
 def channels_listall_v1(auth_user_id):
-
     '''
+<<<<<<< HEAD
    <provides a list of all channels including all private channels>
 
 Arguments:
@@ -47,8 +58,8 @@ Exceptions:
 
 Return Value:
     Returns channels: listchannel 
-
     '''
+
     store = data_store.get()
 
     # Invalid auth_user_id
@@ -62,12 +73,27 @@ Return Value:
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
    
     data_store.set(store)
-    return {'channels': listchannel}
+    return {
+        'channels': listchannel
+    }
 
 # Creates a new channel with the given name that is either a public or private channel. 
 def channels_create_v1(auth_user_id, name, is_public):
-    '''    
-    return type: dict contains type 'channels_id' 
+    '''  
+    Arguments:
+        <auth_user_id> (<int>)     - unique id of an authorised user
+        <name>         (<string>)  - the name of the channel
+        <is_public>    (<boolean>) - privacy setting: True - Public ; False - Private
+    
+    Exceptions:
+        InputError  - Occurs when the length of name is less than 1 or more than 20 characters;
+                    - Occurs when then name is blank e.g., ' '
+
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+
+    Return Value: 
+        Returns <{channel_id}> when the channel is sucessfully created
     '''
     store = data_store.get()
 
@@ -82,12 +108,6 @@ def channels_create_v1(auth_user_id, name, is_public):
         raise InputError('Length of name is less than 1 or more than 20 characters')
     if name[0] == ' ':
         raise InputError('Name cannot be blank')
-
-    # Invalid privacy setting
-    if not isinstance(is_public, int):
-        raise InputError('This is an invalid privacy setting')
-    if is_public not in range(0,2):
-        raise InputError('The channel has to be either public or private')    
 
     channels = initial_object['channels']
     # generate channel_id according the number of existing channels

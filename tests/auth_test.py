@@ -79,3 +79,15 @@ def test_auth_reg_and_log1():
     assert user1_log['auth_user_id'] == 1
 
 
+# Tests that auth_login gives the correct dictionary as output
+def test_correct_auth_login_output():
+    clear_v1()
+    user1_reg = auth_register_v1('elephant@unsw.edu.au', 'password', 'afirst', 'alast')
+    user1_log = auth_login_v1('elephant@unsw.edu.au', 'password')
+    user2_reg = auth_register_v1('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
+    user2_log = auth_login_v1('cat@unsw.edu.au', 'password')
+    assert user1_log == {'auth_user_id': 1}
+    assert user2_log == {'auth_user_id': 2}
+
+    print(auth_login_v1('cat@unsw.edu.au', 'password'))
+    
