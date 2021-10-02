@@ -1,7 +1,9 @@
-from data_store import data_store, initial_object 
-from error import InputError, AccessError
-from channels import channels_create_check_valid_user, user_info, channels_create_v1
-from auth import auth_register_v1
+from src.data_store import data_store, initial_object 
+from src.error import InputError, AccessError
+from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
+from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
+from src.helper import channels_create_check_valid_user
+
 
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
@@ -21,14 +23,14 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
 
     # Invalid u_id
     if not isinstance(u_id, int):
-        raise AccessError("This is an invalid u_id")
+        raise InputError("This is an invalid u_id")
     if channels_create_check_valid_user(u_id) == False:
-        raise AccessError("The u_id does not refer to a valid user")    
+        raise InputError("The u_id does not refer to a valid user")    
 
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    if check_channel_id(channel_id) == False:
+    if check_valid_channel_id(channel_id) == False:
         raise InputError("Channel_id does not refer to a valid channel")
 
     # Input error when u_id refers to a user who is already a member of the channel
@@ -60,7 +62,7 @@ def channel_details_v1(auth_user_id, channel_id):
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    elif check_channel_id(channel_id) == False:
+    if check_valid_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
    
 
@@ -68,7 +70,7 @@ def channel_details_v1(auth_user_id, channel_id):
     if check_valid_member_in_channel(channel_id, auth_user_id) == False:
         raise AccessError("Authorised user is not a member of channel with channel_id")
     
-    channel_info = check_channel_id(channel_id)
+    channel_info = get_channel_details(channel_id)
 
     return {
         'name': channel_info['name'],
@@ -89,7 +91,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    if check_channel_id(channel_id) == False:
+    if check_valid_channel_id(channel_id) == False:
         raise InputError("The channel_id does not refer to a valid channel")
 
     # Channel_id is valid and the authorised user is not a member of the channel
@@ -100,7 +102,7 @@ def channel_messages_v1(auth_user_id, channel_id, start):
     num_messages = len(messages)
 
     # Start is greater than the total number of messages in the channel
-    if check_start_lt_total_messages(num_messages, start) == False:
+    if check_valid_start(num_messages, start) == False:
         raise InputError("Index 'start' is greater than the total number of messages in channel")
 
     end = start + 50
@@ -113,13 +115,6 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         'start': start,
         'end': end,
     }
-
-# Checks if the start is greater than total number of messages
-def check_start_lt_total_messages(num_messages, start):
-    if int(start) > int(num_messages):
-        return False
-    else:
-        return True
 
 
 def channel_join_v1(auth_user_id, channel_id):
@@ -145,14 +140,14 @@ def channel_join_v1(auth_user_id, channel_id):
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
-    if check_channel_id(channel_id) == False: 
+    if check_valid_channel_id(channel_id) == False: 
         raise InputError('Channel id is not valid')
 
     if check_valid_member_in_channel(channel_id, auth_user_id) == True:
         raise InputError ('Already a member of this channel')
 
     elif check_valid_member_in_channel (channel_id, auth_user_id) == False: 
-        if check_channel_private(channel_id) == True: 
+        if check_channel_private(channel_id) == True and check_permision_id(auth_user_id) == False: 
             raise AccessError ('Not authorised to join channel')
 
     new_user = user_info(auth_user_id)
@@ -165,42 +160,3 @@ def channel_join_v1(auth_user_id, channel_id):
     return {
     }
 
-# Checks if a valid channel_id is being passed in or not
-def check_channel_id(channel_id):
-    for channel in initial_object['channels']:
-        if int(channel['channel_id']) == int(channel_id):
-            return channel
-    return False
-
-def check_valid_member_in_channel(channel_id, auth_user_id):
-    for channel in initial_object['channels']:
-        if int(channel['channel_id']) == int(channel_id):
-            for member in channel['all_members']:
-                if int(member['auth_user_id']) == int(auth_user_id):
-                    return True
-    
-    return False
-
-def check_channel_private(channel_id): 
-    store = data_store.get()
-    for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id: 
-            if channels['is_public'] == False: 
-                return True
-            else: 
-                return False
-
-
-id1 = auth_register_v1('elephant@gmail.com', 'password', 'afirst', 'dog0')
-id2 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'dog')
-channel_id1 = channels_create_v1(id1['auth_user_id'], 'shelly', False)
-
-id3 = auth_register_v1('catfgh@gmail.com', 'password', 'afirst', 'dog')
-id4 = auth_register_v1('catfghj@gmail.com', 'password', 'afirst', 'dog1')
-#id4 = auth_register_v1('cagtfgh@gmail.com', 'password', 'afirst', 'dogjjjjjjjjjjj')
-
-channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id2['auth_user_id'])
-channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id3['auth_user_id'])
-channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id4['auth_user_id'])
-#channel_invite_v1(id1['auth_user_id'], channel_id1['channel_id'], id4['auth_user_id'])
-print(channel_details_v1(id3['auth_user_id'], channel_id1['channel_id']))
