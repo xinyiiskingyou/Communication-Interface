@@ -1,11 +1,9 @@
 import pytest
 from src.channel import channel_invite_v1, channel_details_v1, channel_join_v1, channel_messages_v1
 from src.error import InputError, AccessError
-from src.channels import channels_create_v1, channels_listall_v1
+from src.channels import channels_create_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
-
-
 
 ##########################################
 ########## channel_invite tests ##########
@@ -43,6 +41,16 @@ def test_invite_auth_user_id():
         channel_invite_v1('not_an_id', channel_id4['channel_id'], id3['auth_user_id'])
     with pytest.raises(AccessError):
         channel_invite_v1('', channel_id4['channel_id'], id4['auth_user_id'])
+
+# Access error when the user has invalid auth_user_id and invalid channel_id
+def test_invite_invalid_auth_id_invalid_channel():
+    clear_v1()
+    id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
+    with pytest.raises(AccessError):
+        channel_invite_v1(-16, 'not_an_id', id1['auth_user_id'])
+        channel_invite_v1('not_an_id', -16, id1['auth_user_id'])
+        channel_invite_v1('', '', id1['auth_user_id'])
+        channel_invite_v1(-16, -16, id1['auth_user_id'])
 
 # Invalid u_id
 def test_invite_u_id():

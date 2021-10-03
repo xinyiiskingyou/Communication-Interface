@@ -15,7 +15,6 @@ def test_register_invalid_email():
         auth_register_v1('abc', 'password', 'first1', 'last1')
         auth_register_v1('abc@gmail', 'password', 'first2', 'last2')
 
-
 # Duplicate email address
 def test_register_duplicate_email():
     clear_v1()
@@ -40,7 +39,6 @@ def test_register_invalid_name():
         auth_register_v1('abc@gmail.com', '12345', 'bfirst', 'b' * 50)
  
 
-
 ##########################################
 ########### auth_login tests #############
 ##########################################
@@ -58,7 +56,6 @@ def test_incorrect_password():
     auth_register_v1('email@unsw.edu.au', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
         auth_login_v1('email@unsw.edu.au', 'wrong password')
-
 
 
 ##### Implementation for auth_register and auth_login #####
