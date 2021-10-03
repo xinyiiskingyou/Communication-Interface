@@ -4,7 +4,7 @@ Assume all parameters in every function is given input.
 For auth_register_v1:
 Assume the first name and last name can only contain alphanumerical characters, dashes or spaces.
 Assume the first and last name combined have to have at least 1 alphanumerical character.
-(i.e. The handle also has at least 1 alphanumerical handle)
+(i.e. The handle also has at least 1 alphanumerical character and is not empty)
 
 
 For channels_create_v1:
