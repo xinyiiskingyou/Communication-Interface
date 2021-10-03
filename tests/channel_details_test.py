@@ -18,7 +18,6 @@ def test_details_invalid_auth_user_id():
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
-
     # Public
     with pytest.raises(AccessError):
         channel_details_v1(-1, channel_id2['channel_id'])
@@ -31,7 +30,6 @@ def test_details_invalid_auth_user_id():
     with pytest.raises(AccessError):
         channel_details_v1('', channel_id2['channel_id'])
 
-
     # Private
     with pytest.raises(AccessError):
         channel_details_v1(-1, channel_id4['channel_id'])
@@ -43,6 +41,7 @@ def test_details_invalid_auth_user_id():
         channel_details_v1('not_an_id', channel_id4['channel_id'])
     with pytest.raises(AccessError):
         channel_details_v1('', channel_id4['channel_id'])
+
 
 # Invalid channel_id
 def test_details_invalid_channel_id():
@@ -102,7 +101,6 @@ def test_details_not_member():
         channel_details_v1(id2['auth_user_id'], channel_id4['channel_id'])
     with pytest.raises(AccessError):
         channel_details_v1(id3['auth_user_id'], channel_id4['channel_id'])
-
 
 
 ##### Implementation #####

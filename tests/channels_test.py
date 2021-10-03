@@ -45,6 +45,7 @@ def test_create_auth_user_id():
     with pytest.raises(AccessError):
         channels_create_v1(11, '', False)
 
+
 # InputError when length of name is less than 1 or more than 20 characters
 def test_create_invalid_name():
     clear_v1()
@@ -107,6 +108,7 @@ def test_list_auth_user_id():
     with pytest.raises(AccessError):
         channels_list_v1('')
 
+
 # Access Error for invalid auth_user_id for channels_listall
 def test_listall_invalid_auth_user_id():
     clear_v1()
@@ -131,6 +133,7 @@ def test_no_channels():
     assert(channels_list_v1(no_channel['auth_user_id']) == {'channels':[]})
     assert(channels_listall_v1(no_channel['auth_user_id']) == {'channels':[]})
     assert(channels_list_v1(no_channel['auth_user_id'])) == channels_listall_v1(no_channel['auth_user_id'])
+
 
 # Test output of channels_list_function
 def test_channels_list():
@@ -159,6 +162,7 @@ def test_channels_list():
     assert(len(channels_listall_v1(sally_register['auth_user_id'])['channels']) == 2)
     assert(len(channels_listall_v1(x_register['auth_user_id'])['channels']) == 2)
 
+
 # Test output of channels_listall_function
 def test_channels_listall():
     clear_v1()
@@ -175,6 +179,7 @@ def test_channels_listall():
             ]
         }
     )
+
 
 # Test channels_list_all function
 def test_listall_channels():

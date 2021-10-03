@@ -8,8 +8,7 @@ def channels_list_v1(auth_user_id):
     that the authorised user is part of.
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user
-        ...
+        <auth_user_id> (<int>)   - unique id of an authorised user
 
     Exceptions:
         AccessError  - Occurs when the auth_user_id input is not a valid type
@@ -19,7 +18,6 @@ def channels_list_v1(auth_user_id):
         Returns <{channels}> when all channels (and its details) that user 
         is part of are successfully listed by authorised user
     '''
-
     store = data_store.get()
 
     # Invalid auth_user_id
@@ -29,7 +27,6 @@ def channels_list_v1(auth_user_id):
         raise AccessError('The auth_user_id does not refer to a valid user')
 
     new_list = []
-
     for channel in initial_object['channels']:
         for member in channel['all_members']:
             # if the users are authorised (the auth_user_id can be found in the user list)
@@ -50,8 +47,7 @@ def channels_listall_v1(auth_user_id):
     (and their associated details)
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user
-        ...
+        <auth_user_id> (<int>)   - unique id of an authorised user
 
     Exceptions:
         AccessError  - Occurs when the auth_user_id input is not a valid type
@@ -61,7 +57,6 @@ def channels_listall_v1(auth_user_id):
         Returns <{channels}> when all channels (and its details) in Streams 
         are successfully listed by authorised user
     '''
-
     store = data_store.get()
 
     # Invalid auth_user_id
@@ -75,6 +70,7 @@ def channels_listall_v1(auth_user_id):
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
    
     data_store.set(store)
+
     return {
         'channels': listchannel
     }
@@ -83,9 +79,9 @@ def channels_listall_v1(auth_user_id):
 def channels_create_v1(auth_user_id, name, is_public):
     '''  
     Arguments:
-        <auth_user_id> (<int>)     - unique id of an authorised user
-        <name>         (<string>)  - the name of the channel
-        <is_public>    (<boolean>) - privacy setting: True - Public ; False - Private
+        <auth_user_id>  (<int>)      - unique id of an authorised user
+        <name>          (<string>)   - the name of the channel
+        <is_public>     (<boolean>)  - privacy setting: True - Public ; False - Private
     
     Exceptions:
         InputError  - Occurs when the length of name is less than 1 or more than 20 characters;
@@ -123,8 +119,8 @@ def channels_create_v1(auth_user_id, name, is_public):
         'owner_members': [user],  
         'all_members': [user]
     }
-
     channels.append(new)
+
     data_store.set(store)
 
     return {

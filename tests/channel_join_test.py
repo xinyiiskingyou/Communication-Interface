@@ -26,6 +26,7 @@ def test_join_invalid_auth_user_id():
         channel_join_v1('not_an_id', channel_id2['channel_id'])
     with pytest.raises(AccessError):
         channel_join_v1('', channel_id2['channel_id'])
+        
 
 # Invalid channel_id
 def test_join_invalid_channel_id():
@@ -42,6 +43,7 @@ def test_join_invalid_channel_id():
         channel_join_v1(id1['auth_user_id'], 'not_an_id')
     with pytest.raises(InputError):
         channel_join_v1(id1['auth_user_id'], '')
+
 
 # Invalid auth_user_id and invalid channel_id
 # Raises Access Error as both Access and Input Errors are raised
@@ -60,6 +62,7 @@ def test_join_invalid_auth_user_id_and_channel_id():
         channel_join_v1(0, 'not_an_id')
     with pytest.raises(AccessError):
         channel_join_v1(-16, '')
+
 
 # Input error when the authorised user is already a member of the channel
 def test_join_already_in(): 
@@ -80,6 +83,7 @@ def test_join_already_in():
         channel_join_v1(id1['auth_user_id'], channel_id2['channel_id'])
     with pytest.raises(InputError):
         channel_join_v1(id1['auth_user_id'], channel_id3['channel_id'])
+
 
 # AccessError when channel_id refers to a channel that is private 
 # and the authorised user is not already a channel member and is not a global owner
@@ -111,6 +115,7 @@ def test_valid_public_channel_join():
     assert len(details2['all_members']) == 3
     assert len(details1['owner_members']) == 1
     assert len(details2['owner_members']) == 1
+
 
 # Test channel_join function for joining a private channel
 def test_valid_private_channel_join():
