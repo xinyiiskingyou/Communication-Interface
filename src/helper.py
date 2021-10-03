@@ -1,4 +1,5 @@
-from data_store import data_store, initial_object
+from src.data_store import data_store, initial_object
+
 
 # Helper function for channels_create, channel_invite, channel_join
 # Helper function to return the specific details of users

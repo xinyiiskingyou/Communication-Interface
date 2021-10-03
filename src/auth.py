@@ -3,9 +3,21 @@ from src.error import InputError
 import re
 
 def auth_login_v1(email, password):
+    '''
+    Given a registered user's email and password, returns their `auth_user_id` value.
 
-    store = data_store.get()
-    
+    Arguments:
+        <email> (<string>)    - email user used to register into Streams
+        <email> (<string>)    - password user used to register into Streams
+
+    Exceptions:
+        InputError  - Occurs when email entered does not belong to a user
+                    - Occurs when password is not correct
+
+    Return Value:
+        Returns <{auth_user_id}> when user successfully logins into Streams
+    '''
+
     # Iterate through the initial_object list 
     for user in initial_object['users']:
         # If the email and password the user inputs to login match and exist in data_store
@@ -14,11 +26,30 @@ def auth_login_v1(email, password):
             return {
                 'auth_user_id': auth_user_id
             }
-    
     raise InputError("Email and/or password is not valid!")
-    data_store.set(store)
 
 def auth_register_v1(email, password, name_first, name_last):
+    '''
+    Given a user's first and last name, email address, and password, 
+    create a new account for them and return a new `auth_user_id`.
+
+    Arguments:
+        <email>      (<string>)    - correct format of an email of the user
+        <password>   (<string>)    - password user used to register into Streams
+        <name_first> (<string>)    - alphanumerical first name
+        <name_last>  (<string>)    - alphanumerical last name
+        ...
+
+    Exceptions:
+        InputError  - Occurs when email entered is not a valid email
+                    - Occurs when email address is already being used by another user
+                    - Occurs when length of password is less than 6 characters
+                    - Occurs when length of name_first is not between 1 and 50 characters inclusive
+                    - Occurs when length of name_last is not between 1 and 50 characters inclusive
+
+    Return Value:
+        Returns <{auth_user_id}> when user successfully creates a new account in Streams
+    '''
 
     store = data_store.get()
 
@@ -65,6 +96,7 @@ def auth_register_v1(email, password, name_first, name_last):
         else:
             i += 1
 
+  
     # Permission id for streams users
     if auth_user_id == 1:
         permission_id = 1
