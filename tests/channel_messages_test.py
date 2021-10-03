@@ -11,7 +11,7 @@ from src.other import clear_v1
 ##########################################
 
 # Invalid auth_user_id
-def test_messages_auth_user_id():
+def test_messages_invalid__auth_user_id():
     clear_v1()
     id2 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
@@ -56,8 +56,9 @@ def test_messages_auth_user_id():
     with pytest.raises(AccessError):
         channel_messages_v1(-256, channel_id4['channel_id'], 'not_valid') 
 
+
 # channel_id does not refer to a valid channel
-def test_invalid_channel_id():
+def test_messages_invalid_channel_id():
     clear_v1()
     id4 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'alast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
@@ -73,8 +74,9 @@ def test_invalid_channel_id():
     with pytest.raises(InputError):
         channel_messages_v1(id4['auth_user_id'], '', 0)
 
+
 # channel_id is valid and the authorised user is not a member of the channel 
-def test_user_not_authorised_to_channel():
+def test_messages_user_not_authorised_to_channel():
     clear_v1()
     id3 = auth_register_v1('elephant@gmail.com', 'password', 'afirst', 'alast')
     id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
@@ -90,8 +92,9 @@ def test_user_not_authorised_to_channel():
     with pytest.raises(AccessError):
         channel_messages_v1(id3['auth_user_id'], channel_id4['channel_id'], 'not_valid')
 
+
 # Start is not a valid positive integer
-def test_invalid_start():
+def test_messages_invalid_start():
     clear_v1()
     id4 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'alast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
@@ -124,7 +127,7 @@ def test_invalid_start():
 
 
 # No messages currently in channel
-def test_no_messages():
+def test_messages_empty():
     clear_v1()
     id4 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'alast')
     channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
