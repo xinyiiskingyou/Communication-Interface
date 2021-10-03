@@ -75,9 +75,12 @@ def channels_listall_v1(auth_user_id):
         'channels': listchannel
     }
 
-# Creates a new channel with the given name that is either a public or private channel. 
+ 
 def channels_create_v1(auth_user_id, name, is_public):
     '''  
+    Creates a new channel with the given name that is either 
+    a public or private channel.
+    
     Arguments:
         <auth_user_id>  (<int>)      - unique id of an authorised user
         <name>          (<string>)   - the name of the channel

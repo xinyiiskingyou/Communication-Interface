@@ -65,7 +65,7 @@ def test_join_invalid_auth_user_id_and_channel_id():
 
 
 # Input error when the authorised user is already a member of the channel
-def test_join_already_in(): 
+def test_join_already_member(): 
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
@@ -87,7 +87,7 @@ def test_join_already_in():
 
 # AccessError when channel_id refers to a channel that is private 
 # and the authorised user is not already a channel member and is not a global owner
-def test_join_access_error(): 
+def test_join_priv_but_not_global_owner(): 
     clear_v1()
     id1 = auth_register_v1('elephant@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
@@ -100,7 +100,7 @@ def test_join_access_error():
 
 ##### Implementation #####
 # Test channel_join function for joining a public channel
-def test_valid_public_channel_join(): 
+def test_join_valid_public_channel(): 
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
@@ -118,7 +118,7 @@ def test_valid_public_channel_join():
 
 
 # Test channel_join function for joining a private channel
-def test_valid_private_channel_join():
+def test_join_valid_private_channel():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')

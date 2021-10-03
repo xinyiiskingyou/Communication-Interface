@@ -72,7 +72,7 @@ def test_unique_auth_id():
 
 
 # That auth reg and auth login return the same value
-def test_auth_reg_and_log1():
+def test_auth_reg_and_log():
     clear_v1()
     user1_reg = auth_register_v1('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     user1_log = auth_login_v1('abc@unsw.edu.au', 'password')

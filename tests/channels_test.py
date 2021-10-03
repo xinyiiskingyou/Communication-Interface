@@ -10,7 +10,7 @@ from src.error import InputError, AccessError
 ##########################################
 
 # AccessError Invalid auth_user_id
-def test_create_auth_user_id():
+def test_create_invalid_auth_user_id():
     clear_v1()
 
     # Public
@@ -83,7 +83,7 @@ def test_create_valid_channel_id():
     
 
 # Assert channel_id can never be a negative number
-def test_negative_channel_id():
+def test_create_negative_channel_id():
     clear_v1()
     auth_id = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     channel_id1 = channels_create_v1(auth_id['auth_user_id'], '1531_CAMEL', True)
@@ -95,7 +95,7 @@ def test_negative_channel_id():
 #################################################
 
 # Access Error for invalid auth_user_id for channels_list
-def test_list_auth_user_id():
+def test_list_invalid_auth_user_id():
     clear_v1()
     with pytest.raises(AccessError):
         channels_list_v1(-16)
@@ -127,7 +127,7 @@ def test_listall_invalid_auth_user_id():
 ##### Implementation ######
 # Test if an authorised user that dosen't have channel
 # it should return empty
-def test_no_channels():
+def test_channels_empty():
     clear_v1()
     no_channel = auth_register_v1('email1@gmail.com', 'password1', 'afirst', 'alast')
     assert(channels_list_v1(no_channel['auth_user_id']) == {'channels':[]})
@@ -135,8 +135,8 @@ def test_no_channels():
     assert(channels_list_v1(no_channel['auth_user_id'])) == channels_listall_v1(no_channel['auth_user_id'])
 
 
-# Test output of channels_list_function
-def test_channels_list():
+# Test output of channels_list function
+def test_list_listall_output_1():
     clear_v1()
     # test if a public channel can be appended in the list
     x_register = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
@@ -163,8 +163,8 @@ def test_channels_list():
     assert(len(channels_listall_v1(x_register['auth_user_id'])['channels']) == 2)
 
 
-# Test output of channels_listall_function
-def test_channels_listall():
+# Test output of channels_listall function
+def test_list_listall_output_2():
     clear_v1()
     id1 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
     id1_channel = channels_create_v1(id1['auth_user_id'], 'alpha', True)
@@ -181,8 +181,8 @@ def test_channels_listall():
     )
 
 
-# Test channels_list_all function
-def test_listall_channels():
+# Test channels_listall function output
+def test_list_listall_output_3():
     clear_v1()
     id1 = auth_register_v1('ashley@gmail.com', 'ashpass', 'afirst', 'alast')
     id2 = auth_register_v1('ashemail@gmail.com', 'password', 'bfirst', 'blast')

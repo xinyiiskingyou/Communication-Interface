@@ -11,7 +11,7 @@ from src.other import clear_v1
 ##########################################
 
 # Invalid auth_user_id
-def test_invite_auth_user_id():
+def test_invite_invalid_auth_user_id():
     clear_v1()
     id1 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('email@gmail.com', 'password', 'bfirst', 'blast')
@@ -46,7 +46,7 @@ def test_invite_auth_user_id():
 
 
 # Invalid u_id
-def test_invite_u_id():
+def test_invite_invalid_u_id():
     clear_v1()
     id2 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
     id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
