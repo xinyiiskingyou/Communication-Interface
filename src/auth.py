@@ -3,6 +3,7 @@ from src.error import InputError
 import re
 
 def auth_login_v1(email, password):
+
     store = data_store.get()
     
     # Iterate through the initial_object list 
@@ -13,13 +14,12 @@ def auth_login_v1(email, password):
             return {
                 'auth_user_id': auth_user_id
             }
-        else:
-            raise InputError("Email and/or password is not valid!")
-
+    
+    raise InputError("Email and/or password is not valid!")
     data_store.set(store)
 
-
 def auth_register_v1(email, password, name_first, name_last):
+
     store = data_store.get()
 
     # Error handling
@@ -65,7 +65,6 @@ def auth_register_v1(email, password, name_first, name_last):
         else:
             i += 1
 
-  
     # Permission id for streams users
     if auth_user_id == 1:
         permission_id = 1

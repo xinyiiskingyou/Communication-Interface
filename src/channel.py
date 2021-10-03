@@ -1,8 +1,8 @@
-from data_store import data_store, initial_object 
-from error import InputError, AccessError
-from helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
-from helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from helper import channels_create_check_valid_user
+from src.data_store import data_store, initial_object 
+from src.error import InputError, AccessError
+from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
+from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
+from src.helper import channels_create_check_valid_user
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
     '''
