@@ -2,7 +2,7 @@
 Auth implementation
 '''
 import re
-from src.data_store import data_store, initial_object
+from src.data_store import DATASTORE, initial_object
 from src.error import InputError
 
 def auth_login_v1(email, password):
@@ -54,7 +54,7 @@ def auth_register_v1(email, password, name_first, name_last):
         Returns <{auth_user_id}> when user successfully creates a new account in Streams
     '''
 
-    store = data_store.get()
+    store = DATASTORE.get()
 
     # Error handling
     token = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
@@ -116,7 +116,7 @@ def auth_register_v1(email, password, name_first, name_last):
         'permission_id' : permission_id
     })
 
-    data_store.set(store)
+    DATASTORE.set(store)
 
     return {
         'auth_user_id': auth_user_id

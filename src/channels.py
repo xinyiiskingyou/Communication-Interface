@@ -2,7 +2,7 @@
 Channels implementation
 '''
 
-from src.data_store import data_store, initial_object
+from src.data_store import DATASTORE, initial_object
 from src.error import InputError, AccessError
 from src.helper import channels_create_check_valid_user, user_info
 
@@ -23,7 +23,7 @@ def channels_list_v1(auth_user_id):
         is part of are successfully listed by authorised user
     '''
 
-    store = data_store.get()
+    store = DATASTORE.get()
 
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
@@ -40,7 +40,7 @@ def channels_list_v1(auth_user_id):
                 # append to an empty list
                 new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})
 
-    data_store.set(store)
+    DATASTORE.set(store)
 
     # return to the new list
     return {
@@ -63,9 +63,9 @@ def channels_listall_v1(auth_user_id):
         Returns <{channels}> when all channels (and its details) in Streams
         are successfully listed by authorised user
     '''
-    store = data_store.get()
+    store = DATASTORE.get()
 
-    store = data_store.get()
+    store = DATASTORE.get()
 
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
@@ -77,7 +77,7 @@ def channels_listall_v1(auth_user_id):
     for channels in initial_object['channels']:
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
 
-    data_store.set(store)
+    DATASTORE.set(store)
     return {
         'channels': listchannel
     }
@@ -101,7 +101,7 @@ def channels_create_v1(auth_user_id, name, is_public):
     Return Value:
         Returns <{channel_id}> when the channel is sucessfully created
     '''
-    store = data_store.get()
+    store = DATASTORE.get()
 
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
@@ -130,7 +130,7 @@ def channels_create_v1(auth_user_id, name, is_public):
     }
 
     channels.append(new)
-    data_store.set(store)
+    DATASTORE.set(store)
 
     return {
         'channel_id': channel_id,

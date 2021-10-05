@@ -1,13 +1,17 @@
-from src.data_store import data_store, initial_object
+'''
+Clear the data that has been stored
+'''
+
+from src.data_store import DATASTORE, initial_object
 
 def clear_v1():
     '''
     Clear the data that has been stored
     '''
-    store = data_store.get()
+    store = DATASTORE.get()
     initial_object['users'] = []
     initial_object['channels'] = []
-    data_store.set(store)
+    DATASTORE.set(store)
 
     return {
     }

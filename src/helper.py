@@ -1,18 +1,22 @@
-from src.data_store import data_store, initial_object
+'''
+Helper functions
+'''
+from src.data_store import initial_object
 
-
-# Helper function for channels_create, channel_invite, channel_join
-# Helper function to return the specific details of users
+#Helper function for channels_create, channel_invite, channel_join
+#Helper function to return the specific details of users
 def user_info(auth_user_id):
+    '''
+    return type: dict
+    '''
     user = channels_user_details(auth_user_id)
     return {
-        'u_id': user['auth_user_id'], 
-        'email': user['email'], 
-        'name_first': user['name_first'], 
-        'name_last': user['name_last'], 
+        'u_id': user['auth_user_id'],
+        'email': user['email'],
+        'name_first': user['name_first'],
+        'name_last': user['name_last'],
         'handle_str': user['handle_str']
     }
-
 
 #################################################
 ####### Helper functions for channels.py ########
@@ -39,12 +43,10 @@ def channels_user_details(auth_user_id):
     '''
     return type: dict
     '''
-
     for user in initial_object['users']:
         if user['auth_user_id'] == auth_user_id:
             return user
     return {}
-
 
 
 #################################################
@@ -53,39 +55,45 @@ def channels_user_details(auth_user_id):
 
 # Helper function for channel_messages
 # Checks if the start index that is inputted by user is valid or not
-# Returns true for valid input 
+# Returns true for valid input
 # Returns false for invalid input
 def check_valid_start(num_messages, start):
+    '''
+    return type: bool
+    '''
     if not isinstance(start, int):
         return False
-    elif start > num_messages:
+    if start > num_messages:
         return False
-    elif start < 0:
+    if start < 0:
         return False
-    else:
-        return True
-
+    return True
 
 # Helper function for channel_details
 # Checks if a valid channel_id is being passed in or not
 # If valid channel, returns the detail of the channel
 def get_channel_details(channel_id):
+    '''
+    return type: dict
+    '''
     for channel in initial_object['channels']:
         if int(channel['channel_id']) == int(channel_id):
             return channel
     return False
 
-
-# Helper function for channel_invite, channel_details, 
+# Helper function for channel_invite, channel_details,
 # channel_messages and channel_join
 # Checks if a valid channel_id is being passed in or not
 # Returns true if valid channel
 # Returns false otherwise
 def check_valid_channel_id(channel_id):
+    '''
+    return type: bool
+    '''
     for channel in initial_object['channels']:
         if int(channel_id) == int(channel['channel_id']):
             return True
-    
+
     return False
 
 # Helper function for channel_invite, channel_details,
@@ -94,17 +102,15 @@ def check_valid_channel_id(channel_id):
 # Returns true if they are a member
 # Returns false otherwise
 def check_valid_member_in_channel(channel_id, auth_user_id):
+    '''
+    return type: bool
+    '''
 
-    # for all channels
-    # if the user has channel_id
-    # if the users are authorised
-    # return True
     for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
             for member in channel['all_members']:
                 if member['u_id'] == auth_user_id:
                     return True
-    
     return False
 
 
@@ -112,26 +118,27 @@ def check_valid_member_in_channel(channel_id, auth_user_id):
 # Checks if the channel is public or private
 # Returns true if private channel
 # Returns false if public channel
-def check_channel_private(channel_id): 
-    store = data_store.get()
+def check_channel_private(channel_id):
+    '''
+    return type: bool
+    '''
     for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id: 
-            if channels['is_public'] == False: 
+        if channels['channel_id'] == channel_id:
+            if not channels['is_public']:
                 return True
-            else: 
-                return False
+    return False
 
-
-            
-# Helper function for channel_join       
+# Helper function for channel_join
 # Check if authorised user is a global owner of streams
 # Returns true if they are a global owner
 # Returns false otherwise
 def check_permision_id(auth_user_id):
+    '''
+    return type: bool
+    '''
     for user in initial_object['users']:
         if user['auth_user_id'] == auth_user_id:
             # If the user is a global owner
             if user['permission_id'] == 1:
                 return True
-            else:
-                return False
+    return False

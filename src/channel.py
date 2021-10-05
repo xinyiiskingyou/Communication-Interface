@@ -5,7 +5,7 @@ from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
 from src.helper import channels_create_check_valid_user
-from src.data_store import data_store, initial_object
+from src.data_store import DATASTORE, initial_object
 
 def channel_invite_v1(auth_user_id, channel_id, u_id):
 
@@ -32,7 +32,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
         N/A
     '''
 
-    store = data_store.get()
+    store = DATASTORE.get()
 
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int) or not channels_create_check_valid_user(auth_user_id):
@@ -77,7 +77,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
             # append the new user details to all_member
             channel['all_members'].append(new_user)
 
-    data_store.set(store)
+    DATASTORE.set(store)
     return {}
 
 def channel_details_v1(auth_user_id, channel_id):
@@ -206,7 +206,7 @@ def channel_join_v1(auth_user_id, channel_id):
     Return Value:
         N/A
     '''
-    store = data_store.get()
+    store = DATASTORE.get()
 
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
@@ -233,5 +233,5 @@ def channel_join_v1(auth_user_id, channel_id):
         if channels['channel_id'] == channel_id:
             channels['all_members'].append(new_user)
 
-    data_store.set(store)
+    DATASTORE.set(store)
     return {}
