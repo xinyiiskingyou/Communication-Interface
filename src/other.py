@@ -1,4 +1,4 @@
-from data_store import data_store, initial_object
+from src.data_store import data_store, initial_object
 
 def clear_v1():
     '''
