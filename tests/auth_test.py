@@ -50,6 +50,7 @@ def test_email_not_belong_user():
     with pytest.raises(InputError):
         auth_login_v1('wrong.email@unsw.edu.au', 'password')
 
+
 # Password is not correct
 def test_incorrect_password():
     clear_v1()
@@ -67,8 +68,9 @@ def test_unique_auth_id():
     assert user1_reg['auth_user_id'] == 1
     assert user2_reg['auth_user_id'] == 2
 
+
 # That auth reg and auth login return the same value
-def test_auth_reg_and_log1():
+def test_auth_reg_and_log():
     clear_v1()
     user1_reg = auth_register_v1('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     user1_log = auth_login_v1('abc@unsw.edu.au', 'password')
