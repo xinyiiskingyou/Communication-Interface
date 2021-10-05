@@ -61,7 +61,6 @@ def test_messages_invalid__auth_user_id():
 def test_messages_invalid_channel_id():
     clear_v1()
     id4 = auth_register_v1('cat@gmail.com', 'password', 'afirst', 'alast')
-    channel_id4 = channels_create_v1(id4['auth_user_id'], 'shelly', False)
 
     with pytest.raises(InputError):
         channel_messages_v1(id4['auth_user_id'], -16, 0)
