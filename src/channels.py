@@ -65,8 +65,6 @@ def channels_listall_v1(auth_user_id):
     '''
     store = DATASTORE.get()
 
-    store = DATASTORE.get()
-
     # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
         raise AccessError('This is an invalid auth_user_id')
