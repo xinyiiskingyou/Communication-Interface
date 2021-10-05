@@ -28,7 +28,6 @@ def test_removeowner_invalid_u_id():
     '''
     clear_v1()
     id2 = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
-    id4 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'anna', True)
 
     with pytest.raises(InputError):
