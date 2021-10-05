@@ -5,13 +5,14 @@ import re
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError
 
+
 def auth_login_v1(email, password):
     '''
     Given a registered user's email and password, returns their `auth_user_id` value.
 
     Arguments:
-        <email> (<string>)    - email user used to register into Streams
-        <email> (<string>)    - password user used to register into Streams
+        <email>     (<string>)    - email user used to register into Streams
+        <password>  (<string>)    - password user used to register into Streams
 
     Exceptions:
         InputError  - Occurs when email entered does not belong to a user
@@ -66,12 +67,15 @@ def auth_register_v1(email, password, name_first, name_last):
         if user['email'] == email:
             raise InputError("This email address has already been registered by another user")
 
+    # Valid Password
     if len(password) < 6:
         raise InputError("This password is less then 6 characters in length")
 
+    # Valid first name
     if len(name_first) not in range(1, 51):
         raise InputError("name_first is not between 1 - 50 characters in length")
 
+    # Valid last name
     if len(name_last) not in range(1, 51):
         raise InputError("name_last is not between 1 - 50 characters in length")
 

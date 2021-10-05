@@ -55,9 +55,11 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
             raise AccessError("Authorised user is not a member of channel and u_id is invalid")
         raise InputError("The u_id does not refer to a valid user")
 
+
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int) or not check_valid_channel_id(channel_id):
         raise InputError("Channel_id does not refer to a valid channel")
+
 
     # Input error when u_id refers to a user who is already a member of the channel
     if check_valid_member_in_channel(channel_id, u_id):
@@ -117,7 +119,6 @@ def channel_details_v1(auth_user_id, channel_id):
     # Authorised user not a member of channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError("Authorised user is not a member of channel with channel_id")
-
     channel_info = get_channel_details(channel_id)
     return {
         'name': channel_info['name'],

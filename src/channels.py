@@ -32,7 +32,6 @@ def channels_list_v1(auth_user_id):
         raise AccessError('The auth_user_id does not refer to a valid user')
 
     new_list = []
-
     for channel in initial_object['channels']:
         for member in channel['all_members']:
             # if the users are authorised (the auth_user_id can be found in the user list)
@@ -126,7 +125,6 @@ def channels_create_v1(auth_user_id, name, is_public):
         'owner_members': [user],
         'all_members': [user]
     }
-
     channels.append(new)
     DATASTORE.set(store)
 
