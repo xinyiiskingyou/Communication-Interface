@@ -1,67 +1,119 @@
-from data_store import data_store, initial_object
-from error import InputError, AccessError
+from src.data_store import data_store, initial_object
+from src.error import InputError, AccessError
+from src.helper import channels_create_check_valid_user, channels_user_details, user_info
 
 def channels_list_v1(auth_user_id):
     '''
-    Provide a list of all channels (and their associated details) 
-    that the authorised user is part of.
+    Provide a list of all channels (and their associated details) that the authorised 
+    user is part of.
 
     Arguments:
-        auth_user_id
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        ...
+
+    Exceptions:
+        AccessError  - Occurs when the auth_user_id input is not a valid type
+                     - Occurs when the auth_user_id doesn't refer to a valid user
+       
     Return Value:
-        returns channel_id and name if an authorised user has channel
+        Returns <{channels}> when all channels (and its details) that user 
+        is part of are successfully listed by authorised user
     '''
+
     store = data_store.get()
+
+    # Invalid auth_user_id
+    if not isinstance(auth_user_id, int):
+        raise AccessError('This is an invalid auth_user_id')
+    if not channels_create_check_valid_user(auth_user_id):
+        raise AccessError('The auth_user_id does not refer to a valid user')
+
     new_list = []
 
     for channel in initial_object['channels']:
         for member in channel['all_members']:
             # if the users are authorised (the auth_user_id can be found in the user list)
-            if member['auth_user_id'] == auth_user_id:
+            if member['u_id'] == auth_user_id:
                 # append to an empty list
-                new_list.append({'channel_id' : channel['channel_id'],
-                'name': channel['name']}) 
+                new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})   
 
     data_store.set(store)
+
     # return to the new list    
-    return {'channels': new_list}
+    return {
+        'channels': new_list
+    }
     
 def channels_listall_v1(auth_user_id):
-
     '''
-    Provides a list of all channels, including private channels (and their associated 
-    details)
+    Provide a list of all channels, including private channels, 
+    (and their associated details)
 
-    auth_user_id is the name of the user we connecting from 
+    Arguments:
+        <auth_user_id> (<int>)    - unique id of an authorised user
+        ...
+
+    Exceptions:
+        AccessError  - Occurs when the auth_user_id input is not a valid type
+                     - Occurs when the auth_user_id doesn't refer to a valid user
+       
+    Return Value:
+        Returns <{channels}> when all channels (and its details) in Streams 
+        are successfully listed by authorised user
     '''
     store = data_store.get()
+
+    store = data_store.get()
+
+    # Invalid auth_user_id
+    if not isinstance(auth_user_id, int):
+        raise AccessError('This is an invalid auth_user_id')
+    if not channels_create_check_valid_user(auth_user_id):
+        raise AccessError('The auth_user_id does not refer to a valid user')
 
     listchannel = []
     for channels in initial_object['channels']:
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
-
+   
     data_store.set(store)
-    return {'channels': listchannel}
+    return {
+        'channels': listchannel
+    }
 
 # Creates a new channel with the given name that is either a public or private channel. 
 def channels_create_v1(auth_user_id, name, is_public):
-    '''    
-    return type: dict contains type 'channels_id' 
+    '''  
+    Arguments:
+        <auth_user_id> (<int>)     - unique id of an authorised user
+        <name>         (<string>)  - the name of the channel
+        <is_public>    (<boolean>) - privacy setting: True - Public ; False - Private
+    
+    Exceptions:
+        InputError  - Occurs when the length of name is less than 1 or more than 20 characters;
+                    - Occurs when then name is blank e.g., ' '
+
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+
+    Return Value: 
+        Returns <{channel_id}> when the channel is sucessfully created
     '''
     store = data_store.get()
-    # error handling
-    if len(name) not in range(1, 21):
-        raise InputError('length of name is less than 1 or more than 20 characters')
-    if name[0] == ' ':
-        raise InputError('name cannot be blank')
-    if is_public not in range(0,2):
-        raise InputError('the channel has to be either public or private')
+
+    # Invalid auth_user_id
     if not isinstance(auth_user_id, int):
-        raise AccessError('this is an invalid auth user id')
+        raise AccessError('This is an invalid auth_user_id')
     if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError('this is an invalid auth user id')
+        raise AccessError('The auth_user_id does not refer to a valid user')
+
+    # Invalid channel name
+    if len(name) not in range(1, 21):
+        raise InputError('Length of name is less than 1 or more than 20 characters')
+    if name[0] == ' ':
+        raise InputError('Name cannot be blank')
 
     channels = initial_object['channels']
+
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
 
@@ -79,35 +131,4 @@ def channels_create_v1(auth_user_id, name, is_public):
 
     return {
         'channel_id': channel_id,
-    }
-
-# helper function to check if the auth_user_id given is registered
-def channels_create_check_valid_user(auth_user_id):
-    '''
-    return type: bool
-    '''
-    for user in initial_object['users']:
-        if user['auth_user_id'] == auth_user_id:
-            return True
-    return False
-
-# helper function to access to details of the given auth_user_id
-def channels_user_details(auth_user_id):
-    '''
-    return type: dict
-    '''
-    for user in initial_object['users']:
-        if user['auth_user_id'] == auth_user_id:
-            return user
-    return {}
-
-# helper function to return the specific details of user
-def user_info(auth_user_id):
-    user = channels_user_details(auth_user_id)
-    return {
-        'auth_user_id': user['auth_user_id'], 
-        'email': user['email'], 
-        'name_first': user['name_first'], 
-        'name_last': user['name_last'], 
-        'handle_str': user['handle_str']
     }
