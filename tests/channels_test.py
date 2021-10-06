@@ -180,6 +180,16 @@ def test_channels_list():
     sally_register = auth_register_v1('email2@gmail.com','comp1531', 'afirst','alast')
     sally_channel = channels_create_v1(sally_register['auth_user_id'], 'sally', False)
 
+    assert(channels_list_v1(sally_register['auth_user_id']) ==
+        {
+            'channels':[
+                {
+                    'channel_id': sally_channel['channel_id'],
+                    'name': 'sally'
+                },
+            ]
+        })
+
     assert len(channels_list_v1(sally_register['auth_user_id'])['channels']) == 1
     assert len(channels_listall_v1(sally_register['auth_user_id'])['channels']) == 2
     assert len(channels_listall_v1(x_register['auth_user_id'])['channels']) == 2
