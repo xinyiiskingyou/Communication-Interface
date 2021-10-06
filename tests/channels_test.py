@@ -4,7 +4,7 @@ Test channels_create, channels_list and channels_list_all function
 
 import pytest
 from src.channels import channels_list_v1, channels_create_v1, channels_listall_v1
-from src.channel import channel_invite_v1, channel_join_v1
+from src.channel import channel_invite_v1, channel_join_v1, channel_details_v1
 from src.auth import auth_register_v1
 from src.other import clear_v1
 from src.error import InputError, AccessError
@@ -221,10 +221,53 @@ def test_listall_channels():
     id1 = auth_register_v1('ashley@gmail.com', 'ashpass', 'afirst', 'alast')
     id2 = auth_register_v1('ashemail@gmail.com', 'password', 'bfirst', 'blast')
     id3 = auth_register_v1('id3@gmail.com', 'password', 'cfirst', 'clast')
+    
     id2_channel = channels_create_v1(id2['auth_user_id'], 'anna', False)
+    assert(channels_list_v1(id2['auth_user_id']) ==
+        {
+            'channels':[
+                {
+                    'channel_id': id2_channel['channel_id'],
+                    'name': 'anna'
+                },
+            ]
+        })
     id1_channel_1 = channels_create_v1(id1['auth_user_id'], 'ashley', False)
+    assert(channels_list_v1(id1['auth_user_id']) ==
+        {
+            'channels':[
+                {
+                    'channel_id': id1_channel_1['channel_id'],
+                    'name': 'ashley'
+                },
+            ]
+        })
     id1_channel_2 = channels_create_v1(id1['auth_user_id'], 'ash', True)
+    #using channel details to fix pylint 
+    assert (channel_details_v1(id1['auth_user_id'], id1_channel_2['channel_id']) == 
+        {
+            'name': 'ash',
+            'is_public': True,
+            'owner_members':[
+                {
+                    'u_id': 1,
+                    'email': 'ashley@gmail.com',
+                    'name_first': 'afirst',
+                    'name_last': 'alast',
+                    'handle_str': 'afirstalast'
 
+                },
+            ],
+            'all_members': [
+                {
+                    'u_id': 1,
+                    'email': 'ashley@gmail.com',
+                    'name_first': 'afirst',
+                    'name_last': 'alast',
+                    'handle_str': 'afirstalast'
+                }
+            ]
+        })
     # Makes sure that listall output for all authorised users is the same
     assert len(channels_listall_v1(id1['auth_user_id'])['channels']) == 3
     assert len(channels_listall_v1(id2['auth_user_id'])['channels']) == 3
