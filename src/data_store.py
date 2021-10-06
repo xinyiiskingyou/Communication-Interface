@@ -23,7 +23,6 @@ Example usage:
     print(store) # Prints { 'names': ['Emily', 'Hayden', 'Jake', 'Nick'] }
     data_store.set(store)
 '''
-import string
 
 ## YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
@@ -31,25 +30,29 @@ initial_object = {
     'channels': [] # create a dict in a list
 }
 
-
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
 class Datastore:
+    '''
+    Datastore class used to store your data
+    '''
     def __init__(self):
         self.__store = initial_object
 
     def get(self):
+        '''
+        Get the data store in initial object
+        '''
         return self.__store
 
     def set(self, store):
+        '''
+        Set the data store in initial object
+        '''
         if not isinstance(store, dict):
             raise TypeError('store must be of type dictionary')
         self.__store = store
 
 print('Loading Datastore...')
 
-global data_store
-data_store = Datastore()
-
-
-
+DATASTORE = Datastore()

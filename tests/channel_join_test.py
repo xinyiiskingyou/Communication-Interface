@@ -49,8 +49,6 @@ def test_join_invalid_channel_id():
 # Raises Access Error as both Access and Input Errors are raised
 def test_join_invalid_auth_user_id_and_channel_id():
     clear_v1()
-    id1 = auth_register_v1('email@gmail.com', 'password', 'afirst', 'alast')
-    channel_id1 = channels_create_v1(id1['auth_user_id'], 'anna', True)
 
     with pytest.raises(AccessError):
         channel_join_v1('', -16)
@@ -89,7 +87,6 @@ def test_join_already_member():
 # and the authorised user is not already a channel member and is not a global owner
 def test_join_priv_but_not_global_owner(): 
     clear_v1()
-    id1 = auth_register_v1('elephant@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v1('cat@gmail.com', 'password', 'bfirst', 'blast')
     id3 = auth_register_v1('dog@gmail.com', 'password', 'cfirst', 'clast')
     channel_id2 = channels_create_v1(id2['auth_user_id'], 'shelly', False)
