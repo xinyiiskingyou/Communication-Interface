@@ -60,6 +60,7 @@ def test_create_invalid_name():
         channels_create_v1(id1['auth_user_id'], 'a' * 50, True)
 
 
+
 ##### Implementation #####
 # Assert channel_id for one, two and three channels created by two different users
 def test_create_valid_channel_id():
