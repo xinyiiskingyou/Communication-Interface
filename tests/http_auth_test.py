@@ -38,7 +38,7 @@ def test_reg_invalid_name():
 ############ Implementation for auth_register #############
 ###########################################################
 
-'''def test_unique_token():
+def test_unique_token():
     clear_v1()
     resp1 = requests.get(config.url + 'auth/register/v2')
     resp1_data = resp1.json()
@@ -46,5 +46,5 @@ def test_reg_invalid_name():
     resp2 = requests.get(config.url + 'auth/register/v2')
     resp2_data = resp2.json()
 
-    assert resp1_data == '1'
-    assert resp2_data == '2'''
+    assert resp1_data == {'token': '1', 'auth_user_id': 1}
+    assert resp2_data == {'token': '2', 'auth_user_id': 2}
