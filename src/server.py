@@ -43,8 +43,8 @@ def echo():
 
 
 @APP.route("/auth/register/v2", methods=['POST'])
-def register():
-    data = request.json():
+def register(): 
+    data = request.get_json()
     resp = auth_register_v1(data['email'], data['password'], data['name_first'], data['name_last'])
     return dumps({
         'auth_user_id': resp['auth_user_id']

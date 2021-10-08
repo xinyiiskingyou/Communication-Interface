@@ -4,8 +4,6 @@ Auth implementation
 import re
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError
-import jwt
-#SECRET = 'CAMEL'
 
 def auth_login_v1(email, password):
     '''
@@ -82,8 +80,6 @@ def auth_register_v1(email, password, name_first, name_last):
 
     # Creating unique auth_user_id and adding to dict_user
     auth_user_id = len(initial_object['users']) + 1
-    #token = '{auth_user_id}'
-    #token = generate_token(auth_user_id)
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -129,7 +125,3 @@ def auth_register_v1(email, password, name_first, name_last):
         'auth_user_id': auth_user_id
     }
 
-# Helper function to generate token
-#def generate_token(auth_user_id):
- #   global SECRET
-   # return jwt.encode({'auth_user_id': auth_user_id}, SECRET, algorithm='HS256').decode('utf-8')
