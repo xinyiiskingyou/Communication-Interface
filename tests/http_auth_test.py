@@ -20,7 +20,7 @@ def test_reg_duplicate_email():
     clear_v1()
     resp1 = requests.get(config.url + 'email', params={'email': 'abc@gmail.com'})
     assert(resp1.status_code == 400)
-    resp2 = requests.get(config.url + 'email', params={'email': 'abc@gmail.com'})
+    requests.get(config.url + 'email', params={'email': 'abc@gmail.com'})
 
 def test_reg_invalid_password():
     clear_v1()
