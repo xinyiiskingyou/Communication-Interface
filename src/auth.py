@@ -4,7 +4,8 @@ Auth implementation
 import re
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError
-
+import jwt
+#SECRET = 'CAMEL'
 
 def auth_login_v1(email, password):
     '''
@@ -58,8 +59,8 @@ def auth_register_v1(email, password, name_first, name_last):
     store = DATASTORE.get()
 
     # Error handling
-    token = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
-    if not re.search(token, email):
+    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
+    if not re.search(search, email):
         raise InputError("This email is of invalid form")
 
     # Check for duplicate emails
@@ -81,6 +82,8 @@ def auth_register_v1(email, password, name_first, name_last):
 
     # Creating unique auth_user_id and adding to dict_user
     auth_user_id = len(initial_object['users']) + 1
+    #token = '{auth_user_id}'
+    #token = generate_token(auth_user_id)
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -125,3 +128,8 @@ def auth_register_v1(email, password, name_first, name_last):
     return {
         'auth_user_id': auth_user_id
     }
+
+# Helper function to generate token
+#def generate_token(auth_user_id):
+ #   global SECRET
+   # return jwt.encode({'auth_user_id': auth_user_id}, SECRET, algorithm='HS256').decode('utf-8')
