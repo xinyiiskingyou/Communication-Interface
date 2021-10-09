@@ -124,7 +124,7 @@ def channel_messages_v2(token, channel_id, start):
     return up to 50 messages between index "start" and "start + 50".
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user
+        <token>        (<hash>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <start>        (<int>)    - starting index of message pagination
 
