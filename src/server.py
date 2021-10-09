@@ -6,6 +6,9 @@ from flask_cors import CORS
 from src.error import InputError
 from src import config
 
+from src.auth import auth_register_v1
+from src.channels import channels_create_v1
+from src.other import clear_v1
 def quit_gracefully(*args):
     '''For coverage'''
     exit(0)
@@ -39,6 +42,29 @@ def echo():
         'data': data
     })
 
+# To clear the data
+@APP.route("/clear/v1", methods=['DELETE'])
+def clear():
+    return dumps({ 
+    })
+
+#still uses auth_user_id have to fix auth implementation to generate a token
+@APP.route("/auth/register/v2", methods=['POST'])
+def register(): 
+    json = request.get_json()
+    resp = auth_register_v1(json['email'], json['password'], json['name_first'], json['name_last'])
+    return dumps({
+        'token': resp['token'],
+        'auth_user_id': resp['auth_user_id']
+    })
+
+@APP.route("/channels/create/v2", methods=['POST'])
+def channel_create():
+    json = request.get_json()
+    resp = channels_create_v1(json['token'], json['name'], json['is_public'])
+    return dumps({
+        'channel_id': resp['channel_id']
+    })
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
