@@ -139,30 +139,34 @@ def test_create_invalid_name():
             'name_last': 'alast'
         })
 
+
     resp1 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1['auth_user_id'],
+            'auth_user_id': id1.json()['message'],
             'name': '',
             'is_public': True
         })
 
     resp2 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1['auth_user_id'],
+            #'auth_user_id': 'auth_user_id',
+            'auth_user_id': id1.json()['message'],
             'name': '  ',
             'is_public': True
         })
 
     resp3 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1['auth_user_id'],
+            #'auth_user_id': 'auth_user_id',
+            'auth_user_id': id1.json()['message'],
             'name': '                      ',
             'is_public': True
         })
 
     resp4 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1['auth_user_id'],
+            #'auth_user_id': 'auth_user_id',
+            'auth_user_id': id1.json()['message'],
             'name': 'a' * 21,
             'is_public': True
         })
@@ -170,7 +174,8 @@ def test_create_invalid_name():
 
     resp5 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1['auth_user_id'],
+            #'auth_user_id': 'auth_user_id',
+            'auth_user_id': id1.json()['message'],
             'name': 'a' * 50,
             'is_public': True
         })
@@ -197,7 +202,7 @@ def test_create_valid_channel_id():
 
     resp1 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1['auth_user_id'],
+            'auth_user_id': id1.json()['message'],
             'name': '1531_CAMEL_1',
             'is_public': True
         })
@@ -206,7 +211,7 @@ def test_create_valid_channel_id():
 
     resp2 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1['auth_user_id'],
+            'auth_user_id': id1.json()['message'],
             'name': '1531_CAMEL_2',
             'is_public': True
         })
@@ -223,7 +228,7 @@ def test_create_valid_channel_id():
 
     resp3 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id2['auth_user_id'],
+            'auth_user_id': id2.json()['message'],
             'name': '1531_CAMEL_3',
             'is_public': True
         })
@@ -239,7 +244,7 @@ def test_create_valid_channel_id():
 
     resp4 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id3['auth_user_id'],
+            'auth_user_id': id3.json()['message'],
             'name': '1531_CAMEL_3',
             'is_public': False
         })
