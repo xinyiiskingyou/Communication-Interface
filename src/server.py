@@ -7,6 +7,7 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v1
+from src.other import clear_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -41,6 +42,11 @@ def echo():
         'data': data
     })
 
+
+# To clear the data
+@APP.route("/clear/v1", methods=['POST'])
+def clear():
+    return json.dumps({ })
 
 #still uses auth_user_id have to fix auth implementation to generate a token
 @APP.route("/auth/register/v2", methods=['POST'])

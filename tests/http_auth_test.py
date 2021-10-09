@@ -10,7 +10,7 @@ from src.other import clear_v1
 BASE_URL = 'http://127.0.0.1:8080'
 
 def test_reg_invalid_email():
-    clear_v1()
+    requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abc',
@@ -29,7 +29,7 @@ def test_reg_invalid_email():
     assert resp2.status_code == 400
 
 def test_reg_duplicate_email():
-    clear_v1()
+    requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abc',
@@ -50,7 +50,7 @@ def test_reg_duplicate_email():
         
 
 def test_reg_invalid_password():
-    clear_v1()
+    requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abc@gmail.com',
@@ -62,7 +62,7 @@ def test_reg_invalid_password():
     assert resp1.status_code == 400 
 
 def test_reg_invalid_name():
-    clear_v1()
+    requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abc@gmail.com',
