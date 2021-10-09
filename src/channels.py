@@ -3,8 +3,8 @@ Channels implementation
 '''
 
 from src.data_store import DATASTORE, initial_object
-from src.error import InputError, AccessError
-from src.helper import channels_create_check_valid_user, user_info
+from src.error import InputError
+from src.helper import user_info
 from src.server_helper import decode_token
 
 def channels_list_v2(token):
@@ -27,9 +27,6 @@ def channels_list_v2(token):
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
 
-    if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError('The auth_user_id does not refer to a valid user')
-
     new_list = []
     for channel in initial_object['channels']:
         for member in channel['all_members']:
@@ -51,7 +48,7 @@ def channels_listall_v2(token):
     (and their associated details)
 
     Arguments:
-        <token>     (<hash>)    - an authorisation hash
+        <token> (<hash>)    - an authorisation hash
 
     Exceptions:
         AccessError  - Occurs when the auth_user_id input is not a valid type
@@ -62,11 +59,6 @@ def channels_listall_v2(token):
         are successfully listed by authorised user
     '''
     store = DATASTORE.get()
-
-    auth_user_id = decode_token(token)
-
-    if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError('The auth_user_id does not refer to a valid user')
 
     listchannel = []
     for channels in initial_object['channels']:
@@ -99,10 +91,6 @@ def channels_create_v2(token, name, is_public):
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
 
-    # Invalid auth_user_id
-    if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError('The auth_user_id does not refer to a valid user')
-    
     # Invalid channel name
     if len(name) not in range(1, 21):
         raise InputError('Length of name is less than 1 or more than 20 characters')
