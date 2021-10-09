@@ -7,6 +7,7 @@ from src.helper import check_valid_member_in_channel, check_channel_private, che
 from src.helper import channels_create_check_valid_user, check_valid_owner, check_owner_permission
 from src.data_store import DATASTORE, initial_object
 from src.server_helper import decode_token
+
 def channel_invite_v2(token, channel_id, u_id):
 
     '''
