@@ -67,7 +67,7 @@ def test_reg_invalid_name():
         json = {
             'email': 'abc@gmail.com',
             'password': 'password',
-            'name_first': 'a' * 50,
+            'name_first': 'a' * 53,
             'name_last': 'park'
         }) 
     resp2 = requests.post(config.url + "auth/register/v2", 
@@ -75,7 +75,7 @@ def test_reg_invalid_name():
             'email': 'abc@gmail.com',
             'password': 'password',
             'name_first': 'anna',
-            'name_last': 'a' * 50
+            'name_last': 'a' * 53
         }) 
     assert resp1.status_code == 400 
     assert resp2.status_code == 400 
