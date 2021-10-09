@@ -46,7 +46,6 @@ def echo():
 # To clear the data
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
-    json = request.get_json()
     return dumps({ 
     })
 
