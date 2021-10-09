@@ -6,8 +6,7 @@ from flask_cors import CORS
 from src.error import InputError
 from src import config
 
-from src.channels import *
-from src.other import clear_v1
+from src.auth import auth_register_v1
 
 def quit_gracefully(*args):
     '''For coverage'''
@@ -42,15 +41,24 @@ def echo():
         'data': data
     })
 
+
 # To clear the data
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
-    return dumps({ })
+    return dumps({ 
+    })
 
-@APP.route("/channels/list/v2", methods=['GET'])
-def channels_list():
+#still uses auth_user_id have to fix auth implementation to generate a token
+@APP.route("/auth/register/v2", methods=['POST'])
+def register(): 
+    json = request.get_json()
+    resp = auth_register_v1(json['email'], json['password'], json['name_first'], json['name_last'])
+    return dumps({
+        'token': resp['token'],
+        'auth_user_id': resp['auth_user_id']
+    })
 
-    return dumps(channels_list_v2())
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
