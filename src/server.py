@@ -57,6 +57,18 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+@APP.route ("/channels/list/all/v1", methods= ['GET'])
+    def listall(): 
+        json = request.get_json() 
+        response1 = channels_listall_v1(json['token'])
+        return dumps ({
+        'channels':[
+                {
+                    'channel_id': response1['channel_id'],
+                    'name': response1['name']
+                }
+        })
+
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
