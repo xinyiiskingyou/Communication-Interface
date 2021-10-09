@@ -2,9 +2,10 @@
 Auth implementation
 '''
 import re
+import hashlib
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError
-
+from src.server_helper import generate_token
 
 def auth_login_v1(email, password):
     '''
@@ -32,7 +33,7 @@ def auth_login_v1(email, password):
             }
     raise InputError("Email and/or password is not valid!")
 
-def auth_register_v1(email, password, name_first, name_last):
+def auth_register_v2(email, password, name_first, name_last):
     '''
     Given a user's first and last name, email address, and password,
     create a new account for them and return a new `auth_user_id`.
@@ -58,8 +59,8 @@ def auth_register_v1(email, password, name_first, name_last):
     store = DATASTORE.get()
 
     # Error handling
-    token = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
-    if not re.search(token, email):
+    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
+    if not re.search(search, email):
         raise InputError("This email is of invalid form")
 
     # Check for duplicate emails
@@ -79,8 +80,11 @@ def auth_register_v1(email, password, name_first, name_last):
     if len(name_last) not in range(1, 51):
         raise InputError("name_last is not between 1 - 50 characters in length")
 
-    # Creating unique auth_user_id and adding to dict_user
+    # Creating unique auth_user_id and hashing and encoding the token and password
     auth_user_id = len(initial_object['users']) + 1
+    token = generate_token(auth_user_id)
+
+    password = hashlib.sha256(password.encode()).hexdigest() 
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -115,13 +119,15 @@ def auth_register_v1(email, password, name_first, name_last):
         'password': password,
         'name_first': name_first,
         'name_last' : name_last,
+        'token': token,
         'auth_user_id' : auth_user_id,
         'handle_str' : handle,
         'permission_id' : permission_id
     })
 
     DATASTORE.set(store)
-
     return {
+        'token': token,
         'auth_user_id': auth_user_id
     }
+
