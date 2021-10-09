@@ -79,10 +79,10 @@ def test_incorrect_password():
 
 # Register two users and log them in
 user1_reg = auth_register_v1('abc@unsw.edu.au', 'password', 'afirst', 'alast')
-#user1_log = auth_login_v1('abc@unsw.edu.au', 'password')
+user1_log = auth_login_v1('abc@unsw.edu.au', 'password')
 
 user2_reg = auth_register_v1('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
-#user2_log = auth_login_v1('cat@unsw.edu.au', 'password')
+user2_log = auth_login_v1('cat@unsw.edu.au', 'password')
 
 def test_unique_auth_id():
     '''
@@ -96,13 +96,13 @@ def test_auth_reg_and_log1():
     Test auth reg and auth login return the same value
     '''
     assert user1_reg['auth_user_id'] == 1
-    #assert user1_log['auth_user_id'] == 1
+    assert user1_log['auth_user_id'] == 1
 
 def test_correct_auth_login_output():
     '''
     Tests that auth_login gives the correct dictionary as output
     '''
-    #assert user1_log == {'auth_user_id': 1}
-   # assert user2_log == {'auth_user_id': 2}
+    assert user1_log == {'auth_user_id': 1}
+    assert user2_log == {'auth_user_id': 2}
 
 clear_v1()
