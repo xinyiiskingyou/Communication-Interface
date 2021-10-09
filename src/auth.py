@@ -20,7 +20,7 @@ def auth_login_v2(email, password):
                     - Occurs when password is not correct
 
     Return Value:
-        Returns <{auth_user_id}> when user successfully logins into Streams
+        Returns <{auth_user_id, token}> when user successfully logins into Streams
     '''
 
     # Iterate through the initial_object list
@@ -55,7 +55,7 @@ def auth_register_v2(email, password, name_first, name_last):
                     - Occurs when length of name_last is not between 1 and 50 characters inclusive
 
     Return Value:
-        Returns <{auth_user_id}> when user successfully creates a new account in Streams
+        Returns <{auth_user_id, token}> when user successfully creates a new account in Streams
     '''
 
     store = DATASTORE.get()

@@ -7,6 +7,7 @@ from src.helper import check_valid_member_in_channel, check_channel_private, che
 from src.helper import channels_create_check_valid_user, check_valid_owner, check_owner_permission
 from src.data_store import DATASTORE, initial_object
 from src.server_helper import decode_token
+
 def channel_invite_v2(token, channel_id, u_id):
 
     '''
@@ -33,13 +34,6 @@ def channel_invite_v2(token, channel_id, u_id):
     '''
     auth_user_id = decode_token(token)
     store = DATASTORE.get()
-
-    # Invalid auth_user_id
-    if not channels_create_check_valid_user(auth_user_id):
-        # Invalid auth_user_id and u_id is already a member of the channel
-        if check_valid_member_in_channel(channel_id, u_id):
-            raise AccessError("The auth_user_id is invalid and user is already a member of channel")
-        raise AccessError("The auth_user_id does not refer to a valid user")
 
     # Invalid u_id
     if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
@@ -124,7 +118,7 @@ def channel_messages_v2(token, channel_id, start):
     return up to 50 messages between index "start" and "start + 50".
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user
+        <token>        (<hash>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <start>        (<int>)    - starting index of message pagination
 
