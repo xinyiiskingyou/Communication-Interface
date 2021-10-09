@@ -68,7 +68,7 @@ def test_removeowener_no_permission():
     channel_invite_v2(id2['token'], channel_id2['channel_id'], id4['auth_user_id'])
 
     with pytest.raises(AccessError):    
-        channel_removeowner_v1(id4['token'], channel_id2['channel_id'], id2['auth_user_id'])
+        channel_removeowner_v1(id2['token'], channel_id2['channel_id'], id2['auth_user_id'])
 
 def test_remove_owner_valid():
     clear_v1()
