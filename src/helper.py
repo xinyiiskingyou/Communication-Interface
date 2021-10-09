@@ -5,13 +5,14 @@ from src.data_store import initial_object
 
 #Helper function for channels_create, channel_invite, channel_join
 #Helper function to return the specific details of users
+
 def user_info(auth_user_id):
     '''
     return type: dict
     '''
     user = channels_user_details(auth_user_id)
     return {
-        'u_id': user['auth_user_id'],
+        'u_id': auth_user_id,
         'email': user['email'],
         'name_first': user['name_first'],
         'name_last': user['name_last'],
@@ -142,3 +143,21 @@ def check_permision_id(auth_user_id):
             if user['permission_id'] == 1:
                 return True
     return False
+
+def check_valid_owner(u_id, channel_id):
+    for channels in initial_object['channels']:
+        if channels['channel_id'] == channel_id:
+            for member in channels['owner_members']:
+                if member['u_id'] == u_id:
+                    return True
+    return False
+
+def check_owner_permission(channel_id):
+
+    for channels in initial_object['channels']:
+        if channels['channel_id'] == channel_id:
+            for member in channels['owner_members']:
+                if member['permission_id'] == 1:
+                    return True
+    return False
+    

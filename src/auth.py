@@ -7,7 +7,7 @@ from src.data_store import DATASTORE, initial_object
 from src.error import InputError
 from src.server_helper import generate_token
 
-def auth_login_v1(email, password):
+def auth_login_v2(email, password):
     '''
     Given a registered user's email and password, returns their `auth_user_id` value.
 
@@ -26,9 +26,11 @@ def auth_login_v1(email, password):
     # Iterate through the initial_object list
     for user in initial_object['users']:
         # If the email and password the user inputs to login match and exist in data_store
-        if (user['email'] == email) and (user['password'] == password):
+        if (user['email'] == email) and (user['password'] == hashlib.sha256(password.encode()).hexdigest()):
             auth_user_id = user['auth_user_id']
+            token = user['token']
             return {
+                'token': token,
                 'auth_user_id': auth_user_id
             }
     raise InputError("Email and/or password is not valid!")
