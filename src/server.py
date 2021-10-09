@@ -39,6 +39,12 @@ def echo():
         'data': data
     })
 
+# To clear the data
+@APP.route("/clear/v1", methods=['POST'])
+def clear():
+    return dumps({ })
+
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
