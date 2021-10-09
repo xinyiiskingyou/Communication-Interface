@@ -7,7 +7,6 @@ from src.other import clear_v1
 ##########################################
 ########### auth_register tests ##########
 ##########################################
-BASE_URL = 'http://127.0.0.1:8080'
 
 def test_reg_invalid_email():
     requests.delete(config.url + "clear/v1")

@@ -4,6 +4,7 @@ Auth implementation
 import re
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError
+from src.server_helper import generate_token, decode_token
 
 def auth_login_v1(email, password):
     '''
@@ -80,6 +81,7 @@ def auth_register_v1(email, password, name_first, name_last):
 
     # Creating unique auth_user_id and adding to dict_user
     auth_user_id = len(initial_object['users']) + 1
+    token = generate_token(len(initial_object['users']) + 1) 
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -114,14 +116,16 @@ def auth_register_v1(email, password, name_first, name_last):
         'password': password,
         'name_first': name_first,
         'name_last' : name_last,
+        'token': token,
         'auth_user_id' : auth_user_id,
         'handle_str' : handle,
         'permission_id' : permission_id
     })
 
     DATASTORE.set(store)
-
+    print(f"{token}")
     return {
+        'token': token,
         'auth_user_id': auth_user_id
     }
 

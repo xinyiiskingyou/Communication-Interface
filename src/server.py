@@ -44,9 +44,11 @@ def echo():
 
 
 # To clear the data
-@APP.route("/clear/v1", methods=['POST'])
+@APP.route("/clear/v1", methods=['DELETE'])
 def clear():
-    return dumps({ })
+    json = request.get_json()
+    return dumps({ 
+    })
 
 #still uses auth_user_id have to fix auth implementation to generate a token
 @APP.route("/auth/register/v2", methods=['POST'])
@@ -54,6 +56,7 @@ def register():
     json = request.get_json()
     resp = auth_register_v1(json['email'], json['password'], json['name_first'], json['name_last'])
     return dumps({
+        'token': resp['token'],
         'auth_user_id': resp['auth_user_id']
     })
 
