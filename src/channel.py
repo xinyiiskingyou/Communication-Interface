@@ -35,13 +35,6 @@ def channel_invite_v2(token, channel_id, u_id):
     auth_user_id = decode_token(token)
     store = DATASTORE.get()
 
-    # Invalid auth_user_id
-    if not channels_create_check_valid_user(auth_user_id):
-        # Invalid auth_user_id and u_id is already a member of the channel
-        if check_valid_member_in_channel(channel_id, u_id):
-            raise AccessError("The auth_user_id is invalid and user is already a member of channel")
-        raise AccessError("The auth_user_id does not refer to a valid user")
-
     # Invalid u_id
     if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
         # Access error channel_id is valid and authorised user is not a member of the channel
