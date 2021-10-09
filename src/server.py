@@ -6,6 +6,9 @@ from flask_cors import CORS
 from src.error import InputError
 from src import config
 
+from src.channels import *
+from src.other import clear_v1
+
 def quit_gracefully(*args):
     '''For coverage'''
     exit(0)
@@ -39,6 +42,15 @@ def echo():
         'data': data
     })
 
+# To clear the data
+@APP.route("/clear/v1", methods=['DELETE'])
+def clear():
+    return dumps({ })
+
+@APP.route("/channels/list/v2", methods=['GET'])
+def channels_list():
+
+    return dumps(channels_list_v2())
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
