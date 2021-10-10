@@ -7,6 +7,7 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
+from src.channels import channels_list_v2, channels_create_v2, channels_listall_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -59,6 +60,18 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+@APP.route("/channels/create/v2", methods=['POST'])
+def channel_create():
+    json = request.get_json()
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
+    return dumps({
+        'channel_id': resp['channel_id']
+    })
+
+@APP.route("/channels/list/v2", methods=['GET'])
+def channels_list(): 
+    token = request.args.get('token')
+    return dumps(channels_list_v2(token))
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
