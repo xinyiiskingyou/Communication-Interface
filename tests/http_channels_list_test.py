@@ -2,14 +2,14 @@ import pytest
 import requests
 import json
 from src import config 
-from src.other import clear_v1
 
 ##########################################
 ######### channels_list tests ##########
 ##########################################
 
 def test_no_channel():
-    
+    requests.delete(config.url + "clear/v1", json={})
+
     resp = requests.post(config.url + 'auth/register/v2', json ={
         'email': 'sally123@gmail.com', 
         'password': 'password1234', 
@@ -21,10 +21,12 @@ def test_no_channel():
     list = requests.get(config.url + 'channels/list/v2', json = {
         'token': token
     })
+    assert json.loads(list.text) == {'channels': []}
     assert list.status_code == 200
 
 def test_channel_list():
-    requests.delete(config.url + 'clear/v1')
+    requests.delete(config.url + "clear/v1", json={})
+
     resp = requests.post(config.url + 'auth/register/v2', json ={
         'email': 'anna345@gmail.com', 
         'password': 'password123', 
@@ -34,18 +36,18 @@ def test_channel_list():
     response_data = resp.json()
     token = response_data['token']
 
-    channel = requests.post(config.url + 'channels/create/v2', json = {
+    channel = requests.post(config.url + 'channels/create/v2', json ={
         'token': token,
         'name': 'new_channel',
         'is_pulic': True
     })
-
     channel_data = channel.json()
-    list = requests.get(config.url + 'channels/listall/v2', json = {
+
+    list1 = requests.get(config.url + 'channels/list/v2', json ={
         'token': token
     })
 
-    assert json.loads(list.text) == {
+    assert json.loads(list1.text) == {
         'channel_id': channel_data['channel_id'],
         'name': 'new_channel'
     }
