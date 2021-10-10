@@ -48,9 +48,7 @@ def echo():
 def clear():
     json = request.get_json()
     resp = clear_v1()
-    return dumps({
-        resp
-     })
+    return dumps(resp)
 
 #still uses auth_user_id have to fix auth implementation to generate a token
 @APP.route("/auth/register/v2", methods=['POST'])
