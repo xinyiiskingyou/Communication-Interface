@@ -1,6 +1,7 @@
 '''
 Helper functions
 '''
+import re
 from src.data_store import initial_object
 
 #Helper function for channels_create, channel_invite, channel_join
@@ -160,4 +161,12 @@ def check_owner_permission(channel_id):
                 if member['permission_id'] == 1:
                     return True
     return False
-    
+
+def check_valid_email(email):
+    '''
+    check if the email is valid
+    '''
+    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
+    if re.search(search, email):
+        return True
+    return False
