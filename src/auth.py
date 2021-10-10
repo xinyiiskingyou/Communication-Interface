@@ -5,9 +5,9 @@ import re
 import hashlib
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError
-from src.server_helper import generate_token, decode_token
+from src.server_helper import generate_token
 
-def auth_login_v1(email, password):
+def auth_login_v2(email, password):
     '''
     Given a registered user's email and password, returns their `auth_user_id` value.
 
@@ -20,20 +20,22 @@ def auth_login_v1(email, password):
                     - Occurs when password is not correct
 
     Return Value:
-        Returns <{auth_user_id}> when user successfully logins into Streams
+        Returns <{auth_user_id, token}> when user successfully logins into Streams
     '''
 
     # Iterate through the initial_object list
     for user in initial_object['users']:
         # If the email and password the user inputs to login match and exist in data_store
-        if (user['email'] == email) and (user['password'] == hashlib.sha256(password.encode()).hexdigest() ):
+        if (user['email'] == email) and (user['password'] == hashlib.sha256(password.encode()).hexdigest()):
             auth_user_id = user['auth_user_id']
+            token = user['token']
             return {
+                'token': token,
                 'auth_user_id': auth_user_id
             }
     raise InputError("Email and/or password is not valid!")
 
-def auth_register_v1(email, password, name_first, name_last):
+def auth_register_v2(email, password, name_first, name_last):
     '''
     Given a user's first and last name, email address, and password,
     create a new account for them and return a new `auth_user_id`.
@@ -53,7 +55,7 @@ def auth_register_v1(email, password, name_first, name_last):
                     - Occurs when length of name_last is not between 1 and 50 characters inclusive
 
     Return Value:
-        Returns <{auth_user_id}> when user successfully creates a new account in Streams
+        Returns <{auth_user_id, token}> when user successfully creates a new account in Streams
     '''
 
     store = DATASTORE.get()
@@ -82,7 +84,8 @@ def auth_register_v1(email, password, name_first, name_last):
 
     # Creating unique auth_user_id and hashing and encoding the token and password
     auth_user_id = len(initial_object['users']) + 1
-    token = generate_token(len(initial_object['users']) + 1) 
+    token = generate_token(auth_user_id)
+
     password = hashlib.sha256(password.encode()).hexdigest() 
 
     # Creating handle and adding to dict_user
@@ -125,7 +128,6 @@ def auth_register_v1(email, password, name_first, name_last):
     })
 
     DATASTORE.set(store)
-    print(f"{token}")
     return {
         'token': token,
         'auth_user_id': auth_user_id
