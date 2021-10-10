@@ -45,18 +45,19 @@ def echo():
 # To clear the data
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
-    return dumps({ 
-    })
+    resp = clear_v1()
+    return dumps(resp)
 
 #still uses auth_user_id have to fix auth implementation to generate a token
 @APP.route("/auth/register/v2", methods=['POST'])
 def register(): 
     json = request.get_json()
-    resp = auth_register_v1(json['email'], json['password'], json['name_first'], json['name_last'])
+    resp = auth_register_v2(json['email'], json['password'], json['name_first'], json['name_last'])
     return dumps({
         'token': resp['token'],
         'auth_user_id': resp['auth_user_id']
     })
+
 
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():

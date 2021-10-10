@@ -1,4 +1,4 @@
-from src.data_store import data_store, initial_object 
+from src.data_store import DATASTORE, initial_object 
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
