@@ -1,3 +1,4 @@
+import json
 import sys
 import signal
 from json import dumps
@@ -8,6 +9,7 @@ from src import config
 
 from src.auth import auth_register_v2
 from src.channels import channels_list_v2, channels_create_v2
+from src.channel import channel_invite_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -63,17 +65,22 @@ def register():
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
     json = request.get_json()
-    resp1 = channels_create_v2(json['token'], json['name'], bool(json['is_public']))
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
     return dumps({
-        'channel_id': resp1['channel_id']
+        'channel_id': resp['channel_id']
     })
 
 @APP.route("/channels/list/v2", methods=['GET'])
 def channels_list(): 
-    json = request.get_json()
-    resp = channels_list_v2(json['token'])
-    return dumps(resp)
+    return dumps(channels_list_v2(request.args.get('token')))
 
+############ CHANNEL #################
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    json = request.get_json()
+    resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
+    
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
