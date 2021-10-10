@@ -4,6 +4,7 @@ from src.auth import auth_register_v2, auth_login_v2
 from src.helper import channels_user_details
 from src.error import InputError
 from src.other import clear_v1
+from src.server_helper import decode_token
 
 ##########################################
 ##### user_profile_set_email tests #######
@@ -36,9 +37,9 @@ def user_set_email_valid():
     user_profile_setemail_v1(user1['token'], 'comp1531@gmail.com')
 
     # test if user can login with new email address
-    auth_login_v2('comp1531@gmail.com', 'password')
+    login = auth_login_v2('comp1531@gmail.com', 'password')
 
-    assert user1['auth_user_id'] == auth_login_v2['auth_user_id']
+    assert user1['auth_user_id'] == login['auth_user_id']
 
 ##########################################
 ##### user_profile_set_handle tests ######
@@ -62,11 +63,11 @@ def user_set_handle_non_alphanumeric():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
-        user_profile_sethandle_v1(user1['token'], '_______===++')
+        user_profile_sethandle_v1(user1['token'], '______===++')
     with pytest.raises(InputError):
         user_profile_sethandle_v1(user1['token'], '____123-+')
     with pytest.raises(InputError):
-        user_profile_sethandle_v1(user1['token'], '___ad31__=]\++')
+        user_profile_sethandle_v1(user1['token'], '___ad31__++')
 
 # the handle is already used by another user
 def user_set_handle_already_used():
@@ -82,5 +83,5 @@ def user_set_handle_valid():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     user_profile_sethandle_v1(user1['token'], 'anna')
-    user1_detail = channels_user_details(user1['auth_user_id'])
+    user1_detail = channels_user_details(decode_token(user1['token']))
     assert user1_detail['handle_str'] == 'anna'
