@@ -15,22 +15,23 @@ def test_details_return_values_pub_h():
 
     # Register user and create channel
     user1 = register_user('abc@gmail.com', 'password', 'anna', 'park')
-    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
-    channel1 = requests.post(config.url, 'channels/create/v2', {
-        'token': answer,
+    answer1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
+    channel1 = requests.post(config.url + "channels/create/v2", {
+        'token': answer1,
         'name': 'channel1',
         'is_public': True
     })
 
+    assert json.loads(channel1.text) == {'channel_id': 1}
     # Get details of channel
-    resp1 = requests.post(config.url, 'channels/details/v2', {
-        'token': answer,
+    resp1 = requests.get(config.url + "channel/details/v2", {
+        'token': answer1,
         'channel_id': 1,
     })
 
     assert (json.loads(resp1.text) == 
         {
-        'name': 'channel_1',
+        'name': 'channel1',
         'is_public': True,
         'owner_members':[
             {
@@ -57,9 +58,9 @@ def test_details_invalid_channel_id_h():
     requests.delete(config.url + "clear/v1")
     # Register user and create channel
     user1 = register_user('abc@gmail.com', 'password', 'anna', 'park')
-    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
-    channel1 = requests.post(config.url, 'channels/create/v2', {
-        'token': answer,
+    answer1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
+    channel1 = requests.post(config.url + "channels/create/v2", {
+        'token': answer1,
         'name': 'channel1',
         'is_public': True
     })
@@ -67,19 +68,19 @@ def test_details_invalid_channel_id_h():
     # Test invalid
     resp1 = requests.get(config.url + "channel/details/v2", 
         json = {
-            'token': answer,
+            'token': answer1,
             'channel_id': -1
         })
 
     resp2 = requests.get(config.url + "channel/details/v2", 
         json = {
-            'token': answer,
+            'token': answer1,
             'channel_id': 0
         })
 
     resp3 = requests.get(config.url + "channel/details/v2", 
         json = {
-            'token': answer,
+            'token': answer1,
             'channel_id': 256
         })
 
@@ -92,9 +93,9 @@ def test_details_invalid_token():
     requests.delete(config.url + "clear/v1")
     # Register user and create channel
     user1 = register_user('abc@gmail.com', 'password', 'anna', 'park') 
-    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
-    channel1 = requests.post(config.url, 'channels/create/v2', {
-        'token': answer,
+    answer1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
+    channel1 = requests.post(config.url + "channels/create/v2", {
+        'token': answer1,
         'name': 'channel1',
         'is_public': True
     })
@@ -127,21 +128,21 @@ def test_deatils_not_member_h():
     requests.delete(config.url + "clear/v1")
     # Register user and create channel
     user1 = register_user('abc@gmail.com', 'password', 'anna', 'park')
-    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
-    channel1 = requests.post(config.url, 'channels/create/v2', {
-        'token': answer,
+    answer1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
+    channel1 = requests.post(config.url + "channels/create/v2", {
+        'token': answer1,
         'name': 'channel1',
         'is_public': True
     })
 
     # Register another user
     user2 = register_user('email@gmail.com', 'password', 'john', 'doe')
-
+    answer2 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
     # Test invalid 
     resp1 = requests.get(config.url + "channel/details/v2", 
         json = {
-            'token': answer,
-            'channel_id': 0
+            'token': answer2,
+            'channel_id': 1
         })
     
-    assert user2.status_code == 403
+    assert resp1.status_code == 403

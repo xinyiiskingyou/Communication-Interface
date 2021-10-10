@@ -96,9 +96,11 @@ def test_reg_return_values_h():
             'name_first': 'anna',
             'name_last': 'park'
         }) 
-    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
+    answer1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
+    answer2 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
 
-    assert json.loads(resp1.text) == {'token': answer, 'auth_user_id': 1}
+    assert json.loads(resp1.text) == {'token': answer1, 'auth_user_id': 1}
+    assert json.loads(resp2.text) == {'token': answer2, 'auth_user_id': 2}
 
 
 
