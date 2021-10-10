@@ -11,7 +11,7 @@ from src.server_helper import decode_token
 ##########################################
 
 # Input Error when email entered is not a valid email
-def user_set_email_invalid_email():
+def test_user_set_email_invalid_email():
     clear_v1()
     user1 = auth_register_v2('unsw@gmail.com', 'password', 'first1', 'last1')
     with pytest.raises(InputError):
@@ -20,7 +20,7 @@ def user_set_email_invalid_email():
         user_profile_setemail_v1(user1['token'], '123.com')
 
 # email address is already being used by another user
-def user_set_email_duplicate_email():
+def test_user_set_email_duplicate_email():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     user2 = auth_register_v2('cat@gmail.com', 'password', 'bfirst', 'blast')
@@ -31,7 +31,7 @@ def user_set_email_duplicate_email():
         user_profile_setemail_v1(user2['token'], 'abc@gmail.com')
 
 # valid case
-def user_set_email_valid():
+def test_user_set_email_valid():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     user_profile_setemail_v1(user1['token'], 'comp1531@gmail.com')
@@ -46,7 +46,7 @@ def user_set_email_valid():
 ##########################################
 
 # length of handle_str is not between 3 and 20 characters inclusive
-def user_set_handle_invalid_length():
+def test_user_set_handle_invalid_length():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
@@ -59,7 +59,7 @@ def user_set_handle_invalid_length():
         user_profile_sethandle_v1(user1['token'], 'a' * 22)
 
 # handle_str contains characters that are not alphanumeric
-def user_set_handle_non_alphanumeric():
+def test_user_set_handle_non_alphanumeric():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
@@ -70,7 +70,7 @@ def user_set_handle_non_alphanumeric():
         user_profile_sethandle_v1(user1['token'], '___ad31__++')
 
 # the handle is already used by another user
-def user_set_handle_already_used():
+def test_user_set_handle_already_used():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     user2 = auth_register_v2('cat@gmail.com', 'password', 'afirst', 'alast')
@@ -79,7 +79,7 @@ def user_set_handle_already_used():
         user_profile_sethandle_v1(user1['token'], 'anna')
 
 # valid case
-def user_set_handle_valid():
+def test_user_set_handle_valid():
     clear_v1()
     user1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     user_profile_sethandle_v1(user1['token'], 'anna')
