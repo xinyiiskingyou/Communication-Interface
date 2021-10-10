@@ -89,9 +89,17 @@ def test_reg_return_values_h():
             'name_last': 'park'
         }) 
     
+    resp2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'email@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }) 
     answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
 
     assert json.loads(resp1.text) == {'token': answer, 'auth_user_id': 1}
+
 
 
 

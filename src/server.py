@@ -7,6 +7,7 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
+from src.channel import channel_details_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -42,14 +43,13 @@ def echo():
         'data': data
     })
 
-
 # To clear the data
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
     resp = clear_v1()
     return dumps(resp)
 
-#still uses auth_user_id have to fix auth implementation to generate a token
+# Registeres user
 @APP.route("/auth/register/v2", methods=['POST'])
 def register(): 
     json = request.get_json()
@@ -59,6 +59,17 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+# Gives details about channel
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details(): 
+    json = request.get_json()
+    resp = channel_details_v2(json['token'], json['channel_id'])
+    return dumps({
+        'name': resp['name'],
+        'is_public': resp['is_public'],
+        'owner_members': resp['owner_members'],
+        'all_members': resp['owner_members']
+    })
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
