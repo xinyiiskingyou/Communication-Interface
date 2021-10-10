@@ -1,4 +1,3 @@
-from more_itertools.more import windowed
 import pytest
 from src.user import user_profile_setemail_v1, user_profile_sethandle_v1
 from src.auth import auth_register_v2, auth_login_v2
