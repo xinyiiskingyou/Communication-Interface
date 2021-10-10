@@ -9,13 +9,13 @@ from src.other import clear_v1
 ##########################################
 
 # AccessError Invalid auth_user_id
-def test_create_invalid_auth_user_id():
-    requests.delete(config.url + 'clear/v1')
+def test_create_invalid_token():
+    requests.delete(config.url + "clear/v1")
 
     # Public
     resp1 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': -16,
+            'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw',
             'name': '1531_CAMEL',
             'is_public': True
         })
@@ -23,107 +23,51 @@ def test_create_invalid_auth_user_id():
 
     resp2 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': 0,
-            'name': '1531_CAMEL',
-            'is_public': True
-        })
-
-    resp3 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'auth_user_id': 256,
-            'name': '1531_CAMEL',
-            'is_public': True
-        })
-
-    resp4 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'auth_user_id': 'not_an_id',
-            'name': '1531_CAMEL',
-            'is_public': True
-        })
-
-    resp5 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'auth_user_id': '',
+            'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA',
             'name': '1531_CAMEL',
             'is_public': True
         })
 
     # Input Error
-    assert resp1.status_code == 400
-    assert resp2.status_code == 400
-    assert resp3.status_code == 400
-    assert resp4.status_code == 400
-    assert resp5.status_code == 400
-
+    assert resp1.status_code == 403
+    assert resp2.status_code == 403
 
     # Private
-    resp6 = requests.post(config.url + "channels/create/v2", 
+    resp3 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': -16,
+            'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw',
             'name': '1531_CAMEL',
             'is_public': False
         })
 
-    resp7 = requests.post(config.url + "channels/create/v2", 
+    resp4 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': 0,
+            'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA',
             'name': '1531_CAMEL',
             'is_public': False
         })
 
-    resp8 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'auth_user_id': 256,
-            'name': '1531_CAMEL',
-            'is_public': False
-        })
+    assert resp3.status_code == 403
+    assert resp4.status_code == 403
 
-    resp9 = requests.post(config.url + "channels/create/v2", 
+    # invalid token with invalid channel name
+    resp5 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': 'not_an_id',
-            'name': '1531_CAMEL',
-            'is_public': False
-        })
-
-    resp10 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'auth_user_id': '',
-            'name': '1531_CAMEL',
-            'is_public': False
-        })
-
-    assert resp6.status_code == 400
-    assert resp7.status_code == 400
-    assert resp8.status_code == 400
-    assert resp9.status_code == 400
-    assert resp10.status_code == 400
-
-    # invalid auth_user_id with invalid channel name
-    resp11 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'auth_user_id': -16,
+            'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw',
             'name': ' ',
             'is_public': False
         })
 
-    resp12 = requests.post(config.url + "channels/create/v2", 
+    resp6 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': 1,
+            'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA',
             'name': 'a' * 50,
             'is_public': True
         })
 
-    resp13 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'auth_user_id': 11,
-            'name': '',
-            'is_public': False
-        })
+    assert resp5.status_code == 400
+    assert resp6.status_code == 400
 
-    assert resp11.status_code == 400
-    assert resp12.status_code == 400
-    assert resp13.status_code == 400    
 
 
 # InputError when length of name is less than 1 or more than 20 characters
@@ -139,10 +83,10 @@ def test_create_invalid_name():
             'name_last': 'alast'
         })
 
-
+    auth_user_id1 = json.loads(id1.text)['token']
     resp1 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1.json()['message'],
+            'token': auth_user_id1,
             'name': '',
             'is_public': True
         })
@@ -150,7 +94,7 @@ def test_create_invalid_name():
     resp2 = requests.post(config.url + "channels/create/v2", 
         json = {
             #'auth_user_id': 'auth_user_id',
-            'auth_user_id': id1.json()['message'],
+            'token': auth_user_id1,
             'name': '  ',
             'is_public': True
         })
@@ -158,7 +102,7 @@ def test_create_invalid_name():
     resp3 = requests.post(config.url + "channels/create/v2", 
         json = {
             #'auth_user_id': 'auth_user_id',
-            'auth_user_id': id1.json()['message'],
+            'token': auth_user_id1,
             'name': '                      ',
             'is_public': True
         })
@@ -166,7 +110,7 @@ def test_create_invalid_name():
     resp4 = requests.post(config.url + "channels/create/v2", 
         json = {
             #'auth_user_id': 'auth_user_id',
-            'auth_user_id': id1.json()['message'],
+            'token': auth_user_id1,
             'name': 'a' * 21,
             'is_public': True
         })
@@ -175,7 +119,7 @@ def test_create_invalid_name():
     resp5 = requests.post(config.url + "channels/create/v2", 
         json = {
             #'auth_user_id': 'auth_user_id',
-            'auth_user_id': id1.json()['message'],
+            'token': auth_user_id1,
             'name': 'a' * 50,
             'is_public': True
         })
@@ -200,9 +144,10 @@ def test_create_valid_channel_id():
             'name_last': 'alast'
         })
 
+    auth_user_id1 = json.loads(id1.text)['token']
     resp1 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1.json()['message'],
+            'token': auth_user_id1,
             'name': '1531_CAMEL_1',
             'is_public': True
         })
@@ -211,7 +156,7 @@ def test_create_valid_channel_id():
 
     resp2 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id1.json()['message'],
+            'token': auth_user_id1,
             'name': '1531_CAMEL_2',
             'is_public': True
         })
@@ -225,10 +170,10 @@ def test_create_valid_channel_id():
             'name_last': 'blast'
         })
 
-
+    auth_user_id2 = json.loads(id2.text)['token']
     resp3 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id2.json()['message'],
+            'token': auth_user_id2,
             'name': '1531_CAMEL_3',
             'is_public': True
         })
@@ -242,19 +187,33 @@ def test_create_valid_channel_id():
             'name_last': 'clast'
         })
 
+    auth_user_id3 = json.loads(id3.text)['token']
     resp4 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'auth_user_id': id3.json()['message'],
+            'token': auth_user_id3,
             'name': '1531_CAMEL_3',
             'is_public': False
         })
     assert resp4.status_code == 200
 
-'''
+
 # Assert channel_id can never be a negative number
 def test_create_negative_channel_id():
     requests.delete(config.url + 'clear/v1')
-    auth_id = auth_register_v1('abc@gmail.com', 'password', 'afirst', 'alast')
-    channel_id1 = channels_create_v1(auth_id['auth_user_id'], '1531_CAMEL', True)
-    assert channel_id1['channel_id'] > 0
-'''
+    id1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'cfirst',
+            'name_last': 'clast'
+        })
+    auth_user_id1 = json.loads(id1.text)['token']
+
+    resp = requests.post(config.url + "channels/create/v2", 
+        json = {
+            'token': auth_user_id1,
+            'name': '1531_CAMEL',
+            'is_public': False
+        })
+    channel_id1 = json.loads(resp.text)['channel_id']
+    assert channel_id1 > 0

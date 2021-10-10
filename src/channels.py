@@ -3,8 +3,8 @@ Channels implementation
 '''
 
 from src.data_store import DATASTORE, initial_object
-from src.error import InputError
-from src.helper import user_info
+from src.error import InputError, AccessError
+from src.helper import user_info, channels_create_check_valid_user
 from src.server_helper import decode_token
 
 def channels_list_v2(token):
@@ -96,7 +96,8 @@ def channels_create_v2(token, name, is_public):
         raise InputError('Length of name is less than 1 or more than 20 characters')
     if name[0] == ' ':
         raise InputError('Name cannot be blank')
-
+    if not channels_create_check_valid_user(auth_user_id):
+        raise AccessError('The token does not refer to a valid user')
     channels = initial_object['channels']
 
     # generate channel_id according the number of existing channels
