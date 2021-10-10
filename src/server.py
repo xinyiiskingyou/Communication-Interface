@@ -1,3 +1,4 @@
+import json
 import sys
 import signal
 from json import dumps
@@ -8,6 +9,7 @@ from src import config
 
 from src.auth import auth_register_v2
 from src.channels import channels_list_v2, channels_create_v2
+from src.channel import channel_invite_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -72,6 +74,13 @@ def channel_create():
 def channels_list(): 
     return dumps(channels_list_v2(request.args.get('token')))
 
+############ CHANNEL #################
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    json = request.get_json()
+    resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
+    
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
