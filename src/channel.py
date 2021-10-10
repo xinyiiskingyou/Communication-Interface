@@ -4,10 +4,11 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user
+from src.helper import channels_create_check_valid_user, check_valid_owner, check_owner_permission
 from src.data_store import DATASTORE, initial_object
+from src.server_helper import decode_token
 
-def channel_invite_v1(auth_user_id, channel_id, u_id):
+def channel_invite_v2(token, channel_id, u_id):
 
     '''
     Invites a user with ID u_id to join a channel with ID channel_id.
@@ -15,7 +16,7 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     In both public and private channels, all members are able to invite users.
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user who is doing the inviting
+        <token>        (<hash>)   - unique id of an authorised user who is doing the inviting
         <channel_id>   (<int>)    - unique id if a channel
         <u_id>         (<int>)    - unique id of an authorised user who is being invited
 
@@ -31,21 +32,8 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     Return Value:
         N/A
     '''
-
+    auth_user_id = decode_token(token)
     store = DATASTORE.get()
-
-    # Invalid auth_user_id
-    if not isinstance(auth_user_id, int) or not channels_create_check_valid_user(auth_user_id):
-        # Invalid auth_user_id and invalid channel_id
-        if not check_valid_channel_id(channel_id):
-            raise AccessError("The auth_user_id and channel_id are invalid")
-        # Invalid auth_user_id and invalid u_id
-        if not channels_create_check_valid_user(u_id):
-            raise AccessError("The auth_user_id and u_id are invalid")
-        # Invalid auth_user_id and u_id is already a member of the channel
-        if check_valid_member_in_channel(channel_id, u_id):
-            raise AccessError("The auth_user_id is invalid and user is already a member of channel")
-        raise AccessError("The auth_user_id does not refer to a valid user")
 
     # Invalid u_id
     if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
@@ -55,11 +43,9 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
             raise AccessError("Authorised user is not a member of channel and u_id is invalid")
         raise InputError("The u_id does not refer to a valid user")
 
-
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int) or not check_valid_channel_id(channel_id):
         raise InputError("Channel_id does not refer to a valid channel")
-
 
     # Input error when u_id refers to a user who is already a member of the channel
     if check_valid_member_in_channel(channel_id, u_id):
@@ -82,13 +68,13 @@ def channel_invite_v1(auth_user_id, channel_id, u_id):
     DATASTORE.set(store)
     return {}
 
-def channel_details_v1(auth_user_id, channel_id):
+def channel_details_v2(token, channel_id):
     '''
     Given a channel with ID channel_id that the authorised user
     is a member of, provide basic details about the channel.
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user
+        <token>        (<hash>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id if a channel
 
     Exceptions:
@@ -105,20 +91,18 @@ def channel_details_v1(auth_user_id, channel_id):
         Returns <owner_members> of valid channel requested by authorised user
         Returns <all_members> of valid channel requested by authorised user
     '''
+    auth_user_id = decode_token(token)
 
-    # Invalid auth_user_id
-    if not isinstance(auth_user_id, int):
-        raise AccessError('This is an invalid auth_user_id')
-    if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError("The auth_user_id does not refer to a valid user")
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
     if not check_valid_channel_id(channel_id):
         raise InputError("The channel_id does not refer to a valid channel")
+
     # Authorised user not a member of channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError("Authorised user is not a member of channel with channel_id")
+
     channel_info = get_channel_details(channel_id)
     return {
         'name': channel_info['name'],
@@ -127,13 +111,14 @@ def channel_details_v1(auth_user_id, channel_id):
         'all_members': channel_info['all_members'],
     }
 
-def channel_messages_v1(auth_user_id, channel_id, start):
+def channel_messages_v2(token, channel_id, start):
+
     '''
     Given a channel with ID channel_id that the authorised user is a member of,
     return up to 50 messages between index "start" and "start + 50".
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user
+        <token>        (<hash>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <start>        (<int>)    - starting index of message pagination
 
@@ -152,12 +137,9 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         Returns <end> of valid channel requested by authorised user with valid starting index,
             -1 if function has returned the least recent messages in the channel
     '''
-    # Invalid auth_user_id
-    if not isinstance(auth_user_id, int):
-        raise AccessError('This is an invalid auth user id')
-    if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError("The auth_user_id does not refer to a valid user")
 
+    auth_user_id = decode_token(token)
+    
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
@@ -185,14 +167,13 @@ def channel_messages_v1(auth_user_id, channel_id, start):
         'end': end,
     }
 
-
-def channel_join_v1(auth_user_id, channel_id):
+def channel_join_v2(token, channel_id):
     '''
     Given a channel_id of a channel that the authorised user can join,
     adds them to that channel.
 
     Arguments:
-        <auth_user_id> (<int>)    - unique id of an authorised user
+        <token>        (<hash>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
 
     Exceptions:
@@ -208,12 +189,7 @@ def channel_join_v1(auth_user_id, channel_id):
         N/A
     '''
     store = DATASTORE.get()
-
-    # Invalid auth_user_id
-    if not isinstance(auth_user_id, int):
-        raise AccessError('This is an invalid auth user id')
-    if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError("The auth_user_id does not refer to a valid user")
+    auth_user_id = decode_token(token)
 
     # Invalid channel_id
     if not isinstance(channel_id, int):
