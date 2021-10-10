@@ -57,6 +57,8 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+
+#listall wrap? 
 @APP.route ("/channels/list/all/v1", methods= ['GET'])
     def listall(): 
         json = request.get_json() 
