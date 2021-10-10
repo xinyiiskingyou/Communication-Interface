@@ -63,16 +63,14 @@ def register():
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
     json = request.get_json()
-    resp1 = channels_create_v2(json['token'], json['name'], bool(json['is_public']))
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
     return dumps({
-        'channel_id': resp1['channel_id']
+        'channel_id': resp['channel_id']
     })
 
 @APP.route("/channels/list/v2", methods=['GET'])
 def channels_list(): 
-    json = request.get_json()
-    resp = channels_list_v2(json['token'])
-    return dumps(resp)
+    return dumps(channels_list_v2(request.args.get('token')))
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
