@@ -46,8 +46,7 @@ def echo():
 # To clear the data
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
-    return dumps({ 
-    })
+    return dumps({ })
 
 #still uses auth_user_id have to fix auth implementation to generate a token
 @APP.route("/auth/register/v2", methods=['POST'])

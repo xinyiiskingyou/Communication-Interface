@@ -52,7 +52,7 @@ def test_reg_invalid_password():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abc@gmail.com',
+            'email': 'abcd@gmail.com',
             'password': '12345',
             'name_first': 'anna',
             'name_last': 'park'
@@ -64,14 +64,14 @@ def test_reg_invalid_name():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abc@gmail.com',
+            'email': 'abcde@gmail.com',
             'password': 'password',
             'name_first': 'a' * 53,
             'name_last': 'park'
         }) 
     resp2 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abc@gmail.com',
+            'email': 'abcdef@gmail.com',
             'password': 'password',
             'name_first': 'anna',
             'name_last': 'a' * 53
@@ -79,22 +79,20 @@ def test_reg_invalid_name():
     assert resp1.status_code == 400 
     assert resp2.status_code == 400 
 
-'''def test_reg_return_values():
+def test_reg_return_values():
     requests.delete(config.url + "clear/v1", json={})
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abcd@gmail.com',
+            'email': 'abcdefg@gmail.com',
             'password': 'password',
             'name_first': 'anna',
             'name_last': 'park'
         }) 
-    text = json.loads(resp1.text)
+    
+    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
 
-    assert text.get('auth_user_id') == 1
-    assert text.get('email') == 'abc@gmail.com'''
+    assert json.loads(resp1.text) == {'token': answer, 'auth_user_id': 2}
 
-###########################################################
-############ Implementation for auth_register #############
-###########################################################
+
 
 
