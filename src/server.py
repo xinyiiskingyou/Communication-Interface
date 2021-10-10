@@ -7,6 +7,8 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
+from channels import channels_listall_v2
+from channel import channel_join_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -61,10 +63,12 @@ def register():
 
 
 #listall wrap? 
-@APP.route ("/channels/list/all/v1", methods= ['GET'])
-    def listall(): 
-        json = request.get_json() 
-        response1 = channels_listall_v1(json['token'])
+@APP.route ("/channels/list/all/v2", methods= ['GET'])
+    def listall():
+        token = int(request.args.get('token'))
+
+        # json = request.get_json() 
+        # response1 = channels_listall_v2(json['token'])
         return dumps ({
         'channels':[
                 {
@@ -72,6 +76,15 @@ def register():
                     'name': response1['name']
                 }
         })
+
+
+#join wrap? 
+@APP.route ("/channel/join/v2", methods= ['POST'])
+    def join():
+        json = request.get_json()
+        resp1 = channel_join_v2(json['token'], json['channel_id'])
+        return dumps ({})
+
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
