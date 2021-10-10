@@ -52,7 +52,7 @@ def test_reg_invalid_password():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abcd@gmail.com',
+            'email': 'abc@gmail.com',
             'password': '12345',
             'name_first': 'anna',
             'name_last': 'park'
@@ -64,14 +64,14 @@ def test_reg_invalid_name():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abcde@gmail.com',
+            'email': 'abc@gmail.com',
             'password': 'password',
             'name_first': 'a' * 53,
             'name_last': 'park'
         }) 
     resp2 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abcdef@gmail.com',
+            'email': 'abc@gmail.com',
             'password': 'password',
             'name_first': 'anna',
             'name_last': 'a' * 53
@@ -83,15 +83,15 @@ def test_reg_return_values():
     requests.delete(config.url + "clear/v1", json={})
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abcdefg@gmail.com',
+            'email': 'abc@gmail.com',
             'password': 'password',
             'name_first': 'anna',
             'name_last': 'park'
         }) 
     
-    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
+    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
 
-    assert json.loads(resp1.text) == {'token': answer, 'auth_user_id': 2}
+    assert json.loads(resp1.text) == {'token': answer, 'auth_user_id': 1}
 
 
 
