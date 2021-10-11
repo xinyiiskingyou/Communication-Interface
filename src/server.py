@@ -7,8 +7,8 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
-from channels import channels_listall_v2
-from channel import channel_join_v2
+from channels import channels_listall_v2,channels_create_v2
+from channel import channel_join_v2, ,channel_details_v2, channel_invite_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -44,14 +44,13 @@ def echo():
         'data': data
     })
 
-
 # To clear the data
 @APP.route("/clear/v1", methods=['DELETE'])
 def clear():
     resp = clear_v1()
     return dumps(resp)
 
-#still uses auth_user_id have to fix auth implementation to generate a token
+# Registers user
 @APP.route("/auth/register/v2", methods=['POST'])
 def register(): 
     json = request.get_json()
@@ -61,6 +60,22 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+# Gives details about channel
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details(): 
+    token = (request.args.get('token'))
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(channel_details_v2(token, channel_id))
+   
+
+# Channel create
+@APP.route("/channels/create/v2", methods=['POST'])
+def channel_create():
+    json = request.get_json()
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
+    return dumps({
+        'channel_id': resp['channel_id']
+    })
 
 #listall wrap? 
 @APP.route ("/channels/list/all/v2", methods= ['GET'])
@@ -77,13 +92,25 @@ def register():
                 }
         })
 
+############ CHANNEL #################
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    json = request.get_json()
+    resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
 
-#join wrap? 
+#join wrap?   
 @APP.route ("/channel/join/v2", methods= ['POST'])
-    def join():
+    def channel_join():
         json = request.get_json()
         resp1 = channel_join_v2(json['token'], json['channel_id'])
-        return dumps ({})
+        return dumps (resp1)
+
+
+
+
+
+
 
 
 
