@@ -212,3 +212,27 @@ def channel_join_v2(token, channel_id):
 
     DATASTORE.set(store)
     return {}
+
+def channel_addowner_v1(token, channel_id, u_id):
+    '''
+    Make user with user id u_id an owner of the channel
+
+    Arguments:
+        <token>        (<hash>)   - an authorisation hash
+        <channel_id>   (<int>)    - unique id of a channel
+        <u_id>         (<int>)    - an unique auth_user_id of the user to
+                                    be added as an owner of the channel
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Occurs when u_id does not refer to a valid user
+                    - Occurs when u_id 
+
+        AccessError - Occurs when the auth_user_id input is not a valid type
+                    - Occurs when the auth_user_id doesn't refer to a valid user
+                    - channel_id refers to a channel that is private and the authorised
+                    user is not already a channel member and is not a global owner
+
+    Return Value:
+        N/A
+    '''

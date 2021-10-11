@@ -81,7 +81,7 @@ def test_not_member_u_id():
     ch1 = requests.post(config.url + "channels/create/v2", 
         json = {
             'token': token,
-            'name': '',
+            'name': '1531_CAMEL',
             'is_public': True
         })
     channel_id = json.loads(ch1.text)['channel_id']
@@ -241,7 +241,7 @@ def test_no_perm_not_owner():
             })
     token = json.loads(id2.text)['token']
     u_id1 = json.loads(id2.text)['auth_user_id']
-    
+
     invite = requests.post(config.url + 'channel/invite/v2', 
         json ={
             'token': token,

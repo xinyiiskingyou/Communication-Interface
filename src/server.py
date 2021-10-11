@@ -59,7 +59,14 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+############ CHANNELS #################
 
+# Return the list that authorised user is part of
+@APP.route("/channels/list/v2", methods=['GET'])
+def channels_list(): 
+    return dumps(channels_list_v2(request.args.get('token')))
+
+# Channel create
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
     json = request.get_json()
@@ -68,6 +75,28 @@ def channel_create():
         'channel_id': resp['channel_id']
     })
 
+############ CHANNEL #################
+
+# Invite user to join the channel
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    json = request.get_json()
+    resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
+
+# Gives details about channel
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details(): 
+    token = (request.args.get('token'))
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(channel_details_v2(token, channel_id))
+   
+# Add a owner of the channel
+@APP.route("/channels/addowner/v1", methods=['POST'])
+def channel_addowner():
+    json = request.get_json()
+    resp = channels_addowner_v1(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
