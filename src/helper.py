@@ -170,3 +170,4 @@ def check_valid_email(email):
     if re.search(search, email):
         return True
     return False
+
