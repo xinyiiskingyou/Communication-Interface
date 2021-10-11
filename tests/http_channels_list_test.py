@@ -7,6 +7,7 @@ from src import config
 ######### channels_list tests ##########
 ##########################################
 
+# test when an user does not create a channel
 def test_no_channel():
     requests.delete(config.url + "clear/v1", json={})
 
@@ -25,6 +26,7 @@ def test_no_channel():
     assert json.loads(list.text) == {'channels': []}
     assert list.status_code == 200
 
+# test one user creates a channel and can be appended in the list
 def test_channel_list():
     requests.delete(config.url + "clear/v1", json={})
 
