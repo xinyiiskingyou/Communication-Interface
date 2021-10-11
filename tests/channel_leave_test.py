@@ -35,13 +35,13 @@ def test_leave_not_member():
 
     # Public
     with pytest.raises(AccessError):
-        channel_leave_v1(id1['token'], channel_id2['channel_id'], id3['auth_user_id'])
+        channel_leave_v1(id1['token'], channel_id2['channel_id'])
     with pytest.raises(AccessError):
-        channel_leave_v1(id1['token'], channel_id2['channel_id'], id4['auth_user_id'])
+        channel_leave_v1(id1['token'], channel_id2['channel_id'])
 
     # Private
     with pytest.raises(AccessError):
-        channel_leave_v1(id3['token'], channel_id4['channel_id'], id1['auth_user_id'])
+        channel_leave_v1(id3['token'], channel_id4['channel_id'])
     with pytest.raises(AccessError):
-        channel_leave_v1(id3['token'], channel_id4['channel_id'], id2['auth_user_id'])
+        channel_leave_v1(id3['token'], channel_id4['channel_id'])
 
