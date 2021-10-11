@@ -16,8 +16,9 @@ def test_listall_http():
             'name_first': 'anna',
             'name_last': 'park'
         })
+
     token1 = json.loads(user1.text)['token']
-    response_data = user1.json()
+    
     channel1 = requests.post(config.url + "channels/create/v2", 
         json = {
         'token': token1,
@@ -26,8 +27,8 @@ def test_listall_http():
     })
     channel_id1 = json.loads(channel1.text)['channel_id']
     assert channel_id1 != None
-    listall1 = requests.get(config.url + "channels/list/all/v1", 
-        params = { 
+
+    listall1 = requests.get(config.url + "channels/listall/v2", params = { 
             'token': token1
         })
     assert (json.loads(listall1.text) == 
@@ -40,5 +41,5 @@ def test_listall_http():
         ],
     })
 
-    assert response1.status_code == 200
+    assert listall1.status_code == 200
 
