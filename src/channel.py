@@ -226,7 +226,7 @@ def channel_leave_v1(token, channel_id):
 
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
-
+    newuser = user_info(auth_user_id)
 
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
@@ -237,7 +237,7 @@ def channel_leave_v1(token, channel_id):
         if check_channel_private(channel_id) and not check_permision_id(auth_user_id):
             raise AccessError ('Not authorised to join channel')
     
-    newuser = user_info(auth_user_id)
+    
 
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
