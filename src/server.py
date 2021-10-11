@@ -6,7 +6,7 @@ from flask_cors import CORS
 from src.error import InputError
 from src import config
 
-from src.auth import auth_register_v2
+from src.auth import auth_register_v2, auth_login_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -59,6 +59,15 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+# Logins user 
+@APP.route("/auth/login/v2", methods=['POST'])
+def login():
+    json = request.get_json()
+    resp = auth_login_v2(json['email'], json['password'])
+    return dumps({
+        'token': resp['token'],
+        'auth_user_id': resp['auth_user_id']
+    })
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
