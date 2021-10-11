@@ -275,6 +275,24 @@ def channel_addowner_v1(token, channel_id, u_id):
 def channel_removeowner_v1(token, channel_id, u_id):
     '''
     Remove user with user id u_id as an owner of the channel.
+
+    Arguments:
+        <token>        (<hash>)   - an authorisation hash
+        <channel_id>   (<int>)    - unique id of a channel
+        <u_id>         (<int>)    - an unique auth_user_id of the user to
+                                    be removed as an owner of the channel
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Occurs when u_id does not refer to a valid user
+                    - Occurs when u_id refers to a user who is not an owner of the channel
+                    - Occurs when u_id refers to a user who is currently the only owner of the channel
+
+        AccessError - Occurs when channel_id is valid and the auth user doesn't have owner
+                    permission in the channel
+
+    Return Value:
+        N/A
     '''
     auth_user_id = decode_token(token)
 
