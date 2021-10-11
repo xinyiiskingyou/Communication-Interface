@@ -10,6 +10,7 @@ from src import config
 from src.auth import auth_register_v2
 from src.channel import channel_details_v2, channel_invite_v2
 from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
+from src.user import user_profile_setemail_v1, user_profile_sethandle_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -98,7 +99,23 @@ def channel_details():
     token = (request.args.get('token'))
     channel_id = int(request.args.get('channel_id'))
     return dumps(channel_details_v2(token, channel_id))
-   
+
+############ USER #################
+
+# Update the authorised user's email
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_setemail(): 
+    json = request.get_json()
+    resp = user_profile_setemail_v1(json['token'], json['email'])
+    return dumps(resp)
+
+# Update the authorised user's handle
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_sethandle(): 
+    json = request.get_json()
+    resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
+    return dumps(resp)
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
