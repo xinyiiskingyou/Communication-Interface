@@ -221,15 +221,11 @@ def channel_removeowner_v1(token, channel_id, u_id):
 
     store = DATASTORE.get()
     # channel_id does not refer to a valid channel
-    if not check_valid_channel_id(channel_id):
+    if not check_valid_channel_id(channel_id) or not isinstance(channel_id, int):
         raise InputError("The channel_id does not refer to a valid channel")
 
     # u_id does not refer to a valid user
-    if not channels_create_check_valid_user(u_id):
-        # Access error channel_id is valid and authorised user is not a member of the channel
-        # and the u_id is invalid
-        if not check_valid_member_in_channel(channel_id, auth_user_id):
-            raise AccessError("Authorised user is not a member of channel and u_id is invalid")
+    if not channels_create_check_valid_user(u_id) or not isinstance(u_id, int):
         raise InputError("The u_id does not refer to a valid user")
     
     # u_id refers to a user who is not an owner of the channel
@@ -242,7 +238,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError("The u_id refers to a user who is currently the only owner of the channel")
 
     # channel_id is valid and the authorised user does not have owner permissions in the channel
-    if not check_valid_owner(u_id, channel_id):
+    if not check_valid_owner(auth_user_id, channel_id):
         for user in initial_object['users']:
             if user['permission_id'] != 1:
                 raise AccessError("The authorised user does not have owner permissions in the channel")
