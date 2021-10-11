@@ -93,7 +93,6 @@ def channel_invite():
     json = request.get_json()
     resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
-<<<<<<< HEAD
 
 #join wrap?   
 @APP.route ("/channel/join/v2", methods= ['POST'])
@@ -109,8 +108,6 @@ def channel_join():
 
 
 
-=======
->>>>>>> master
 
 # Gives details about channel
 @APP.route("/channel/details/v2", methods=['GET'])
