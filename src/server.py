@@ -50,7 +50,7 @@ def clear():
     resp = clear_v1()
     return dumps(resp)
 
-# Registeres user
+# Registers user
 @APP.route("/auth/register/v2", methods=['POST'])
 def register(): 
     json = request.get_json()
@@ -63,14 +63,20 @@ def register():
 # Gives details about channel
 @APP.route("/channel/details/v2", methods=['GET'])
 def channel_details(): 
+    token = (request.args.get('token'))
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(channel_details_v2(token, channel_id))
+   
+
+# Channel create
+@APP.route("/channels/create/v2", methods=['POST'])
+def channel_create():
     json = request.get_json()
-    resp = channel_details_v2(json['token'], json['channel_id'])
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
     return dumps({
-        'name': resp['name'],
-        'is_public': resp['is_public'],
-        'owner_members': resp['owner_members'],
-        'all_members': resp['owner_members']
+        'channel_id': resp['channel_id']
     })
+
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 

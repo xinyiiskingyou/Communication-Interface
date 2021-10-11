@@ -8,6 +8,7 @@ from src.other import clear_v1
 ########### auth_register tests ##########
 ##########################################
 
+# Input error for invalid email
 def test_reg_invalid_email_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
@@ -27,6 +28,8 @@ def test_reg_invalid_email_h():
     assert resp1.status_code == 400
     assert resp2.status_code == 400
 
+
+# Input error for duplicate email
 def test_reg_duplicate_email_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
@@ -46,8 +49,9 @@ def test_reg_duplicate_email_h():
               
     if resp1 == resp2:
         assert resp2.status_code == 400
-        
+         
 
+# Input error for invalid password
 def test_reg_invalid_password_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
@@ -60,6 +64,8 @@ def test_reg_invalid_password_h():
     print(resp1)
     assert resp1.status_code == 400 
 
+
+# Input error for invalid name
 def test_reg_invalid_name_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
@@ -79,6 +85,10 @@ def test_reg_invalid_name_h():
     assert resp1.status_code == 400 
     assert resp2.status_code == 400 
 
+
+##### Implementation #####
+
+# Asseert correct return values for auth/register/v2
 def test_reg_return_values_h():
     requests.delete(config.url + "clear/v1", json={})
     resp1 = requests.post(config.url + "auth/register/v2", 
@@ -96,11 +106,14 @@ def test_reg_return_values_h():
             'name_first': 'anna',
             'name_last': 'park'
         }) 
-    answer1 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
-    answer2 = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA'
 
-    assert json.loads(resp1.text) == {'token': answer1, 'auth_user_id': 1}
-    assert json.loads(resp2.text) == {'token': answer2, 'auth_user_id': 2}
+    token1 = json.loads(resp1.text)['token']
+    token2 = json.loads(resp2.text)['token']
+
+    assert json.loads(resp1.text) == {'token': token1, 'auth_user_id': 1}
+    assert json.loads(resp2.text) == {'token': token2, 'auth_user_id': 2}
+    assert resp1.status_code == 200
+    assert resp2.status_code == 200
 
 
 
