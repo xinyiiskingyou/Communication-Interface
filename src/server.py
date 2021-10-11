@@ -8,12 +8,8 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
-<<<<<<< HEAD
-from src.channels import channels_create_v2
-=======
-from src.channel import channel_details_v2, channel_invite_v2
+from src.channel import channel_details_v2, channel_invite_v2, channel_addowner_v1
 from src.channels import channels_create_v2, channels_list_v2
->>>>>>> master
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -103,7 +99,7 @@ def channel_details():
 @APP.route("/channels/addowner/v1", methods=['POST'])
 def channel_addowner():
     json = request.get_json()
-    resp = channels_addowner_v1(json['token'], json['channel_id'], json['u_id'])
+    resp = channel_addowner_v1(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 #### NO NEED TO MODIFY BELOW THIS POINT
 
