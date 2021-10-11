@@ -47,8 +47,23 @@ def test_channel_list():
         'token': token
     })
 
-    assert json.loads(list1.text) == {
-        'channel_id': channel_data['channel_id'],
-        'name': 'new_channel'
-    }
+    assert (json.loads(list1.text) == 
+        {
+        'channels':[
+            {
+                'channel_id': json.loads(channel1.text)['channel_id'],
+                'name': 'new_channel'
+            }
+        ],
+        'all_members': [
+            {
+                'u_id': json.loads(channel1.text)['channel_id'],
+                'email': 'abc@gmail.com',
+                'name_first': 'anna',
+                'name_last': 'park',
+                'handle_str': 'annapark'
+            }
+        ]
+    })
+
     assert list.status_code == 200

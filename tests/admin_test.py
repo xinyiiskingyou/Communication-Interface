@@ -5,6 +5,7 @@ from src.auth import auth_register_v2
 from src.channel import channel_details_v2, channel_join_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
+from src.helper import *
 
 ##########################################
 ######## admin_user_remove tests #########
@@ -34,7 +35,7 @@ def test_admin_remove_not_global_owner():
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
     with pytest.raises(AccessError):
-        admin_user_remove_v1(user2['token'], user1['auth_user_id'])
+        admin_user_remove_v1(user2['token'], user2['auth_user_id'])
 
 def test_admin_remove_valid():
     clear_v1()
@@ -96,7 +97,6 @@ def test_admin_perm_invalid_u_id():
 def test_admin_perm_demote():
     clear_v1()
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
-    admin_userpermission_change_v1(user1['token'], user1['auth_user_id'], 2)
     with pytest.raises(InputError):
         admin_userpermission_change_v1(user1['token'], user1['auth_user_id'], 2)
 
@@ -106,7 +106,7 @@ def test_admin_perm_global_owner():
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
     with pytest.raises(InputError):
-        admin_userpermission_change_v1(user1['token'], user2['auth_uer_id'] -10)
+        admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], -10)
     with pytest.raises(InputError):
         admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], 100)
 
@@ -116,7 +116,7 @@ def test_admin_perm_not_global_owner():
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
     with pytest.raises(AccessError):
-        admin_userpermission_change_v1(user2['token'], user1['auth_user_id'], 2)
+        admin_userpermission_change_v1(user2['token'], user2['auth_user_id'], 2)
 
 def test_valid_permission_change():
     clear_v1()
@@ -127,6 +127,11 @@ def test_valid_permission_change():
     # user2 and user3 have owner permission
     admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], 1)
     admin_userpermission_change_v1(user1['token'], user3['auth_user_id'], 1)
-
+    user2_details = channels_user_details(user2['auth_user_id'])
+    user3_details = channels_user_details(user3['auth_user_id'])
+    assert user2_details['permission_id'] == 1
+    assert user3_details['permission_id'] == 1
+    
     # demote user2 
     admin_userpermission_change_v1(user3['token'], user2['auth_user_id'], 2)
+    assert user2_details['permission_id'] == 2
