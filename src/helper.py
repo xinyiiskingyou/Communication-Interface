@@ -160,4 +160,14 @@ def check_owner_permission(channel_id):
                 if member['permission_id'] == 1:
                     return True
     return False
-    
+
+def check_number_of_owners(auth_user_id):
+    number = 0
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            if user['permission_id'] == 1:
+                number += 1
+    if number == 1:
+        return False
+    else:
+        return True

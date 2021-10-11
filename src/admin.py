@@ -33,6 +33,8 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
         raise InputError("The u_id does not refer to a valid user")
     
     # u_id refers to a user who is the only global owner and they are being demoted to a user
+    #if not check_number_of_owners(u_id):
+        #raise InputError
 
     # permission_id is invalid
     if permission_id < 1 or permission_id > 2:
