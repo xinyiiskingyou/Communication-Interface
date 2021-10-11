@@ -64,3 +64,4 @@ def test_channel_list():
         ],
     })
     assert list1.status_code == 200
+
