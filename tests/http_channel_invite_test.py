@@ -164,3 +164,4 @@ def test_valid_channel_invite():
     })
 
     assert invite.status_code == 200
+
