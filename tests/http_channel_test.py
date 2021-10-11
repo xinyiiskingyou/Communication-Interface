@@ -51,7 +51,7 @@ def test_details_invalid_token():
     resp2 = requests.get(config.url + "channel/details/v2", 
         params = {
             'token': token2,
-            'channel_id': json.loads(channel1.text)['channel_id']
+            'channel_id': json.loads(channel2.text)['channel_id']
         })
     
     assert resp2.status_code == 403
@@ -69,13 +69,6 @@ def test_details_invalid_channel_id_h():
             'name_last': 'park'
         })
     token1 = json.loads(user1.text)['token']
-
-    channel1 = requests.post(config.url + "channels/create/v2", 
-        json = {
-        'token': token1,
-        'name': 'channel1',
-        'is_public': True
-    })
 
     # Test invalid
     resp1 = requests.get(config.url + "channel/details/v2", 
