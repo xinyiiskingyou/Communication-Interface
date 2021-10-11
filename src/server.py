@@ -70,15 +70,6 @@ def register():
 def channels_list(): 
     return dumps(channels_list_v2(request.args.get('token')))
 
-# Channel create
-@APP.route("/channels/create/v2", methods=['POST'])
-def channel_create():
-    json = request.get_json()
-    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
-    return dumps({
-        'channel_id': resp['channel_id']
-    })
-
 ############ CHANNEL #################
 
 # Invite user to join the channel
@@ -88,6 +79,7 @@ def channel_invite():
     resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 
+# channel create
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
     json = request.get_json()
