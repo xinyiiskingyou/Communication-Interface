@@ -56,7 +56,6 @@ def test_details_invalid_token():
     
     assert resp2.status_code == 403
 
-
 # Input error when channel_id is not valid
 def test_details_invalid_channel_id_h():
     requests.delete(config.url + "clear/v1")
@@ -191,7 +190,6 @@ def test_details_return_values_pub_h():
     })
 
     assert resp1.status_code == 200
-
 
 # Check details for private channel
 def test_details_return_values_priv_h():
