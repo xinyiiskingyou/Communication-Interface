@@ -80,9 +80,9 @@ def channel_create():
     })
 
 #listall wrap? 
-@APP.route ("/channels/list/all/v2", methods= ['GET'])
-def listall():
-    return dumps (channels_list_all_v2(requests.args.get('token')))
+@APP.route("/channels/listall/v2", methods= ['GET'])
+def channels_listall():
+    return dumps(channels_listall_v2(request.args.get('token')))
 
 
 ############ CHANNEL #################
@@ -100,14 +100,6 @@ def channel_join():
     json = request.get_json()
     resp1 = channel_join_v2(json['token'], json['channel_id'])
     return dumps (resp1)
-
-
-
-
-
-
-
-
 
 # Gives details about channel
 @APP.route("/channel/details/v2", methods=['GET'])

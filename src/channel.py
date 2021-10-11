@@ -211,7 +211,6 @@ def channel_join_v2(token, channel_id):
             channels['all_members'].append(new_user)
 
     DATASTORE.set(store)
-<<<<<<< HEAD
     return {}
 
 
@@ -242,7 +241,6 @@ def channel_leave_v1(token, channel_id):
 
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
-            channels['all_members'].remove(new_user)
-=======
+            channels['all_members'].remove(newuser)
+    DATASTORE.set(store)
     return {}
->>>>>>> master
