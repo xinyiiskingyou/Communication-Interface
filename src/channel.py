@@ -4,7 +4,7 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner
+from src.helper import channels_create_check_valid_user, check_valid_owner, check_owner_permission
 from src.data_store import DATASTORE, initial_object
 from src.server_helper import decode_token
 
@@ -211,7 +211,6 @@ def channel_join_v2(token, channel_id):
             channels['all_members'].append(new_user)
 
     DATASTORE.set(store)
-<<<<<<< HEAD
     return {}
 
 def channel_addowner_v1(token, channel_id, u_id):
@@ -227,16 +226,47 @@ def channel_addowner_v1(token, channel_id, u_id):
     Exceptions:
         InputError  - Occurs when channel_id does not refer to a valid channel
                     - Occurs when u_id does not refer to a valid user
-                    - Occurs when u_id 
+                    - Occurs when u_id refers to a user who is not a member of the channel
 
-        AccessError - Occurs when the auth_user_id input is not a valid type
-                    - Occurs when the auth_user_id doesn't refer to a valid user
-                    - channel_id refers to a channel that is private and the authorised
-                    user is not already a channel member and is not a global owner
+        AccessError - Occurs when channel_id is valid and the auth user doesn't have owner
+                      permission in the channel
 
     Return Value:
         N/A
     '''
-=======
+    store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+
+    # No owner permission
+    if not check_owner_permission(channel_id):
+        raise AccessError("Doesn't have owner permission in the channel")
+    
+    # invalid channel_id
+    if not isinstance(channel_id, int):
+        raise InputError("This is an invalid channel_id")
+    if not check_valid_channel_id(channel_id):
+        raise InputError('Channel id is not valid')
+
+    # invalid u_id
+    if not isinstance(u_id, int):
+        raise InputError("This is an invalid channel_id")
+    if not channels_create_check_valid_user(u_id):
+        raise InputError("user is not valid")
+
+    # not a member of the channel
+    if not check_valid_member_in_channel(channel_id, u_id):
+        raise InputError("User is not a member of the channel")
+    
+    # already owner of the channel
+    if check_valid_owner(u_id, channel_id):
+        raise InputError("User is already an owner of the channel")
+    
+    user = user_info(u_id)
+
+    for channels in initial_object['channels']:
+        if channels['channel_id'] == channel_id:
+            channels['owner_members'].append(user)
+
+    DATASTORE.set(store)
     return {}
->>>>>>> master
+    
