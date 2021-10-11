@@ -4,7 +4,7 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner, check_owner_permission
+from src.helper import channels_create_check_valid_user, check_valid_owner
 from src.data_store import DATASTORE, initial_object
 from src.server_helper import decode_token
 
@@ -211,6 +211,7 @@ def channel_join_v2(token, channel_id):
             channels['all_members'].append(new_user)
 
     DATASTORE.set(store)
+<<<<<<< HEAD
     return {}
 
 
@@ -242,3 +243,6 @@ def channel_leave_v1(token, channel_id):
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
             channels['all_members'].remove(new_user)
+=======
+    return {}
+>>>>>>> master
