@@ -92,3 +92,4 @@ def test_reg_return_values():
     answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
 
     assert json.loads(resp1.text) == {'token': answer, 'auth_user_id': 1}
+
