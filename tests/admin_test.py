@@ -2,7 +2,7 @@ import pytest
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
 from src.error import AccessError, InputError
 from src.auth import auth_register_v2
-from src.channel import channel_details_v2, channel_join_v2
+from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
 from src.helper import *
@@ -39,29 +39,30 @@ def test_admin_remove_not_global_owner():
 
 def test_admin_remove_valid():
     clear_v1()
-    user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
-    user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
-    user3 = auth_register_v2('cute@unsw.edu.au', 'password', 'cfirst', 'clast')
+    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v2('elephant@gmail.com', 'password', 'cfirst', 'clast')
+    id2_info = channels_user_details(id2['auth_user_id'])
+    # id1 and id2 create a channel
+    channel_id1 = channels_create_v2(id1['token'], 'shelly', False)
+    channel_id2 = channels_create_v2(id2['token'], 'anna', True)
 
-    # user1 and user2 create a channel
-    channel_id = channels_create_v2(user1['token'], 'shelly', True)
-    channel_id1 = channels_create_v2(user2['token'], 'sally', True)
+    # invite id2 and id3 to id1's channel
+    channel_invite_v2(id1['token'], channel_id1['channel_id'], id2['auth_user_id'])
+    channel_invite_v2(id1['token'], channel_id1['channel_id'], id3['auth_user_id'])
+    id1_detail = channel_details_v2(id1['token'], channel_id1['channel_id'])
+    id2_detail = channel_details_v2(id2['token'], channel_id2['channel_id'])
 
-    # user2 and user3 join user1's channel
-    channel_join_v2(user2['token'], channel_id['channel_id'])
-    channel_join_v2(user3['token'], channel_id['channel_id'])
+    # remove id2
+    admin_user_remove_v1(id1['token'], id2['auth_user_id'])
 
-    # remove user2
-    admin_user_remove_v1(user1['token'], user2['auth_user_id'])
-    # user 2 is removed from channel
-    details = channel_details_v2(user1['token'], channel_id['channel_id'])
-    assert len(details['all_members']) == 2
+    # id2 is removed from id1's channel
+    assert len(id1_detail['all_members']) == 2
+    assert len(id1_detail['owner_members']) == 1
 
-    # user2's channel should have no member now
-    details1 = channel_details_v2(user2['token'], channel_id1['channel_id'])
-    assert len(details1['owner_members']) == 0
-    assert len(details1['all_members']) == 0
-    
+    # id2's channel is empty now
+    assert len(id2_detail['all_members']) == 0
+    assert len(id2_detail['owner_members']) == 0
     '''
     1. should be removed from all channels/DMs
     2. and will not be included in the list of users returned by users/all.
@@ -70,13 +71,13 @@ def test_admin_remove_valid():
     '''
     
     # name_first should be 'Removed' and name_last should be 'user'.
-    assert (details1['owner_members'][0]['name_first']) == 'Removed'
-    assert (details1['owner_members'][0]['name_last']) == 'user'
+    assert (id2_info['name_first']) == 'Removed'
+    assert (id2_info['name_last']) == 'user'
 
     # user2's email and handle should be reusable.
-    user4 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
-    channel_join_v2(user4['token'], channel_id['channel_id'])
-    assert len(details['all_members']) == 3
+    id4 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
+    channel_invite_v2(id1['token'], channel_id1['channel_id'], id4['auth_user_id'])
+    assert len(id1_detail['all_members']) == 3
 
 ##########################################
 #### admin_userpermission_change tests ###
@@ -116,7 +117,7 @@ def test_admin_perm_not_global_owner():
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
     with pytest.raises(AccessError):
-        admin_userpermission_change_v1(user2['token'], user2['auth_user_id'], 2)
+        admin_userpermission_change_v1(user2['token'], user1['auth_user_id'], 2)
 
 def test_valid_permission_change():
     clear_v1()
@@ -132,6 +133,6 @@ def test_valid_permission_change():
     assert user2_details['permission_id'] == 1
     assert user3_details['permission_id'] == 1
     
-    # demote user2 
+    # now user3 has permission to demote user2 
     admin_userpermission_change_v1(user3['token'], user2['auth_user_id'], 2)
     assert user2_details['permission_id'] == 2
