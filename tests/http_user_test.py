@@ -7,6 +7,7 @@ from src import config
 ##### user_profile_set_email tests #######
 ##########################################
 
+# Input Error when email entered is not a valid email
 def test_user_set_email_invalid_email():
 
     requests.delete(config.url + "clear/v1", json={})
@@ -31,6 +32,7 @@ def test_user_set_email_invalid_email():
     assert mail.status_code == 400
     assert mail1.status_code == 400
 
+# email address is already being used by another user
 def test_user_set_email_duplicate_email():
 
     requests.delete(config.url + "clear/v1", json={})
@@ -64,6 +66,7 @@ def test_user_set_email_duplicate_email():
     assert mail.status_code == 400
     assert mail1.status_code == 400  
 
+# valid case
 def test_user_set_email_valid():
 
     requests.delete(config.url + "clear/v1", json={})
@@ -86,6 +89,8 @@ def test_user_set_email_valid():
 ##########################################
 ##### user_profile_set_handle tests ######
 ##########################################
+
+# length of handle_str is not between 3 and 20 characters inclusive
 def test_user_set_handle_invalid_length():
 
     requests.delete(config.url + "clear/v1", json={})
@@ -108,8 +113,9 @@ def test_user_set_handle_invalid_length():
         'handle_str': 'a' * 22
     })
     assert handle.status_code == 400
-    assert handle1.status_code == 403
+    assert handle1.status_code == 400
 
+# handle_str contains characters that are not alphanumeric
 def test_user_set_handle_non_alphanumeric():
     
     requests.delete(config.url + "clear/v1", json={})
@@ -127,7 +133,7 @@ def test_user_set_handle_non_alphanumeric():
     })
     assert handle.status_code == 400
 
-def test_user_set_handle_already_used():
+def test_user_set_handle():
 
     requests.delete(config.url + "clear/v1", json={})
     user = requests.post(config.url + "auth/register/v2", json ={
@@ -148,12 +154,14 @@ def test_user_set_handle_already_used():
     user1_data = user1.json()
     token1 = user1_data['token']
 
+    # valid case
     handle = requests.put(config.url + "user/profile/sethandle/v1", json ={
         'token': token,
         'handle_str': 'anna'
     })
     assert handle.status_code == 200
 
+    # the handle is already used by another user
     handle = requests.put(config.url + "user/profile/sethandle/v1", json ={
         'token': token1,
         'handle_str': 'anna'
