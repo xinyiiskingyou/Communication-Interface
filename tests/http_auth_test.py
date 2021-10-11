@@ -95,4 +95,44 @@ def test_reg_return_values():
 
 
 
+##########################################
+############ auth_login tests ############
+##########################################
+
+def test_login_email_not_belong_to_user():
+    requests.delete(config.url + "clear/v1")
+    resp1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }
+    )
+    resp2 = requests.post(config.url + "auth/login/v2",
+        json = {
+            'email': 'def@gmail.dom',
+            'password': 'password',
+        }
+    )
+    assert resp2.status_code == 400
+
+def test__login_incorrect_password():
+    requests.delete(config.url + "clear/v1")
+    resp1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }
+    )
+    resp2 = requests.post(config.url + "auth/login/v2",
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'wrong password',
+        }
+    )
+    assert resp2.status_code == 400
+
 
