@@ -233,14 +233,19 @@ def channel_leave_v1(token, channel_id):
     if not check_valid_channel_id(channel_id):
         raise InputError('Channel id is not valid')
 
-    if not check_valid_member_in_channel (channel_id, auth_user_id):
-        if check_channel_private(channel_id) and not check_permision_id(auth_user_id):
-            raise AccessError ('Not authorised to join channel')
+    # if not check_valid_member_in_channel (channel_id, auth_user_id):
+    #     if not check_permision_id(auth_user_id):
+    #         raise AccessError ('Not authorised member of the channel')
     
+    if not check_valid_member_in_channel(channel_id, auth_user_id):
+        raise AccessError("The authorised user is not a member of the channel")
+
     
 
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
-            channels['all_members'].remove(newuser)
-    DATASTORE.set(store)
+            for member in channels['all_members']: 
+                if member['u_id'] == auth_user_id:
+                    channels['all_members'].remove(newuser)
+    # DATASTORE.set(store)
     return {}
