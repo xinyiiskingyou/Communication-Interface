@@ -77,12 +77,11 @@ def test_invite_already_member():
     user_data = user.json()
     token = user_data['token']
 
-    channel = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'token': token,
-            'name': 'anna',
-            'is_public': True
-        })
+    channel = requests.post(config.url + "channels/create/v2", json = {
+        'token': token,
+        'name': 'anna',
+        'is_public': True
+    })
     channel_id = json.loads(channel.text)['channel_id']
 
     # create 2 users that don't have channels
@@ -143,9 +142,9 @@ def test_valid_channel_invite():
     token = user_data['token']
 
     channel = requests.post(config.url + "channels/create/v2", json ={
-            'token': token,
-            'name': 'anna',
-            'is_public': True
+        'token': token,
+        'name': 'anna',
+        'is_public': True
     })
     channel_id = json.loads(channel.text)['channel_id']
 

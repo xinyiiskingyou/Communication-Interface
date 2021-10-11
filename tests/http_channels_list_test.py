@@ -52,5 +52,13 @@ def test_channel_list():
     list1 = requests.get(config.url + 'channels/list/v2', params ={
         'token': token
     })
-
+    assert (json.loads(list1.text) == 
+        {
+        'channels':[
+            {
+                'channel_id': channel_id1,
+                'name': '1531_CAMEL',
+            }
+        ],
+    })
     assert list1.status_code == 200
