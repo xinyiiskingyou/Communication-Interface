@@ -270,6 +270,8 @@ def test_details_return_values_invite_h():
             'name_first': 'john',
             'name_last': 'doe'
         })
+        
+    assert json.loads(user2.text)['auth_user_id'] == 2
 
     # User 1 creates a channel
     token1 = json.loads(user1.text)['token']
@@ -279,7 +281,7 @@ def test_details_return_values_invite_h():
         'name': 'channel1',
         'is_public': False
     })
-
+    
     # User 1 invites user 2 to the channel they created
     channel_id1 = json.loads(channel1.text)['channel_id']
     invite2 = requests.post(config.url + "channel/invite/v2", 
@@ -288,7 +290,7 @@ def test_details_return_values_invite_h():
         'channel_id': channel_id1,
         'u_id': 2
     })
-
+    assert json.loads(invite2.text) == {}
     # Get details of channel
     resp1 = requests.get(config.url + "channel/details/v2", 
         params = {
