@@ -8,7 +8,7 @@ import json
 BASE_URL = 'http://127.0.0.1:8080'
 
 def test_listall_http(): 
-    requests.delete(config.url + "clear/v1")
+    requests.delete(config.url + "clear/v1", json = {})
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abc@gmail.com',
