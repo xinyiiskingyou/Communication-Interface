@@ -2,12 +2,14 @@ import pytest
 import requests
 import json
 from src import config
+from src.other import clear_v1
 
 ##########################################
 ########### auth_register tests ##########
 ##########################################
 
-def test_reg_invalid_email():
+# Input error for invalid email
+def test_reg_invalid_email_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -26,7 +28,9 @@ def test_reg_invalid_email():
     assert resp1.status_code == 400
     assert resp2.status_code == 400
 
-def test_reg_duplicate_email():
+
+# Input error for duplicate email
+def test_reg_duplicate_email_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -45,9 +49,10 @@ def test_reg_duplicate_email():
               
     if resp1 == resp2:
         assert resp2.status_code == 400
-        
+         
 
-def test_reg_invalid_password():
+# Input error for invalid password
+def test_reg_invalid_password_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -59,7 +64,9 @@ def test_reg_invalid_password():
     print(resp1)
     assert resp1.status_code == 400 
 
-def test_reg_invalid_name():
+
+# Input error for invalid name
+def test_reg_invalid_name_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -78,7 +85,11 @@ def test_reg_invalid_name():
     assert resp1.status_code == 400 
     assert resp2.status_code == 400 
 
-def test_reg_return_values():
+
+##### Implementation #####
+
+# Asseert correct return values for auth/register/v2
+def test_reg_return_values_h():
     requests.delete(config.url + "clear/v1", json={})
     resp1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -88,7 +99,18 @@ def test_reg_return_values():
             'name_last': 'park'
         }) 
     
-    answer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw'
+    resp2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'email@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }) 
 
-    assert json.loads(resp1.text) == {'token': answer, 'auth_user_id': 1}
+    token1 = json.loads(resp1.text)['token']
+    token2 = json.loads(resp2.text)['token']
 
+    assert json.loads(resp1.text) == {'token': token1, 'auth_user_id': 1}
+    assert json.loads(resp2.text) == {'token': token2, 'auth_user_id': 2}
+    assert resp1.status_code == 200
+    assert resp2.status_code == 200
