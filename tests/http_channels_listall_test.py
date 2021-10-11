@@ -19,3 +19,4 @@ def test_listall_http():
             ]
         }) 
     assert response1.status_code == 400
+
