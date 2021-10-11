@@ -5,19 +5,38 @@ from src.server_helper import decode_token
 
 def admin_user_remove_v1(token, u_id):
 
+    auth_user_id = decode_token(token)
     # u_id does not refer to a valid user
     if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
         raise InputError("The u_id does not refer to a valid user")
 
     # u_id refers to a user who is the only global owner
-    if check_permision_id(u_id):
+    if not check_number_of_owners(u_id):
         raise InputError("The u_id refers to a user who is the only global owner")
 
     # the authorised user is not a global owner
-    if not check_permision_id(u_id):
+    if not check_permision_id(auth_user_id):
         raise AccessError('The authorised user is not a global owner')
 
+    # remove users from channel
+    for channel in initial_object['channels']:
+        for member in channel['all_members']:
+            if member['u_id'] == u_id:
+                channel['all_members'].remove(member)
+        if check_valid_owner(u_id):
+            for channel in initial_object['channels']:
+                for owner in channel['owner_members']:
+                    if owner['u_id'] == u_id:
+                        channel['owner_members'].remove(owner)
 
+    # name_first should be 'Removed' and name_last should be 'user'
+    user = channels_user_details(u_id)
+    user['name_first'] = 'Removed'
+    user['name_last'] = 'user'
+    user['handle_str'] = 'Removed user'
+    # email and handle should be reusable.
+    user['email'] = ''
+    user['token'] = ''
     return {}
 
 def admin_userpermission_change_v1(token, u_id, permission_id):
@@ -34,7 +53,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     
     # u_id refers to a user who is the only global owner and they are being demoted to a user
     #if not check_number_of_owners(u_id):
-        #raise InputError
+        #raise InputError("U_id refers to the only global owner")
 
     # permission_id is invalid
     if permission_id < 1 or permission_id > 2:
@@ -42,7 +61,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
 
     # the authorised user is not a global owner
     if not check_permision_id(auth_user_id):
-        raise AccessError
+        raise AccessError("The authorised user is not a global owner")
 
     user['permission_id'] = permission_id
     DATASTORE.set(store)
