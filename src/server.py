@@ -9,7 +9,7 @@ from src import config
 
 from src.auth import auth_register_v2
 from src.channel import channel_details_v2, channel_invite_v2
-from src.channels import channels_create_v2, channels_list_v2
+from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -78,6 +78,10 @@ def channel_create():
     return dumps({
         'channel_id': resp['channel_id']
     })
+
+@APP.route ("/channels/list/all/v2", methods= ['GET'])
+def listall():
+    return dumps (channels_listall_v2(request.args.get('token')))
 
 ############ CHANNEL #################
 
