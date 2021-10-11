@@ -1,3 +1,4 @@
+import json
 import sys
 import signal
 from json import dumps
@@ -7,7 +8,8 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
-from src.channels import channels_create_v2
+from src.channel import channel_details_v2, channel_invite_v2
+from src.channels import channels_create_v2, channels_list_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -49,7 +51,9 @@ def clear():
     resp = clear_v1()
     return dumps(resp)
 
-#still uses auth_user_id have to fix auth implementation to generate a token
+############ AUTH #################
+
+# Registers user
 @APP.route("/auth/register/v2", methods=['POST'])
 def register(): 
     json = request.get_json()
@@ -59,6 +63,30 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+############ CHANNELS #################
+
+# Return the list that authorised user is part of
+@APP.route("/channels/list/v2", methods=['GET'])
+def channels_list(): 
+    return dumps(channels_list_v2(request.args.get('token')))
+
+# Channel create
+@APP.route("/channels/create/v2", methods=['POST'])
+def channel_create():
+    json = request.get_json()
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
+    return dumps({
+        'channel_id': resp['channel_id']
+    })
+
+############ CHANNEL #################
+
+# Invite user to join the channel
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    json = request.get_json()
+    resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
 
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
@@ -68,6 +96,13 @@ def channel_create():
         'channel_id': resp['channel_id']
     })
 
+# Gives details about channel
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details(): 
+    token = (request.args.get('token'))
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(channel_details_v2(token, channel_id))
+   
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":

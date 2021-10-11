@@ -4,7 +4,7 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner, check_owner_permission
+from src.helper import channels_create_check_valid_user, check_valid_owner
 from src.data_store import DATASTORE, initial_object
 from src.server_helper import decode_token
 
