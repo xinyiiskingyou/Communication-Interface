@@ -7,8 +7,8 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
-from channels import channels_listall_v2,channels_create_v2
-from channel import channel_join_v2, ,channel_details_v2, channel_invite_v2
+from src.channels import channels_listall_v2,channels_create_v2
+from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -79,18 +79,9 @@ def channel_create():
 
 #listall wrap? 
 @APP.route ("/channels/list/all/v2", methods= ['GET'])
-    def listall():
-        token = int(request.args.get('token'))
+def listall():
+    return dumps (channels_list_all_v2(requests.args.get('token')))
 
-        # json = request.get_json() 
-        # response1 = channels_listall_v2(json['token'])
-        return dumps ({
-        'channels':[
-                {
-                    'channel_id': response1['channel_id'],
-                    'name': response1['name']
-                }
-        })
 
 ############ CHANNEL #################
 @APP.route("/channel/invite/v2", methods=['POST'])
@@ -101,10 +92,10 @@ def channel_invite():
 
 #join wrap?   
 @APP.route ("/channel/join/v2", methods= ['POST'])
-    def channel_join():
-        json = request.get_json()
-        resp1 = channel_join_v2(json['token'], json['channel_id'])
-        return dumps (resp1)
+def channel_join():
+    json = request.get_json()
+    resp1 = channel_join_v2(json['token'], json['channel_id'])
+    return dumps (resp1)
 
 
 
