@@ -1,3 +1,4 @@
+import json
 import sys
 import signal
 from json import dumps
@@ -7,7 +8,12 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
+<<<<<<< HEAD
 from src.channels import channels_create_v2
+=======
+from src.channel import channel_details_v2, channel_invite_v2
+from src.channels import channels_create_v2, channels_list_v2
+>>>>>>> master
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -49,7 +55,9 @@ def clear():
     resp = clear_v1()
     return dumps(resp)
 
-#still uses auth_user_id have to fix auth implementation to generate a token
+############ AUTH #################
+
+# Registers user
 @APP.route("/auth/register/v2", methods=['POST'])
 def register(): 
     json = request.get_json()
