@@ -2,7 +2,6 @@ import pytest
 import requests
 import json
 from src import config
-from src.other import clear_v1
 
 ##########################################
 ########### auth_register tests ##########
@@ -28,7 +27,6 @@ def test_reg_invalid_email_h():
     assert resp1.status_code == 400
     assert resp2.status_code == 400
 
-
 # Input error for duplicate email
 def test_reg_duplicate_email_h():
     requests.delete(config.url + "clear/v1")
@@ -46,10 +44,9 @@ def test_reg_duplicate_email_h():
             'name_first': 'john',
             'name_last': 'doe'
         }) 
-              
+
     if resp1 == resp2:
         assert resp2.status_code == 400
-         
 
 # Input error for invalid password
 def test_reg_invalid_password_h():
@@ -63,7 +60,6 @@ def test_reg_invalid_password_h():
         }) 
     print(resp1)
     assert resp1.status_code == 400 
-
 
 # Input error for invalid name
 def test_reg_invalid_name_h():
@@ -84,7 +80,6 @@ def test_reg_invalid_name_h():
         }) 
     assert resp1.status_code == 400 
     assert resp2.status_code == 400 
-
 
 ##### Implementation #####
 
@@ -114,8 +109,3 @@ def test_reg_return_values_h():
     assert json.loads(resp2.text) == {'token': token2, 'auth_user_id': 2}
     assert resp1.status_code == 200
     assert resp2.status_code == 200
-
-
-
-
-
