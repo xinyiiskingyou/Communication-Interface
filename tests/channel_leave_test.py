@@ -1,5 +1,5 @@
 import pytest 
-from src.channel import channel_join_v2, channel_leave_v1
+from src.channel import channel_join_v2, channel_leave_v1, channel_details_v2
 from src.channels import channels_create_v2
 from src.error import AccessError, InputError
 from src.other import clear_v1
@@ -13,15 +13,15 @@ def test_leave_invalid_channel_id():
     id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
 
     with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], -16, id2['auth_user_id'])
+        channel_leave_v1(id1['token'], -16)
     with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], 0, id2['auth_user_id'])
+        channel_leave_v1(id1['token'], 0)
     with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], 256, id2['auth_user_id'])
+        channel_leave_v1(id1['token'], 256)
     with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], 'not_an_id', id2['auth_user_id'])
+        channel_leave_v1(id1['token'], 'not_an_id')
     with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], '', id2['auth_user_id'])
+        channel_leave_v1(id1['token'], '')
 
 #not an authorised member of the channel 
 def test_leave_not_member():
@@ -45,3 +45,26 @@ def test_leave_not_member():
     with pytest.raises(AccessError):
         channel_leave_v1(id3['token'], channel_id4['channel_id'])
 
+
+def test_leave_valid_public_channel(): 
+    clear_v1()
+    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
+    id3 = auth_register_v2('dog@gmail.com', 'password', 'cfirst', 'clast')
+    channel_id2 = channels_create_v2(id2['token'], 'anna', True)
+    
+    channel_join_v2(id1['token'], channel_id2['channel_id'])
+    channel_join_v2(id3['token'], channel_id2['channel_id'])
+    details1 = channel_details_v2(id1['token'], channel_id2['channel_id'])
+    details2 = channel_details_v2(id2['token'], channel_id2['channel_id'])
+    assert len(details1['all_members']) == 3
+    assert len(details2['all_members']) == 3
+    assert len(details1['owner_members']) == 1
+    assert len(details2['owner_members']) == 1
+
+
+    channel_leave_v1(id1['token'], channel_id2['channel_id'])
+    channel_leave_v1(id3['token'], channel_id2['channel_id'])
+
+    details3 = channel_details_v2(id2['token'], channel_id2['channel_id'])
+    assert len(details3['all_members']) == 1
