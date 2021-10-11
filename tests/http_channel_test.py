@@ -157,7 +157,8 @@ def test_details_return_values_pub_h():
         'is_public': True
     })
 
-    assert json.loads(channel1.text)['channel_id'] == 1
+    channel_id1 = json.loads(channel1.text)['channel_id']
+    assert channel_id1 == json.loads(channel1.text)['channel_id']
     # Get details of channel
     resp1 = requests.get(config.url + "channel/details/v2", 
         params = {
@@ -214,7 +215,7 @@ def test_details_return_values_priv_h():
     })
 
     channel_id1 = json.loads(channel1.text)['channel_id']
-    assert channel_id1 > 0
+    assert channel_id1 == json.loads(channel1.text)['channel_id']
 
     # Get details of channel
     resp1 = requests.get(config.url + "channel/details/v2", 
@@ -246,5 +247,59 @@ def test_details_return_values_priv_h():
             }
         ]
     })
+
+    assert resp1.status_code == 200
+
+# Check details for when someone is invited to the channel
+def test_details_return_values_invite_h():
+    requests.delete(config.url + "clear/v1")
+
+    # Register users 
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        })
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'email@gmail.com',
+            'password': 'password',
+            'name_first': 'john',
+            'name_last': 'doe'
+        })
+
+    # User 1 creates a channel
+    token1 = json.loads(user1.text)['token']
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+        'token': token1,
+        'name': 'channel1',
+        'is_public': False
+    })
+
+    # User 1 invites user 2 to the channel they created
+    channel_id1 = json.loads(channel1.text)['channel_id']
+    invite2 = requests.post(config.url + "channel/invite/v2", 
+        json = {
+        'token': token1,
+        'channel_id': channel_id1,
+        'u_id': 2
+    })
+
+    # Get details of channel
+    resp1 = requests.get(config.url + "channel/details/v2", 
+        params = {
+        'token': token1,
+        'channel_id': json.loads(channel1.text)['channel_id'],
+    })
+
+    # Check length of members list 
+    members = json.loads(resp1.text)['owner_members']
+    assert len(members) == 1
+    members = json.loads(resp1.text)['all_members']
+    assert len(members) == 2
 
     assert resp1.status_code == 200

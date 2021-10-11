@@ -7,7 +7,7 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
-from src.channel import channel_details_v2
+from src.channel import channel_details_v2, channel_invite_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
 
@@ -76,6 +76,14 @@ def channel_create():
     return dumps({
         'channel_id': resp['channel_id']
     })
+
+############ CHANNEL #################
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
+    json = request.get_json()
+    resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
+    
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT
