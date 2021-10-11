@@ -236,10 +236,6 @@ def channel_addowner_v1(token, channel_id, u_id):
     '''
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
-
-    # No owner permission
-    if not check_owner_permission(channel_id):
-        raise AccessError("Doesn't have owner permission in the channel")
     
     # invalid channel_id
     if not isinstance(channel_id, int):
@@ -260,9 +256,12 @@ def channel_addowner_v1(token, channel_id, u_id):
     # already owner of the channel
     if check_valid_owner(u_id, channel_id):
         raise InputError("User is already an owner of the channel")
-    
-    user = user_info(u_id)
 
+    # No owner permission
+    if not check_owner_permission(channel_id):
+        raise AccessError("Doesn't have owner permission in the channel") 
+    user = user_info(u_id)
+    #user['permission_id'] == 
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
             channels['owner_members'].append(user)
