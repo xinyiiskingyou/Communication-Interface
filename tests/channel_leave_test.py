@@ -10,7 +10,6 @@ from src.auth import auth_register_v2
 def test_leave_invalid_channel_id():
     clear_v1()
     id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
-    id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
 
     with pytest.raises(InputError):
         channel_leave_v1(id1['token'], -16)
