@@ -1,4 +1,3 @@
-from re import I
 import pytest
 import requests
 import json
