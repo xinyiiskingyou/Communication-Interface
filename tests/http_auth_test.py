@@ -110,3 +110,44 @@ def test_reg_return_values_h():
     assert json.loads(resp2.text) == {'token': token2, 'auth_user_id': 2}
     assert resp1.status_code == 200
     assert resp2.status_code == 200
+
+
+##########################################
+############ auth_login tests ############
+##########################################
+
+def test_login_email_not_belong_to_user():
+    requests.delete(config.url + "clear/v1")
+    requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }
+    )
+    resp2 = requests.post(config.url + "auth/login/v2",
+        json = {
+            'email': 'def@gmail.dom',
+            'password': 'password',
+        }
+    )
+    assert resp2.status_code == 400
+
+def test__login_incorrect_password():
+    requests.delete(config.url + "clear/v1")
+    requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }
+    )
+    resp2 = requests.post(config.url + "auth/login/v2",
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'wrong password',
+        }
+    )
+    assert resp2.status_code == 400

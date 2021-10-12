@@ -7,10 +7,10 @@ from flask_cors import CORS
 from src.error import InputError
 from src import config
 
-from src.auth import auth_register_v2
-from src.channel import channel_details_v2, channel_invite_v2
-from src.channels import channels_create_v2, channels_list_v2, channels_listall_v2
-from src.user import user_profile_setemail_v1, user_profile_sethandle_v1
+from src.auth import auth_register_v2, auth_login_v2
+from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
+from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
+from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -64,14 +64,19 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+# Logins user 
+@APP.route("/auth/login/v2", methods=['POST'])
+def login():
+    json = request.get_json()
+    resp = auth_login_v2(json['email'], json['password'])
+    return dumps({
+        'token': resp['token'],
+        'auth_user_id': resp['auth_user_id']
+    })
+
 ############ CHANNELS #################
 
-# Return the list that authorised user is part of
-@APP.route("/channels/list/v2", methods=['GET'])
-def channels_list(): 
-    return dumps(channels_list_v2(request.args.get('token')))
-
-# Channel create
+# channel create
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
     json = request.get_json()
@@ -80,6 +85,12 @@ def channel_create():
         'channel_id': resp['channel_id']
     })
 
+# Return the list that authorised user is part of
+@APP.route("/channels/list/v2", methods=['GET'])
+def channels_list(): 
+    return dumps(channels_list_v2(request.args.get('token')))
+
+# return the list of all channels
 @APP.route ("/channels/list/all/v2", methods= ['GET'])
 def listall():
     return dumps (channels_listall_v2(request.args.get('token')))
@@ -92,6 +103,13 @@ def channel_invite():
     json = request.get_json()
     resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
+
+# join wrap?   
+@APP.route ("/channel/join/v2", methods= ['POST'])
+def channel_join():
+    json = request.get_json()
+    resp1 = channel_join_v2(json['token'], json['channel_id'])
+    return dumps (resp1)
 
 # Gives details about channel
 @APP.route("/channel/details/v2", methods=['GET'])

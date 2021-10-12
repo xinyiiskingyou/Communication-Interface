@@ -212,3 +212,40 @@ def channel_join_v2(token, channel_id):
 
     DATASTORE.set(store)
     return {}
+
+
+def channel_leave_v1(token, channel_id):
+    ''' 
+    errors: 
+    Input: 
+    - when channel_id does not refer to a valid channel 
+
+    Access: 
+    - when channel_id is valid but the auth user is not part of the channel 
+    '''
+
+    store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+    newuser = user_info(auth_user_id)
+
+    if not isinstance(channel_id, int):
+        raise InputError("This is an invalid channel_id")
+    if not check_valid_channel_id(channel_id):
+        raise InputError('Channel id is not valid')
+
+    # if not check_valid_member_in_channel (channel_id, auth_user_id):
+    #     if not check_permision_id(auth_user_id):
+    #         raise AccessError ('Not authorised member of the channel')
+    
+    if not check_valid_member_in_channel(channel_id, auth_user_id):
+        raise AccessError("The authorised user is not a member of the channel")
+
+    
+
+    for channels in initial_object['channels']:
+        if channels['channel_id'] == channel_id:
+            for member in channels['all_members']: 
+                if member['u_id'] == auth_user_id:
+                    channels['all_members'].remove(newuser)
+    DATASTORE.set(store)
+    return {}

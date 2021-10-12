@@ -15,10 +15,13 @@
   9.  Automarking
   10. Plagiarism
 
+<<<<<<< HEAD
+=======
 ## 0. Change log:
 * 07/10: Fixed automarking formula
 * 08/10: Added instructions to run coverage locally
 
+>>>>>>> master
 ## 1. Aims:
 
 * To provide students with hands on experience testing, developing, and maintaining a backend server in Python.
@@ -173,7 +176,39 @@ def test_echo():
     resp = requests.get(config.url + 'echo', params={'data': 'hello'})
     assert json.loads(resp.text) == {'data': 'hello'}
 ```
+### 4.5. Recommended approach
 
+<<<<<<< HEAD
+Our recommendation with this iteration is that you start out trying to implement the new functions similarly to how you did in iteration 1.
+
+1. Write HTTP unit tests. These will fail as you have not yet implemented the feature.
+    * Hint: It would be a good idea to consider good test design and the usage of helper functions for your HTTP tests. Is there a way so that you do not have to completely rewrite your tests from iteration 1?
+2. Implement the feature and write the Flask route/endpoint for that feature too.
+3. Run the tests and continue following 4.3. as necessary.
+
+### 4.6. Storing data
+
+You are required to store data persistently in this iteration.
+
+Modify your backend such that it is able to persist and reload its data store if the process is stopped and started again. The persistence should happen at regular intervals so that in the event of unexpected program termination (e.g. sudden power outage) a minimal amount of data is lost. You may implement this using whatever method of serialisation you prefer (e.g. pickle, JSON).
+
+### 4.7. Versioning
+
+You might notice that some routes are suffixed with `v1` and `v2`, and that all the new routes are `v1` yet all the old routes are `v2`. Why is this? When you make changes to specifications, it's usually good practice to give the new function/capability/route a different unique name. This way, if people are using older versions of the specification they can't accidentally call the updated function/route with the wrong data input.
+
+Hint: Yes, your `v2` routes can use the `X_Y_v1` functions you had in iteration 1, regardless of whether you rename the functions or not. The layer of abstraction in iteration 2 has changed from the function interface to the HTTP interface, and therefore your 'functions' from iteration 1 are essentailly now just implementation details, and therefore are completely modifiable by you.
+
+### 4.8. Dryrun
+
+We have provided a very simple dryrun for iteration 2 consisting of 4 tests, one each for your implementation of `clear/v1`, `auth/register/v2`, `channels/create/v2`, and `channels/list/v2`. These only check whether your server wrapper functions accept requests correctly, the format of your return types and simple expected behaviour, so do not rely on these as an indicator for the correctness of your implementation or tests.
+
+To run the dryrun, you should be in the root directory of your project (e.g. `/project-backend`) and use the command:
+
+```bash
+1531 dryrun 2
+```
+
+=======
 #### 4.4.1 Test coverage
 
 To get the coverage of your tests locally, you will need to have two terminals open. Run these commands from the root directory of your project.
@@ -221,6 +256,7 @@ To run the dryrun, you should be in the root directory of your project (e.g. `/p
 1531 dryrun 2
 ```
 
+>>>>>>> master
 ### 4.9. Marking Criteria
 
 <table>
@@ -272,9 +308,15 @@ For this and for all future milestones, you should consider the other expectatio
 
 The formula used for automarking in this iteration is:
 
+<<<<<<< HEAD
+`Automark = 95*(t * i * min(c + 1, 100)^3) + 5*p`
+
+(Mark equals `t` multiplied by `i` multiplied by the maximum of `c + 1` and 100 to the power of three). This formula produces a value between 0 and 1.
+=======
 `Automark = 95*(t * i * min(c + 0.01, 1)^3) + 5*p`
 
 (Non-pylint mark component equals `t` multiplied by `i` multiplied by the minimum of `c + 0.01` and 1 to the power of three). This formula produces a value between 0 and 1.
+>>>>>>> master
 
 Where:
  * `t` is the mark between 0-1 you receive for your tests running against your code (100% = your implementation passes all of your tests)
