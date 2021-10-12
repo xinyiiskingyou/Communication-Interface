@@ -2,7 +2,6 @@ import pytest
 import requests
 import json
 from src import config
-from src.other import clear_v1 
 
 ##########################################
 ######### channels_list tests ##########
@@ -65,3 +64,4 @@ def test_channel_list():
         ],
     })
     assert list1.status_code == 200
+

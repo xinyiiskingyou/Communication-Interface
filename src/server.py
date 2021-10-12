@@ -10,6 +10,7 @@ from src import config
 from src.auth import auth_register_v2, auth_login_v2
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
+from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -73,19 +74,26 @@ def login():
         'auth_user_id': resp['auth_user_id']
     })
 
-
 ############ CHANNELS #################
+
+# channel create
+@APP.route("/channels/create/v2", methods=['POST'])
+def channel_create():
+    json = request.get_json()
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
+    return dumps({
+        'channel_id': resp['channel_id']
+    })
 
 # Return the list that authorised user is part of
 @APP.route("/channels/list/v2", methods=['GET'])
 def channels_list(): 
     return dumps(channels_list_v2(request.args.get('token')))
 
-#listall wrap? 
-@APP.route("/channels/listall/v2", methods= ['GET'])
-def channels_listall():
-    return dumps(channels_listall_v2(request.args.get('token')))
-
+# return the list of all channels
+@APP.route ("/channels/listall/v2", methods= ['GET'])
+def listall():
+    return dumps (channels_listall_v2(request.args.get('token')))
 
 ############ CHANNEL #################
 
@@ -96,20 +104,12 @@ def channel_invite():
     resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 
-#join wrap?   
+# join wrap?   
 @APP.route ("/channel/join/v2", methods= ['POST'])
 def channel_join():
     json = request.get_json()
     resp1 = channel_join_v2(json['token'], json['channel_id'])
     return dumps (resp1)
-# channel create
-@APP.route("/channels/create/v2", methods=['POST'])
-def channel_create():
-    json = request.get_json()
-    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
-    return dumps({
-        'channel_id': resp['channel_id']
-    })
 
 # Gives details about channel
 @APP.route("/channel/details/v2", methods=['GET'])
@@ -117,7 +117,23 @@ def channel_details():
     token = (request.args.get('token'))
     channel_id = int(request.args.get('channel_id'))
     return dumps(channel_details_v2(token, channel_id))
-   
+
+############ USER #################
+
+# Update the authorised user's email
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_setemail(): 
+    json = request.get_json()
+    resp = user_profile_setemail_v1(json['token'], json['email'])
+    return dumps(resp)
+
+# Update the authorised user's handle
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_sethandle(): 
+    json = request.get_json()
+    resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
+    return dumps(resp)
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
