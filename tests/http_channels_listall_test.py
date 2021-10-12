@@ -56,6 +56,6 @@ def test_listall_http():
         listall = requests.get(config.url + 'channels/listall/v2', params ={
             'token': token
         })
-        assert json.loads(list.text) == {'channels': []}
+        assert json.loads(listall1.text) == {'channels': []}
         assert listall.status_code == 200
 
