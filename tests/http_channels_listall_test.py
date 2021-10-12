@@ -1,9 +1,7 @@
 import pytest 
-import json 
 import requests
+import json 
 from src import config
-
-
 
 def test_listall_http(): 
     requests.delete(config.url + "clear/v1", json = {})
@@ -24,11 +22,13 @@ def test_listall_http():
         'is_public': True
     })
     channel_id1 = json.loads(channel1.text)['channel_id']
+    
     assert channel_id1 != None
 
-    listall1 = requests.get(config.url + "channels/listall/v2", params = { 
+    listall1 = requests.get(config.url + "channels/listall/v2", params ={ 
             'token': token1
         })
+
     assert (json.loads(listall1.text) == 
         {
         'channels':[
