@@ -62,9 +62,100 @@ def test_invalid_join_channel_id():
     user1_data = user1.json()
     u_id = user1_data['auth_user_id']
 
-    invite = requests.post(config.url + 'channel/invite/v2', json ={
+    join1 = requests.post(config.url + 'channel/join/v2', json ={
         'token': token,
         'channel_id': -16,
     })
-    assert invite.status_code == 400
+    assert join1.status_code == 400
 
+
+#alreadymember public
+def test_already_joined_public():
+    requests.delete(config.url + "clear/v1")
+
+    # create a user that has channel
+    user = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcd@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'li'
+    })
+    user_data = user.json()
+    token = user_data['token']
+
+    channel = requests.post(config.url + "channels/create/v2", json = {
+        'token': token,
+        'name': 'anna',
+        'is_public': True
+    })
+    channel_id = json.loads(channel.text)['channel_id']
+
+    # create 2 users that don't have channels
+    user1 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'sally',
+        'name_last': 'li'
+    })
+    user1_data = user1.json()
+    token1 = user1_data['token']
+    u_id = user1_data['auth_user_id']
+
+    user2 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'elephant@gmail.com',
+        'password': 'password',
+        'name_first': 'kelly',
+        'name_last': 'huang'
+    })
+    user2_data = user2.json()
+    token2 = user2_data['token']
+    u_id2 = user2_data['auth_user_id']
+
+    # test error when channel_id is valid but authorised user is not a member of the channel
+    channel_join_port = requests.post(config.url + 'channel/join/v2', json ={
+        'token': token1,
+        'channel_id': channel_id
+    })
+
+    assert channel_join_port.status_code == 200 
+
+    channel_join_p2 = requests.post(config.url + 'channel/join/v2', json = { 
+        'token' : token2,
+        'channel_id': channel_id
+    })
+    assert channel_join_p2.status_code == 200 
+
+    channel_join_error = requests.post(config.url + 'channel/join/v2', json = { 
+        'token': token,
+        'channel_id' : channel_id
+    })
+
+    assert channel_join_error.status_code == 400
+
+
+def test_already_joined_private(): 
+    requests.delete(config.url + "clear/v1")
+
+    # create a user that has channel
+    user = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcd@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'li'
+    })
+    user_data = user.json()
+    token = user_data['token']
+
+    channel = requests.post(config.url + "channels/create/v2", json = {
+        'token': token,
+        'name': 'anna',
+        'is_public': False
+    })
+    channel_id = json.loads(channel.text)['channel_id']
+
+    channel_join_priv_error = requests.post(config.url + 'channel/join/v2', json = { 
+        'token':token, 
+        'channel_id':channel_id
+    })
+
+    assert channel_join_priv_error.status_code == 400
