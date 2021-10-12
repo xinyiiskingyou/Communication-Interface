@@ -175,7 +175,7 @@ def test_already_owner():
         })
         '''
     assert resp1.status_code == 400
-
+'''
 def test_no_perm_not_member():
     requests.delete(config.url + "clear/v1")
     id1 = requests.post(config.url + "auth/register/v2", 
@@ -229,16 +229,7 @@ def test_no_perm_not_member():
             'u_id': u_id2
         })
     assert resp1.status_code == 403
-
-def test_valid_addowner():
-    requests.delete(config.url + "clear/v1")
-    id1 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'afirst',
-            'name_last': 'alast'
-        })
+'''
 
 def test_no_perm_not_owner():
     requests.delete(config.url + "clear/v1")
@@ -250,11 +241,11 @@ def test_no_perm_not_owner():
             'name_last': 'alast'
         })
 
-    token = json.loads(id1.text)['token']
+    token1 = json.loads(id1.text)['token']
 
     ch1 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'token': token,
+            'token': token1,
             'name': '1531_CAMEl',
             'is_public': True
         })
@@ -267,12 +258,12 @@ def test_no_perm_not_owner():
             'name_first': 'kelly',
             'name_last': 'huang'
             })
-    token = json.loads(id2.text)['token']
+    token2 = json.loads(id2.text)['token']
     u_id1 = json.loads(id2.text)['auth_user_id']
 
     invite = requests.post(config.url + 'channel/invite/v2', 
         json ={
-            'token': token,
+            'token': token1,
             'channel_id': channel_id,
             'u_id': u_id1
         })
@@ -288,12 +279,13 @@ def test_no_perm_not_owner():
 
     resp1 = requests.post(config.url + "channels/addowner/v1", 
         json = {
-            'token': token,
+            'token': token2,
             'channel_id': channel_id,
             'u_id': u_id2
         })
     assert resp1.status_code == 403
 
+'''
 def test_valid_addowner():
     requests.delete(config.url + "clear/v1")
     id1 = requests.post(config.url + "auth/register/v2", 
@@ -337,3 +329,4 @@ def test_valid_addowner():
         })
 
     assert resp1.status_code == 200
+'''

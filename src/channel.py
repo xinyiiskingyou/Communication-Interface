@@ -4,7 +4,7 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner, check_owner_permission
+from src.helper import channels_create_check_valid_user, check_valid_owner, check_global_owner
 from src.data_store import DATASTORE, initial_object
 from src.server_helper import decode_token
 
@@ -236,8 +236,8 @@ def channel_addowner_v1(token, channel_id, u_id):
     '''
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
-    print(type(channel_id))
-    print(isinstance(channel_id, int))
+    print(check_valid_member_in_channel(channel_id, auth_user_id))
+    #print(isinstance(channel_id, int))
     # invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError("This is an invalid channel_id")
@@ -251,7 +251,7 @@ def channel_addowner_v1(token, channel_id, u_id):
         raise InputError("user is not valid")
 
     # not a member of the channel
-    if not check_valid_member_in_channel(channel_id, u_id):
+    if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise InputError("User is not a member of the channel")
     
     # already owner of the channel
@@ -260,7 +260,7 @@ def channel_addowner_v1(token, channel_id, u_id):
 
     # No owner permission
     if not check_valid_owner(u_id, channel_id):
-        if not check_owner_permission(channel_id):
+        if not check_global_owner(auth_user_id):
             raise AccessError("Doesn't have owner permission in the channel") 
     user = user_info(u_id)
     #user['permission_id'] == 
