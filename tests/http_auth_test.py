@@ -101,7 +101,7 @@ def test_reg_return_values():
 
 def test_login_email_not_belong_to_user():
     requests.delete(config.url + "clear/v1")
-    resp1 = requests.post(config.url + "auth/register/v2", 
+    requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abc@gmail.com',
             'password': 'password',
@@ -119,7 +119,7 @@ def test_login_email_not_belong_to_user():
 
 def test__login_incorrect_password():
     requests.delete(config.url + "clear/v1")
-    resp1 = requests.post(config.url + "auth/register/v2", 
+    requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abc@gmail.com',
             'password': 'password',
