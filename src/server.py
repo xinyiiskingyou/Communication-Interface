@@ -133,8 +133,6 @@ def channel_remove_owner():
     resp = channel_removeowner_v1(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 
-
-
 @APP.route("/channel/leave/v1", methods= ['POST'])
 def channel_leave(): 
     json = request.get_json()
