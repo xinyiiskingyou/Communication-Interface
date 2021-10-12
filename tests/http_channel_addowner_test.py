@@ -20,13 +20,6 @@ def test_invalid_channel_id():
 
     token = json.loads(id1.text)['token']
 
-    ch1 = requests.post(config.url + "channels/create/v2", 
-        json = {
-            'token': token,
-            'name': '1531_CAMEL',
-            'is_public': True
-        })
-
     id2 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'abcertgh@gmail.com',
@@ -205,7 +198,7 @@ def test_no_perm_not_member():
             })
     u_id1 = json.loads(id2.text)['auth_user_id']
 
-    invite = requests.post(config.url + 'channel/invite/v2', 
+    requests.post(config.url + 'channel/invite/v2', 
         json ={
             'token': token1,
             'channel_id': channel_id,
@@ -220,7 +213,6 @@ def test_no_perm_not_member():
             'name_last': 'world'
             })
 
-    u_id2 = json.loads(id3.text)['auth_user_id']
     token2 = json.loads(id3.text)['token']
     resp1 = requests.post(config.url + "channels/addowner/v1", 
         json = {
@@ -270,14 +262,14 @@ def test_no_perm_not_owner():
             })
     u_id2 = json.loads(id3.text)['auth_user_id']
 
-    invite1 = requests.post(config.url + 'channel/invite/v2', 
+    requests.post(config.url + 'channel/invite/v2', 
         json ={
             'token': token1,
             'channel_id': channel_id,
             'u_id': u_id1
         })
     
-    invite2 = requests.post(config.url + 'channel/invite/v2', 
+    requests.post(config.url + 'channel/invite/v2', 
         json ={
             'token': token1,
             'channel_id': channel_id,
@@ -321,7 +313,7 @@ def test_valid_addowner():
             })
     u_id = json.loads(id2.text)['auth_user_id']
     
-    invite = requests.post(config.url + 'channel/invite/v2', 
+    requests.post(config.url + 'channel/invite/v2', 
         json ={
             'token': token,
             'channel_id': channel_id,
