@@ -16,3 +16,6 @@ Assume all parameters in every function is given input.
 # For channel_messages_v1:
 1. Assume the start index can never be a negative number.
 2. Assume there is currently no function that implements adding messages to a channel.
+
+# For channel_add_owner:
+1. Assume that the users must be in the channel before they become the owner

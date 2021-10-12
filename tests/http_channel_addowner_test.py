@@ -2,7 +2,6 @@ import pytest
 import requests
 import json
 from src import config 
-from src.other import clear_v1
 
 ##########################################
 ######### channel_addowner tests ##########
@@ -30,14 +29,14 @@ def test_invalid_channel_id():
 
     u_id = json.loads(id2.text)['auth_user_id']
 
-    resp1 = requests.post(config.url + "channels/addowner/v1", 
+    resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token,
             'channel_id': 123,
             'u_id': u_id
         })
 
-    resp2 = requests.post(config.url + "channels/addowner/v1", 
+    resp2 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token,
             'channel_id': '123',
@@ -66,7 +65,7 @@ def test_invalid_u_id():
         })
     channel_id = json.loads(id2.text)['channel_id']
 
-    resp1 = requests.post(config.url + "channels/addowner/v1", 
+    resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token,
             'channel_id': channel_id,
@@ -105,7 +104,7 @@ def test_not_member_u_id():
 
     u_id = json.loads(id2.text)['auth_user_id']
 
-    resp1 = requests.post(config.url + "channels/addowner/v1", 
+    resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token,
             'channel_id': channel_id,
@@ -153,14 +152,14 @@ def test_already_owner():
             'u_id': u_id
         })
     '''
-    resp1 = requests.post(config.url + "channels/addowner/v1", 
+    resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token,
             'channel_id': channel_id,
             'u_id': u_id
         })
     '''
-    resp2 = requests.post(config.url + "channels/addowner/v1", 
+    resp2 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token,
             'channel_id': channel_id,
@@ -214,7 +213,7 @@ def test_no_perm_not_member():
             })
 
     token2 = json.loads(id3.text)['token']
-    resp1 = requests.post(config.url + "channels/addowner/v1", 
+    resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token2,
             'channel_id': channel_id,
@@ -276,7 +275,7 @@ def test_no_perm_not_owner():
             'u_id': u_id2
         })
 
-    resp1 = requests.post(config.url + "channels/addowner/v1", 
+    resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token2,
             'channel_id': channel_id,
@@ -320,7 +319,7 @@ def test_valid_addowner():
             'u_id': u_id
         })
 
-    resp1 = requests.post(config.url + "channels/addowner/v1", 
+    resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
             'token': token,
             'channel_id': channel_id,
