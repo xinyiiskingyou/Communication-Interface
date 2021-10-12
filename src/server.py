@@ -9,7 +9,7 @@ from src import config
 
 from src.auth import auth_register_v2, auth_login_v2
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
-from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
+from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
 from src.other import clear_v1
 
@@ -118,6 +118,13 @@ def channel_details():
     channel_id = int(request.args.get('channel_id'))
     return dumps(channel_details_v2(token, channel_id))
 
+
+
+@APP.route("/channel/leave/v1", methods= ['POST'])
+def channel_leave(): 
+    json = request.get_json()
+    resp = channel_leave_v1(json['token'], json['channel_id'])
+    return dumps(resp)
 ############ USER #################
 
 # Update the authorised user's email
