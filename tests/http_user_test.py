@@ -4,7 +4,7 @@ import json
 from src import config 
 
 ##########################################
-############ user_all tests ##############
+############ users_all tests ##############
 ##########################################
 
 # Valid case when there is only 1 user
@@ -123,15 +123,14 @@ def test_user_profile_valid():
 
     user = requests.post(config.url + "auth/register/v2", 
         json = {
-        'email': 'abcdef@gmail.com',
+        'email': 'abc@gmail.com',
         'password': 'password',
         'name_first': 'anna',
-        'name_last': 'lee'
+        'name_last': 'park'
     })
 
-    user_data = user.json()
-    token = user_data['token']
-    u_id = user_data['auth_user_id']
+    token = json.loads(user.text)['token']
+    u_id = json.loads(user.text)['auth_user_id']
 
     # Invalid first name
     mail = requests.get(config.url + "user/profile/v1", 
@@ -141,13 +140,13 @@ def test_user_profile_valid():
     })
     
     assert mail.status_code == 200
-    assert (json.loads(resp1.text) == 
+    assert (json.loads(mail.text) == 
         {
-        'auth_user_id': 1,
-        'email': 'abcdef@gmail.com',
+        'user_id': u_id,
+        'email': 'abc@gmail.com',
         'name_first': 'anna',
-        'name_last': 'lee',
-        'handle': 'annalee'
+        'name_last': 'park',
+        'handle': 'annapark'
     })
 
 
@@ -274,6 +273,32 @@ def test_user_set_name_valid_name_last():
     })
 
     assert mail.status_code == 200
+
+# Valid first and last name change
+def test_user_set_name_valid_name_first_and_last():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'annabelle',
+        'name_last': 'parker'
+    })
+
+    assert mail.status_code == 200
+
 
 ##########################################
 ##### user_profile_set_email tests #######

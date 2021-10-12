@@ -11,7 +11,7 @@ from src.auth import auth_register_v2, auth_login_v2
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
 from src.channel import channel_removeowner_v1, channel_addowner_v1
-from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
+from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -134,6 +134,20 @@ def channel_remove_owner():
     return dumps(resp)
 
 ############ USER #################
+
+# Returns information about 1 user
+@APP.route("/user/profile/v1", methods=['GET'])
+def user_profile(): 
+    token = (request.args.get('token'))
+    u_id = (request.args.get('auth_user_id'))
+    return dumps(user_profile_v1(token, u_id))
+
+# Update the authorised user's first and/or last name
+@APP.route("/user/profile/setname/v1", methods=['PUT'])
+def user_setename(): 
+    json = request.get_json()
+    resp = user_profile_setname_v1(json['token'], json['name_first'], json['name_last'])
+    return dumps(resp)
 
 # Update the authorised user's email
 @APP.route("/user/profile/setemail/v1", methods=['PUT'])
