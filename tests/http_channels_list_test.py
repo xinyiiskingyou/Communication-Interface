@@ -2,7 +2,6 @@ import pytest
 import requests
 import json
 from src import config
-from src.other import clear_v1 
 
 ##########################################
 ######### channels_list tests ##########

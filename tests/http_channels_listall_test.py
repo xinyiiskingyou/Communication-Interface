@@ -1,11 +1,9 @@
 import pytest 
-from src.other import clear_v1
+import json 
 import requests
 from src import config
-import json 
 
 
-# BASE_URL = 'http://127.0.0.1:8080'
 
 def test_listall_http(): 
     requests.delete(config.url + "clear/v1", json = {})
