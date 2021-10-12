@@ -82,8 +82,7 @@ def test_removeowner_invalid_owner_u_id():
         'name_first': 'anna',
         'name_last': 'li'
     })
-    user_data = user.json()
-    token = user_data['token']
+    token = json.loads(user.text)['token']
 
     channel = requests.post(config.url + "channels/create/v2", json = {
         'token': token,
@@ -198,7 +197,7 @@ def test_removeowener_no_permission():
     assert invite2.status_code == 200
 
     # add user1 to be an owner
-    add = requests.post(config.url + "channels/addowner/v1", json = {
+    add = requests.post(config.url + "channel/addowner/v1", json = {
         'token': token,
         'channel_id': channel_id,
         'u_id': u_id
@@ -222,8 +221,7 @@ def test_remove_owner_valid():
         'name_first': 'anna',
         'name_last': 'li'
     })
-    user_data = user.json()
-    token = user_data['token']
+    token = json.loads(user.text)['token']
 
     channel = requests.post(config.url + "channels/create/v2", json = {
         'token': token,
@@ -250,7 +248,7 @@ def test_remove_owner_valid():
     assert invite.status_code == 200
 
     # promote user1
-    add = requests.post(config.url + "channels/addowner/v1", json = {
+    add = requests.post(config.url + "channel/addowner/v1", json = {
         'token': token,
         'channel_id': channel_id,
         'u_id': u_id
@@ -267,11 +265,17 @@ def test_remove_owner_valid():
     assert len(members) == 2
 
     # remove id2
-    remove = requests.post(config.url + "channels/removeowner/v1", json = {
+    remove = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': token,
         'channel_id': channel_id,
         'u_id': u_id
     })
+    details1 = requests.get(config.url + "channel/details/v2", 
+        params = {
+        'token': token,
+        'channel_id': channel_id
+    })
+    owner = json.loads(details1.text)['owner_members']
 
     assert remove.status_code == 200
-    assert len(members) == 1
+    assert len(owner) == 1

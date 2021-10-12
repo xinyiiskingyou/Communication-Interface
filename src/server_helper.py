@@ -18,4 +18,3 @@ def decode_token(token):
     global SECRET
     decode = jwt.decode(token.encode(), SECRET, algorithms=['HS256'])
     return decode['auth_user_id']
-
