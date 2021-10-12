@@ -70,15 +70,6 @@ def register():
 def channels_list(): 
     return dumps(channels_list_v2(request.args.get('token')))
 
-# Channel create
-@APP.route("/channels/create/v2", methods=['POST'])
-def channel_create():
-    json = request.get_json()
-    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
-    return dumps({
-        'channel_id': resp['channel_id']
-    })
-
 #listall wrap? 
 @APP.route("/channels/listall/v2", methods= ['GET'])
 def channels_listall():
@@ -100,6 +91,14 @@ def channel_join():
     json = request.get_json()
     resp1 = channel_join_v2(json['token'], json['channel_id'])
     return dumps (resp1)
+# channel create
+@APP.route("/channels/create/v2", methods=['POST'])
+def channel_create():
+    json = request.get_json()
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
+    return dumps({
+        'channel_id': resp['channel_id']
+    })
 
 # Gives details about channel
 @APP.route("/channel/details/v2", methods=['GET'])
