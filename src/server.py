@@ -91,7 +91,7 @@ def channels_list():
     return dumps(channels_list_v2(request.args.get('token')))
 
 # return the list of all channels
-@APP.route ("/channels/list/all/v2", methods= ['GET'])
+@APP.route ("/channels/listall/v2", methods= ['GET'])
 def listall():
     return dumps (channels_listall_v2(request.args.get('token')))
 
