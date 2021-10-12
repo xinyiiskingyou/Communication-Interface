@@ -59,8 +59,7 @@ def test_invalid_join_channel_id():
         'name_first': 'sally',
         'name_last': 'li'
     })
-    user1_data = user1.json()
-    u_id = user1_data['auth_user_id']
+    token = json.loads(user1.text)['token']
 
     join1 = requests.post(config.url + 'channel/join/v2', json ={
         'token': token,
@@ -97,9 +96,7 @@ def test_already_joined_public():
         'name_first': 'sally',
         'name_last': 'li'
     })
-    user1_data = user1.json()
-    token1 = user1_data['token']
-    u_id = user1_data['auth_user_id']
+    token1 = json.loads(user1.text)['token']
 
     user2 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'elephant@gmail.com',
@@ -107,9 +104,7 @@ def test_already_joined_public():
         'name_first': 'kelly',
         'name_last': 'huang'
     })
-    user2_data = user2.json()
-    token2 = user2_data['token']
-    u_id2 = user2_data['auth_user_id']
+    token2 = json.loads(user2.text)['token']
 
     # test error when channel_id is valid but authorised user is not a member of the channel
     channel_join_port = requests.post(config.url + 'channel/join/v2', json ={
