@@ -8,8 +8,8 @@ from src.error import InputError
 from src import config
 
 from src.auth import auth_register_v2
-from src.channel import channel_details_v2, channel_invite_v2
-from src.channels import channels_create_v2, channels_list_v2
+from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
+from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -70,6 +70,12 @@ def register():
 def channels_list(): 
     return dumps(channels_list_v2(request.args.get('token')))
 
+#listall wrap? 
+@APP.route("/channels/listall/v2", methods= ['GET'])
+def channels_listall():
+    return dumps(channels_listall_v2(request.args.get('token')))
+
+
 ############ CHANNEL #################
 
 # Invite user to join the channel
@@ -79,6 +85,12 @@ def channel_invite():
     resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 
+#join wrap?   
+@APP.route ("/channel/join/v2", methods= ['POST'])
+def channel_join():
+    json = request.get_json()
+    resp1 = channel_join_v2(json['token'], json['channel_id'])
+    return dumps (resp1)
 # channel create
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
