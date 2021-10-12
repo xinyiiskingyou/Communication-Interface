@@ -88,3 +88,4 @@ def test_details_valid_channel():
 
     len2 = len(channel_details_v2(a_id['token'], channel_id['channel_id'])['all_members'])
     assert len2 == 2
+
