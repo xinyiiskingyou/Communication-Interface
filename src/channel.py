@@ -250,16 +250,16 @@ def channel_addowner_v1(token, channel_id, u_id):
     if not channels_create_check_valid_user(u_id):
         raise InputError("user is not valid")
 
-    # not a member of the channel
-    if not check_valid_member_in_channel(channel_id, auth_user_id):
+    # u_id not a member of the channel
+    if not check_valid_member_in_channel(channel_id, u_id):
         raise InputError("User is not a member of the channel")
     
-    # already owner of the channel
+    # u_id already owner of the channel
     if check_valid_owner(u_id, channel_id):
         raise InputError("User is already an owner of the channel")
 
     # No owner permission
-    if not check_valid_owner(u_id, channel_id):
+    if not check_valid_owner(auth_user_id, channel_id):
         if not check_global_owner(auth_user_id):
             raise AccessError("Doesn't have owner permission in the channel") 
     user = user_info(u_id)

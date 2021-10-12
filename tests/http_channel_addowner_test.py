@@ -175,7 +175,7 @@ def test_already_owner():
         })
         '''
     assert resp1.status_code == 400
-'''
+
 def test_no_perm_not_member():
     requests.delete(config.url + "clear/v1")
     id1 = requests.post(config.url + "auth/register/v2", 
@@ -203,7 +203,6 @@ def test_no_perm_not_member():
             'name_first': 'kelly',
             'name_last': 'huang'
             })
-    token2 = json.loads(id2.text)['token']
     u_id1 = json.loads(id2.text)['auth_user_id']
 
     invite = requests.post(config.url + 'channel/invite/v2', 
@@ -220,16 +219,17 @@ def test_no_perm_not_member():
             'name_first': 'hello',
             'name_last': 'world'
             })
-    u_id2 = json.loads(id3.text)['auth_user_id']
 
+    u_id2 = json.loads(id3.text)['auth_user_id']
+    token2 = json.loads(id3.text)['token']
     resp1 = requests.post(config.url + "channels/addowner/v1", 
         json = {
             'token': token2,
             'channel_id': channel_id,
-            'u_id': u_id2
+            'u_id': u_id1
         })
     assert resp1.status_code == 403
-'''
+
 
 def test_no_perm_not_owner():
     requests.delete(config.url + "clear/v1")
@@ -261,13 +261,6 @@ def test_no_perm_not_owner():
     token2 = json.loads(id2.text)['token']
     u_id1 = json.loads(id2.text)['auth_user_id']
 
-    invite = requests.post(config.url + 'channel/invite/v2', 
-        json ={
-            'token': token1,
-            'channel_id': channel_id,
-            'u_id': u_id1
-        })
-
     id3 = requests.post(config.url + "auth/register/v2", 
         json ={
             'email': 'apple@gmail.com',
@@ -277,6 +270,20 @@ def test_no_perm_not_owner():
             })
     u_id2 = json.loads(id3.text)['auth_user_id']
 
+    invite1 = requests.post(config.url + 'channel/invite/v2', 
+        json ={
+            'token': token1,
+            'channel_id': channel_id,
+            'u_id': u_id1
+        })
+    
+    invite2 = requests.post(config.url + 'channel/invite/v2', 
+        json ={
+            'token': token1,
+            'channel_id': channel_id,
+            'u_id': u_id2
+        })
+
     resp1 = requests.post(config.url + "channels/addowner/v1", 
         json = {
             'token': token2,
@@ -285,7 +292,7 @@ def test_no_perm_not_owner():
         })
     assert resp1.status_code == 403
 
-'''
+
 def test_valid_addowner():
     requests.delete(config.url + "clear/v1")
     id1 = requests.post(config.url + "auth/register/v2", 
@@ -329,4 +336,3 @@ def test_valid_addowner():
         })
 
     assert resp1.status_code == 200
-'''
