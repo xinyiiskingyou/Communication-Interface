@@ -145,6 +145,7 @@ def check_permision_id(auth_user_id):
                 return True
     return False
 
+# checking if the user is an owner
 def check_valid_owner(u_id, channel_id):
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
@@ -153,15 +154,16 @@ def check_valid_owner(u_id, channel_id):
                     return True
     return False
 
-def check_owner_permission(channel_id):
+def check_global_owner(auth_user_id):
 
-    for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id:
-            for member in channels['owner_members']:
-                if member['permission_id'] == 1:
-                    return True
+    for user in initial_object['users']:
+        if user['auth_user_id'] != auth_user_id:
+            continue
+        if user['permission_id'] == 1:
+            return True
     return False
 
+# checking valid email
 def check_valid_email(email):
     '''
     check if the email is valid
@@ -170,3 +172,4 @@ def check_valid_email(email):
     if re.search(search, email):
         return True
     return False
+
