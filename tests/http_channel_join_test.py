@@ -40,4 +40,31 @@ def test_http_join ():
         })
     assert respo1.status_code == 200
 
+#Invalid channel_id 
+def test_invalid_join_channel_id():
+    requests.delete(config.url + "clear/v1")
+
+    user = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcde@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'li'
+    })
+    user_data = user.json()
+    token = user_data['token']
+
+    user1 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcd@gmail.com',
+        'password': 'password',
+        'name_first': 'sally',
+        'name_last': 'li'
+    })
+    user1_data = user1.json()
+    u_id = user1_data['auth_user_id']
+
+    invite = requests.post(config.url + 'channel/invite/v2', json ={
+        'token': token,
+        'channel_id': -16,
+    })
+    assert invite.status_code == 400
 
