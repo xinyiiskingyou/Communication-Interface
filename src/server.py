@@ -7,7 +7,7 @@ from flask_cors import CORS
 from src.error import InputError
 from src import config
 
-from src.auth import auth_register_v2
+from src.auth import auth_register_v2, auth_login_v2
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
 from src.other import clear_v1
@@ -62,6 +62,17 @@ def register():
         'token': resp['token'],
         'auth_user_id': resp['auth_user_id']
     })
+
+# Logins user 
+@APP.route("/auth/login/v2", methods=['POST'])
+def login():
+    json = request.get_json()
+    resp = auth_login_v2(json['email'], json['password'])
+    return dumps({
+        'token': resp['token'],
+        'auth_user_id': resp['auth_user_id']
+    })
+
 
 ############ CHANNELS #################
 
