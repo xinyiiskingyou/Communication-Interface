@@ -145,6 +145,7 @@ def check_permision_id(auth_user_id):
                 return True
     return False
 
+# checking if the user is an owner
 def check_valid_owner(u_id, channel_id):
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
@@ -162,6 +163,7 @@ def check_global_owner(auth_user_id):
             return True
     return False
 
+# checking valid email
 def check_valid_email(email):
     '''
     check if the email is valid
