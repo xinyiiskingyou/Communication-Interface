@@ -287,7 +287,7 @@ def test_details_return_values_invite_h():
         'channel_id': channel_id1,
         'u_id': 2
     })
-    assert json.loads(invite2.text) == {}
+    
     # Get details of channel
     resp1 = requests.get(config.url + "channel/details/v2", 
         params = {
