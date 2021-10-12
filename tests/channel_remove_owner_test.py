@@ -71,6 +71,7 @@ def test_removeowener_no_permission():
     channel_id2 = channels_create_v2(id2['token'], 'anna', True)
     # add id3 as an owner so it would not raise Input error for only owner of the channel
     channel_invite_v2(id2['token'], channel_id2['channel_id'], id3['auth_user_id'])
+    channel_invite_v2(id2['token'], channel_id2['channel_id'], id4['auth_user_id'])
     channel_addowner_v1(id2['token'], channel_id2['channel_id'], id3['auth_user_id'])
     with pytest.raises(AccessError):    
         channel_removeowner_v1(id4['token'], channel_id2['channel_id'], id2['auth_user_id'])
