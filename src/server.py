@@ -14,7 +14,6 @@ from src.channel import channel_removeowner_v1, channel_addowner_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
 from src.other import clear_v1
 
-
 def quit_gracefully(*args):
     '''For coverage'''
     exit(0)
@@ -119,13 +118,15 @@ def channel_details():
     token = (request.args.get('token'))
     channel_id = int(request.args.get('channel_id'))
     return dumps(channel_details_v2(token, channel_id))
-
+   
+# Add an owner of the channel
 @APP.route("/channel/addowner/v1", methods=['POST'])
 def channel_addowner():
     json = request.get_json()
     resp = channel_addowner_v1(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 
+# Remove an owner of the channel
 @APP.route("/channel/removeowner/v1", methods=['POST'])
 def channel_remove_owner():
     json = request.get_json()

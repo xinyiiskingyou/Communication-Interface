@@ -263,7 +263,6 @@ def channel_addowner_v1(token, channel_id, u_id):
         if not check_global_owner(auth_user_id):
             raise AccessError("Doesn't have owner permission in the channel") 
     user = user_info(u_id)
-    #user['permission_id'] == 
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
             channels['owner_members'].append(user)
@@ -327,5 +326,3 @@ def channel_removeowner_v1(token, channel_id, u_id):
 
     DATASTORE.set(store)
     return {}
-
-
