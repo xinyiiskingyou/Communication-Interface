@@ -247,5 +247,5 @@ def channel_leave_v1(token, channel_id):
             for member in channels['all_members']: 
                 if member['u_id'] == auth_user_id:
                     channels['all_members'].remove(newuser)
-    # DATASTORE.set(store)
+    DATASTORE.set(store)
     return {}
