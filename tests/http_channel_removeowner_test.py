@@ -14,8 +14,7 @@ def test_removeowner_invalid_channel_id():
         'name_first': 'anna',
         'name_last': 'li'
     })
-    user_data = user.json()
-    token = user_data['token']
+    token = json.loads(user.text)['token']
 
     user1 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'abcd@gmail.com',
@@ -50,8 +49,7 @@ def test_removeowner_invalid_u_id():
         'name_first': 'anna',
         'name_last': 'li'
     })
-    user_data = user.json()
-    token = user_data['token']
+    token = json.loads(user.text)['token']
 
     channel = requests.post(config.url + "channels/create/v2", json = {
         'token': token,
