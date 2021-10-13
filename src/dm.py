@@ -1,0 +1,65 @@
+from src.server_helper import decode_token
+from src.error import InputError
+from src.helper import channels_create_check_valid_user, get_handle
+from src.data_store import DATASTORE, initial_object
+
+# for testing
+from src.auth import auth_register_v2
+# create a dm and returns it id
+def dm_create_v1(token, u_ids):
+    '''
+    Creates a dm with name generated based on users' handle
+
+    Arguments:
+        <token>        (<hash>)    - an authorisation hash
+        <u_ids>        (<list>)    - a list of u_id 
+
+    Exceptions:
+        InputError  - Occurs when one of u_id given does not refer to a valid user
+
+    Return Value:
+        Returns <{dm_id}> when the dm is sucessfully created
+    '''
+    for i in range(len(u_ids)):
+        if not channels_create_check_valid_user(u_ids[i]):
+            raise InputError('any u_id in u_ids does not refer to a valid user')
+    store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+
+    dms = initial_object['dms']
+    # generate dm_id according the number of existing dms
+    dm_id = len(dms) + 1
+
+    # create a list that stores the handles of all the users given 
+    # including creator
+    handle_list = []
+    creator_handle = get_handle(auth_user_id)
+    handle_list.append(creator_handle)
+
+    for i in range(len(u_ids)):
+        handle = get_handle(u_ids[i])
+        handle_list.append(handle)
+    
+    # alphabetically-sorted
+    handle_list.sort()
+    separation = ", "
+    name = separation.join(handle_list)
+
+    dm = {
+        'dm_id': dm_id,
+        'name': name,
+    }
+    dms.append(dm)
+    DATASTORE.set(store)
+    print(store)
+    return {
+        'dm_id': dm_id
+    }
+id1 = auth_register_v2('abc@gmail.com', 'password', 'leanna', 'chan')
+id2 = auth_register_v2('asdsfb@gmail.com', 'password', 'hi', 'wore')
+id3 = auth_register_v2('asdsfbdfhdj@gmail.com', 'password', 'hello', 'world')
+token = id1['token']
+dm_create_v1(token, [id2['auth_user_id'], id3['auth_user_id']])
+
+def dm_list_v1(token):
+    pass

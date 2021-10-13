@@ -12,7 +12,7 @@ from src.channels import channels_listall_v2,channels_create_v2, channels_list_v
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.channel import channel_removeowner_v1, channel_addowner_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
-from src.dm import dm_create_v1
+from src.dm import dm_create_v1, dm_list_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -164,6 +164,12 @@ def dm_create():
     return dumps({
         'dm_id': resp['dm_id']
     })
+
+# List al DMs that the user is a member of
+@APP.route("/dm/list/v1", methods=['GET'])
+def dm_list():
+    return dumps(dm_list_v1(request.args.get('token')))
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
