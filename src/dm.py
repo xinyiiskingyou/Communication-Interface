@@ -6,18 +6,26 @@ from src.data_store import DATASTORE, initial_object
 
 def dm_details_v1(): 
     '''
-    <Brief description of what the function does>
+    Given an dm_id and token, the function provides
+    basic details about the dm 
 
 Arguments:
-    <name> (<data type>)    - <description>
-    <name> (<data type>)    - <description>
+    token ()    - a user's unique token 
+    dm_id (int) - a user's unique dm id 
     ...
 
 Exceptions:
-    InputError  - Occurs when ...
-    AccessError - Occurs when ...
+    InputError  - Occurs when the dm id is invalid 
+                    or the token is invalid.
+    AccessError - Occurs when the dm_id is not 
+                    an authorised member of the DM 
 
 Return Value:
-    Returns <return value> on <condition>
-    Returns <return value> on <condition>
+    Returns name 
+    Returns members
     '''
+    store = DATASTORE.get() 
+    auth_user_id = decode_token(token)
+    
+    #not a valid user 
+    if not channels_create_check_valid_user(auth_user_id) 
