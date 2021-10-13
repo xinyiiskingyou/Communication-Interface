@@ -1,6 +1,7 @@
 '''
 Helper functions
 '''
+import re
 from src.data_store import initial_object
 
 #Helper function for channels_create, channel_invite, channel_join
@@ -144,30 +145,71 @@ def check_permision_id(auth_user_id):
                 return True
     return False
 
-def check_valid_owner(u_id):
-    for channels in initial_object['channels']:
-        for member in channels['owner_members']:
-            if member['u_id'] == u_id:
-                return True
-    return False
-
-def check_owner_permission(channel_id):
-
+# checking if the user is an owner
+def check_valid_owner(auth_user_id, channel_id):
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
             for member in channels['owner_members']:
-                if member['permission_id'] == 1:
+                if member['u_id'] == auth_user_id:
                     return True
     return False
 
-def check_number_of_owners(auth_user_id):
+def check_only_owner(auth_user_id, channel_id):
+    for channels in initial_object['channels']:
+        if channels['channel_id'] == channel_id:
+            for member in channels['owner_members']:
+                if member['u_id'] == auth_user_id:
+                    return channels
+    pass
+
+def check_global_owner(auth_user_id):
+    for user in initial_object['users']:
+        if user['auth_user_id'] != auth_user_id:
+            continue
+        if user['permission_id'] == 1:
+            return True
+    return False
+
+# checking valid email
+def check_valid_email(email):
+    '''
+    check if the email is valid
+    '''
+    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
+    if re.search(search, email):
+        return True
+    return False
+
+def check_number_of_owners(u_id):
     number = 0
     for user in initial_object['users']:
-        if user['auth_user_id'] == auth_user_id:
-            if user['permission_id'] == 1:
-                number += 1
-    if number == 1:
-        return False
-    else:
-        return True
-    
+        if user['auth_user_id'] == u_id:
+            continue
+        if user['permission_id'] == 1:
+            number += 1
+    return number
+
+def check_permission(u_id, permission_id):
+
+    for user in initial_object['users']:
+        if user['auth_user_id'] != u_id:
+            continue
+        # If the user is a global owner
+        if permission_id == 1:
+            return True
+    return False
+
+def check_valid_owner(auth_user_id, channel_id):
+    for channels in initial_object['channels']:
+        if channels['channel_id'] == channel_id:
+            for member in channels['owner_members']:
+                if member['u_id'] == auth_user_id:
+                    return True
+    return False
+
+def check_admin_owner(auth_user_id):
+    for channel in initial_object['channels']:
+        for owner in channel['owner_members']:
+            if owner['u_id'] == auth_user_id:
+                return owner
+    pass

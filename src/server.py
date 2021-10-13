@@ -1,3 +1,4 @@
+import json
 import sys
 import signal
 from json import dumps
@@ -6,8 +7,11 @@ from flask_cors import CORS
 from src.error import InputError
 from src import config
 
-from src.auth import auth_register_v2
-from src.channels import channels_list_v2, channels_create_v2
+from src.auth import auth_register_v2, auth_login_v2
+from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
+from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2
+from src.channel import channel_removeowner_v1, channel_addowner_v1
+from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -49,7 +53,9 @@ def clear():
     resp = clear_v1()
     return dumps(resp)
 
-#still uses auth_user_id have to fix auth implementation to generate a token
+############ AUTH #################
+
+# Registers user
 @APP.route("/auth/register/v2", methods=['POST'])
 def register(): 
     json = request.get_json()
@@ -59,19 +65,88 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
+# Logins user 
+@APP.route("/auth/login/v2", methods=['POST'])
+def login():
+    json = request.get_json()
+    resp = auth_login_v2(json['email'], json['password'])
+    return dumps({
+        'token': resp['token'],
+        'auth_user_id': resp['auth_user_id']
+    })
+
 ############ CHANNELS #################
+
+# channel create
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
     json = request.get_json()
-    resp1 = channels_create_v2(json['token'], json['name'], bool(json['is_public']))
+    resp = channels_create_v2(json['token'], json['name'], json['is_public'])
     return dumps({
-        'channel_id': resp1['channel_id']
+        'channel_id': resp['channel_id']
     })
 
+# Return the list that authorised user is part of
 @APP.route("/channels/list/v2", methods=['GET'])
 def channels_list(): 
+    return dumps(channels_list_v2(request.args.get('token')))
+
+# return the list of all channels
+@APP.route ("/channels/listall/v2", methods= ['GET'])
+def listall():
+    return dumps (channels_listall_v2(request.args.get('token')))
+
+############ CHANNEL #################
+
+# Invite user to join the channel
+@APP.route("/channel/invite/v2", methods=['POST'])
+def channel_invite():
     json = request.get_json()
-    resp = channels_list_v2(json['token'])
+    resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
+
+# join wrap?   
+@APP.route ("/channel/join/v2", methods= ['POST'])
+def channel_join():
+    json = request.get_json()
+    resp1 = channel_join_v2(json['token'], json['channel_id'])
+    return dumps (resp1)
+
+# Gives details about channel
+@APP.route("/channel/details/v2", methods=['GET'])
+def channel_details(): 
+    token = (request.args.get('token'))
+    channel_id = int(request.args.get('channel_id'))
+    return dumps(channel_details_v2(token, channel_id))
+   
+# Add an owner of the channel
+@APP.route("/channel/addowner/v1", methods=['POST'])
+def channel_addowner():
+    json = request.get_json()
+    resp = channel_addowner_v1(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
+
+# Remove an owner of the channel
+@APP.route("/channel/removeowner/v1", methods=['POST'])
+def channel_remove_owner():
+    json = request.get_json()
+    resp = channel_removeowner_v1(json['token'], json['channel_id'], json['u_id'])
+    return dumps(resp)
+
+############ USER #################
+
+# Update the authorised user's email
+@APP.route("/user/profile/setemail/v1", methods=['PUT'])
+def user_setemail(): 
+    json = request.get_json()
+    resp = user_profile_setemail_v1(json['token'], json['email'])
+    return dumps(resp)
+
+# Update the authorised user's handle
+@APP.route("/user/profile/sethandle/v1", methods=['PUT'])
+def user_sethandle(): 
+    json = request.get_json()
+    resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
     return dumps(resp)
 
 #### NO NEED TO MODIFY BELOW THIS POINT

@@ -2,7 +2,7 @@ import pytest
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
 from src.error import AccessError, InputError
 from src.auth import auth_register_v2
-from src.channel import channel_details_v2, channel_invite_v2, channel_join_v2
+from src.channel import channel_details_v2, channel_invite_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
 from src.helper import *
@@ -22,6 +22,13 @@ def test_admin_remove_invalid_u_id():
     with pytest.raises(InputError):
         admin_user_remove_v1(user1['token'], '')
 
+    # u_id is invalid and authorised user is not a global owner
+    user2 = auth_register_v2('cba@unsw.edu.au', 'password', 'bfirst', 'blast')
+    with pytest.raises(AccessError):
+        admin_user_remove_v1(user2['token'], -1)
+    with pytest.raises(AccessError):
+        admin_user_remove_v1(user2['token'], -256)
+
 # u_id refers to a user who is the only global owner
 def test_admin_global_owner():
     clear_v1()
@@ -36,6 +43,9 @@ def test_admin_remove_not_global_owner():
     user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
     with pytest.raises(AccessError):
         admin_user_remove_v1(user2['token'], user2['auth_user_id'])
+    # u_id refers to a user who is the only global owner
+    with pytest.raises(AccessError):
+        admin_user_remove_v1(user2['token'], user1['auth_user_id'])
 
 def test_admin_remove_valid():
     clear_v1()
@@ -94,15 +104,41 @@ def test_admin_perm_invalid_u_id():
     with pytest.raises(InputError):
         admin_userpermission_change_v1(user1['token'], '', 1)
 
+# u_id is invalid the authorised user is not a global owner
+# raise Access error in this case
+def test_admin_perm_invalid_u_id_and_token():
+
+    user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
+    with pytest.raises(AccessError):
+        admin_userpermission_change_v1(user2['token'], -1, 1)
+    with pytest.raises(AccessError):
+        admin_userpermission_change_v1(user2['token'], 'not_an_id', 1)
+    with pytest.raises(AccessError):
+        admin_userpermission_change_v1(user2['token'], '', 1)
+
 # u_id refers to a user who is the only global owner and they are being demoted to a user
-def test_admin_perm_demote():
+def test_admin_invalid_demote():
     clear_v1()
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     with pytest.raises(InputError):
         admin_userpermission_change_v1(user1['token'], user1['auth_user_id'], 2)
 
-# permission_id is invalid
-def test_admin_perm_global_owner():
+def test_admin_invalid_demote1():
+    clear_v1()
+    user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
+    user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
+    # user1 promotes user2 to be the owner
+    admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], 1)
+    # user2 demotes user1 to be the user
+    admin_userpermission_change_v1(user2['token'], user1['auth_user_id'], 2)
+
+    # raise Input error if user2 demotes themselves 
+    # since user2 is now the only global owner
+    with pytest.raises(InputError):
+        admin_userpermission_change_v1(user2['token'], user2['auth_user_id'], 2)
+
+# permission id is invalid 
+def test_admin_invalid_permission_id():
     clear_v1()
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
     user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
@@ -110,6 +146,16 @@ def test_admin_perm_global_owner():
         admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], -10)
     with pytest.raises(InputError):
         admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], 100)
+
+# permission id is invalid and the authorised user is not a global owner
+def test_admin_invalid_permission_id1():
+    clear_v1()
+    user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
+    user2 = auth_register_v2('cat@unsw.edu.au', 'password', 'bfirst', 'blast')
+    with pytest.raises(AccessError):
+        admin_userpermission_change_v1(user2['token'], user1['auth_user_id'], -10)
+    with pytest.raises(AccessError):
+        admin_userpermission_change_v1(user2['token'], user1['auth_user_id'], 100)
 
 # the authorised user is not a global owner
 def test_admin_perm_not_global_owner():
@@ -119,6 +165,7 @@ def test_admin_perm_not_global_owner():
     with pytest.raises(AccessError):
         admin_userpermission_change_v1(user2['token'], user1['auth_user_id'], 2)
 
+# valid case
 def test_valid_permission_change():
     clear_v1()
     user1 = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
