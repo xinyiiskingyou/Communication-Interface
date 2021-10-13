@@ -14,7 +14,9 @@ def test_removeowner_invalid_channel_id():
         'name_first': 'anna',
         'name_last': 'li'
     })
-    token = json.loads(user.text)['token']
+    user_data = user.json()
+    u_id = user_data['auth_user_id']
+    token = user_data['token']
 
     user1 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'abcd@gmail.com',
@@ -23,21 +25,31 @@ def test_removeowner_invalid_channel_id():
         'name_last': 'li'
     })
     user1_data = user1.json()
-    u_id = user1_data['auth_user_id']
-
+    u_id2 = user1_data['auth_user_id']
+    token2 = user1_data['token']
+    
+    # invalid channel_id
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': token,
         'channel_id': -1,
-        'u_id': u_id
+        'u_id': u_id2
     })
 
     remove1 = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': token,
         'channel_id': 'not_an_id',
-        'u_id': u_id
+        'u_id': u_id2
     })
     assert remove.status_code == 400
     assert remove1.status_code == 400
+
+    # access error when invalid channel_id and no owner permission
+    remove3 = requests.post(config.url + "channel/removeowner/v1", json ={
+        'token': token2,
+        'channel_id': -1,
+        'u_id': u_id
+    })
+    assert remove3.status_code == 403
 
 # invalid u_id
 def test_removeowner_invalid_u_id():
@@ -50,6 +62,7 @@ def test_removeowner_invalid_u_id():
         'name_last': 'li'
     })
     token = json.loads(user.text)['token']
+    u_id = json.loads(user.text)['auth_user_id']
 
     channel = requests.post(config.url + "channels/create/v2", json = {
         'token': token,
@@ -71,6 +84,23 @@ def test_removeowner_invalid_u_id():
     })
     assert remove.status_code == 400
     assert remove1.status_code == 400
+
+    user1 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcd@gmail.com',
+        'password': 'password',
+        'name_first': 'sally',
+        'name_last': 'li'
+    })
+    user1_data = user1.json()
+    token2 = user1_data['token']
+
+    # access error when invalid channel_id and no owner permission
+    remove2 = requests.post(config.url + "channel/removeowner/v1", json ={
+        'token': token2,
+        'channel_id': -1,
+        'u_id': u_id
+    })
+    assert remove2.status_code == 403
 
 # u_id refers to a user who is not an owner of the channel
 def test_removeowner_invalid_owner_u_id():
@@ -99,6 +129,7 @@ def test_removeowner_invalid_owner_u_id():
     })
     user1_data = user1.json()
     u_id = user1_data['auth_user_id']
+    token2 = user1_data['token']
 
     invite = requests.post(config.url + 'channel/invite/v2', json ={
         'token': token,
@@ -107,13 +138,21 @@ def test_removeowner_invalid_owner_u_id():
     })
     assert invite.status_code == 200
 
+    # input error for u_id is not an owner
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': token,
         'channel_id': channel_id,
         'u_id': u_id
     })
-
     assert remove.status_code == 400
+
+    # access error when u_id is not an owner and token has no owner permission
+    remove1 = requests.post(config.url + "channel/removeowner/v1", json ={
+        'token': token2,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+    assert remove1.status_code == 403
 
 # u_id refers to a user who is currently the only owner of the channel
 def test_removeowner_only_owner():
@@ -142,6 +181,22 @@ def test_removeowner_only_owner():
         'u_id': u_id
     })
     assert remove.status_code == 400
+
+    user1 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcd@gmail.com',
+        'password': 'password',
+        'name_first': 'sally',
+        'name_last': 'li'
+    })
+    user1_data = user1.json()
+    token2 = user1_data['token']
+
+    remove1 = requests.post(config.url + "channel/removeowner/v1", json ={
+        'token': token2,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+    assert remove1.status_code == 403
 
 # channel_id is valid and the authorised user does not have owner permissions in the channel
 def test_removeowener_no_permission():
