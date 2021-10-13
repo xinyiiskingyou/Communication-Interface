@@ -27,7 +27,8 @@ Example usage:
 ## YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
     'users': [],
-    'channels': [] # create a dict in a list
+    'channels': [], # create a dict in a list
+    'dms': []
 }
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE

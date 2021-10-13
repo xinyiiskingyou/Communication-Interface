@@ -12,6 +12,7 @@ from src.channels import channels_listall_v2,channels_create_v2, channels_list_v
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.channel import channel_removeowner_v1, channel_addowner_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
+from src.dm import dm_create_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -154,6 +155,15 @@ def user_sethandle():
     resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
     return dumps(resp)
 
+############ DM #################
+# Create DM
+@APP.route("/dm/create/v1", methods=['POST'])
+def dm_create():
+    json = request.get_json()
+    resp = dm_create_v1(json['token'], json['u_ids'])
+    return dumps({
+        'dm_id': resp['dm_id']
+    })
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":

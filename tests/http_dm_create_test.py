@@ -33,9 +33,9 @@ def test_invalid_u_id():
 
     user2 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abc@gmail.com',
+            'email': '1531camel@gmail.com',
             'password': 'password',
-            'name_first': 'afirst',
+            'name_first': 'anna',
             'name_last': 'alast'
         })
 
@@ -67,7 +67,7 @@ def test_valid_empty_u_id():
         })
     assert resp1.status_code == 200
 
-def test_valid_empty_u_id():
+def test_valid_u_ids():
     requests.delete(config.url + "clear/v1")
     creator = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -91,10 +91,10 @@ def test_valid_empty_u_id():
 
     user2 = requests.post(config.url + "auth/register/v2", 
         json = {
-            'email': 'abc@gmail.com',
+            'email': '123456@gmail.com',
             'password': 'password',
-            'name_first': 'afirst',
-            'name_last': 'alast'
+            'name_first': 'baby',
+            'name_last': 'shark'
         })
 
     u_id2 = json.loads(user2.text)['auth_user_id']

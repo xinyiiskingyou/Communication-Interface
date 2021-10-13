@@ -180,3 +180,12 @@ def check_valid_email(email):
     if re.search(search, email):
         return True
     return False
+
+def get_handle(auth_user_id):
+    '''
+    return type: <string>
+    '''
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            return user['handle_str']
+    return None
