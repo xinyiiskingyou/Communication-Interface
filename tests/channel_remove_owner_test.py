@@ -70,7 +70,7 @@ def test_removeowner_invalid_owner_u_id():
     channel_invite_v2(id2['token'], channel_id2['channel_id'], id4['auth_user_id'])
     with pytest.raises(InputError):
         channel_removeowner_v1(id2['token'], channel_id2['channel_id'], id4['auth_user_id'])
-
+    # access error when u_id is not an owner and token has no owner permission
     with pytest.raises(AccessError):
         channel_removeowner_v1(id4['token'], channel_id2['channel_id'], id4['auth_user_id'])
 
