@@ -1,6 +1,6 @@
 from src.server_helper import decode_token
 from src.error import InputError
-from src.helper import channels_create_check_valid_user, get_handle
+from src.helper import channels_create_check_valid_user, get_handle, get_dm_info
 from src.data_store import DATASTORE, initial_object
 
 # for testing
@@ -51,15 +51,23 @@ def dm_create_v1(token, u_ids):
     }
     dms.append(dm)
     DATASTORE.set(store)
-    print(store)
     return {
         'dm_id': dm_id
     }
+
+def dm_list_v1(token):
+    store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+    return {'dms': get_dm_info(auth_user_id)}
+
+'''
 id1 = auth_register_v2('abc@gmail.com', 'password', 'leanna', 'chan')
 id2 = auth_register_v2('asdsfb@gmail.com', 'password', 'hi', 'wore')
 id3 = auth_register_v2('asdsfbdfhdj@gmail.com', 'password', 'hello', 'world')
+id4 = auth_register_v2('asbfdhfhrdfhdj@gmail.com', 'password', 'baby', 'shark')
 token = id1['token']
 dm_create_v1(token, [id2['auth_user_id'], id3['auth_user_id']])
-
-def dm_list_v1(token):
-    pass
+dm_create_v1(id2['token'], [id3['auth_user_id'], id4['auth_user_id'], id1['auth_user_id']])
+dm_create_v1(id3['token'], [id4['auth_user_id'], id1['auth_user_id']])
+print(dm_list_v1(id3['token']))
+'''

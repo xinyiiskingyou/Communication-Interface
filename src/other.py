@@ -20,6 +20,7 @@ def clear_v1():
     store = DATASTORE.get()
     initial_object['users'] = []
     initial_object['channels'] = []
+    initial_object['dms'] = []
     DATASTORE.set(store)
 
     return {
