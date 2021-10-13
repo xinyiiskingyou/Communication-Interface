@@ -115,3 +115,124 @@ def test_valid_u_ids():
         })
 
     assert resp1.status_code == 200
+
+
+def test_dm_list_no_dm():
+    requests.delete(config.url + "clear/v1")
+    creator = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'afirst',
+            'name_last': 'alast'
+        })
+
+    token = json.loads(creator.text)['token']
+
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abcertgh@gmail.com',
+            'password': 'password',
+            'name_first': 'hello',
+            'name_last': 'world'
+        })
+
+    u_id1 = json.loads(user1.text)['auth_user_id']
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': '123456@gmail.com',
+            'password': 'password',
+            'name_first': 'baby',
+            'name_last': 'shark'
+        })
+
+    u_id2 = json.loads(user2.text)['auth_user_id']
+
+    user3 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': '1531camel@gmail.com',
+            'password': 'password',
+            'name_first': 'alan',
+            'name_last': 'wood'
+        })
+
+    u_id3 = json.loads(user3.text)['auth_user_id']
+
+    resp1 = requests.post(config.url + "dm/create/v1", 
+        json = {
+            'token': token,
+            'u_ids': [u_id1, u_id2, u_id3]
+        })
+
+    resp2 = requests.get(config.url + "dm/list/v1", 
+        params = {
+            'token': token,
+        })
+    assert resp2.status_code == 200
+    assert json.loads(resp2.text) == {'dms': []}
+    # no dms
+    # assert length
+
+def test_dm_list():
+    requests.delete(config.url + "clear/v1")
+    creator = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'afirst',
+            'name_last': 'alast'
+        })
+
+    token = json.loads(creator.text)['token']
+
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abcertgh@gmail.com',
+            'password': 'password',
+            'name_first': 'hello',
+            'name_last': 'world'
+        })
+
+    u_id1 = json.loads(user1.text)['auth_user_id']
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': '123456@gmail.com',
+            'password': 'password',
+            'name_first': 'baby',
+            'name_last': 'shark'
+        })
+
+    u_id2 = json.loads(user2.text)['auth_user_id']
+
+    user3 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': '1531camel@gmail.com',
+            'password': 'password',
+            'name_first': 'alan',
+            'name_last': 'wood'
+        })
+
+    u_id3 = json.loads(user3.text)['auth_user_id']
+    token1 = json.loads(user3.text)['token']
+    resp1 = requests.post(config.url + "dm/create/v1", 
+        json = {
+            'token': token,
+            'u_ids': [u_id1, u_id2, u_id3]
+        })
+
+    resp2 = requests.get(config.url + "dm/list/v1", 
+        params = {
+            'token': token1,
+        })
+    assert resp2.status_code == 200
+    assert (json.loads(resp2.text) == 
+        {
+        'dms': [
+            {
+                'dm_id': 1,
+                'name': 'alanwood, babyshark, helloworld',
+            }
+        ],
+    })
