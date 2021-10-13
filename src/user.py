@@ -31,12 +31,12 @@ def user_profile_setemail_v1(token, email):
     store = DATASTORE.get()
     # email entered is not a valid email
     if not check_valid_email(email):
-        raise InputError('Email entered is not a valid email')
+        raise InputError(description='Email entered is not a valid email')
 
     # email address is already being used by another user
     for users in initial_object['users']:
         if users['email'] == email:
-            raise InputError('Email address is already being used by another user')
+            raise InputError(description='Email address is already being used by another user')
 
     auth_user_id = decode_token(token)
     user = channels_user_details(auth_user_id)
@@ -65,11 +65,11 @@ def user_profile_sethandle_v1(token, handle_str):
 
     # length of handle_str is not between 3 and 20 characters inclusive
     if len(handle_str) not in range(3, 21):
-        raise InputError('handle_str is not between 1 - 20 characters in length')
+        raise InputError(description='handle_str is not between 1 - 20 characters in length')
 
     # handle_str contains characters that are not alphanumeric
     if not handle_str.isalnum():
-        raise InputError('handle_str contains characters that are not alphanumeric')
+        raise InputError(description='handle_str contains characters that are not alphanumeric')
 
     # the handle is already used by another user
     for users in initial_object['users']:

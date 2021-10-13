@@ -33,7 +33,7 @@ def auth_login_v2(email, password):
                 'token': token,
                 'auth_user_id': auth_user_id
             }
-    raise InputError("Email and/or password is not valid!")
+    raise InputError(description='Email and/or password is not valid!')
 
 def auth_register_v2(email, password, name_first, name_last):
     '''
@@ -63,24 +63,24 @@ def auth_register_v2(email, password, name_first, name_last):
     # Error handling
     search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
     if not re.search(search, email):
-        raise InputError("This email is of invalid form")
+        raise InputError(description='This email is of invalid form')
 
     # Check for duplicate emails
     for user in initial_object['users']:
         if user['email'] == email:
-            raise InputError("This email address has already been registered by another user")
+            raise InputError(description='This email address has already been registered')
 
     # Valid Password
     if len(password) < 6:
-        raise InputError("This password is less then 6 characters in length")
+        raise InputError(description='This password is less then 6 characters in length')
 
     # Valid first name
     if len(name_first) not in range(1, 51):
-        raise InputError("name_first is not between 1 - 50 characters in length")
+        raise InputError(description='name_first is not between 1 - 50 characters in length')
 
     # Valid last name
     if len(name_last) not in range(1, 51):
-        raise InputError("name_last is not between 1 - 50 characters in length")
+        raise InputError(description='name_last is not between 1 - 50 characters in length')
 
     # Creating unique auth_user_id and hashing and encoding the token and password
     auth_user_id = len(initial_object['users']) + 1
