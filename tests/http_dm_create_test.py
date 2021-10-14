@@ -337,7 +337,7 @@ def test_dm_remove_invalid_dm_id():
     token = json.loads(creator.text)['token']
 
     resp1 = requests.delete(config.url + "dm/remove/v1", 
-        params = {
+        json = {
             'token': token,
             'dm_id': -1
         })
@@ -394,7 +394,7 @@ def test_dm_remove_not_dm_creator():
     dm_id = json.loads(resp1.text)['dm_id']
 
     resp2 = requests.delete(config.url + "dm/remove/v1", 
-        params = {
+        json = {
             'token': token2,
             'dm_id': dm_id
         })
@@ -450,11 +450,11 @@ def test_dm_remove_invalid_id_not_dm_creator():
         })
 
     resp1 = requests.delete(config.url + "dm/remove/v1", 
-        params = {
+        json = {
             'token': token2,
             'dm_id': -1
         })
-    assert resp1.status_code == 403
+    assert resp1.status_code == 400
 
 def test_dm_remove_valid():
     requests.delete(config.url + "clear/v1")
@@ -505,7 +505,7 @@ def test_dm_remove_valid():
     dm_id = json.loads(resp1.text)['dm_id']
 
     resp2 = requests.delete(config.url + "dm/remove/v1", 
-        params = {
+        json = {
             'token': token,
             'dm_id': dm_id
         })

@@ -174,8 +174,8 @@ def dm_list():
 @APP.route("/dm/remove/v1", methods=['DELETE'])
 def dm_remove():
     json = request.get_json()
-    dm_remove_v1(json['token'], json['dm_id'])
-    return dumps({})
+    resp = dm_remove_v1(json['token'], json['dm_id'])
+    return dumps(resp)
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
