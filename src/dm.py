@@ -65,6 +65,9 @@ def dm_list_v1(token):
     auth_user_id = decode_token(token)
     return {'dms': get_dm_info(auth_user_id)}
 
+def dm_remove_v1(token, dm_id):
+    pass
+
 '''
 id1 = auth_register_v2('abc@gmail.com', 'password', 'leanna', 'chan')
 id2 = auth_register_v2('asdsfb@gmail.com', 'password', 'hi', 'wore')
