@@ -180,6 +180,28 @@ def check_valid_email(email):
         return True
     return False
 
+
+#################################################
+######## Helper functions for message.py ########
+#################################################
+
+# Helper function for message_send_v1
+# Checks if message is invalid 
+# Returns false if length of message is less than 1 or over 1000 characters
+# Returns true otherwise
+
+def check_valid_message(message):
+    len_message = len(message)
+    if len_message > 1000 or len_message < 1:
+        return False
+    else:
+        return True 
+
+
+#################################################
+########## Helper functions for dm.py ###########
+#################################################
+
 # get the handle of the authorised user
 def get_handle(auth_user_id):
     '''
