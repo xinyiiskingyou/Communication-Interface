@@ -27,11 +27,12 @@ Return Value:
     store = DATASTORE.get() 
     auth_user_id = decode_token(token)
     
+    if not check_valid_dm_id(dm_id): 
+        raise InputError("This dm_id does not refer to a valid DM")
+
     #not a valid user 
-    if not channels_create_check_valid_user(auth_user_id): 
-        raise AccessError("Authorised user is not a member of channel and u_id is invalid")
-
-
+    if not check_valid_member_in_dm(dm_id, auth_user_id): 
+        raise AccessError("The user is not an authorised member of the DM)
 
     for dms in initial_object['dms']: 
         if dm_id == dms['dm_id']: 
