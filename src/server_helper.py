@@ -1,4 +1,5 @@
 import jwt
+import time
 
 SECRET = "CAMEL"
 
@@ -10,7 +11,11 @@ SECRET = "CAMEL"
 # Generates a token
 def generate_token(auth_user_id):
     global SECRET
-    token = jwt.encode({'auth_user_id': auth_user_id}, SECRET, algorithm='HS256')
+    payload = {
+        'auth_user_id': auth_user_id,
+        'timestamp': time.time()
+    }
+    token = jwt.encode(payload, SECRET, algorithm='HS256')
     return token
     
 # Decoding the token
