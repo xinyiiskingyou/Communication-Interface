@@ -93,11 +93,11 @@ def channels_create_v2(token, name, is_public):
 
     # Invalid channel name
     if len(name) not in range(1, 21):
-        raise InputError('Length of name is less than 1 or more than 20 characters')
+        raise InputError(description='Length of name is less than 1 or more than 20 characters')
     if name[0] == ' ':
-        raise InputError('Name cannot be blank')
+        raise InputError(description='Name cannot be blank')
     if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError('The token does not refer to a valid user')
+        raise AccessError(description='The token does not refer to a valid user')
     channels = initial_object['channels']
 
     # generate channel_id according the number of existing channels

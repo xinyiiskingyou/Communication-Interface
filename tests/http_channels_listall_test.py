@@ -41,3 +41,21 @@ def test_listall_http():
 
     assert listall1.status_code == 200
 
+def test_listall_http_nochannel(): 
+    requests.delete(config.url + "clear/v1", json={})
+
+    resp = requests.post(config.url + 'auth/register/v2', json ={
+        'email': 'sally123@gmail.com', 
+        'password': 'password1234', 
+        'name_first': 'sally', 
+        'name_last': 'wong'
+    })
+
+    response_data = resp.json()
+    token = response_data['token']
+    listall = requests.get(config.url + 'channels/listall/v2', params ={
+        'token': token
+    })
+    assert json.loads(listall.text) == {'channels': []}
+    assert listall.status_code == 200
+

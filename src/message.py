@@ -46,7 +46,6 @@ def message_send_v1(token, channel_id, message):
     # Append dictionary of message details into intital_objects['messages']
     message_details['channel_id'] = channel_id
     initial_object['messages'].append(message_details)
-    print(f"message details = {initial_object['messages']}")
 
     DATASTORE.set(store)
 

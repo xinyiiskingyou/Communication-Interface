@@ -22,3 +22,8 @@ Assume all parameters in every function is given input.
 
 # For channel_add_owner:
 1. Assume that the users must be in the channel before they become the owner
+
+# For dm_create_v1:
+1. Assume the dm_id always be positive
+2. Assume the u_ids have distinct u_id
+3. Assume the creator is a valid user
