@@ -179,3 +179,29 @@ def check_valid_email(email):
     if re.search(search, email):
         return True
     return False
+
+
+#################################################
+######## Helper functions for dm.py      ########
+#################################################
+
+def check_valid_member_in_dm(dm_id, auth_user_id):
+    '''
+    return type: bool
+    '''
+
+    for dm in initial_object['dms']:
+        if dm['dms'] == dm_id:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id:
+                    return True
+    return False
+
+def check_valid_dm_id(dm_id):
+    '''
+    return type: bool
+    '''
+    for dm in initial_object['dms']:
+        if int(dm_id) == int(dm['dm_id']):
+            return True
+    return false
