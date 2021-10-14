@@ -197,7 +197,6 @@ def get_dm_info(auth_user_id):
     return type: list
     '''
     dms = []
-    handle = get_handle(auth_user_id)
     for dm in initial_object['dms']:
         for member in dm['members']:
             if member['u_id'] == auth_user_id:

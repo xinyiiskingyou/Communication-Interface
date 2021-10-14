@@ -62,11 +62,10 @@ def dm_create_v1(token, u_ids):
     }
 
 def dm_list_v1(token):
-    store = DATASTORE.get()
     auth_user_id = decode_token(token)
     return {'dms': get_dm_info(auth_user_id)}
 
-
+'''
 id1 = auth_register_v2('abc@gmail.com', 'password', 'leanna', 'chan')
 id2 = auth_register_v2('asdsfb@gmail.com', 'password', 'hi', 'wore')
 id3 = auth_register_v2('asdsfbdfhdj@gmail.com', 'password', 'hello', 'world')
@@ -76,3 +75,4 @@ dm_create_v1(token, [id2['auth_user_id'], id3['auth_user_id']])
 dm_create_v1(id2['token'], [id3['auth_user_id'], id4['auth_user_id'], id1['auth_user_id']])
 dm_create_v1(id3['token'], [id4['auth_user_id'], id1['auth_user_id']])
 print(dm_list_v1(id3['token']))
+'''

@@ -158,18 +158,18 @@ def test_dm_list():
 
     u_id3 = json.loads(user3.text)['auth_user_id']
     token1 = json.loads(user3.text)['token']
-    resp1 = requests.post(config.url + "dm/create/v1", 
+    requests.post(config.url + "dm/create/v1", 
         json = {
             'token': token,
             'u_ids': [u_id1, u_id2, u_id3]
         })
 
-    resp2 = requests.get(config.url + "dm/list/v1", 
+    resp1 = requests.get(config.url + "dm/list/v1", 
         params = {
             'token': token1,
         })
-    assert resp2.status_code == 200
-    assert (json.loads(resp2.text) == 
+    assert resp1.status_code == 200
+    assert (json.loads(resp1.text) == 
         {
         'dms': [
             {
@@ -248,18 +248,18 @@ def test_dm_list_no_dm():
 
     token2 = json.loads(user4.text)['token']
 
-    resp1 = requests.post(config.url + "dm/create/v1", 
+    requests.post(config.url + "dm/create/v1", 
         json = {
             'token': token,
             'u_ids': [u_id1, u_id2, u_id3]
         })
 
-    resp2 = requests.get(config.url + "dm/list/v1", 
+    resp1 = requests.get(config.url + "dm/list/v1", 
         params = {
             'token': token2,
         })
-    assert resp2.status_code == 200
-    assert json.loads(resp2.text) == {'dms': []}
+    assert resp1.status_code == 200
+    assert json.loads(resp1.text) == {'dms': []}
 
 def test_dm_list_creator_no_dm():
     requests.delete(config.url + "clear/v1")
@@ -303,16 +303,16 @@ def test_dm_list_creator_no_dm():
 
     u_id3 = json.loads(user3.text)['auth_user_id']
 
-    resp1 = requests.post(config.url + "dm/create/v1", 
+    requests.post(config.url + "dm/create/v1", 
         json = {
             'token': token,
             'u_ids': [u_id1, u_id2, u_id3]
         })
 
-    resp2 = requests.get(config.url + "dm/list/v1", 
+    resp1 = requests.get(config.url + "dm/list/v1", 
         params = {
             'token': token,
         })
-    assert resp2.status_code == 200
-    assert json.loads(resp2.text) == {'dms': []}
+    assert resp1.status_code == 200
+    assert json.loads(resp1.text) == {'dms': []}
 
