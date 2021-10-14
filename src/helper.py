@@ -207,9 +207,26 @@ def check_valid_owner(auth_user_id, channel_id):
                     return True
     return False
 
-def check_admin_owner(auth_user_id):
-    for channel in initial_object['channels']:
-        for owner in channel['owner_members']:
-            if owner['u_id'] == auth_user_id:
-                return owner
-    pass
+# get the handle of the authorised user
+def get_handle(auth_user_id):
+    '''
+    return type: <string>
+    '''
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            return user['handle_str']
+    return None
+
+# get the dm info of which the auth user is a member of
+def get_dm_info(auth_user_id):
+    '''
+    return type: list
+    '''
+    dms = []
+    handle = get_handle(auth_user_id)
+    for dm in initial_object['dms']:
+        find = dm['name'].find(handle)
+        if find != -1:
+            dms.append(dm)
+    return dms
+

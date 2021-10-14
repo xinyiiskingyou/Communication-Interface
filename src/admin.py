@@ -40,24 +40,39 @@ def admin_user_remove_v1(token, u_id):
     if not check_permision_id(auth_user_id):
         raise AccessError(description='The authorised user is not a global owner')
 
-    # name_first should be 'Removed' and name_last should be 'user'
-    user = channels_user_details(u_id)
-    user['name_first'] = 'Removed'
-    user['name_last'] = 'user'
-    user['handle_str'] = 'Removed user'
-    # email and handle should be reusable.
-    user['email'] = ''
-    user['token'] = ''
-
     # remove users from channel
     for channel in initial_object['channels']:
         for member in channel['all_members']:
             if member['u_id'] == u_id:
                 channel['all_members'].remove(member)
-        if check_admin_owner(u_id):
-            for owner in channel['owner_members']:
-                if owner['u_id'] == u_id:
-                    channel['owner_members'].remove(owner)
+        for owner in channel['owner_members']:
+            if owner['u_id'] == u_id:
+                channel['owner_members'].remove(owner)
+    '''
+    # remove users from dm
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == u_id:
+                dm['members'].remove(member)
+        for owner in channel['owner']:
+            if owner['u_id'] == u_id:
+                dm['owner'].remove(owner)
+
+    
+    # name_first should be 'Removed' and name_last should be 'user'
+    users['name_first'] = 'Removed'
+    users['name_last'] = 'user'
+    # email and handle should be reusable.
+    users['email'] = ''
+    users['handle_str'] = ''
+    '''
+
+    # the contents of the messages they sent will be replaced by 'Removed user'
+    # user will not be included in the list of users returned by users/all
+    for user in initial_object['users']:
+        if user['auth_user_id'] == u_id:
+            initial_object['users'].remove(user)
+
     DATASTORE.set(store)
     return {}
 

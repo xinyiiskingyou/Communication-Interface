@@ -1,12 +1,13 @@
 from src.server_helper import decode_token
-from src.helper import check_valid_email, channels_user_details
+from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user
+from src.helper import user_info
 from src.error import InputError
 from src.data_store import DATASTORE, initial_object
 
-def users_all_v1(token, u_id): 
+def users_all_v1(token): 
     return {}
 
-def user_profile_v1(token, name_first, name_last):
+def user_profile_v1(token, u_id):
     return {}
 
 def user_profile_setname_v1(token, name_first, name_last):
@@ -19,7 +20,6 @@ def user_profile_setemail_v1(token, email):
     Arguments:
         <token>     (<hash>)      - an authorisation hash
         <email>     (<string>)    - email user used to register into Streams
-        ...
 
     Exceptions:
         InputError  - Occurs when email entered is not a valid email
@@ -51,7 +51,6 @@ def user_profile_sethandle_v1(token, handle_str):
     Arguments:
         <token>          (<hash>)      - an authorisation hash
         <handle_str>     (<string>)    - the concatenation of user's first name and last name
-        ...
 
     Exceptions:
         InputError  - Occurs when length of handle_str is not between 3 and 20 characters inclusive
