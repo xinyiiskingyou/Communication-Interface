@@ -38,7 +38,6 @@ Return Value:
             return { 
                 'name': dms['name']
                 'members': dms['members']
-
             }
 
     
