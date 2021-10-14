@@ -28,4 +28,18 @@ Return Value:
     auth_user_id = decode_token(token)
     
     #not a valid user 
-    if not channels_create_check_valid_user(auth_user_id) 
+    if not channels_create_check_valid_user(auth_user_id): 
+        raise AccessError("Authorised user is not a member of channel and u_id is invalid")
+
+
+
+    for dms in initial_object['dms']: 
+        if dm_id == dms['dm_id']: 
+            return { 
+                'name': dms['name']
+                'members': dms['members']
+
+            }
+
+    
+    
