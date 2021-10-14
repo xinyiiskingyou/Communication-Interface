@@ -21,3 +21,6 @@ def test_dm_details_error_dm_id():
     id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError): 
         dm_details_v1(id1['token'], 'jasjdlak')
+
+##add valid tests 
+    
