@@ -199,9 +199,9 @@ def get_dm_info(auth_user_id):
     dms = []
     handle = get_handle(auth_user_id)
     for dm in initial_object['dms']:
-        find = dm['name'].find(handle)
-        if find != -1:
-            dms.append(dm)
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                dms.append(dm)
     return dms
 
 
