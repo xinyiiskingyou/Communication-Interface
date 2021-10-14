@@ -163,7 +163,6 @@ def check_only_owner(auth_user_id, channel_id):
     pass
 
 def check_global_owner(auth_user_id):
-
     for user in initial_object['users']:
         if user['auth_user_id'] != auth_user_id:
             continue
