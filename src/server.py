@@ -154,6 +154,15 @@ def user_sethandle():
     resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
     return dumps(resp)
 
+
+
+############ DM #################
+ @APP.route("/dm/details/v1", methods=['GET'])
+ def dm_details(): 
+    token = (request.args.get('token'))
+    dm_id = int(request.args.get('dm_id'))
+    return dumps(dm_details_v1(token, dm_id))
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
