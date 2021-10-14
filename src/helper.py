@@ -198,10 +198,56 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
     return False
 
 def check_valid_dm_id(dm_id):
+# get the handle of the authorised user
+def get_handle(auth_user_id):
+    '''
+    return type: <string>
+    '''
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            return user['handle_str']
+    return None
+
+# get the dm info of which the auth user is a member of
+def get_dm_info(auth_user_id):
+    '''
+    return type: list
+    '''
+    dms = []
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                dms.append(dm)
+    return dms
+
+# check if the user is the creator of the given dm
+def check_creator(auth_user_id, dm_id):
     '''
     return type: bool
     '''
     for dm in initial_object['dms']:
-        if int(dm_id) == int(dm['dm_id']):
+        if dm['dm_id'] != dm_id:
+            continue
+        if dm['creator']['u_id'] == auth_user_id:
             return True
-    return false
+    return False
+
+# check valid dm
+def check_valid_dm(dm_id):
+    '''
+    return type: bool
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            return True
+    return False
+
+# return a dictionary of dm with given dm_id
+def get_dm_dict(dm_id):
+    '''
+    return type: dictionary
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm
+    return {}
