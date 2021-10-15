@@ -313,15 +313,6 @@ def test_no_perm_not_owner_invalid_u_id():
     token2 = json.loads(id2.text)['token']
     u_id1 = json.loads(id2.text)['auth_user_id']
 
-    id3 = requests.post(config.url + "auth/register/v2", 
-        json ={
-            'email': 'apple@gmail.com',
-            'password': 'password',
-            'name_first': 'hello',
-            'name_last': 'world'
-            })
-    u_id2 = json.loads(id3.text)['auth_user_id']
-
     requests.post(config.url + 'channel/invite/v2', 
         json ={
             'token': token1,
@@ -426,7 +417,7 @@ def test_no_perm_not_owner_u_id_already_owner():
             'name_first': 'kelly',
             'name_last': 'huang'
             })
-    token2 = json.loads(id2.text)['token']
+
     u_id1 = json.loads(id2.text)['auth_user_id']
 
     id3 = requests.post(config.url + "auth/register/v2", 
