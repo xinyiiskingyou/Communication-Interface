@@ -24,7 +24,7 @@ Return Value:
     Returns name 
     Returns members
     '''
-    store = DATASTORE.get() 
+    # store = DATASTORE.get() 
     auth_user_id = decode_token(token)
 
 
@@ -113,11 +113,10 @@ def dm_create_v1(token, u_ids):
     handle_list.append(creator_handle)
     creator_info = user_info(auth_user_id)
     member_list = [creator_info]
-    
+
     for i in range(len(u_ids)):
         handle = get_handle(u_ids[i])
         handle_list.append(handle)
-
         info = user_info(u_ids[i])
         member_list.append(info)
     # alphabetically-sorted
