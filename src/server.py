@@ -199,6 +199,14 @@ def dm_create():
         'dm_id': resp['dm_id']
     })
 
+@APP.route ("/dm/message/v1", methods=['GET'])
+def dm_message(): 
+    token = (request.args.get('token'))
+    dm_id = int(request.args.get('dm_id'))
+    start = int(request.args.get('start'))
+    return dumps(dm_messages_v1(token, dm_id, start))
+
+    
 # List al DMs that the user is a member of
 @APP.route("/dm/list/v1", methods=['GET'])
 def dm_list():
