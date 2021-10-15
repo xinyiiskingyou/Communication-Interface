@@ -191,7 +191,7 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
     '''
 
     for dm in initial_object['dms']:
-        if dm['dms'] == dm_id:
+        if dm['dm_id'] == dm_id:
             for member in dm['members']:
                 if member['u_id'] == auth_user_id:
                     return True
