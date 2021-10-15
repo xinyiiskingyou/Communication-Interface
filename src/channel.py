@@ -280,6 +280,11 @@ def channel_addowner_v1(token, channel_id, u_id):
     if not check_valid_channel_id(channel_id):
         raise InputError(description='Channel id is not valid')
 
+    # No owner permission
+    if not check_valid_owner(auth_user_id, channel_id):
+        if not check_global_owner(auth_user_id):
+            raise AccessError(description='No owner permission in the channel')
+            
     # invalid u_id
     if not isinstance(u_id, int):
         raise InputError(description='This is an invalid u_id')
@@ -293,11 +298,6 @@ def channel_addowner_v1(token, channel_id, u_id):
     # u_id already owner of the channel
     if check_valid_owner(u_id, channel_id):
         raise InputError(description='User is already an owner of the channel')
-
-    # No owner permission
-    if not check_valid_owner(auth_user_id, channel_id):
-        if not check_global_owner(auth_user_id):
-            raise AccessError(description='No owner permission in the channel') 
 
     user = user_info(u_id)
     for channels in initial_object['channels']:
