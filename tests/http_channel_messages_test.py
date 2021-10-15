@@ -30,7 +30,7 @@ def test_channel_messages_invalid_channel_id_negative(setup):
     user1_token = json.loads(user1.text)['token']
 
     send_message = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': -1, 
             'start': 0
@@ -79,7 +79,7 @@ def test_channel_messages_invalid_channel_id_nonexistant(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': 256, 
             'start': 0
@@ -112,7 +112,7 @@ def test_channel_messages_invalid_start_gt(setup):
     channel1_id = json.loads(channel1.text)['channel_id']
 
     messages1 = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id, 
             'start': 256
@@ -121,7 +121,7 @@ def test_channel_messages_invalid_start_gt(setup):
     assert messages1.status_code == 400
 
     messages2 = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id, 
             'start': -1
@@ -163,7 +163,7 @@ def test_channel_messages_unauthorised_user(setup):
     channel1_id = json.loads(channel1.text)['channel_id']
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user2_token,
             'channel_id': channel1_id,
             'start': 0
@@ -206,7 +206,7 @@ def test_channel_messages_start0__no_least_recent(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 0
@@ -251,7 +251,7 @@ def test_channel_messages_start0__least_recent(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 0
@@ -296,7 +296,7 @@ def test_channel_messages_start0__least_recent_exactly(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 0
@@ -341,7 +341,7 @@ def test_channel_messages_start_neither__no_least_recent(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 10
@@ -386,7 +386,7 @@ def test_channel_messages_start_neither__least_recent(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 10
@@ -431,7 +431,7 @@ def test_channel_messages_start_neither__least_recent_exactly(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 10
@@ -475,7 +475,7 @@ def test_channel_messages_start_least_recent(setup):
     )
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 50
@@ -510,7 +510,7 @@ def test_channel_messages_empty(setup):
     channel1_id = json.loads(channel1.text)['channel_id']
 
     messages = requests.get(config.url + "channel/messages/v2", 
-        json = {
+        params = {
             'token': user1_token,
             'channel_id': channel1_id,
             'start': 0

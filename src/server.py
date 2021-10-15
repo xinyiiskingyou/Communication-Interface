@@ -10,7 +10,7 @@ from src import config
 from src.auth import auth_register_v2, auth_login_v2
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
-from src.channel import channel_removeowner_v1, channel_addowner_v1
+from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
 from src.message import message_send_v1
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1
@@ -55,6 +55,7 @@ def clear():
     resp = clear_v1()
     return dumps(resp)
 
+
 ############ AUTH #################
 
 # Registers user
@@ -77,6 +78,7 @@ def login():
         'auth_user_id': resp['auth_user_id']
     })
 
+
 ############ CHANNELS #################
 
 # channel create
@@ -96,7 +98,8 @@ def channels_list():
 # return the list of all channels
 @APP.route ("/channels/listall/v2", methods= ['GET'])
 def listall():
-    return dumps (channels_listall_v2(request.args.get('token')))
+    return dumps(channels_listall_v2(request.args.get('token')))
+
 
 ############ CHANNEL #################
 
@@ -135,11 +138,24 @@ def channel_remove_owner():
     resp = channel_removeowner_v1(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 
+# Given a channel with ID channel_id that the authorised user is a member of, 
+# remove them as a member of the channel
 @APP.route("/channel/leave/v1", methods= ['POST'])
 def channel_leave(): 
     json = request.get_json()
     resp = channel_leave_v1(json['token'], json['channel_id'])
     return dumps(resp)
+
+# Given a channel with ID channel_id that the authorised user is a member of, 
+# return up to 50 messages between index "start" and "start + 50"
+@APP.route("/channel/messages/v2", methods=['GET'])
+def channel_messages():
+    token = (request.args.get('token'))
+    channel_id = int(request.args.get('channel_id'))
+    start = int(request.args.get('start'))
+    return dumps(channel_messages_v2(token, channel_id, start))
+
+
 ############ USER #################
 
 # Update the authorised user's email
@@ -188,6 +204,7 @@ def dm_remove():
     json = request.get_json()
     resp = dm_remove_v1(json['token'], json['dm_id'])
     return dumps(resp)
+
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 

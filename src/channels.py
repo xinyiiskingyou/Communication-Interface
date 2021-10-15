@@ -109,7 +109,8 @@ def channels_create_v2(token, name, is_public):
         'name': name,
         'is_public': bool(is_public),
         'owner_members': [user],
-        'all_members': [user]
+        'all_members': [user],
+        'messages': []
     }
     channels.append(new)
     DATASTORE.set(store)
