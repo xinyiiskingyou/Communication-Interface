@@ -160,7 +160,7 @@ def test_message_send_unauthorised_user(setup):
         json = {
             'token': user2_token,
             'channel_id': channel1_id,
-            'message': 'a' * 1001
+            'message': 'hello there'
         }
     )
     assert send_message1.status_code == 403

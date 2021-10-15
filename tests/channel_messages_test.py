@@ -55,13 +55,9 @@ def test_messages_invalid_start():
         channel_messages_v2(id4['token'], channel_id4['channel_id'], -16)
     with pytest.raises(InputError):
         channel_messages_v2(id4['token'], channel_id4['channel_id'], 256)
-    with pytest.raises(InputError):
-        channel_messages_v2(id4['token'], channel_id4['channel_id'], 'not_an_id')
-    with pytest.raises(InputError):
-        channel_messages_v2(id4['token'], channel_id4['channel_id'], '')
 
 
-##### Implementation ##### (To be completed when adding messages is added)
+##### Implementation ##### 
 
 # Start at most recent message (index = 0) and number of messages > 50
 
