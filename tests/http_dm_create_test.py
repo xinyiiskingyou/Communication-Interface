@@ -186,7 +186,7 @@ def test_dm_list():
                     {'u_id': 1, 'email': 'abc@gmail.com', 
                     'name_first': 'afirst', 'name_last': 'alast', 
                     'handle_str': 'afirstalast'},
-                    
+
                     {'u_id': 2, 'email': 'abcertgh@gmail.com', 
                     'name_first': 'hello', 'name_last': 'world', 
                     'handle_str': 'helloworld'},
@@ -269,7 +269,7 @@ def test_dm_list_no_dm():
     assert resp1.status_code == 200
     assert json.loads(resp1.text) == {'dms': []}
 
-def test_dm_list_creator_no_dm():
+def test_dm_list_creator():
     requests.delete(config.url + "clear/v1")
     creator = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -322,7 +322,35 @@ def test_dm_list_creator_no_dm():
             'token': token,
         })
     assert resp1.status_code == 200
-    assert json.loads(resp1.text) == {'dms': []}
+    assert (json.loads(resp1.text) == 
+        {
+        'dms': [
+            {
+                'dm_id': 1,
+                'name': 'afirstalast, alanwood, babyshark, helloworld',
+                'creator': {'u_id': 1, 'email': 'abc@gmail.com', 
+                            'name_first': 'afirst', 'name_last': 'alast', 
+                            'handle_str': 'afirstalast'},
+                'members': [
+                    {'u_id': 1, 'email': 'abc@gmail.com', 
+                    'name_first': 'afirst', 'name_last': 'alast', 
+                    'handle_str': 'afirstalast'},
+
+                    {'u_id': 2, 'email': 'abcertgh@gmail.com', 
+                    'name_first': 'hello', 'name_last': 'world', 
+                    'handle_str': 'helloworld'},
+
+                    {'u_id': 3, 'email': '123456@gmail.com', 
+                    'name_first': 'baby', 'name_last': 'shark', 
+                    'handle_str': 'babyshark'},
+
+                    {'u_id': 4, 'email': '1531camel@gmail.com', 
+                    'name_first': 'alan', 'name_last': 'wood', 
+                    'handle_str': 'alanwood'}                    
+                ]
+            }
+        ],
+    })
 
 ##########################################
 ############# dm_remove tests ############
