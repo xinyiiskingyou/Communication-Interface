@@ -201,7 +201,7 @@ def test_channel_messages_start0__no_least_recent(setup):
         json = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'message': f'hi{i + 1}'
+            'message': f'hi{i}'
         }
     )
 
@@ -216,6 +216,7 @@ def test_channel_messages_start0__no_least_recent(setup):
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 0
     assert messages_end == 50
+    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_EXACT
 
     assert messages.status_code == 200
 
@@ -246,7 +247,7 @@ def test_channel_messages_start0__least_recent(setup):
         json = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'message': f'hi{i + 1}'
+            'message': f'hi{i}'
         }
     )
 
@@ -261,6 +262,7 @@ def test_channel_messages_start0__least_recent(setup):
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 0
     assert messages_end == -1
+    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_LESS
 
     assert messages.status_code == 200
 
@@ -291,7 +293,7 @@ def test_channel_messages_start0__least_recent_exactly(setup):
         json = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'message': f'hi{i + 1}'
+            'message': f'hi{i}'
         }
     )
 
@@ -306,6 +308,7 @@ def test_channel_messages_start0__least_recent_exactly(setup):
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 0
     assert messages_end == -1
+    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_EXACT
 
     assert messages.status_code == 200
 
@@ -336,7 +339,7 @@ def test_channel_messages_start_neither__no_least_recent(setup):
         json = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'message': f'hi{i + 1}'
+            'message': f'hi{i}'
         }
     )
 
@@ -351,6 +354,7 @@ def test_channel_messages_start_neither__no_least_recent(setup):
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 10
     assert messages_end == 50 + 10
+    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_EXACT
 
     assert messages.status_code == 200
 
@@ -381,7 +385,7 @@ def test_channel_messages_start_neither__least_recent(setup):
         json = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'message': f'hi{i + 1}'
+            'message': f'hi{i}'
         }
     )
 
@@ -396,6 +400,7 @@ def test_channel_messages_start_neither__least_recent(setup):
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 10
     assert messages_end == -1
+    assert len(json.loads(messages.text)['messages']) == 15
 
     assert messages.status_code == 200
 
@@ -426,7 +431,7 @@ def test_channel_messages_start_neither__least_recent_exactly(setup):
         json = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'message': f'hi{i + 1}'
+            'message': f'hi{i}'
         }
     )
 
@@ -441,6 +446,7 @@ def test_channel_messages_start_neither__least_recent_exactly(setup):
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 10
     assert messages_end == -1
+    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_EXACT
 
     assert messages.status_code == 200
 
@@ -470,7 +476,7 @@ def test_channel_messages_start_least_recent(setup):
         json = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'message': f'hi{i + 1}'
+            'message': f'hi{i}'
         }
     )
 
@@ -478,13 +484,14 @@ def test_channel_messages_start_least_recent(setup):
         params = {
             'token': user1_token,
             'channel_id': channel1_id,
-            'start': 50
+            'start': 49
         }
     )
     messages_start = json.loads(messages.text)['start']
     messages_end = json.loads(messages.text)['end']
-    assert messages_start == 50
+    assert messages_start == 49
     assert messages_end == -1
+    assert len(json.loads(messages.text)['messages']) == 1
 
     assert messages.status_code == 200
 
@@ -520,6 +527,6 @@ def test_channel_messages_empty(setup):
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 0
     assert messages_end == -1
+    assert len(json.loads(messages.text)['messages']) == 0
 
     assert messages.status_code == 200
-

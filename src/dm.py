@@ -33,11 +33,11 @@ def dm_create_v1(token, u_ids):
     # create a list that stores the handles of all the users given 
     # including creator
     handle_list = []
-    member_list = []
     creator_handle = get_handle(auth_user_id)
     handle_list.append(creator_handle)
     creator_info = user_info(auth_user_id)
-
+    member_list = [creator_info]
+    
     for i in range(len(u_ids)):
         handle = get_handle(u_ids[i])
         handle_list.append(handle)
