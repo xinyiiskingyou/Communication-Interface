@@ -163,7 +163,6 @@ def check_only_owner(auth_user_id, channel_id):
     pass
 
 def check_global_owner(auth_user_id):
-
     for user in initial_object['users']:
         if user['auth_user_id'] != auth_user_id:
             continue
@@ -180,3 +179,91 @@ def check_valid_email(email):
     if re.search(search, email):
         return True
     return False
+
+
+#################################################
+######## Helper functions for dm.py      ########
+#################################################
+
+def check_valid_member_in_dm(dm_id, auth_user_id):
+    '''
+    return type: bool
+    '''
+
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id:
+                    return True
+    return False
+
+# Helper function for message_send_v1
+# Checks if message is invalid 
+# Returns false if length of message is less than 1 or over 1000 characters
+# Returns true otherwise
+
+def check_valid_message(message):
+    len_message = len(message)
+    if len_message > 1000 or len_message < 1:
+        return False
+    else:
+        return True 
+
+
+#################################################
+########## Helper functions for dm.py ###########
+#################################################
+
+# get the handle of the authorised user
+def get_handle(auth_user_id):
+    '''
+    return type: <string>
+    '''
+    for user in initial_object['users']:
+        if user['auth_user_id'] == auth_user_id:
+            return user['handle_str']
+    return None
+
+# get the dm info of which the auth user is a member of
+def get_dm_info(auth_user_id):
+    '''
+    return type: list
+    '''
+    dms = []
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                dms.append(dm)
+    return dms
+
+# check if the user is the creator of the given dm
+def check_creator(auth_user_id, dm_id):
+    '''
+    return type: bool
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] != dm_id:
+            continue
+        if dm['creator']['u_id'] == auth_user_id:
+            return True
+    return False
+
+# check valid dm
+def check_valid_dm(dm_id):
+    '''
+    return type: bool
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            return True
+    return False
+
+# return a dictionary of dm with given dm_id
+def get_dm_dict(dm_id):
+    '''
+    return type: dictionary
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm
+    return {}
