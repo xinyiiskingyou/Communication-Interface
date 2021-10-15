@@ -13,7 +13,7 @@ from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, 
 from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1
 from src.message import message_send_v1
-from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -184,6 +184,12 @@ def message_send():
 
 
 ############ DM #################
+@APP.route("/dm/details/v1", methods=['GET'])
+def dm_details(): 
+    token = (request.args.get('token'))
+    dm_id = int(request.args.get('dm_id'))
+    return dumps(dm_details_v1(token, dm_id))
+
 # Create DM
 @APP.route("/dm/create/v1", methods=['POST'])
 def dm_create():
