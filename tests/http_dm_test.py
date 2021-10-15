@@ -7,6 +7,9 @@ from src.dm import dm_details_v1, dm_create_v1
 from src.auth import auth_register_v2
 from src.error import AccessError, InputError
 
+NUM_MESSAGE_EXACT = 50
+NUM_MESSAGE_MORE = 100
+NUM_MESSAGE_LESS = 25
 
 
 ##########################################
@@ -78,14 +81,64 @@ def test_http_dm_details_valid():
 #########   Dm messages tests   ##########
 ##########################################
 
-# def test_dm_messages_error_token(): 
-#     clear_v1()
-#     with pytest.raises(InputError):
-#         dm_messages_v1('asjasd','', 5)
+def test_dm_messages_error_token(): 
+    clear_v1()
+    with pytest.raises(InputError):
+        dm_messages_v1('asjasd','', 0)
 
-# def test_dm_messages_error_dm_id(): 
-#     clear_v1
-#     id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
-#     with pytest.raises(InputError): 
-#         dm_messages_v1(id1['token'], 'jasjdlak', 5)
+def test_dm_messages_error_dm_id(): 
+    clear_v1
+    id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
+    with pytest.raises(InputError): 
+        dm_messages_v1(id1['token'], 'jasjdlak', 0)
 
+#####HTTP######
+
+
+
+def test_dm_message_valid_start0 (): 
+    requests.delete(config.url + "clear/v1")
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': '1531camel@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'alast'
+        })
+
+    u_id2 = json.loads(user2.text)['auth_user_id']
+
+    dm1 = dm_create_v1(user1_token, u_id2)
+    dm_id1 = json.loads(dm1.text)['dm_id']
+
+    for x in range (NUM_MESSAGE_MORE): 
+        requests.post(config.url + "message/senddm/v1",
+        json = {
+            'token': user1_token,
+            'dm_id': dm_id1,
+            'message': f'hi{x}'
+        })
+    
+    message = requests.get(config.url + "dm/messages/v1"
+        params = { 
+            'token': user1_token,
+            'dm_id': dm_id1, 
+            'start': 0 
+        })
+    
+    message_start = json.loads(message.text)['start']
+    message_end = json.loads(message.text)['end']
+    assert message_start == 0 
+    assert message_end == 50 
+    assert len(json.loads(message.text)['message']) == NUM_MESSAGE_EXACT
+
+    assert message.status_code == 200 
