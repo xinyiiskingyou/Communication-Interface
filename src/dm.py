@@ -68,7 +68,7 @@ Exceptions:
 
 Return Value:
     Returns end - if end is -1 then it returns the recent messages of the channel 
-    
+
     '''
 
     auth_user_id = decode_token(token)
@@ -82,28 +82,28 @@ Return Value:
         raise AccessError("The user is not an authorised member of the DM")
 
     for dm in initial_object['dms']: 
-        if dm['dm_id'] = dm_id: 
+        if dm['dm_id'] == dm_id: 
             num_messages = len(dm['messages'])
             dm_pagination = dm['messages']
 
-end = start + 50 
-if end >= num_messages: 
-    end = -1
+    end = start + 50 
+    if end >= num_messages: 
+        end = -1
 
-if not check_valid_start(num_messages, start): 
-    raise InputError(description = 'Start is greater then total messages')
+    if not check_valid_start(num_messages, start): 
+        raise InputError(description = 'Start is greater then total messages')
 
 
-if end == -1: 
-    dm_pagination = dm_pagination[start:] 
-else: 
-    dm_pagination = dm_pagination[start:end]
+    if end == -1: 
+        dm_pagination = dm_pagination[start:] 
+    else: 
+        dm_pagination = dm_pagination[start:end]
 
-return { 
-    messages': dm_pagination,
-    'start': start,
-    'end': end,
-}
+    return { 
+        'messages': dm_pagination,
+        'start': start,
+        'end': end,
+    }
 # for testing
 
 # create a dm and returns it id
@@ -197,3 +197,34 @@ dm_remove_v1(id3['token'], dm3['dm_id'])
 dm_remove_v1(id3['token'], dm2['dm_id'])
 #print(dm_list_v1(id3['token']))
 '''
+
+def dm_leave_v1(token,dm_id):
+    '''
+    Creates a dm with name generated based on users' handle
+
+    Arguments:
+        <token>        (<hash>)    - an authorisation hash
+        <u_ids>        (<list>)    - a list of u_id 
+
+    Exceptions:
+        InputError  - Occurs when one of u_id given does not refer to a valid user
+
+    Return Value:
+        Returns <{dm_id}> when the dm is sucessfully created
+    '''
+
+    if not isinstance(dm_id, int):
+        raise InputError("This is an invalid dm_id")
+    
+    if not check_valid_dm(dm_id):
+        raise InputError("This does not refer to a valid dm")
+
+    store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+    newuser = user_info(auth_user_id)
+
+    for dm in initial_object['dms']: 
+        if dm['dm_id'] == dm_id: 
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id: 
+                    dm['members'].remove(newuser)
