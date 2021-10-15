@@ -183,6 +183,10 @@ def test_dm_list():
                             'name_first': 'afirst', 'name_last': 'alast', 
                             'handle_str': 'afirstalast'},
                 'members': [
+                    {'u_id': 1, 'email': 'abc@gmail.com', 
+                    'name_first': 'afirst', 'name_last': 'alast', 
+                    'handle_str': 'afirstalast'},
+                    
                     {'u_id': 2, 'email': 'abcertgh@gmail.com', 
                     'name_first': 'hello', 'name_last': 'world', 
                     'handle_str': 'helloworld'},
