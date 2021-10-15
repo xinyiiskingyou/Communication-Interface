@@ -113,11 +113,7 @@ def dm_create_v1(token, u_ids):
     handle_list.append(creator_handle)
     creator_info = user_info(auth_user_id)
     member_list = [creator_info]
-<<<<<<< HEAD
-
-=======
     
->>>>>>> master
     for i in range(len(u_ids)):
         handle = get_handle(u_ids[i])
         handle_list.append(handle)
