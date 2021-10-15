@@ -3,7 +3,7 @@ import requests
 import json
 from src import config
 from src.other import clear_v1
-from src.dm import dm_details_v1, dm_create_v1
+from src.dm import dm_details_v1, dm_create_v1, dm_leave_v1
 from src.auth import auth_register_v2
 from src.error import AccessError, InputError
 
@@ -16,10 +16,6 @@ NUM_MESSAGE_LESS = 25
 #########   Dm details tests    ##########
 ##########################################
 
-# def test_dm_details_error_token(): 
-#     clear_v1()
-#     with pytest.raises(InputError):
-#         dm_details_v1('','123')
 
 def test_dm_details_error_dm_id(): 
     clear_v1()
@@ -128,7 +124,7 @@ def test_dm_message_valid_start0 ():
             'message': f'hi{x}'
         })
     
-    message = requests.get(config.url + "dm/messages/v1"
+    message = requests.get(config.url + "dm/messages/v1",
         params = { 
             'token': user1_token,
             'dm_id': dm_id1, 
@@ -142,3 +138,30 @@ def test_dm_message_valid_start0 ():
     assert len(json.loads(message.text)['message']) == NUM_MESSAGE_EXACT
 
     assert message.status_code == 200 
+
+
+
+##########################################
+#########   Dm leave tests      ##########
+##########################################
+
+def test_error_leave_dmid(): 
+    clear_v1()
+    id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
+    with pytest.raises(InputError): 
+        dm_leave_v1(id1['token'], '123')
+
+    
+def test_dm_leave_valid (): 
+    clear_v1()
+    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
+    dm1 = dm_create_v1(id2['token'], [id1['auth_user_id']])
+    
+
+    dm_leave_v1(id1['token'], dm1['dm_id'])
+
+
+    dmdetails1 = dm_details_v1(id2['token'], dm1['dm_id'])
+    assert len(dmdetails1['members']) == 1
+
