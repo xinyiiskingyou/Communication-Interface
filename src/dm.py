@@ -1,5 +1,5 @@
 from src.server_helper import decode_token
-from src.helper import check_valid_email, channels_user_details, check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict
+from src.helper import check_valid_email, channels_user_details, check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.error import InputError, AccessError
 from src.data_store import DATASTORE, initial_object
 from src.auth import auth_register_v2
@@ -44,41 +44,66 @@ Return Value:
             }
 
 
-# def dm_messages_v1(): 
-#     '''
-#     Given a dm with dm_id that authorised user
-#     is a member, return up to 50 messages between a index "start"
-#      and "start + 50". Message with index 0 is the most recent message 
-#     in the channel. returns a new index 'end'  which is 'start + 50'. 
-#     returns -1 in end - no more messages to load. 
+def dm_messages_v1(token, dm_id, start): 
+    '''
+    Given a dm with dm_id that authorised user
+    is a member, return up to 50 messages between a index "start"
+     and "start + 50". Message with index 0 is the most recent message 
+    in the channel. returns a new index 'end'  which is 'start + 50'. 
+    returns -1 in end - no more messages to load. 
 
-# Arguments: 
-#     token - a user's unique token 
-#     dm_id (int) - a user's unique dm id
-#     start -  
-#     ...
+Arguments: 
+    token - a user's unique token 
+    dm_id (int) - a user's unique dm id
+    start -  
+    ...
 
-# Exceptions:
-#     InputError  - Occurs when the dm id is invalid 
-#                     or the token is invalid.
-#                 - Start is greater then total number
-#                 of messages in channel 
-#     AccessError - Occurs when the dm_id is not 
-#                     an authorised member of the DM 
+Exceptions:
+    InputError  - Occurs when the dm id is invalid 
+                    or the token is invalid.
+                - Start is greater then total number
+                of messages in channel 
+    AccessError - Occurs when the dm_id is not 
+                    an authorised member of the DM 
 
-# Return Value:
-#     Returns end 
-#     '''
+Return Value:
+    Returns end - if end is -1 then it returns the recent messages of the channel 
+    
+    '''
 
-#     #invalid dm_id
-#     if not check_valid_dm_id(dm_id): 
-#         raise InputError("This dm_id does not refer to a valid DM")
+    auth_user_id = decode_token(token)
 
-#     #not authorised  
-#     if not check_valid_member_in_dm(dm_id, auth_user_id): 
-#         raise AccessError("The user is not an authorised member of the DM")
+    #invalid dm_id
+    if not check_valid_dm(dm_id): 
+        raise InputError("This dm_id does not refer to a valid DM")
+
+    #not authorised  
+    if not check_valid_member_in_dm(dm_id, auth_user_id): 
+        raise AccessError("The user is not an authorised member of the DM")
+
+    for dm in initial_object['dms']: 
+        if dm['dm_id'] = dm_id: 
+            num_messages = len(dm['messages'])
+            dm_pagination = dm['messages']
+
+end = start + 50 
+if end >= num_messages: 
+    end = -1
+
+if not check_valid_start(num_messages, start): 
+    raise InputError(description = 'Start is greater then total messages')
 
 
+if end == -1: 
+    dm_pagination = dm_pagination[start:] 
+else: 
+    dm_pagination = dm_pagination[start:end]
+
+return { 
+    messages': dm_pagination,
+    'start': start,
+    'end': end,
+}
 # for testing
 
 # create a dm and returns it id
