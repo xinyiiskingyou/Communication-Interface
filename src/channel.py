@@ -167,10 +167,6 @@ def channel_messages_v2(token, channel_id, start):
     else:
         message_pagination = message_pagination[start:end]
 
-    print(f"start = {start}")
-    print(f"num_messages = {num_messages}")
-    print(message_pagination)
-
     return {
         'messages': message_pagination,
         'start': start,
