@@ -135,13 +135,6 @@ def channel_remove_owner():
 
 ############ USER #################
 
-# Returns information about 1 user
-@APP.route("/user/profile/v1", methods=['GET'])
-def user_profile(): 
-    token = (request.args.get('token'))
-    u_id = (request.args.get('auth_user_id'))
-    return dumps(user_profile_v1(token, u_id))
-
 # Update the authorised user's first and/or last name
 @APP.route("/user/profile/setname/v1", methods=['PUT'])
 def user_setename(): 

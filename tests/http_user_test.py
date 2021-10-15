@@ -3,151 +3,6 @@ import requests
 import json
 from src import config 
 
-##########################################
-############ users_all tests ##############
-##########################################
-
-# Valid case when there is only 1 user
-def test_user_all_1_member():
-    requests.delete(config.url + "clear/v1", json={})
-
-    user = requests.post(config.url + "auth/register/v2", 
-        json = {
-        'email': 'abcdef@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-
-    user_data = user.json()
-    token = user_data['token']
-
-    mail1 = requests.get(config.url + "user/all/v1", 
-        json = {
-        'token': token
-    })
-
-    assert (json.loads(mail1.text) == 
-    {
-        'u_id': json.loads(mail1.text)['auth_user_id'],
-        'email': json.loads(mail1.text)['email'],
-        'name_first': json.loads(mail1.text)['name_first'],
-        'name_last': json.loads(mail1.text)['name_last'],
-        'handle_str': json.loads(mail1.text)['handle_str']
-    })
-    assert len(members) == 1
-
-
-# Valid case when there is more then 1 user
-def test_user_all_several_members():
-    requests.delete(config.url + "clear/v1", json={})
-
-    user1 = requests.post(config.url + "auth/register/v2", 
-        json = {
-        'email': 'abcdef@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-
-    user2 = requests.post(config.url + "auth/register/v2", 
-        json = {
-        'email': 'email@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-
-    user_data = user2.json()
-    token = user_data['token']
-
-    mail1 = requests.get(config.url + "user/all/v1", 
-        json = {
-        'token': token
-    })
-
-    # test using length of list as cannot be certain 
-    # the listed order of users
-    members = json.loads(mail1.text)
-    assert len(members) == 2
-
-
-##########################################
-########## user_profile tests ############
-##########################################
-
-# Input error for invalid u_id
-def test_user_profile_invalid_u_id():
-    requests.delete(config.url + "clear/v1", json={})
-
-    user = requests.post(config.url + "auth/register/v2", 
-        json = {
-        'email': 'abcdef@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-
-    user_data = user.json()
-    token = user_data['token']
-
-    # Invalid u_id's
-    mail1 = requests.get(config.url + "user/profile/v1", 
-        json = {
-        'token': token,
-        'u_id': -1
-    })
-
-    mail2 = requests.get(config.url + "user/profile/v1", 
-        json = {
-        'token': token,
-        'u_id': 0
-    })
-
-    mail3 = requests.get(config.url + "user/profile/v1", 
-        json = {
-        'token': token,
-        'u_id': 256
-    })
-
-    assert mail1.status_code == 400
-    assert mail2.status_code == 400
-    assert mail3.status_code == 400
-
-
-##### Implementation #####
-
-# Valid Case
-def test_user_profile_valid():
-    requests.delete(config.url + "clear/v1", json={})
-
-    user = requests.post(config.url + "auth/register/v2", 
-        json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'park'
-    })
-
-    token = json.loads(user.text)['token']
-    u_id = json.loads(user.text)['auth_user_id']
-
-    # Invalid first name
-    mail = requests.get(config.url + "user/profile/v1", 
-        json = {
-        'token': token,
-        'u_id': u_id
-    })
-    
-    assert mail.status_code == 200
-    assert (json.loads(mail.text) == 
-        {
-        'user_id': u_id,
-        'email': 'abc@gmail.com',
-        'name_first': 'anna',
-        'name_last': 'park',
-        'handle': 'annapark'
-    })
 
 
 ##########################################
@@ -239,7 +94,7 @@ def test_user_set_name_valid_name_first():
     user_data = user.json()
     token = user_data['token']
 
-    # Invalid last name
+    # Valid last name
     mail = requests.put(config.url + "user/profile/setname/v1", 
         json = {
         'token': token,
@@ -264,7 +119,7 @@ def test_user_set_name_valid_name_last():
     user_data = user.json()
     token = user_data['token']
 
-    # Invalid last name
+    # Valid last name
     mail = requests.put(config.url + "user/profile/setname/v1", 
         json = {
         'token': token,

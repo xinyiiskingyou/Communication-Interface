@@ -1,5 +1,5 @@
 from src.server_helper import decode_token
-from src.helper import check_valid_email, channels_user_details, user_info
+from src.helper import check_valid_email, channels_user_details, user_info, channels_create_check_valid_user
 from src.error import InputError
 from src.data_store import DATASTORE, initial_object
 
@@ -25,20 +25,9 @@ def user_profile_v1(token, u_id):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
-    if not isinstance(u_id, int):
-        raise InputError("This is an invalid u_id")
-    if not channels_create_check_valid_user(u_id):
-        raise InputError("user is not valid")
-
-    auth_user_id = decode_token(token)
-    user = user_info(auth_user_id)
-    return {
-        'user_id': user['auth_user_id'],
-        'email': user['email'],
-        'name_first': user['name_first'],
-        'name_last': user['name_last'],
-        'handle_str': user['handle_str']
-    }
+    
+    
+    return {}
 
 def user_profile_setname_v1(token, name_first, name_last):
     '''
@@ -58,16 +47,15 @@ def user_profile_setname_v1(token, name_first, name_last):
         Returns N/A
     '''
     store = DATASTORE.get()
-    # Valid first name
+    # Invalid first name
     if len(name_first) not in range(1, 51):
         raise InputError("name_first is not between 1 - 50 characters in length")
 
-    # Valid last name
+    # Invalid last name
     if len(name_last) not in range(1, 51):
         raise InputError("name_last is not between 1 - 50 characters in length")
 
     auth_user_id = decode_token(token)
-    user_info(auth_user_id)
     user = channels_user_details(auth_user_id)
     user['name_first'] = name_first
     user['name_first'] = name_last
