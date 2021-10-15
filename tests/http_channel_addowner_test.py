@@ -466,13 +466,22 @@ def test_no_perm_not_owner_u_id_already_owner():
             'u_id': u_id2
         })
 
+    id4 = requests.post(config.url + "auth/register/v2", 
+        json ={
+            'email': 'shapeofyou@gmail.com',
+            'password': 'password',
+            'name_first': 'Ed',
+            'name_last': 'Sheeran'
+            })
+    token3 = json.loads(id4.text)['token']
+
     resp1 = requests.post(config.url + "channel/addowner/v1", 
         json = {
-            'token': token2,
+            'token': token3,
             'channel_id': channel_id,
             'u_id': u_id2
         })
-        
+
     assert resp1.status_code == 403
 
 def test_valid_addowner():
