@@ -110,7 +110,7 @@ def test_dm_send_invalid_channel_id_positive():
     send_dm = requests.post(config.url + "message/senddm/v1", 
         json = {
             'token': user1_token,
-            'dm_id': -2, 
+            'dm_id': [-2], 
             'message': 'hello there'
         }
     )
@@ -130,7 +130,6 @@ def test_dm_send_invalid_dm_id_nonexistant():
         }
     )
     user1_token = json.loads(user1.text)['token']
-   
 
     user2 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -156,7 +155,7 @@ def test_dm_send_invalid_dm_id_nonexistant():
             'message': 'hello there'
         }
     )
-    assert send_message.status_code == 400
+    assert send_dm.status_code == 400
 
 
 # Input error when length of message is less than 1 or over 1000 characters
@@ -185,29 +184,29 @@ def test_dm_send_invalid_message():
     dm1_create = requests.post(config.url + "dm/create/v1", 
         json = {
             'token': user1_token,
-            'u_ids': user2_id,
+            'u_ids': [user2_id]
         }
     )
 
-    dm1_id = json.loads(dm1.text)['dm_id']
+    dm1_id = json.loads(dm1_create.text)['dm_id']
 
     send_dm1 = requests.post(config.url + "message/senddm/v1", 
         json = {
             'token': user1_token,
-            'channel_id': user2_id,
+            'dm_id': user2_id,
             'message': 'a' * 1001
         }
     )
-    assert send_message1.status_code == 400
+    assert send_dm1.status_code == 400
 
-    send_message2 = requests.post(config.url + "message/send/v1",
+    send_dm2 = requests.post(config.url + "message/senddm/v1",
         json = {
             'token': user1_token,
-            'channel_id': user2_id,
+            'dm_id': user2_id,
             'message': ''
         }
     )
-    assert send_message2.status_code == 400
+    assert send_dm2.status_code == 400
 
 
 # Access error when channel_id is valid and the authorised user 
@@ -248,16 +247,16 @@ def test_dm_send_unauthorised_user():
     dm1_create = requests.post(config.url + "dm/create/v1", 
         json = {
             'token': user1_token,
-            'u_ids': user2_id,
+            'u_ids': [user2_id]
         }
     )
 
-    dm1_id = json.loads(dm1.text)['dm_id']
+    dm1_id = json.loads(dm1_create.text)['dm_id']
 
     send_message1 = requests.post(config.url + "message/senddm/v1", 
         json = {
             'token': user3_token,
-            'channel_id': dm1_id,
+            'dm_id': dm1_id,
             'message': 'hello there'
         }
     )
@@ -295,11 +294,11 @@ def test_dm_send_valid_two_dm_messages():
     dm1_create = requests.post(config.url + "dm/create/v1", 
         json = {
             'token': user1_token,
-            'u_ids': user2_id,
+            'u_ids': [user2_id]
         }
     )
 
-    dm1_id = json.loads(dm1.text)['dm_id']
+    dm1_id = json.loads(dm1_create.text)['dm_id']
 
     # User 1 sends message 1 in channel 1
     send_dm1 = requests.post(config.url + "message/senddm/v1", 
@@ -309,8 +308,7 @@ def test_dm_send_valid_two_dm_messages():
             'message': 'hello there'
         }
     )
-    assert send_message1.status_code == 200
-    json.loads(send_dem1.text)['dm_id']
+    assert send_dm1.status_code == 200
 
     # User 2 sends a message in channel 1
     send_dm2 = requests.post(config.url + "message/senddm/v1", 
@@ -320,8 +318,7 @@ def test_dm_send_valid_two_dm_messages():
             'message': 'hello there'
         }
     )
-    json.loads(send_dm2.text)['dm_id']
-    assert send_message2.status_code == 200
+    assert send_dm2.status_code == 200
 
 
 # Send message in one dm and compare dm message_id to 
@@ -350,15 +347,15 @@ def test_dm_send_valid_diff_id():
     user2_token = json.loads(user2.text)['token']
     user2_id = json.loads(user2.text)['auth_user_id']
 
-    # User 1 creates channel 1
+    # User 1 creates dm 1
     dm1_create = requests.post(config.url + "dm/create/v1", 
         json = {
             'token': user1_token,
-            'u_ids': user2_id,
+            'u_ids': [user2_id]
         }
     )
 
-    dm1_id = json.loads(dm1.text)['dm_id']
+    dm1_id = json.loads(dm1_create.text)['dm_id']
 
     # User 1 sends message 1 in channel 1
     send_dm1 = requests.post(config.url + "message/senddm/v1", 
@@ -369,10 +366,7 @@ def test_dm_send_valid_diff_id():
         }
     )
     assert send_dm1.status_code == 200
-    message_dm1 = json.loads(send_dm1.text)['dm_id']
-
-    assert send_message1.status_code == 200
-    json.loads(send_dem1.text)['dm_id']
+    message_dm1 = json.loads(send_dm1.text)['message_id']
 
     # User 2 sends a message in channel 1
     send_dm2 = requests.post(config.url + "message/senddm/v1", 
@@ -383,6 +377,6 @@ def test_dm_send_valid_diff_id():
         }
     )
     assert send_dm2.status_code == 200
-    message_dm2 = json.loads(send_dm2.text)['dm_id']
+    message_dm2 = json.loads(send_dm2.text)['message_id']
 
     assert message_dm1 !=  message_dm2
