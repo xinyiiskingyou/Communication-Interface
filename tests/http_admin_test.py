@@ -30,8 +30,8 @@ def test_admin_remove_invalid_u_id():
         'u_id': ''
     })
 
-    assert remove == 400
-    assert remove1 == 400
+    assert remove.status_code == 400
+    assert remove1.status_code == 400
 
     # access error: u_id is invalid and authorised user is not a global owner
     user2 = requests.post(config.url + "auth/register/v2", json ={
@@ -48,7 +48,7 @@ def test_admin_remove_invalid_u_id():
         'u_id': -1
     })
 
-    assert remove3 == 403
+    assert remove3.status_code == 403
 
 # u_id refers to a user who is the only global owner
 def test_admin_global_owner():
@@ -67,7 +67,7 @@ def test_admin_global_owner():
         'token': token,
         'u_id': u_id
     })
-    assert remove == 400
+    assert remove.status_code == 400
 
 # Access error: the authorised user is not a global owner
 def test_admin_remove_not_global_owner():
@@ -95,7 +95,7 @@ def test_admin_remove_not_global_owner():
         'u_id': u_id
     })
 
-    assert remove == 403
+    assert remove.status_code == 403
 
 # remove stream member
 def test_admin_remove_valid():
@@ -134,53 +134,60 @@ def test_admin_remove_valid():
         'channel_id': channel_id,
         'u_id': u_id
     })
-    assert invite == 200
-
-    # get the details of the channel
-    channel_detail = requests.get(config.url + "channel/details/v2", 
-        params = {
-        'token': token,
-        'channel_id': channel_id
-    })
+    assert invite.status_code == 200
 
     # user 1 creates a dm 
     dm = requests.post(config.url + "dm/create/v1", json = { 
         'token': token,
         'u_ids': [u_id]
     })
-    dm_id = json.loads(dm.text)['dm_id']
-
-    dm_detail = requests.get(config.url + "dm/details/v1", params = { 
-        'token': token2,
-        'dm_id':  dm_id
-    })
 
     # user2 sends a message
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    message = requests.post(config.url + "message/send/v1", json = {
             'token': token2,
             'channel_id': channel_id,
             'message': 'hello there'
         }
     )
-    assert send_message1.status_code == 200
+    assert message.status_code == 200
 
     # now remove user2
     remove = requests.delete(config.url + "admin/user/remove/v1", json ={
         'token': token,
         'u_id': u_id
     })
-    assert remove == 200
+    assert remove.status_code == 200
 
     # id2 is removed from id1's channel
+    # get the details of the channel
+    channel_detail = requests.get(config.url + "channel/details/v2", 
+        params = {
+        'token': token,
+        'channel_id': channel_id
+    })
     assert len(json.loads(channel_detail.text)['all_members']) == 1
+
+    '''
     # id2 is removed from id1's dm
+    dm_detail = requests.get(config.url + "dm/details/v1", params = { 
+        'token': token2,
+        'dm_id': dm_id
+    })
+    print(json.loads(dm_detail.text))
     assert len(json.loads(dm_detail.text)['members']) == 1
-
+    
     # the contents of the messages will be replaced by 'Removed user'
-    assert json.loads(send_message1)['message'] == 'Removed user'
-
+    messages = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': token2,
+            'channel_id': channel_id,
+            'start': 0
+        }
+    )
+    assert json.loads(messages.text)['messages'] == 'Removed user'
+    '''
     # there are only 1 valid user in user/all now
-    user_list = requests.get(config.url + "users/all/v1", params ={
+    user_list = requests.get(config.url + "user/all/v1", params ={
         'token': token
     })
     assert len(json.loads(user_list.text)) == 1
@@ -280,7 +287,7 @@ def test_admin_perm_invalid_u_id():
         'u_id': -1,
         'permission_id': 1
     })
-    assert perm3 == 403
+    assert perm3.status_code == 403
 
 # u_id refers to a user who is the only global owner and they are being demoted to a user
 def test_admin_invalid_demote():
@@ -302,7 +309,7 @@ def test_admin_invalid_demote():
         'permission_id': 2
     })
 
-    assert perm == 400
+    assert perm.status_code == 400
 
 def test_admin_invalid_demote1():
     requests.delete(config.url + 'clear/v1', json={})
@@ -350,7 +357,7 @@ def test_admin_invalid_demote1():
         'permission_id': 2
     })
 
-    assert perm == 400
+    assert perm.status_code == 400
 
 # permission id is invalid 
 def test_admin_invalid_permission_id():
@@ -395,7 +402,7 @@ def test_admin_invalid_permission_id():
         'u_id': u_id,
         'permission_id': -100
     })
-    assert perm2 == 403
+    assert perm2.status_code == 403
 
 # the authorised user is not a global owner
 def test_admin_perm_not_global_owner():
@@ -424,7 +431,7 @@ def test_admin_perm_not_global_owner():
         'permission_id': 1
     })
 
-    assert perm == 403
+    assert perm.status_code == 403
 
 # valid case
 def test_valid_permission_change():
