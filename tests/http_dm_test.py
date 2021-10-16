@@ -3,7 +3,7 @@ import requests
 import json
 from src import config
 from src.other import clear_v1
-from src.dm import dm_details_v1, dm_create_v1, dm_leave_v1
+from src.dm import dm_details_v1, dm_create_v1, dm_leave_v1, dm_messages_v1
 from src.auth import auth_register_v2
 from src.error import AccessError, InputError
 
@@ -77,13 +77,13 @@ def test_http_dm_details_valid():
 #########   Dm messages tests   ##########
 ##########################################
 
-def test_dm_messages_error_token(): 
-    clear_v1()
-    with pytest.raises(InputError):
-        dm_messages_v1('asjasd','', 0)
+# def test_dm_messages_error_token(): 
+#     clear_v1()
+#     with pytest.raises(InputError):
+#         dm_messages_v1('asjasd','12', 0)
 
 def test_dm_messages_error_dm_id(): 
-    clear_v1
+    clear_v1()
     id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
     with pytest.raises(InputError): 
         dm_messages_v1(id1['token'], 'jasjdlak', 0)
@@ -113,7 +113,12 @@ def test_dm_message_valid_start0 ():
 
     u_id2 = json.loads(user2.text)['auth_user_id']
 
-    dm1 = dm_create_v1(user1_token, u_id2)
+
+    dm1 = requests.post(config.url + "dm/create/v1", 
+        json = { 
+            'token': user1_token, 
+            'u_ids': [u_id2]
+        })
     dm_id1 = json.loads(dm1.text)['dm_id']
 
     for x in range (NUM_MESSAGE_MORE): 
