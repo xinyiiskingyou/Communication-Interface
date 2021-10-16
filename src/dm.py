@@ -276,6 +276,7 @@ def dm_leave_v1(token,dm_id):
             for member in dm['members']:
                 if member['u_id'] == auth_user_id: 
                     dm['members'].remove(newuser)
+    DATASTORE.set(store)
 
 def message_senddm_v1(token, dm_id, message):
     
