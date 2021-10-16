@@ -198,8 +198,7 @@ def test_dm_list():
                     {'u_id': 4, 'email': '1531camel@gmail.com', 
                     'name_first': 'alan', 'name_last': 'wood', 
                     'handle_str': 'alanwood'}                    
-                ],
-                'messages': []
+                ]
             }
         ],
     })
@@ -348,8 +347,7 @@ def test_dm_list_creator():
                     {'u_id': 4, 'email': '1531camel@gmail.com', 
                     'name_first': 'alan', 'name_last': 'wood', 
                     'handle_str': 'alanwood'}                    
-                ],
-                'messages': []
+                ]
             }
         ],
     })
