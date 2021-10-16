@@ -27,13 +27,20 @@ def test_user_all_1_member():
         'token': token
     })
 
+    user_data = mail1.json()
+    u_id = user_data['auth_user_id']
+    email = user_data['email']
+    name_first = user_data['name_first']
+    name_last = user_data['name_last']
+    handle = user_data['handle']
+
     assert (json.loads(mail1.text) == 
     {
-        'u_id': json.loads(mail1.text)['auth_user_id'],
-        'email': json.loads(mail1.text)['email'],
-        'name_first': json.loads(mail1.text)['name_first'],
-        'name_last': json.loads(mail1.text)['name_last'],
-        'handle_str': json.loads(mail1.text)['handle_str']
+        'u_id': u_id,
+        'email': email,
+        'name_first': name_first,
+        'name_last': name_last,
+        'handle_str': handle
     })
     assert len(members) == 1
 
@@ -134,6 +141,7 @@ def test_user_profile_valid():
     u_id = user_data['auth_user_id']
     assert u_id == 1
 
+    print(u_id)
     mail = requests.get(config.url + "user/profile/v1", 
         json = {
         'token': token,

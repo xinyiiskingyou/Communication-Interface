@@ -7,7 +7,8 @@ def users_all_v1(token):
     users_all = []
      
     for user in initial_object['users']:
-        users_all.append[user]
+        info = user_info(user['auth_user_id'])
+        users_all.append[info]
     return users_all
 
 def user_profile_v1(token, u_id):
