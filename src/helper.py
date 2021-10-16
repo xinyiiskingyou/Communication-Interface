@@ -198,15 +198,7 @@ def check_permission(u_id, permission_id):
         if permission_id == 1:
             return True
     return False
-
-def check_valid_owner(auth_user_id, channel_id):
-    for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id:
-            for member in channels['owner_members']:
-                if member['u_id'] == auth_user_id:
-                    return True
-    return False
-
+    
 #################################################
 ######## Helper functions for dm.py      ########
 #################################################
