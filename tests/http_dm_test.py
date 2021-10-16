@@ -187,7 +187,6 @@ def test_leave_invalid_dm_id():
             'name_first': 'anna',
             'name_last': 'park'
         })
-    u_id2 = json.loads(user1.text)['auth_user_id']
 
     resp1 = requests.post(config.url + "dm/leave/v1", 
         json = {
