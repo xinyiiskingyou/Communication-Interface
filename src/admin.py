@@ -1,3 +1,5 @@
+from typing import Counter
+from requests.api import get
 from src.error import InputError, AccessError
 from src.helper import *
 from src.data_store import DATASTORE, initial_object
@@ -8,7 +10,7 @@ def admin_user_remove_v1(token, u_id):
     Given a user by their u_id, remove them from the Streams. 
 
     Arguments:
-        <token>     (<hash>)        - an authorisation hash
+        <token>     (<string>)        - an authorisation hash
         <u_id>      (<int>)         - the unique id of the user
 
     Exceptions:
@@ -48,30 +50,34 @@ def admin_user_remove_v1(token, u_id):
         for owner in channel['owner_members']:
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
-    '''
+    
     # remove users from dm
     for dm in initial_object['dms']:
+        # remove the name of the user
+        handle = get_handle(u_id)
+        new_string = dm['name'].replace(handle + ", ", "")
+        dm['name'] = new_string
         for member in dm['members']:
             if member['u_id'] == u_id:
                 dm['members'].remove(member)
-        for owner in channel['owner']:
-            if owner['u_id'] == u_id:
-                dm['owner'].remove(owner)
-
+        if dm['creator']['u_id'] == u_id:
+            dm['creator'].clear()
     
-    # name_first should be 'Removed' and name_last should be 'user'
-    users['name_first'] = 'Removed'
-    users['name_last'] = 'user'
-    # email and handle should be reusable.
-    users['email'] = ''
-    users['handle_str'] = ''
     '''
-
     # the contents of the messages they sent will be replaced by 'Removed user'
     # user will not be included in the list of users returned by users/all
     for user in initial_object['users']:
+        # name_first should be 'Removed' and name_last should be 'user'
         if user['auth_user_id'] == u_id:
+            user['name_first'] = 'Removed'
+            user['name_last'] = 'user'
+            # email and handle should be reusable.
+            user['handle_str'] = ''
+            user['email'] = ''
             initial_object['users'].remove(user)
+    ''' 
+
+        
 
     DATASTORE.set(store)
     return {}
@@ -81,7 +87,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     Given a user by their user ID, set their permissions to new permissions described by permission_id.
 
     Arguments:
-        <token>         (<hash>)    - an authorisation hash
+        <token>         (<string>)    - an authorisation hash
         <u_id>          (<int>)     - the unique id of the user
         <permission_id> (<int>)     - the id that refers to the user's permission
 

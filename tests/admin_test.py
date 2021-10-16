@@ -6,6 +6,7 @@ from src.channel import channel_details_v2, channel_invite_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
 from src.helper import *
+from src.dm import dm_create_v1, dm_list_v1
 
 ##########################################
 ######## admin_user_remove tests #########
@@ -52,6 +53,7 @@ def test_admin_remove_valid():
     id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
     id3 = auth_register_v2('elephant@gmail.com', 'password', 'cfirst', 'clast')
+
     id2_info = channels_user_details(id2['auth_user_id'])
     # id1 and id2 create a channel
     channel_id1 = channels_create_v2(id1['token'], 'shelly', False)
@@ -63,6 +65,10 @@ def test_admin_remove_valid():
     id1_detail = channel_details_v2(id1['token'], channel_id1['channel_id'])
     id2_detail = channel_details_v2(id2['token'], channel_id2['channel_id'])
 
+    # id1 creates a dm that id2 and id3 are the members
+    dm_create_v1(id1['token'], [id2['auth_user_id'], id3['auth_user_id']])
+    dm_list = dm_list_v1(id1['token'])
+
     # remove id2
     admin_user_remove_v1(id1['token'], id2['auth_user_id'])
 
@@ -73,11 +79,16 @@ def test_admin_remove_valid():
     # id2's channel is empty now
     assert len(id2_detail['all_members']) == 0
     assert len(id2_detail['owner_members']) == 0
+
+    # only 2 members in dm now
+    assert len(dm_list['members']) == 1
+
+
     '''
     1. should be removed from all channels/DMs
     2. and will not be included in the list of users returned by users/all.
     3. the contents of the messages they sent will be replaced by 'Removed user'
-    4. Streams owners can remove other Streams owners (including the original first owner)
+    4. 
     '''
     
     # name_first should be 'Removed' and name_last should be 'user'.
@@ -88,6 +99,8 @@ def test_admin_remove_valid():
     id4 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
     channel_invite_v2(id1['token'], channel_id1['channel_id'], id4['auth_user_id'])
     assert len(id1_detail['all_members']) == 3
+
+# Streams owners can remove other Streams owners (including the original first owner)
 
 ##########################################
 #### admin_userpermission_change tests ###

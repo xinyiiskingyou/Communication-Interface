@@ -230,3 +230,34 @@ def get_dm_info(auth_user_id):
             dms.append(dm)
     return dms
 
+# check if the user is the creator of the given dm
+def check_creator(auth_user_id, dm_id):
+    '''
+    return type: bool
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] != dm_id:
+            continue
+        if dm['creator']['u_id'] == auth_user_id:
+            return True
+    return False
+
+# check valid dm
+def check_valid_dm(dm_id):
+    '''
+    return type: bool
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            return True
+    return False
+
+# return a dictionary of dm with given dm_id
+def get_dm_dict(dm_id):
+    '''
+    return type: dictionary
+    '''
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm
+    return {}
