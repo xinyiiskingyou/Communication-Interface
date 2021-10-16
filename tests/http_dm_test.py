@@ -170,3 +170,38 @@ def test_dm_leave_valid ():
     dmdetails1 = dm_details_v1(id2['token'], dm1['dm_id'])
     assert len(dmdetails1['members']) == 1
 
+def test_leave_http_valid(): 
+    requests.delete(config.url + "clear/v1")
+
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        })
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'email@gmail.com',
+            'password': 'password',
+            'name_first': 'john',
+            'name_last': 'doe'
+        })
+    token1 = json.loads(user1.text)['token']
+    token2 = json.loads(user2.text)['token']
+    u_id2 = json.loads(user2.text)['auth_user_id']
+
+    dm1 = requests.post(config.url + "dm/create/v1", 
+        json = { 
+            'token': token1, 
+            'u_ids': [u_id2]
+        })
+    dm_id1 = json.loads(dm1.text)['dm_id']
+
+    respo = requests.post(config.url + "dm/leave/v1",
+        json = { 
+        'token': token2, 
+        'dm_id': dm_id1,
+        })  
+    
+    assert respo.status_code == 200
