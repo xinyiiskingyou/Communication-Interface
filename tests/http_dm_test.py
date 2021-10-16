@@ -121,7 +121,7 @@ def test_dm_message_valid_start0 ():
         })
     dm_id1 = json.loads(dm1.text)['dm_id']
 
-    for x in range (NUM_MESSAGE_MORE): 
+    for x in range(NUM_MESSAGE_MORE): 
         requests.post(config.url + "message/senddm/v1",
         json = {
             'token': user1_token,
@@ -140,7 +140,7 @@ def test_dm_message_valid_start0 ():
     message_end = json.loads(message.text)['end']
     assert message_start == 0 
     assert message_end == 50 
-    assert len(json.loads(message.text)['message']) == NUM_MESSAGE_EXACT
+    assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_EXACT
 
     assert message.status_code == 200 
 
