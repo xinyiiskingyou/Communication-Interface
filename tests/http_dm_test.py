@@ -95,7 +95,8 @@ def test_http_dm_details_valid():
 ##########################################
 # Input Error when channel_id does not refer to a valid channel
 # when dm_id is negative
-def test_dm_send_invalid_channel_id_positive(setup):
+def test_dm_send_invalid_channel_id_positive():
+    requests.delete(config.url + "clear/v1")
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'anna@gmail.com',
@@ -118,7 +119,8 @@ def test_dm_send_invalid_channel_id_positive(setup):
 
 # Input Error when channel_id does not refer to a valid channel
 # id is positive integer, but is not an id to any channel
-def test_dm_send_invalid_dm_id_nonexistant(setup):
+def test_dm_send_invalid_dm_id_nonexistant():
+    requests.delete(config.url + "clear/v1")
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'anna@gmail.com',
@@ -128,7 +130,7 @@ def test_dm_send_invalid_dm_id_nonexistant(setup):
         }
     )
     user1_token = json.loads(user1.text)['token']
-    user2_id = json.loads(user2.text)['auth_user_id']
+   
 
     user2 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -138,7 +140,7 @@ def test_dm_send_invalid_dm_id_nonexistant(setup):
             'name_last': 'li'
         }
     )
-    user2_token = json.loads(user2.text)['token']
+    user2_id = json.loads(user2.text)['auth_user_id']
 
     requests.post(config.url + "dm/create/v1", 
         json = {
@@ -158,7 +160,8 @@ def test_dm_send_invalid_dm_id_nonexistant(setup):
 
 
 # Input error when length of message is less than 1 or over 1000 characters
-def test_dm_send_invalid_message(setup):
+def test_dm_send_invalid_message():
+    requests.delete(config.url + "clear/v1")
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'anna@gmail.com',
@@ -168,6 +171,15 @@ def test_dm_send_invalid_message(setup):
         }
     )
     user1_token = json.loads(user1.text)['token']
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'sally@gmail.com',
+            'password': 'password',
+            'name_first': 'sally',
+            'name_last': 'li'
+        }
+    )
     user2_id = json.loads(user2.text)['auth_user_id']
 
     dm1_create = requests.post(config.url + "dm/create/v1", 
@@ -200,7 +212,8 @@ def test_dm_send_invalid_message(setup):
 
 # Access error when channel_id is valid and the authorised user 
 # is not a member of the channel
-def test_dm_send_unauthorised_user(setup):
+def test_dm_send_unauthorised_user():
+    requests.delete(config.url + "clear/v1")
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'anna@gmail.com',
@@ -239,7 +252,7 @@ def test_dm_send_unauthorised_user(setup):
         }
     )
 
-    dm1_id = json.loads(channel1.text)['dm_id']
+    dm1_id = json.loads(dm1.text)['dm_id']
 
     send_message1 = requests.post(config.url + "message/senddm/v1", 
         json = {
@@ -254,7 +267,8 @@ def test_dm_send_unauthorised_user(setup):
 ##### Implementation #####
 
 # Send message in one dm by two users
-def test_message_send_valid_one_dm(setup):
+def test_dm_send_valid_two_dm_messages():
+    requests.delete(config.url + "clear/v1")
     # Register user 1
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -285,7 +299,7 @@ def test_message_send_valid_one_dm(setup):
         }
     )
 
-    dm1_id = json.loads(channel1.text)['dm_id']
+    dm1_id = json.loads(dm1.text)['dm_id']
 
     # User 1 sends message 1 in channel 1
     send_dm1 = requests.post(config.url + "message/senddm/v1", 
@@ -310,9 +324,10 @@ def test_message_send_valid_one_dm(setup):
     assert send_message2.status_code == 200
 
 
-# Send message in two channels and compare dm message_id to 
-# ensure different dm message_id's across different channels
-def test_message_send_valid_two_channel(setup):
+# Send message in one dm and compare dm message_id to 
+# ensure different dm message_id's across different dm's
+def test_dm_send_valid_diff_id():
+    requests.delete(config.url + "clear/v1")
     # Register user 1
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -343,7 +358,7 @@ def test_message_send_valid_two_channel(setup):
         }
     )
 
-    dm1_id = json.loads(channel1.text)['dm_id']
+    dm1_id = json.loads(dm1.text)['dm_id']
 
     # User 1 sends message 1 in channel 1
     send_dm1 = requests.post(config.url + "message/senddm/v1", 

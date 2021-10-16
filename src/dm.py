@@ -159,6 +159,51 @@ def dm_remove_v1(token, dm_id):
     DATASTORE.set(store)
     return {}
 
+def message_senddm_v1(token, dm_id, message):
+    
+    auth_user_id = decode_token(token)
+    store = DATASTORE.get()
+
+    # Invalid dm_id
+    if not check_valid_channel_id(dm_id):
+        raise InputError("The dm_id does not refer to a valid dm")
+
+    # Authorised user not a member of channel
+    if not check_valid_member_in_channel(dm_id, auth_user_id):
+        raise AccessError("Authorised user is not a member of dm with dm_id")
+
+    # Invalid message: Less than 1 or over 1000 characters
+    if not check_valid_message(message):
+        raise InputError("Message is invalid as length of message is less than 1 or over 1000 characters.")
+
+    # Creating unique message_id 
+    dm_id = (len(initial_object['message']) * 2) 
+
+    # Current time message was created and sent
+    time_created = time.time()
+
+    dmsend_details = {
+        'message_id': message_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_created
+    }
+
+    # Append dictionary of message details into initial_objects['dm']['messages']
+    for dm in initial_object['dm']:
+        if dm['dm_id'] == dm_id:
+            dm['message'].append(dmsend_details)
+
+    # Append dictionary of message details into intital_objects['messages']
+    dmsend_details['dm_id'] = dm_id
+    initial_object['dm'].append(dmsend_details)
+
+    DATASTORE.set(store)
+
+    return {
+        'message_id': dm_id
+    }
+
 '''
 id1 = auth_register_v2('abc@gmail.com', 'password', 'leanna', 'chan')
 id2 = auth_register_v2('asdsfb@gmail.com', 'password', 'hi', 'wore')
