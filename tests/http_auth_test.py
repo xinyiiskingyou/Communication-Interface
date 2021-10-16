@@ -106,7 +106,7 @@ def test_reg_return_values_h():
     token1 = json.loads(resp1.text)['token']
     id1 = json.loads(resp1.text)['auth_user_id']
     token2 = json.loads(resp2.text)['token']
-    id2 = json.loads(resp1.text)['auth_user_id']
+    id2 = json.loads(resp2.text)['auth_user_id']
 
     assert json.loads(resp1.text) == {'token': token1, 'auth_user_id': id1}
     assert json.loads(resp2.text) == {'token': token2, 'auth_user_id': id2}
