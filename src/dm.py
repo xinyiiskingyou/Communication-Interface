@@ -53,7 +53,8 @@ def dm_create_v1(token, u_ids):
         'dm_id': dm_id,
         'name': name,
         'creator': creator_info,
-        'members': member_list
+        'members': member_list,
+        'messages': []
     }
     dms.append(dm)
     DATASTORE.set(store)
