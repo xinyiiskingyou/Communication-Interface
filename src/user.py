@@ -4,20 +4,25 @@ from src.error import InputError
 from src.data_store import DATASTORE, initial_object
 
 def users_all_v1(token): 
+    
     users_all = []
-     
+    #auth_user_id = decode_token(token)
     for user in initial_object['users']:
         info = user_info(user['auth_user_id'])
-        users_all.append[info]
+        users_all.append(info)
     return users_all
 
 def user_profile_v1(token, u_id):
-    if not channels_create_check_valid_user(u_id):
+
+    user = channels_user_details(int(u_id))
+    if not channels_create_check_valid_user(int(u_id)):
         raise InputError(description='user is not valid')
-    auth_user_id = decode_token(token)
-    
     return {
-        user_info(u_id)
+        'user_id': int(u_id),
+        'email': user['email'],
+        'name_first': user['name_first'],
+        'name_last': user['name_last'],
+        'handle_str': user['handle_str']
     }
 
 def user_profile_setname_v1(token, name_first, name_last):

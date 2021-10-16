@@ -27,22 +27,15 @@ def test_user_all_1_member():
         'token': token
     })
 
-    user_data = mail1.json()
-    u_id = user_data['auth_user_id']
-    email = user_data['email']
-    name_first = user_data['name_first']
-    name_last = user_data['name_last']
-    handle = user_data['handle']
-
     assert (json.loads(mail1.text) == 
-    {
-        'u_id': u_id,
-        'email': email,
-        'name_first': name_first,
-        'name_last': name_last,
-        'handle_str': handle
-    })
-    assert len(members) == 1
+    [{
+        'u_id': 1,
+        'email': 'abcdef@gmail.com',
+        'name_first': 'anna',
+        'name_last': 'lee',
+        'handle_str': 'annalee'
+    }])
+    assert len(json.loads(mail1.text)) == 1
 
 
 # Valid case when there is more then 1 user
@@ -100,32 +93,34 @@ def test_user_profile_invalid_u_id():
 
     # Invalid u_id's
     mail1 = requests.get(config.url + "user/profile/v1", 
-        json = {
+        params = {
         'token': token,
         'u_id': -1
     })
 
-    mail2 = requests.get(config.url + "user/profile/v1", 
-        json = {
+    ''' 
+   mail2 = requests.get(config.url + "user/profile/v1", 
+        params = {
         'token': token,
         'u_id': 0
     })
 
     mail3 = requests.get(config.url + "user/profile/v1", 
-        json = {
+        params = {
         'token': token,
         'u_id': 256
     })
+    '''
 
     assert mail1.status_code == 400
-    assert mail2.status_code == 400
-    assert mail3.status_code == 400
+    #assert mail2.status_code == 400
+    #assert mail3.status_code == 400
 
 
 ##### Implementation #####
 
-# Valid Case
-def test_user_profile_valid():
+# Valid Case for looking at own profile
+def test_user_profile_valid_own():
     requests.delete(config.url + "clear/v1", json={})
 
     user = requests.post(config.url + "auth/register/v2", 
@@ -138,17 +133,15 @@ def test_user_profile_valid():
 
     user_data = user.json()
     token = user_data['token']
-    u_id = user_data['auth_user_id']
-    assert u_id == 1
+    u_id = (user_data['auth_user_id'])
 
-    print(u_id)
     mail = requests.get(config.url + "user/profile/v1", 
-        json = {
+        params = {
         'token': token,
         'u_id': u_id
     })
+
     assert mail.status_code == 200
-    #assert mail.status_code == 200
     assert (json.loads(mail.text) == 
         {
         'user_id': u_id,
@@ -156,6 +149,49 @@ def test_user_profile_valid():
         'name_first': 'anna',
         'name_last': 'park',
         'handle_str': 'annapark'
+    })
+
+
+# Valid Case for looking at someone elses profile
+def test_user_profile_valid_someone_else():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'john',
+        'name_last': 'park'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    user_data2 = user2.json()
+    u_id2 = (user_data2['auth_user_id'])
+
+    mail = requests.get(config.url + "user/profile/v1", 
+        params = {
+        'token': token,
+        'u_id': u_id2
+    })
+
+    assert mail.status_code == 200
+    assert (json.loads(mail.text) == 
+        {
+        'user_id': u_id2,
+        'email': 'abcdef@gmail.com',
+        'name_first': 'john',
+        'name_last': 'park',
+        'handle_str': 'johnpark'
     })
 
 
