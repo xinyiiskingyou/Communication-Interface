@@ -13,7 +13,7 @@ from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, 
 from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
 from src.message import message_send_v1
-from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, message_senddm_v1
+from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, message_senddm_v1, dm_messages_v1, dm_leave_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -217,6 +217,14 @@ def dm_create():
         'dm_id': resp['dm_id']
     })
 
+@APP.route ("/dm/messages/v1", methods=['GET'])
+def dm_message(): 
+    token = (request.args.get('token'))
+    dm_id = int(request.args.get('dm_id'))
+    start = int(request.args.get('start'))
+    return dumps(dm_messages_v1(token, dm_id, start))
+
+    
 # List al DMs that the user is a member of
 @APP.route("/dm/list/v1", methods=['GET'])
 def dm_list():
@@ -234,6 +242,13 @@ def dm_remove():
 def message_senddm():
     json = request.get_json()
     resp = message_senddm_v1(json['token'], json['dm_id'], json['message'])
+    return dumps(resp)
+
+
+@APP.route ("/dm/leave/v1", methods = ['POST'])
+def dm_leave(): 
+    json = request.get_json()
+    resp = dm_leave_v1(json['token'], json['dm_id'])
     return dumps(resp)
 
 #### NO NEED TO MODIFY BELOW THIS POINT
