@@ -1,5 +1,5 @@
 from src.server_helper import decode_token
-from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user
+from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user, get_channel_details
 from src.helper import user_info
 from src.error import InputError
 from src.data_store import DATASTORE, initial_object
@@ -8,13 +8,8 @@ def users_all_v1(token):
     user_list = []
 
     for user in initial_object['users']:
-        user_list.append({
-            'u_id': user['auth_user_id'], 
-            'email': user['email'], 
-            'name_first': user['name_first'],
-            'name_last': user['name_last'],
-            'handle_str': user['handle_str']
-            })
+        if user['is_removed'] == False:
+            user_list.append(user_info(user['auth_user_id']))
     return (user_list)
 
 def user_profile_v1(token, u_id):
@@ -36,14 +31,11 @@ def user_profile_v1(token, u_id):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
-    if not isinstance(u_id, int):
-        raise InputError("This is an invalid u_id")
-    if not channels_create_check_valid_user(u_id):
-        raise InputError("user is not valid")
-
     auth_user_id = decode_token(token)
-    user = user_info(auth_user_id)
-    return (user)
+
+    if not channels_create_check_valid_user(int(u_id)):
+        raise InputError(description='The u_id does not refer to a valid user')
+    return (user_info(int(u_id)))
 
 def user_profile_setname_v1(token, name_first, name_last):
     return {}
