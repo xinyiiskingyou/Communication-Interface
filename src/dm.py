@@ -228,3 +228,50 @@ def dm_leave_v1(token,dm_id):
             for member in dm['members']:
                 if member['u_id'] == auth_user_id: 
                     dm['members'].remove(newuser)
+
+def message_senddm_v1(token, dm_id, message):
+    
+    auth_user_id = decode_token(token)
+    store = DATASTORE.get()
+
+    # Invalid dm_id
+    if not check_valid_dm(dm_id):
+        raise InputError("The dm_id does not refer to a valid dm")
+
+    # Authorised user not a member of channel
+    if not check_valid_member_in_dm(dm_id, auth_user_id):
+        raise AccessError("Authorised user is not a member of dm with dm_id")
+
+    # Invalid message: Less than 1 or over 1000 characters
+    if not check_valid_message(message):
+        raise InputError("Message is invalid as length of message is less than 1 or over 1000 characters.")
+
+    # Creating unique message_id 
+    dmsend_id = (len(initial_object['messages']) * 2) 
+
+    # Current time message was created and sent
+    time_created = time.time()
+
+    dmsend_details = {
+        'message_id': dmsend_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_created
+    }
+
+    # Append dictionary of message details into initial_objects['dm']['messages']
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            dm['messages'].append(dmsend_details)
+
+    # Append dictionary of message details into intital_objects['messages']
+    dmsend_details['dm_id'] = dm_id
+    initial_object['messages'].append(dmsend_details)
+
+    DATASTORE.set(store)
+
+    return {
+        'message_id': dmsend_id
+    }
+
+
