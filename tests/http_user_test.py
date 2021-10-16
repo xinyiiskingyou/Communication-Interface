@@ -4,6 +4,156 @@ import json
 from src import config 
 
 ##########################################
+###### user_profile_set_name tests #######
+##########################################
+
+# Input error when length of first name is < 1 or > 50
+
+def test_user_name_invalid_name_first():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid first name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': '',
+        'name_last': 'lee'
+    })
+
+    mail1 = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'a' * 51,
+        'name_last': 'lee'
+    })
+
+    assert mail.status_code == 400
+    assert mail1.status_code == 400
+
+
+# Input error when length of first name is < 1 or > 50
+def test_user_set_name_invalid_name_last():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+    
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'anna',
+        'name_last': ''
+    })
+
+    mail1 = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'anna',
+        'name_last': 'a' * 51
+    })
+
+    assert mail.status_code == 400
+    assert mail1.status_code == 400
+
+##### Implementation #####
+
+# Valid first name change 
+def test_user_set_name_valid_name_first():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Valid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'annabelle',
+        'name_last': 'lee'
+    })
+
+    assert mail.status_code == 200
+
+# Valid last name change
+def test_user_set_name_valid_name_last():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Valid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'anna',
+        'name_last': 'parker'
+    })
+
+    assert mail.status_code == 200
+
+# Valid first and last name change
+def test_user_set_name_valid_name_first_and_last():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'annabelle',
+        'name_last': 'parker'
+    })
+
+    assert mail.status_code == 200
+
+
+##########################################
 ##### user_profile_set_email tests #######
 ##########################################
 

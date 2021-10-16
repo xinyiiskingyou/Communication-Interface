@@ -10,7 +10,38 @@ def user_profile_v1(token, name_first, name_last):
     return {}
 
 def user_profile_setname_v1(token, name_first, name_last):
+    '''
+    Update the authorised user's email address.
+
+    Arguments:
+        <token>         (<hash>)      - an authorisation hash
+        <name_first>    (<string>)    - alphanumerical first name
+        <name_last>     (<string>)    - alphanumerical first name
+        ...
+
+    Exceptions:
+        InputError  - Occurs when length of name_first is not between 1 and 50 characters inclusive
+                    - Occurs when length of name_last is not between 1 and 50 characters inclusive
+
+    Return Value:
+        Returns N/A
+    '''
+    store = DATASTORE.get()
+    # Invalid first name
+    if len(name_first) not in range(1, 51):
+        raise InputError("name_first is not between 1 - 50 characters in length")
+
+    # Invalid last name
+    if len(name_last) not in range(1, 51):
+        raise InputError("name_last is not between 1 - 50 characters in length")
+
+    auth_user_id = decode_token(token)
+    user = channels_user_details(auth_user_id)
+    user['name_first'] = name_first
+    user['name_first'] = name_last
+    DATASTORE.set(store)
     return {}
+
 
 def user_profile_setemail_v1(token, email):
     '''
