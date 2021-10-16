@@ -15,12 +15,6 @@
   9.  Automarking
   10. Plagiarism
 
-## 0. Change log:
-* 07/10: Fixed automarking formula
-* 08/10: Added instructions to run coverage locally
-* 15/10: Updated coverage and pylint configurations
-* 16/10: Reiterating from lectures that hashing passwords is expected in iteration 2
-
 ## 1. Aims:
 
 * To provide students with hands on experience testing, developing, and maintaining a backend server in Python.
@@ -175,6 +169,7 @@ def test_echo():
     resp = requests.get(config.url + 'echo', params={'data': 'hello'})
     assert json.loads(resp.text) == {'data': 'hello'}
 ```
+### 4.5. Recommended approach
 
 #### 4.4.1 Test coverage
 
