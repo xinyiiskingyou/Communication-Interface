@@ -122,7 +122,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'name_first': name_first,
         'name_last' : name_last,
         'token': token,
-        'auth_user_id' : auth_user_id,
+        'auth_user_id' : int(auth_user_id),
         'handle_str' : handle,
         'permission_id' : permission_id
     })
