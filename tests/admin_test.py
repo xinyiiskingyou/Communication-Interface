@@ -2,11 +2,13 @@ import pytest
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
 from src.error import AccessError, InputError
 from src.auth import auth_register_v2
-from src.channel import channel_details_v2, channel_invite_v2
+from src.channel import channel_details_v2, channel_invite_v2, channel_messages_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
 from src.helper import *
-from src.dm import dm_create_v1, dm_list_v1
+from src.dm import dm_create_v1, dm_details_v1
+from src.user import users_all_v1, user_profile_v1
+from src.message import message_send_v1
 
 ##########################################
 ######## admin_user_remove tests #########
@@ -48,6 +50,7 @@ def test_admin_remove_not_global_owner():
     with pytest.raises(AccessError):
         admin_user_remove_v1(user2['token'], user1['auth_user_id'])
 
+# remove stream member
 def test_admin_remove_valid():
     clear_v1()
     id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
@@ -66,8 +69,12 @@ def test_admin_remove_valid():
     id2_detail = channel_details_v2(id2['token'], channel_id2['channel_id'])
 
     # id1 creates a dm that id2 and id3 are the members
-    dm_create_v1(id1['token'], [id2['auth_user_id'], id3['auth_user_id']])
-    dm_list = dm_list_v1(id1['token'])
+    dm_id = dm_create_v1(id1['token'], [id2['auth_user_id'], id3['auth_user_id']])
+    dm_details = dm_details_v1(id1['token'], dm_id['dm_id'])
+
+    # id2 send a message in id1's channel
+    message_send_v1(id2['token'], channel_id1['channel_id'], 'how are you')
+    msg1 = channel_messages_v2(id1['token'], channel_id1['channel_id'], 0)
 
     # remove id2
     admin_user_remove_v1(id1['token'], id2['auth_user_id'])
@@ -81,16 +88,15 @@ def test_admin_remove_valid():
     assert len(id2_detail['owner_members']) == 0
 
     # only 2 members in dm now
-    assert len(dm_list['members']) == 1
+    assert len(dm_details['members']) == 2
 
+    # the contents of the messages they sent will be replaced by 'Removed user'
+    assert msg1['messages'][0]['message'] == 'Removed user'
 
-    '''
-    1. should be removed from all channels/DMs
-    2. and will not be included in the list of users returned by users/all.
-    3. the contents of the messages they sent will be replaced by 'Removed user'
-    4. 
-    '''
+    # there are only 2 valid users in user/all now
+    assert len(users_all_v1(id1['token'])) == 2
     
+    #assert user_profile_v1(id1['token'], id2['auth_user_id'])
     # name_first should be 'Removed' and name_last should be 'user'.
     assert (id2_info['name_first']) == 'Removed'
     assert (id2_info['name_last']) == 'user'
@@ -101,6 +107,15 @@ def test_admin_remove_valid():
     assert len(id1_detail['all_members']) == 3
 
 # Streams owners can remove other Streams owners (including the original first owner)
+def test_admin_remove_valid1():
+    clear_v1()
+    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
+    id3 = auth_register_v2('elephant@gmail.com', 'password', 'cfirst', 'clast')
+    # promote id3
+    admin_userpermission_change_v1(id1['token'], id3['auth_user_id'], 1)
+
+    # the new stream owner id3 removes the orignal first owner id1
+    admin_user_remove_v1(id3['token'], id1['auth_user_id'])
 
 ##########################################
 #### admin_userpermission_change tests ###

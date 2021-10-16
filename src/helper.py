@@ -207,6 +207,39 @@ def check_valid_owner(auth_user_id, channel_id):
                     return True
     return False
 
+#################################################
+######## Helper functions for dm.py      ########
+#################################################
+
+def check_valid_member_in_dm(dm_id, auth_user_id):
+    '''
+    return type: bool
+    '''
+
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id:
+                    return True
+    return False
+
+# Helper function for message_send_v1
+# Checks if message is invalid 
+# Returns false if length of message is less than 1 or over 1000 characters
+# Returns true otherwise
+
+def check_valid_message(message):
+    len_message = len(message)
+    if len_message > 1000 or len_message < 1:
+        return False
+    else:
+        return True 
+
+
+#################################################
+########## Helper functions for dm.py ###########
+#################################################
+
 # get the handle of the authorised user
 def get_handle(auth_user_id):
     '''

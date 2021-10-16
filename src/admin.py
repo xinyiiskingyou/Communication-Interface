@@ -1,5 +1,3 @@
-from typing import Counter
-from requests.api import get
 from src.error import InputError, AccessError
 from src.helper import *
 from src.data_store import DATASTORE, initial_object
@@ -24,7 +22,7 @@ def admin_user_remove_v1(token, u_id):
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
     # u_id does not refer to a valid user
-    if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
+    if not channels_create_check_valid_user(u_id):
         # u_id is invalid and authorised user is not a global owner
         if not check_permision_id(auth_user_id):
             raise AccessError(description='The authorised user is not a global owner')
@@ -63,21 +61,22 @@ def admin_user_remove_v1(token, u_id):
         if dm['creator']['u_id'] == u_id:
             dm['creator'].clear()
     
-    '''
-    # the contents of the messages they sent will be replaced by 'Removed user'
-    # user will not be included in the list of users returned by users/all
+    #  the contents of the messages they sent will be replaced by 'Removed user'
+    for message in initial_object['messages']:
+        if message['u_id'] == u_id:
+            message['message'] = 'Removed user'
+
     for user in initial_object['users']:
-        # name_first should be 'Removed' and name_last should be 'user'
         if user['auth_user_id'] == u_id:
+            # the user will not be included by user/all
+            user['is_removed'] = True
+            # name_first should be 'Removed' and name_last should be 'user'.
             user['name_first'] = 'Removed'
             user['name_last'] = 'user'
-            # email and handle should be reusable.
+            # user's email and handle is set to be empty 
+            # so that it can be reusable.
             user['handle_str'] = ''
             user['email'] = ''
-            initial_object['users'].remove(user)
-    ''' 
-
-        
 
     DATASTORE.set(store)
     return {}
