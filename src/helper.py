@@ -182,8 +182,20 @@ def check_valid_email(email):
 
 
 #################################################
-######## Helper functions for message.py ########
+######## Helper functions for dm.py      ########
 #################################################
+
+def check_valid_member_in_dm(dm_id, auth_user_id):
+    '''
+    return type: bool
+    '''
+
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id:
+                    return True
+    return False
 
 # Helper function for message_send_v1
 # Checks if message is invalid 

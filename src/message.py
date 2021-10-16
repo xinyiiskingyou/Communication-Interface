@@ -41,7 +41,7 @@ def message_send_v1(token, channel_id, message):
     # Append dictionary of message details into initial_objects['channels']['messages']
     for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
-            channel['messages'] = message_details
+            channel['messages'].append(message_details)
 
     # Append dictionary of message details into intital_objects['messages']
     message_details['channel_id'] = channel_id
