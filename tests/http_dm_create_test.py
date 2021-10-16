@@ -204,7 +204,6 @@ def test_dm_list():
         ],
     })
 
-
 def test_dm_list_no_dm():
     requests.delete(config.url + "clear/v1")
     creator = requests.post(config.url + "auth/register/v2", 
@@ -354,7 +353,6 @@ def test_dm_list_creator():
             }
         ],
     })
-
 
 ##########################################
 ############# dm_remove tests ############
