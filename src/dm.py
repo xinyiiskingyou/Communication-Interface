@@ -3,15 +3,13 @@ from src.error import InputError, AccessError
 from src.helper import channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict
 from src.data_store import DATASTORE, initial_object
 
-# for testing
-from src.auth import auth_register_v2
 # create a dm and returns it id
 def dm_create_v1(token, u_ids):
     '''
     Creates a dm with name generated based on users' handle
 
     Arguments:
-        <token>        (<hash>)    - an authorisation hash
+        <token>        (<string>)    - an authorisation hash
         <u_ids>        (<list>)    - a list of u_id 
 
     Exceptions:
@@ -55,6 +53,7 @@ def dm_create_v1(token, u_ids):
         'creator': creator_info,
         'members': member_list
     }
+
     dms.append(dm)
     DATASTORE.set(store)
     return {

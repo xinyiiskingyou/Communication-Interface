@@ -16,7 +16,7 @@ def channel_invite_v2(token, channel_id, u_id):
     In both public and private channels, all members are able to invite users.
 
     Arguments:
-        <token>        (<hash>)   - unique id of an authorised user who is doing the inviting
+        <token>        (<string>)   - unique id of an authorised user who is doing the inviting
         <channel_id>   (<int>)    - unique id if a channel
         <u_id>         (<int>)    - unique id of an authorised user who is being invited
 
@@ -74,7 +74,7 @@ def channel_details_v2(token, channel_id):
     is a member of, provide basic details about the channel.
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id if a channel
 
     Exceptions:
@@ -118,7 +118,7 @@ def channel_messages_v2(token, channel_id, start):
     return up to 50 messages between index "start" and "start + 50".
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <start>        (<int>)    - starting index of message pagination
 
@@ -173,7 +173,7 @@ def channel_join_v2(token, channel_id):
     adds them to that channel.
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
 
     Exceptions:
@@ -255,7 +255,7 @@ def channel_addowner_v1(token, channel_id, u_id):
     Make user with user id u_id an owner of the channel
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <u_id>         (<int>)    - an unique auth_user_id of the user to
                                     be added as an owner of the channel
@@ -312,7 +312,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
     Remove user with user id u_id as an owner of the channel.
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <u_id>         (<int>)    - an unique auth_user_id of the user to
                                     be removed as an owner of the channel
