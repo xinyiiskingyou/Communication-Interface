@@ -1,16 +1,63 @@
 from src.server_helper import decode_token
-from src.helper import check_valid_email, channels_user_details
+from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user, user_info
 from src.error import InputError
 from src.data_store import DATASTORE, initial_object
 
-def users_all_v1(token, u_id): 
-    return {}
+def users_all_v1(token): 
+    
+    users_all = []
+    #auth_user_id = decode_token(token)
+    for user in initial_object['users']:
+        info = user_info(user['auth_user_id'])
+        users_all.append(info)
+    return users_all
 
-def user_profile_v1(token, name_first, name_last):
-    return {}
+def user_profile_v1(token, u_id):
+
+    user = channels_user_details(int(u_id))
+    if not channels_create_check_valid_user(int(u_id)):
+        raise InputError(description='user is not valid')
+    return {
+        'user_id': int(u_id),
+        'email': user['email'],
+        'name_first': user['name_first'],
+        'name_last': user['name_last'],
+        'handle_str': user['handle_str']
+    }
 
 def user_profile_setname_v1(token, name_first, name_last):
+    '''
+    Update the authorised user's email address.
+
+    Arguments:
+        <token>         (<hash>)      - an authorisation hash
+        <name_first>    (<string>)    - alphanumerical first name
+        <name_last>     (<string>)    - alphanumerical first name
+        ...
+
+    Exceptions:
+        InputError  - Occurs when length of name_first is not between 1 and 50 characters inclusive
+                    - Occurs when length of name_last is not between 1 and 50 characters inclusive
+
+    Return Value:
+        Returns N/A
+    '''
+    store = DATASTORE.get()
+    # Invalid first name
+    if len(name_first) not in range(1, 51):
+        raise InputError(description='name_first is not between 1 - 50 characters in length')
+
+    # Invalid last name
+    if len(name_last) not in range(1, 51):
+        raise InputError(description='name_last is not between 1 - 50 characters in length')
+
+    auth_user_id = decode_token(token)
+    user = channels_user_details(auth_user_id)
+    user['name_first'] = name_first
+    user['name_first'] = name_last
+    DATASTORE.set(store)
     return {}
+
 
 def user_profile_setemail_v1(token, email):
     '''

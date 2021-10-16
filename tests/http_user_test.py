@@ -4,6 +4,359 @@ import json
 from src import config 
 
 ##########################################
+############ users_all tests ##############
+##########################################
+
+# Valid case when there is only 1 user
+def test_user_all_1_member():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    mail1 = requests.get(config.url + "user/all/v1", 
+        json = {
+        'token': token
+    })
+
+    assert (json.loads(mail1.text) == 
+    [{
+        'u_id': 1,
+        'email': 'abcdef@gmail.com',
+        'name_first': 'anna',
+        'name_last': 'lee',
+        'handle_str': 'annalee'
+    }])
+    assert len(json.loads(mail1.text)) == 1
+
+
+# Valid case when there is more then 1 user
+def test_user_all_several_members():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'email@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data1 = user1.json()
+    token1 = user_data1['token']
+
+    user_data = user2.json()
+    token2 = user_data['token']
+
+    mail1 = requests.get(config.url + "user/all/v1", 
+        json = {
+        'token': token1
+    })
+
+    mail2 = requests.get(config.url + "user/all/v1", 
+        json = {
+        'token': token2
+    })
+
+    # test using length of list as cannot be certain 
+    # the listed order of users
+    members1 = json.loads(mail1.text)
+    members2 = json.loads(mail2.text)
+    assert len(members1) == 2
+    assert len(members2) == 2
+    assert members1 == members2
+
+
+##########################################
+########## user_profile tests ############
+##########################################
+
+# Input error for invalid u_id
+def test_user_profile_invalid_u_id():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid u_id's
+    mail1 = requests.get(config.url + "user/profile/v1", 
+        params = {
+        'token': token,
+        'u_id': -1
+    })
+
+    ''' 
+   mail2 = requests.get(config.url + "user/profile/v1", 
+        params = {
+        'token': token,
+        'u_id': 0
+    })
+
+    mail3 = requests.get(config.url + "user/profile/v1", 
+        params = {
+        'token': token,
+        'u_id': 256
+    })
+    '''
+
+    assert mail1.status_code == 400
+    #assert mail2.status_code == 400
+    #assert mail3.status_code == 400
+
+
+##### Implementation #####
+
+# Valid Case for looking at own profile
+def test_user_profile_valid_own():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+    u_id = (user_data['auth_user_id'])
+
+    mail = requests.get(config.url + "user/profile/v1", 
+        params = {
+        'token': token,
+        'u_id': u_id
+    })
+
+    assert mail.status_code == 200
+    assert (json.loads(mail.text) == 
+        {
+        'user_id': u_id,
+        'email': 'abc@gmail.com',
+        'name_first': 'anna',
+        'name_last': 'park',
+        'handle_str': 'annapark'
+    })
+
+
+# Valid Case for looking at someone elses profile
+def test_user_profile_valid_someone_else():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'john',
+        'name_last': 'park'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    user_data2 = user2.json()
+    u_id2 = (user_data2['auth_user_id'])
+
+    mail = requests.get(config.url + "user/profile/v1", 
+        params = {
+        'token': token,
+        'u_id': u_id2
+    })
+
+    assert mail.status_code == 200
+    assert (json.loads(mail.text) == 
+        {
+        'user_id': u_id2,
+        'email': 'abcdef@gmail.com',
+        'name_first': 'john',
+        'name_last': 'park',
+        'handle_str': 'johnpark'
+    })
+
+
+##########################################
+###### user_profile_set_name tests #######
+##########################################
+
+# Input error when length of first name is < 1 or > 50
+
+def test_user_name_invalid_name_first():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid first name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': '',
+        'name_last': 'lee'
+    })
+
+    mail1 = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'a' * 51,
+        'name_last': 'lee'
+    })
+
+    assert mail.status_code == 400
+    assert mail1.status_code == 400
+
+
+# Input error when length of first name is < 1 or > 50
+def test_user_set_name_invalid_name_last():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+    
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'anna',
+        'name_last': ''
+    })
+
+    mail1 = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'anna',
+        'name_last': 'a' * 51
+    })
+
+    assert mail.status_code == 400
+    assert mail1.status_code == 400
+
+##### Implementation #####
+
+# Valid first name change 
+def test_user_set_name_valid_name_first():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Valid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'annabelle',
+        'name_last': 'lee'
+    })
+
+    assert mail.status_code == 200
+
+# Valid last name change
+def test_user_set_name_valid_name_last():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Valid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'anna',
+        'name_last': 'parker'
+    })
+
+    assert mail.status_code == 200
+
+# Valid first and last name change
+def test_user_set_name_valid_name_first_and_last():
+    requests.delete(config.url + "clear/v1", json={})
+
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+
+    user_data = user.json()
+    token = user_data['token']
+
+    # Invalid last name
+    mail = requests.put(config.url + "user/profile/setname/v1", 
+        json = {
+        'token': token,
+        'name_first': 'annabelle',
+        'name_last': 'parker'
+    })
+
+    assert mail.status_code == 200
+
+
+##########################################
 ##### user_profile_set_email tests #######
 ##########################################
 
