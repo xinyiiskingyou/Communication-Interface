@@ -3,16 +3,12 @@ from src.helper import check_valid_email, channels_user_details, channels_create
 from src.error import InputError
 from src.data_store import DATASTORE, initial_object
 
-def users_all_v1(token, u_id): 
-    user = []
-    for users in initial_object['users']:
-        users.append({
-            'u_id': auth_user_id,
-            'email': user['email'],
-            'name_first': user['name_first'],
-            'name_last': user['name_last'],
-            'handle_str': user['handle_str']
-        }) 
+def users_all_v1(token): 
+    users_all = []
+     
+    for user in initial_object['users']:
+        users_all.append[user]
+    return users_all
 
 def user_profile_v1(token, u_id):
     if not channels_create_check_valid_user(u_id):
