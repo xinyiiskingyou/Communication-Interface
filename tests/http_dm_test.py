@@ -180,14 +180,6 @@ def test_leave_invalid_dm_id():
             'name_last': 'alast'
         })
     token = json.loads(creator.text)['token']
-    user1 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abcd@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'park'
-        })
-
     resp1 = requests.post(config.url + "dm/leave/v1", 
         json = {
             'token': token,
