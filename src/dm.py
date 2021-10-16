@@ -260,16 +260,18 @@ def dm_leave_v1(token,dm_id):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
+    store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+    newuser = user_info(auth_user_id)
 
+     
     if not isinstance(dm_id, int):
         raise InputError("This is an invalid dm_id")
     
     if not check_valid_dm(dm_id):
         raise InputError("This does not refer to a valid dm")
 
-    store = DATASTORE.get()
-    auth_user_id = decode_token(token)
-    newuser = user_info(auth_user_id)
+
 
     for dm in initial_object['dms']: 
         if dm['dm_id'] == dm_id: 
@@ -277,6 +279,9 @@ def dm_leave_v1(token,dm_id):
                 if member['u_id'] == auth_user_id: 
                     dm['members'].remove(newuser)
     DATASTORE.set(store)
+    return{}
+
+
 
 def message_senddm_v1(token, dm_id, message):
     
