@@ -93,7 +93,7 @@ def test_http_dm_details_valid():
 ##########################################
 ########### message/senddm/v1 ############
 ##########################################
-# Input Error when channel_id does not refer to a valid channel
+# Input Error when dm_id does not refer to a valid dm_id
 # when dm_id is negative
 def test_dm_send_invalid_channel_id_positive():
     requests.delete(config.url + "clear/v1")
@@ -117,8 +117,8 @@ def test_dm_send_invalid_channel_id_positive():
     assert send_dm.status_code == 400
 
 
-# Input Error when channel_id does not refer to a valid channel
-# id is positive integer, but is not an id to any channel
+# Input Error when dm_id does not refer to a valid dm_id
+# id is positive integer, but is not an id to any dm
 def test_dm_send_invalid_dm_id_nonexistant():
     requests.delete(config.url + "clear/v1")
     user1 = requests.post(config.url + "auth/register/v2", 
@@ -189,11 +189,10 @@ def test_dm_send_invalid_message():
     )
 
     dm1_id = json.loads(dm1_create.text)['dm_id']
-
     send_dm1 = requests.post(config.url + "message/senddm/v1", 
         json = {
             'token': user1_token,
-            'dm_id': user2_id,
+            'dm_id': dm1_id,
             'message': 'a' * 1001
         }
     )
@@ -210,7 +209,7 @@ def test_dm_send_invalid_message():
 
 
 # Access error when channel_id is valid and the authorised user 
-# is not a member of the channel
+# is not a member of the dm
 def test_dm_send_unauthorised_user():
     requests.delete(config.url + "clear/v1")
     user1 = requests.post(config.url + "auth/register/v2", 
@@ -231,7 +230,6 @@ def test_dm_send_unauthorised_user():
             'name_last': 'li'
         }
     )
-    user2_token = json.loads(user2.text)['token']
     user2_id = json.loads(user2.text)['auth_user_id']
 
     user3 = requests.post(config.url + "auth/register/v2", 
@@ -357,7 +355,7 @@ def test_dm_send_valid_diff_id():
 
     dm1_id = json.loads(dm1_create.text)['dm_id']
 
-    # User 1 sends message 1 in channel 1
+    # User 1 sends message 1 in dm 1
     send_dm1 = requests.post(config.url + "message/senddm/v1", 
         json = {
             'token': user1_token,
@@ -380,3 +378,115 @@ def test_dm_send_valid_diff_id():
     message_dm2 = json.loads(send_dm2.text)['message_id']
 
     assert message_dm1 !=  message_dm2
+
+# Send message to a dm with more then 2 ppl
+def test_dm_send_valid_three_dm_messages():
+    requests.delete(config.url + "clear/v1")
+    # Register user 1
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'sally@gmail.com',
+            'password': 'password',
+            'name_first': 'sally',
+            'name_last': 'li'
+        }
+    )
+    user2_token = json.loads(user2.text)['token']
+    user2_id = json.loads(user2.text)['auth_user_id']
+
+    user3 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'email@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }
+    )
+    user3_token = json.loads(user3.text)['token']
+    user3_id = json.loads(user3.text)['auth_user_id']
+
+    # User 1 creates dm 1
+    dm1_create = requests.post(config.url + "dm/create/v1", 
+        json = {
+            'token': user1_token,
+            'u_ids': [user2_id, user3_id]
+        }
+    )
+
+    dm1_id = json.loads(dm1_create.text)['dm_id']
+
+    # User 1 sends message 1 in channel 1
+    send_dm1 = requests.post(config.url + "message/senddm/v1", 
+        json = {
+            'token': user1_token,
+            'dm_id': dm1_id,
+            'message': 'hello there'
+        }
+    )
+    assert send_dm1.status_code == 200
+
+    # User 2 sends a message in channel 1
+    send_dm2 = requests.post(config.url + "message/senddm/v1", 
+        json = {
+            'token': user2_token,
+            'dm_id': dm1_id,
+            'message': 'hello there'
+        }
+    )
+    assert send_dm2.status_code == 200
+
+    # User 2 sends a message in channel 1
+    send_dm3 = requests.post(config.url + "message/senddm/v1", 
+        json = {
+            'token': user3_token,
+            'dm_id': dm1_id,
+            'message': 'hello there'
+        }
+    )
+    assert send_dm3.status_code == 200
+
+# Sending message to yourself
+def test_dm_send_to_yourself():
+    requests.delete(config.url + "clear/v1")
+    # Register user 1
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
+    user1_id = json.loads(user1.text)['auth_user_id']
+
+    # User 1 creates dm 1
+    dm1_create = requests.post(config.url + "dm/create/v1", 
+        json = {
+            'token': user1_token,
+            'u_ids': [user1_id]
+        }
+    )
+
+    dm1_id = json.loads(dm1_create.text)['dm_id']
+
+    # User 1 sends message 1 in dm 1
+    send_dm1 = requests.post(config.url + "message/senddm/v1", 
+        json = {
+            'token': user1_token,
+            'dm_id': dm1_id,
+            'message': 'hello there'
+        }
+    )
+
+    assert send_dm1.status_code == 200

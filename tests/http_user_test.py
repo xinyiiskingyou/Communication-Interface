@@ -58,18 +58,29 @@ def test_user_all_several_members():
         'name_last': 'lee'
     })
 
+    user_data1 = user1.json()
+    token1 = user_data1['token']
+
     user_data = user2.json()
-    token = user_data['token']
+    token2 = user_data['token']
 
     mail1 = requests.get(config.url + "user/all/v1", 
         json = {
-        'token': token
+        'token': token1
+    })
+
+    mail2 = requests.get(config.url + "user/all/v1", 
+        json = {
+        'token': token2
     })
 
     # test using length of list as cannot be certain 
     # the listed order of users
-    members = json.loads(mail1.text)
-    assert len(members) == 2
+    members1 = json.loads(mail1.text)
+    members2 = json.loads(mail2.text)
+    assert len(members1) == 2
+    assert len(members2) == 2
+    assert members1 == members2
 
 
 ##########################################
