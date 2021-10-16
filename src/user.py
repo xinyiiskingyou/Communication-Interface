@@ -31,7 +31,7 @@ def user_profile_v1(token, u_id):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
-    auth_user_id = decode_token(token)
+    #auth_user_id = decode_token(token)
 
     if not channels_create_check_valid_user(int(u_id)):
         raise InputError(description='The u_id does not refer to a valid user')
