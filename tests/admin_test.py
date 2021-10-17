@@ -57,7 +57,6 @@ def test_admin_remove_valid():
     id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
     id3 = auth_register_v2('elephant@gmail.com', 'password', 'cfirst', 'clast')
 
-    id2_info = channels_user_details(id2['auth_user_id'])
     # id1 and id2 create a channel
     channel_id1 = channels_create_v2(id1['token'], 'shelly', False)
     channel_id2 = channels_create_v2(id2['token'], 'anna', True)
@@ -95,12 +94,12 @@ def test_admin_remove_valid():
 
     # there are only 2 valid users in user/all now
     assert len(users_all_v1(id1['token'])) == 2
-    
-    # assert user_profile_v1(id1['token'], id2['auth_user_id'])
-    # name_first should be 'Removed' and name_last should be 'user'.
-    assert (id2_info['name_first']) == 'Removed'
-    assert (id2_info['name_last']) == 'user'
 
+    # name_first should be 'Removed' and name_last should be 'user'.
+    profile = user_profile_v1(id1['token'], id2['auth_user_id'])
+    assert (profile['name_first']) == 'Removed'
+    assert (profile['name_last']) == 'user'
+    
     # user2's email and handle should be reusable.
     id4 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
     channel_invite_v2(id1['token'], channel_id1['channel_id'], id4['auth_user_id'])
