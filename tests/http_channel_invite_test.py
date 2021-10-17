@@ -70,7 +70,6 @@ def test_invite_invalid_u_id(register_user, register_user1, create_channel):
 def test_invite_invalid_channel_id(register_user, register_user1):
 
     user_token = register_user['token']
-    user1_token = register_user1['token']
     u_id = register_user1['auth_user_id']
 
     invite = requests.post(config.url + "channel/invite/v2", json ={
