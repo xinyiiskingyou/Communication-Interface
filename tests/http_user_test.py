@@ -34,11 +34,11 @@ def register_user2():
 def test_user_all_1_member(register_user1):
 
     token = register_user1['token']
-    all = requests.get(config.url + "user/all/v1", json ={
+    all1 = requests.get(config.url + "user/all/v1", json ={
         'token': token
     })
 
-    assert (json.loads(all.text) == 
+    assert (json.loads(all1.text) == 
     [{
         'u_id': 1,
         'email': 'cat@gmail.com',
@@ -46,7 +46,7 @@ def test_user_all_1_member(register_user1):
         'name_last': 'lee',
         'handle_str': 'annalee'
     }])
-    assert len(json.loads(all.text)) == 1
+    assert len(json.loads(all1.text)) == 1
 
 # Valid case when there is more then 1 user
 def test_user_all_several_members(register_user1, register_user2):
@@ -107,13 +107,13 @@ def test_user_profile_valid_own(register_user1):
     token = register_user1['token']
     u_id = register_user1['auth_user_id']
 
-    all = requests.get(config.url + "user/profile/v1", params ={
+    all1 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': u_id
     })
 
-    assert all.status_code == 200
-    assert (json.loads(all.text) == 
+    assert all1.status_code == 200
+    assert (json.loads(all1.text) == 
         {
         'u_id': u_id,
         'email': 'cat@gmail.com',
@@ -128,13 +128,13 @@ def test_user_profile_valid_someone_else(register_user1, register_user2):
     token = register_user1['token']
     u_id2 = (register_user2['auth_user_id'])
 
-    all = requests.get(config.url + "user/profile/v1", params ={
+    all1 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': u_id2
     })
 
-    assert all.status_code == 200
-    assert (json.loads(all.text) == 
+    assert all1.status_code == 200
+    assert (json.loads(all1.text) == 
         {
         'u_id': u_id2,
         'email': 'elephant@gmail.com',
