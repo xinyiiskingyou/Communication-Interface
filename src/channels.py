@@ -13,7 +13,7 @@ def channels_list_v2(token):
     user is part of.
 
     Arguments:
-        <token> (<hash>)    - an authorisation hash
+        <token> (<string>)    - an authorisation hash
 
     Exceptions:
         AccessError  - Occurs when the auth_user_id input is not a valid type
@@ -48,7 +48,7 @@ def channels_listall_v2(token):
     (and their associated details)
 
     Arguments:
-        <token> (<hash>)    - an authorisation hash
+        <token> (<string>)    - an authorisation hash
 
     Exceptions:
         AccessError  - Occurs when the auth_user_id input is not a valid type
@@ -74,7 +74,7 @@ def channels_create_v2(token, name, is_public):
     Creates a new channel with the given name that is either a public or private channel.
 
     Arguments:
-        <token>        (<hash>)    - an authorisation hash
+        <token>        (<string>)    - an authorisation hash
         <name>         (<string>)  - the name of the channel
         <is_public>    (<boolean>) - privacy setting: True - Public ; False - Private
 
