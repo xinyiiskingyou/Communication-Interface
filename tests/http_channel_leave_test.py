@@ -40,9 +40,8 @@ def create_channel(register_user):
     return channel_data
 
 # remove the member of the channel
-def test_channel_leave_valid(register_user, register_user1, create_channel): 
+def test_channel_leave_valid(register_user1, create_channel): 
 
-    token1 = register_user['token']
     token2 = register_user1['token']
 
     channel_id1 = create_channel['channel_id']
