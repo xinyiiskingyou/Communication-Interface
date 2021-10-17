@@ -144,6 +144,8 @@ def test_admin_remove_valid():
     dm_data = dm.json()
     dm_id = dm_data['dm_id']
     
+    assert dm.status_code == 200
+
     # user2 sends a message
     message = requests.post(config.url + "message/send/v1", json = {
             'token': token2,
