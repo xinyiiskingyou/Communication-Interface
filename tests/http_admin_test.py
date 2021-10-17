@@ -141,7 +141,9 @@ def test_admin_remove_valid():
         'token': token,
         'u_ids': [u_id]
     })
-
+    dm_data = dm.json()
+    dm_id = dm_data['dm_id']
+    
     # user2 sends a message
     message = requests.post(config.url + "message/send/v1", json = {
             'token': token2,
@@ -159,7 +161,6 @@ def test_admin_remove_valid():
     assert remove.status_code == 200
 
     # id2 is removed from id1's channel
-    # get the details of the channel
     channel_detail = requests.get(config.url + "channel/details/v2", 
         params = {
         'token': token,
@@ -167,15 +168,15 @@ def test_admin_remove_valid():
     })
     assert len(json.loads(channel_detail.text)['all_members']) == 1
 
-    '''
     # id2 is removed from id1's dm
     dm_detail = requests.get(config.url + "dm/details/v1", params = { 
         'token': token2,
-        'dm_id': dm_id
+        'dm_id': [dm_id]
     })
-    print(json.loads(dm_detail.text))
-    assert len(json.loads(dm_detail.text)['members']) == 1
-    
+    # since id2 is not valid now
+    assert dm_detail.status_code == 403
+
+    '''
     # the contents of the messages will be replaced by 'Removed user'
     messages = requests.get(config.url + "channel/messages/v2", 
         params = {
@@ -184,13 +185,26 @@ def test_admin_remove_valid():
             'start': 0
         }
     )
+    print(json.loads(messages.text))
     assert json.loads(messages.text)['messages'] == 'Removed user'
     '''
+
     # there are only 1 valid user in user/all now
     user_list = requests.get(config.url + "user/all/v1", params ={
         'token': token
     })
     assert len(json.loads(user_list.text)) == 1
+
+    # the profile of removed user is still retrievable
+    profile = requests.get(config.url + "user/profile/v1", 
+        params = {
+        'token': token,
+        'u_id': u_id
+    })  
+    # name_first should be 'Removed' and name_last should be 'user'.
+    assert profile.status_code == 200
+    assert json.loads(profile.text)['name_first'] == 'Removed'
+    assert json.loads(profile.text)['name_last'] == 'user'
     
     # user2's email and handle should be reusable.
     user3 = requests.post(config.url + "auth/register/v2", json ={
