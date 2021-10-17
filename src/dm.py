@@ -1,8 +1,10 @@
 from src.server_helper import decode_token
-from src.helper import check_valid_email, channels_user_details, check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict
+from src.helper import check_valid_email, channels_user_details, check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
+from src.helper import check_valid_member_in_dm, check_valid_message
 from src.error import InputError, AccessError
 from src.data_store import DATASTORE, initial_object
 from src.auth import auth_register_v2
+import time
 
 def dm_details_v1(token, dm_id): 
     '''
@@ -44,41 +46,67 @@ Return Value:
             }
 
 
-# def dm_messages_v1(): 
-#     '''
-#     Given a dm with dm_id that authorised user
-#     is a member, return up to 50 messages between a index "start"
-#      and "start + 50". Message with index 0 is the most recent message 
-#     in the channel. returns a new index 'end'  which is 'start + 50'. 
-#     returns -1 in end - no more messages to load. 
+def dm_messages_v1(token, dm_id, start): 
+    '''
+    Given a dm with dm_id that authorised user
+    is a member, return up to 50 messages between a index "start"
+     and "start + 50". Message with index 0 is the most recent message 
+    in the channel. returns a new index 'end'  which is 'start + 50'. 
+    returns -1 in end - no more messages to load. 
 
-# Arguments: 
-#     token - a user's unique token 
-#     dm_id (int) - a user's unique dm id
-#     start -  
-#     ...
+Arguments: 
+    token - a user's unique token 
+    dm_id (int) - a user's unique dm id
+    start -  
+    ...
 
-# Exceptions:
-#     InputError  - Occurs when the dm id is invalid 
-#                     or the token is invalid.
-#                 - Start is greater then total number
-#                 of messages in channel 
-#     AccessError - Occurs when the dm_id is not 
-#                     an authorised member of the DM 
+Exceptions:
+    InputError  - Occurs when the dm id is invalid 
+                    or the token is invalid.
+                - Start is greater then total number
+                of messages in channel 
+    AccessError - Occurs when the dm_id is not 
+                    an authorised member of the DM 
 
-# Return Value:
-#     Returns end 
-#     '''
+Return Value:
+    Returns end - if end is -1 then it returns the recent messages of the channel 
 
-#     #invalid dm_id
-#     if not check_valid_dm_id(dm_id): 
-#         raise InputError("This dm_id does not refer to a valid DM")
+    '''
 
-#     #not authorised  
-#     if not check_valid_member_in_dm(dm_id, auth_user_id): 
-#         raise AccessError("The user is not an authorised member of the DM")
+    auth_user_id = decode_token(token)
+
+    #invalid dm_id
+    if not check_valid_dm(dm_id): 
+        raise InputError("This dm_id does not refer to a valid DM")
+
+    #not authorised  
+    if not check_valid_member_in_dm(dm_id, auth_user_id): 
+        raise AccessError("The user is not an authorised member of the DM")
+
+    for dm in initial_object['dms']: 
+        if dm['dm_id'] == dm_id: 
+            num_messages = len(dm['messages'])
+            dm_pagination = dm['messages']
+
+    end = start + 50 
+    if end >= num_messages: 
+        end = -1
+
+    if not check_valid_start(num_messages, start): 
+        raise InputError(description = 'Start is greater then total messages')
 
 
+    if end == -1: 
+        dm_pagination = dm_pagination[start:] 
+    else: 
+        dm_pagination = dm_pagination[start:end]
+
+    return { 
+        'messages': dm_pagination,
+        'start': start,
+        'end': end,
+    }
+# for testing
 
 # create a dm and returns it id
 def dm_create_v1(token, u_ids):
@@ -196,3 +224,96 @@ def dm_remove_v1(token, dm_id):
     DATASTORE.set(store)
     return {}
 
+def message_senddm_v1(token, dm_id, message):
+    
+    auth_user_id = decode_token(token)
+    store = DATASTORE.get()
+
+    # Invalid dm_id
+    if not check_valid_dm(dm_id):
+        raise InputError("The dm_id does not refer to a valid dm")
+
+    # Authorised user not a member of channel
+    if not check_valid_member_in_dm(dm_id, auth_user_id):
+        raise AccessError("Authorised user is not a member of dm with dm_id")
+
+    # Invalid message: Less than 1 or over 1000 characters
+    if not check_valid_message(message):
+        raise InputError("Message is invalid as length of message is less than 1 or over 1000 characters.")
+
+    # Creating unique message_id 
+    dmsend_id = (len(initial_object['messages']) * 2) 
+
+    # Current time message was created and sent
+    time_created = time.time()
+
+    dmsend_details = {
+        'message_id': dmsend_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_created
+    }
+
+    # Append dictionary of message details into initial_objects['dm']['messages']
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            dm['messages'].append(dmsend_details)
+
+    # Append dictionary of message details into intital_objects['messages']
+    dmsend_details['dm_id'] = dm_id
+    initial_object['messages'].append(dmsend_details)
+
+    DATASTORE.set(store)
+
+    return {
+        'message_id': dmsend_id
+    }
+
+'''
+id1 = auth_register_v2('abc@gmail.com', 'password', 'leanna', 'chan')
+id2 = auth_register_v2('asdsfb@gmail.com', 'password', 'hi', 'wore')
+id3 = auth_register_v2('asdsfbdfhdj@gmail.com', 'password', 'hello', 'world')
+id4 = auth_register_v2('asbfdhfhrdfhdj@gmail.com', 'password', 'baby', 'shark')
+dm1 = dm_create_v1(id1['token'], [id2['auth_user_id'], id3['auth_user_id']])
+dm2 = dm_create_v1(id2['token'], [id3['auth_user_id'], id4['auth_user_id'], id1['auth_user_id']])
+dm3 = dm_create_v1(id3['token'], [id4['auth_user_id'], id1['auth_user_id']])
+dm_remove_v1(id1['token'], dm1['dm_id'])
+dm_remove_v1(id3['token'], dm3['dm_id'])
+dm_remove_v1(id3['token'], dm2['dm_id'])
+#print(dm_list_v1(id3['token']))
+'''
+
+def dm_leave_v1(token,dm_id):
+    '''
+    Creates a dm with name generated based on users' handle
+
+    Arguments:
+        <token>        (<hash>)    - an authorisation hash
+        <u_ids>        (<list>)    - a list of u_id 
+
+    Exceptions:
+        InputError  - Occurs when one of u_id given does not refer to a valid user
+
+    Return Value:
+        Returns <{dm_id}> when the dm is sucessfully created
+    '''
+    store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+    newuser = user_info(auth_user_id)
+
+     
+    if not isinstance(dm_id, int):
+        raise InputError("This is an invalid dm_id")
+    
+    if not check_valid_dm(dm_id):
+        raise InputError("This does not refer to a valid dm")
+
+
+
+    for dm in initial_object['dms']: 
+        if dm['dm_id'] == dm_id: 
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id: 
+                    dm['members'].remove(newuser)
+    DATASTORE.set(store)
+    return{}
