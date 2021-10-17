@@ -1,116 +1,83 @@
 import pytest 
-from src.channel import channel_join_v2, channel_leave_v1, channel_details_v2
-from src.channels import channels_create_v2
-from src.error import AccessError, InputError
-from src.other import clear_v1
-from src.auth import auth_register_v2
 import requests
 import json 
 from src import config
 
-#invalid channel_id 
-def test_leave_invalid_channel_id():
-    clear_v1()
-    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
+@pytest.fixture
+def register_user():
 
-    with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], -16)
-    with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], 0)
-    with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], 256)
-    with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], 'not_an_id')
-    with pytest.raises(InputError):
-        channel_leave_v1(id1['token'], '')
-
-#not an authorised member of the channel 
-def test_leave_not_member():
-    clear_v1()
-    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
-    id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
-    id3 = auth_register_v2('elephant@gmail.com', 'password', 'cfirst', 'clast')
-    id4 = auth_register_v2('cat@gmail.com', 'password', 'dfirst', 'dlast')
-    channel_id2 = channels_create_v2(id2['token'], 'anna', True)
-    channel_id4 = channels_create_v2(id4['token'], 'shelly', False)
-
-    # Public
-    with pytest.raises(AccessError):
-        channel_leave_v1(id1['token'], channel_id2['channel_id'])
-    with pytest.raises(AccessError):
-        channel_leave_v1(id1['token'], channel_id2['channel_id'])
-
-    # Private
-    with pytest.raises(AccessError):
-        channel_leave_v1(id3['token'], channel_id4['channel_id'])
-    with pytest.raises(AccessError):
-        channel_leave_v1(id3['token'], channel_id4['channel_id'])
-
-
-def test_leave_valid_public_channel(): 
-    clear_v1()
-    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
-    id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
-    id3 = auth_register_v2('dog@gmail.com', 'password', 'cfirst', 'clast')
-    channel_id2 = channels_create_v2(id2['token'], 'anna', True)
-    
-    channel_join_v2(id1['token'], channel_id2['channel_id'])
-    channel_join_v2(id3['token'], channel_id2['channel_id'])
-    details1 = channel_details_v2(id1['token'], channel_id2['channel_id'])
-    details2 = channel_details_v2(id2['token'], channel_id2['channel_id'])
-    assert len(details1['all_members']) == 3
-    assert len(details2['all_members']) == 3
-    assert len(details1['owner_members']) == 1
-    assert len(details2['owner_members']) == 1
-
-
-    channel_leave_v1(id1['token'], channel_id2['channel_id'])
-    channel_leave_v1(id3['token'], channel_id2['channel_id'])
-
-    details3 = channel_details_v2(id2['token'], channel_id2['channel_id'])
-    assert len(details3['all_members']) == 1
-
-
-def test_http_valid(): 
     requests.delete(config.url + "clear/v1")
+    user = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+    user_data = user.json()
+    return user_data
 
-    user1 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'park'
-        })
-    user2 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'email@gmail.com',
-            'password': 'password',
-            'name_first': 'john',
-            'name_last': 'doe'
-        })
-    token1 = json.loads(user1.text)['token']
-    token2 = json.loads(user2.text)['token']
+@pytest.fixture
+def register_user1():
+    user1 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcd@gmail.com',
+        'password': 'password',
+        'name_first': 'sally',
+        'name_last': 'li'
+    })
+    user1_data = user1.json()
+    return user1_data
 
-    channel1 = requests.post(config.url + "channels/create/v2", 
-        json = {
-        'token': token1,
-        'name': 'channel1',
+@pytest.fixture
+def create_channel(register_user):
+
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': register_user['token'],
+        'name': 'anna',
         'is_public': True
     })
-    channel_id1 = json.loads(channel1.text)['channel_id']
-    assert channel_id1 == json.loads(channel1.text)['channel_id']
+    channel_data = channel.json()
+    return channel_data
 
-    respo1 = requests.post(config.url + "channel/join/v2",
-        json = { 
+# remove the member of the channel
+def test_channel_leave_valid(register_user, register_user1, create_channel): 
+
+    token1 = register_user['token']
+    token2 = register_user1['token']
+    assert token1 != token2
+    channel_id1 = create_channel['channel_id']
+
+    # add token2 to the channel
+    join = requests.post(config.url + "channel/join/v2", json ={ 
         'token': token2, 
-        'channel_id': json.loads(channel1.text)['channel_id'],
-        })   
+        'channel_id': channel_id1
+    })   
+    assert join.status_code == 200
+
+    # token2 as a member leaves the channel
+    respo = requests.post(config.url + "channel/leave/v1",json = { 
+        'token': token2, 
+        'channel_id': channel_id1
+    })  
+    assert respo.status_code == 200
+
+# remove the only owner of the channel and the channel will remain
+def test_channel_leave_valid1(register_user, register_user1, create_channel): 
+
+    token1 = register_user['token']
+    token2 = register_user1['token']
+
+    channel_id1 = create_channel['channel_id']
+
+    # add token2 to the channel
+    respo1 = requests.post(config.url + "channel/join/v2", json ={ 
+        'token': token2, 
+        'channel_id': channel_id1
+    })   
     assert respo1.status_code == 200
 
-    respo = requests.post(config.url + "channel/leave/v1",
-        json = { 
+    # the only owner leaves the channel
+    respo = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token1, 
-        'channel_id': json.loads(channel1.text)['channel_id'],
-        })  
-    
+        'channel_id': channel_id1
+    })  
     assert respo.status_code == 200

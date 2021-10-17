@@ -115,6 +115,7 @@ def auth_register_v2(email, password, name_first, name_last):
     else:
         permission_id = 2
 
+    is_removed = False
     # Then append dictionary of user email onto initial_objects
     initial_object['users'].append({
         'email' : email,
@@ -124,7 +125,8 @@ def auth_register_v2(email, password, name_first, name_last):
         'token': token,
         'auth_user_id' : int(auth_user_id),
         'handle_str' : handle,
-        'permission_id' : permission_id
+        'permission_id' : permission_id,
+        'is_removed': bool(is_removed)
     })
 
     DATASTORE.set(store)

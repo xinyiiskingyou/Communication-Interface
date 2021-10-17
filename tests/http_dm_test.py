@@ -58,7 +58,6 @@ def test_http_dm_details_valid():
     token2 = json.loads(user2.text)['token']
     u_id2 = json.loads(user2.text)['auth_user_id']
 
-
     dm1 = requests.post(config.url + "dm/create/v1",
         json = { 
             'token': token,
