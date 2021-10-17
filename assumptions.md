@@ -27,3 +27,10 @@ Assume all parameters in every function is given input.
 1. Assume the dm_id always be positive
 2. Assume the u_ids have distinct u_id
 3. Assume the creator is a valid user
+
+# For admin_user_remove_v1:
+1. Assume everything but first name, last name and u_id are empty keys when we called user/profile
+
+# For admin_userpermission_change_v1:
+1. Assume nothing happened (i.e. no error will be raised) when the global owner changes their permission id 
+to be 1
