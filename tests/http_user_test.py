@@ -34,11 +34,11 @@ def register_user2():
 def test_user_all_1_member(register_user1):
 
     token = register_user1['token']
-    all = requests.get(config.url + "user/all/v1", json ={
+    all1 = requests.get(config.url + "user/all/v1", json ={
         'token': token
     })
 
-    assert (json.loads(all.text) == 
+    assert (json.loads(all1.text) == 
     [{
         'u_id': 1,
         'email': 'cat@gmail.com',
@@ -46,7 +46,7 @@ def test_user_all_1_member(register_user1):
         'name_last': 'lee',
         'handle_str': 'annalee'
     }])
-    assert len(json.loads(all.text)) == 1
+    assert len(json.loads(all1.text)) == 1
 
 # Valid case when there is more then 1 user
 def test_user_all_several_members(register_user1, register_user2):
