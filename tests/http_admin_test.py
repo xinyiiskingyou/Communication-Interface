@@ -381,3 +381,23 @@ def test_valid_permission_change(global_owner, register_user2):
         'permission_id': 1
     })
     assert perm3.status_code == 200
+
+# Nothing happened when the changing the permission is the same as before
+def test_valid_permission_change1(global_owner, register_user2):
+
+    token = global_owner['token']
+    u_id = global_owner['auth_user_id']
+    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
+        'token': token,
+        'u_id': u_id,
+        'permission_id': 1
+    })
+    assert perm.status_code == 200
+
+    u_id2 = register_user2['auth_user_id']
+    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
+        'token': token,
+        'u_id': u_id2,
+        'permission_id': 2
+    })
+    assert perm.status_code == 200
