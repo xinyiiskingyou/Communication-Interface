@@ -107,13 +107,13 @@ def test_user_profile_valid_own(register_user1):
     token = register_user1['token']
     u_id = register_user1['auth_user_id']
 
-    all = requests.get(config.url + "user/profile/v1", params ={
+    all1 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': u_id
     })
 
-    assert all.status_code == 200
-    assert (json.loads(all.text) == 
+    assert all1.status_code == 200
+    assert (json.loads(all1.text) == 
         {
         'u_id': u_id,
         'email': 'cat@gmail.com',
@@ -128,13 +128,13 @@ def test_user_profile_valid_someone_else(register_user1, register_user2):
     token = register_user1['token']
     u_id2 = (register_user2['auth_user_id'])
 
-    all = requests.get(config.url + "user/profile/v1", params ={
+    all1 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': u_id2
     })
 
-    assert all.status_code == 200
-    assert (json.loads(all.text) == 
+    assert all1.status_code == 200
+    assert (json.loads(all1.text) == 
         {
         'u_id': u_id2,
         'email': 'elephant@gmail.com',
