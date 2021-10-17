@@ -123,9 +123,12 @@ def dm_create_v1(token, u_ids):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
+
+    # error handling
     for i in range(len(u_ids)):
         if not channels_create_check_valid_user(u_ids[i]):
-            raise InputError('any u_id in u_ids does not refer to a valid user')
+            raise InputError(description = 'any u_id in u_ids does not refer to a valid user')
+
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
 
@@ -139,6 +142,8 @@ def dm_create_v1(token, u_ids):
     creator_handle = get_handle(auth_user_id)
     handle_list.append(creator_handle)
     creator_info = user_info(auth_user_id)
+
+    # create a list that stores member's info
     member_list = [creator_info]
 
     for i in range(len(u_ids)):
@@ -146,8 +151,12 @@ def dm_create_v1(token, u_ids):
         handle_list.append(handle)
         info = user_info(u_ids[i])
         member_list.append(info)
-    # alphabetically-sorted
+
+    # alphabetically-sorted the handle
     handle_list.sort()
+
+    # generate a name that consist of all 
+    # members handle and separated by comma
     separation = ", "
     name = separation.join(handle_list)
 
@@ -164,21 +173,49 @@ def dm_create_v1(token, u_ids):
         'dm_id': dm_id
     }
 
+# get the list of dm that the user is a member of
 def dm_list_v1(token):
+    '''
+    Returns the list of DMs that the user is a member of.
+
+    Arguments:
+        <token>        (<hash>)    - an authorisation hash
+
+    Exceptions:
+        N/A
+
+    Return Value:
+        Returns <{'dms'}> where 'dms' is a list of dictionary of dm 
+        that this user is a member of
+    '''
     auth_user_id = decode_token(token)
     return {'dms': get_dm_info(auth_user_id)}
 
 def dm_remove_v1(token, dm_id):    
-    # assume type is always correct?
+    '''
+    Remove an existing DM, so all members are no longer in the DM. 
+    This can only be done by the original creator of the DM.
+
+    Arguments:
+        <token>        (<hash>)    - an authorisation hash
+        <dm_id>        (<int>)     - an unique id of a dm
+    Exceptions:
+        Input Error    - when dm_id does not refer to a valid DM
+        Access Error   - when dm_id is valid and the auth user is not
+                         original DM creator. 
+
+    Return Value:
+        Returns N/A
+    '''
     if not isinstance(dm_id, int):
-        raise InputError("This is an invalid dm_id")
+        raise InputError(description = "This is an invalid dm_id")
     
     if not check_valid_dm(dm_id):
-        raise InputError("This does not refer to a valid dm")
+        raise InputError(description = "This does not refer to a valid dm")
 
     auth_user_id = decode_token(token)
     if not check_creator(auth_user_id, dm_id):
-        raise AccessError('The user is not the original DM creator')
+        raise AccessError(description = 'The user is not the original DM creator')
 
     store = DATASTORE.get()
     dms = initial_object['dms']
