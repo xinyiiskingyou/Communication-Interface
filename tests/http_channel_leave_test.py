@@ -18,7 +18,6 @@ def register_user():
 
 @pytest.fixture
 def register_user1():
-
     user1 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'abcd@gmail.com',
         'password': 'password',
@@ -40,10 +39,11 @@ def create_channel(register_user):
     return channel_data
 
 # remove the member of the channel
-def test_channel_leave_valid(register_user1, create_channel): 
+def test_channel_leave_valid(register_user, register_user1, create_channel): 
 
+    token1 = register_user['token']
     token2 = register_user1['token']
-
+    assert token1 != token2
     channel_id1 = create_channel['channel_id']
 
     # add token2 to the channel
