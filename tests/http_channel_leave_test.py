@@ -49,7 +49,7 @@ def test_channel_leave_valid(register_user, register_user1, create_channel):
 
     # add token2 to the channel
     join = requests.post(config.url + "channel/join/v2", json ={ 
-        'token': token1, 
+        'token': token2, 
         'channel_id': channel_id1
     })   
     assert join.status_code == 200
