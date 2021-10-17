@@ -9,4 +9,3 @@ omit =
     src/server.py
     src/data_store.py
     */__init__.py
-
