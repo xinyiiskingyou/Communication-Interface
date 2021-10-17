@@ -10,9 +10,8 @@ import time
 
 def message_send_v1(token, channel_id, message):
     
-    auth_user_id = decode_token(token)
     store = DATASTORE.get()
-
+    auth_user_id = decode_token(token)
     # Invalid channel_id
     if not check_valid_channel_id(channel_id):
         raise InputError("The channel_id does not refer to a valid channel")
