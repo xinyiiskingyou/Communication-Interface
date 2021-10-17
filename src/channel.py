@@ -289,7 +289,7 @@ def channel_addowner_v1(token, channel_id, u_id):
     # No owner permission
     if not check_valid_owner(auth_user_id, channel_id):
         if not check_global_owner(auth_user_id):
-            raise AccessError(description='No owner permission in the channel')
+            raise AccessError(description ='No owner permission in the channel')
             
     # invalid u_id
     if not isinstance(u_id, int):

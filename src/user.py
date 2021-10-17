@@ -1,10 +1,27 @@
 from src.server_helper import decode_token
-from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user, get_channel_details
+from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user
 from src.helper import user_info
 from src.error import InputError
 from src.data_store import DATASTORE, initial_object
 
 def users_all_v1(token): 
+    '''
+    Returns a list of all users and their associated details.
+
+    Arguments:
+        <token>     (<string>)    - an authorisation hash
+        <u_id>      (<int>)       - an unique auth_user_id of the user to be added as an owner of the channel
+
+    Exceptions:
+        InputError  - Occurs when u_id does not refer to a valid user
+
+    Return Value:
+        Returns <auth_user_id> of valid user
+        Returns <email> of valid user
+        Returns <name_first> of valid user
+        Returns <name_last> of valid user
+        Returns <handle> of valid user
+    '''
     user_list = []
 
     for user in initial_object['users']:
@@ -14,10 +31,10 @@ def users_all_v1(token):
 
 def user_profile_v1(token, u_id):
     '''
-    Update the authorised user's email address.
+    For a valid user, returns information about their user_id, email, first name, last name, and handle.
 
     Arguments:
-        <token>     (<hash>)      - an authorisation hash
+        <token>     (<string>)    - an authorisation hash
         <u_id>      (<int>)       - an unique auth_user_id of the user to be added as an owner of the channel
         ...
 
@@ -38,6 +55,36 @@ def user_profile_v1(token, u_id):
     return (user_info(int(u_id)))
 
 def user_profile_setname_v1(token, name_first, name_last):
+    '''
+    Update the authorised user's first and last name
+
+    Arguments:
+        <token>         (<string>)    - an authorisation hash
+        <name_first>    (<string>)    - alphanumerical first name
+        <name_last>     (<string>)    - alphanumerical first name
+        ...
+
+    Exceptions:
+        InputError  - Occurs when length of name_first is not between 1 and 50 characters inclusive
+                    - Occurs when length of name_last is not between 1 and 50 characters inclusive
+
+    Return Value:
+        Returns N/A
+    '''
+    store = DATASTORE.get()
+    # Invalid first name
+    if len(name_first) not in range(1, 51):
+        raise InputError(description='name_first is not between 1 - 50 characters in length')
+
+    # Invalid last name
+    if len(name_last) not in range(1, 51):
+        raise InputError(description='name_last is not between 1 - 50 characters in length')
+
+    auth_user_id = decode_token(token)
+    user = channels_user_details(auth_user_id)
+    user['name_first'] = name_first
+    user['name_first'] = name_last
+    DATASTORE.set(store)
     return {}
 
 def user_profile_setemail_v1(token, email):
