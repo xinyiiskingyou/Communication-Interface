@@ -222,37 +222,44 @@ def channel_join_v2(token, channel_id):
 
 def channel_leave_v1(token, channel_id):
     ''' 
-    errors: 
-    Input: 
-    - when channel_id does not refer to a valid channel 
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    remove them as a member of the channel. Their messages should remain in the 
+    channel. If the only channel owner leaves, the channel will remain.
 
-    Access: 
-    - when channel_id is valid but the auth user is not part of the channel 
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <channel_id>   (<int>)      - unique id of a channel
+    
+    Exceptions:  
+        InputError  - Occurs when channel_id does not refer to a valid channel 
+        AccessError - Occurs when channel_id is valid but the auth user is not part of the channel 
+
+     Return Value:
+        N/A
     '''
 
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
-    newuser = user_info(auth_user_id)
 
+    # channel_id does not refer to a valid channel
     if not isinstance(channel_id, int):
         raise InputError(description = 'This is an invalid channel_id')
     if not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel id is not valid')
 
-    # if not check_valid_member_in_channel (channel_id, auth_user_id):
-    #     if not check_permision_id(auth_user_id):
-    #         raise AccessError ('Not authorised member of the channel')
-    
+    # channel_id is valid and the authorised user is not a member of the channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
-
-    
 
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
             for member in channels['all_members']: 
                 if member['u_id'] == auth_user_id:
-                    channels['all_members'].remove(newuser)
+                    channels['all_members'].remove(member)
+            for owner in channels['owner_members']: 
+                if owner['u_id'] == auth_user_id:
+                    channels['owner_members'].remove(owner)
+            
     DATASTORE.set(store)
     return {}
 
