@@ -3,10 +3,6 @@ import requests
 import json
 from src import config 
 
-##########################################
-##### user_profile_set_email tests #######
-##########################################
-
 @pytest.fixture
 def register_user1():
     requests.delete(config.url + "clear/v1")
@@ -29,6 +25,10 @@ def register_user2():
     })
     user2_data = user2.json()
     return user2_data
+
+##########################################
+##### user_profile_set_email tests #######
+##########################################
 
 # Input Error when email entered is not a valid email
 def test_user_set_email_invalid_email(register_user1):

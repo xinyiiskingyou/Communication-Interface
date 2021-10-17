@@ -39,7 +39,6 @@ def create_channel(register_user):
     channel_data = channel.json()
     return channel_data
 
-
 # invalid channel_id
 def test_removeowner_invalid_channel_id(register_user, register_user1):
 
