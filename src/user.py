@@ -10,7 +10,6 @@ def users_all_v1(token):
 
     Arguments:
         <token>     (<string>)    - an authorisation hash
-        <u_id>      (<int>)       - an unique auth_user_id of the user to be added as an owner of the channel
 
     Exceptions:
         InputError  - Occurs when u_id does not refer to a valid user
@@ -22,12 +21,18 @@ def users_all_v1(token):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
-    valid_user(token)
+    store = DATASTORE.get()
+    token1 = bytes(token)
+    valid_user(token1)
+
     user_list = []
 
     for user in initial_object['users']:
+        
         if user['is_removed'] == False:
             user_list.append(user_info(user['auth_user_id']))
+    
+    DATASTORE.set(store)
     return (user_list)
 
 def user_profile_v1(token, u_id):

@@ -36,8 +36,6 @@ def decode_token(token):
 
 # Finding valid user form token
 def valid_user(token):
-    user = decode_token(token)
-    if user is None:
+    user_registered = decode_token(token)
+    if user_registered is None:
         raise InputError(description="User does not exist")
-
-    return user
