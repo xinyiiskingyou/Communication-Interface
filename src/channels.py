@@ -1,7 +1,6 @@
 '''
 Channels implementation
 '''
-
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError, AccessError
 from src.helper import user_info, channels_create_check_valid_user
@@ -25,7 +24,9 @@ def channels_list_v2(token):
     '''
 
     store = DATASTORE.get()
-    valid_user(token)
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
     auth_user_id = decode_token(token)
 
     new_list = []
@@ -60,7 +61,8 @@ def channels_listall_v2(token):
         are successfully listed by authorised user
     '''
     store = DATASTORE.get()
-    valid_user(token)
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
 
     listchannel = []
     for channels in initial_object['channels']:
@@ -91,7 +93,10 @@ def channels_create_v2(token, name, is_public):
         Returns <{channel_id}> when the channel is sucessfully created
     '''
     store = DATASTORE.get()
-    valid_user(token)
+
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
 
     # Invalid channel name

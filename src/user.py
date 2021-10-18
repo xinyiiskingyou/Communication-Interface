@@ -1,7 +1,7 @@
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user
 from src.helper import user_info
-from src.error import InputError
+from src.error import AccessError, InputError
 from src.data_store import DATASTORE, initial_object
 
 def users_all_v1(token): 
@@ -21,17 +21,15 @@ def users_all_v1(token):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
-    store = DATASTORE.get()
-    #valid_user(token)
-    #decode_token(token)
+
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
 
     user_list = []
-
     for user in initial_object['users']:
         if user['is_removed'] == False:
             user_list.append(user_info(user['auth_user_id']))
     
-    DATASTORE.set(store)
     return (user_list)
 
 def user_profile_v1(token, u_id):
@@ -53,7 +51,9 @@ def user_profile_v1(token, u_id):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
-    valid_user(token)
+
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
 
     if not channels_create_check_valid_user(int(u_id)):
         raise InputError(description='The u_id does not refer to a valid user')
@@ -78,6 +78,9 @@ def user_profile_setname_v1(token, name_first, name_last):
     '''
 
     store = DATASTORE.get()
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     # Invalid first name
     if len(name_first) not in range(1, 51):
         raise InputError(description='name_first is not between 1 - 50 characters in length')
@@ -109,10 +112,11 @@ def user_profile_setemail_v1(token, email):
         Returns N/A
     '''
 
-    valid_user(token)
-    auth_user_id = decode_token(token)
-
     store = DATASTORE.get()
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
     # email entered is not a valid email
     if not check_valid_email(email):
         raise InputError(description='Email entered is not a valid email')
@@ -145,10 +149,11 @@ def user_profile_sethandle_v1(token, handle_str):
         Returns N/A
     '''
 
-    valid_user(token)
-    auth_user_id = decode_token(token)
-
     store = DATASTORE.get()
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
 
     # length of handle_str is not between 3 and 20 characters inclusive
     if len(handle_str) not in range(3, 21):
