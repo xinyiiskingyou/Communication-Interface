@@ -38,9 +38,16 @@ def auth_login_v2(email, password):
 
     raise InputError(description='Email and/or password is not valid!')
 
+
+def auth_logout_v1(token):
+    store = DATASTORE.get()
+    session_id = decode_token_session_id(token)
+    for user in initial_object['users']:
+        if user['token'] == token:
+            user['session_list'].remove(session_id)
     
-
-
+    DATASTORE.set(store)
+    
 
 def auth_register_v2(email, password, name_first, name_last):
     '''
