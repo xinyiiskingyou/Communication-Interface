@@ -1,7 +1,7 @@
 from src.error import InputError, AccessError
 from src.helper import *
 from src.data_store import DATASTORE, initial_object
-from src.server_helper import decode_token
+from src.server_helper import decode_token, valid_user
 
 def admin_user_remove_v1(token, u_id):
     '''
@@ -20,6 +20,9 @@ def admin_user_remove_v1(token, u_id):
         N/A
     '''
     store = DATASTORE.get()
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
     # u_id does not refer to a valid user
     if not channels_create_check_valid_user(u_id):
@@ -102,9 +105,11 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     '''
     store = DATASTORE.get()
 
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
-    user = channels_user_details(u_id)
-        
+
     # u_id does not refer to a valid user
     if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
         # if u_id is invalid the authorised user is not a global owner
@@ -131,6 +136,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     if not check_permision_id(auth_user_id):
         raise AccessError(description='The authorised user is not a global owner')
 
+    user = channels_user_details(u_id)
     user['permission_id'] = permission_id
     DATASTORE.set(store)
     return {}

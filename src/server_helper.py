@@ -1,5 +1,5 @@
 import jwt
-from src.error import InputError
+import time
 
 SESS_COUNTER = 0
 SECRET = "CAMEL"
@@ -7,6 +7,8 @@ SECRET = "CAMEL"
 #################################################
 ######### Helper functions for auth.py ##########
 #################################################
+
+valid_token = []
 
 def generate_sess_id():
     global SESS_COUNTER
@@ -24,8 +26,9 @@ def generate_token(auth_user_id, session_id=None):
         'auth_user_id': auth_user_id,
         'session_id': session_id
     }
-
-    token = jwt.encode(payload, SECRET, algorithm='HS256')
+    token = str(jwt.encode(payload, SECRET, algorithm='HS256'))
+    # append the token in the list
+    valid_token.append(token)
     return token
     
 # Decoding the token
@@ -42,8 +45,10 @@ def decode_token_session_id(token):
 
 # Finding valid user form token
 def valid_user(token):
-    user_registered = decode_token(token)
-    if user_registered is None:
-        raise InputError(description="User does not exist")
-
-    return user_registered
+    valid_users = valid_token
+    for i in range(len(valid_users)):
+        # if the token is in the list
+        # return the token of the user
+        if token in valid_users:
+            return valid_users[i]
+    return False

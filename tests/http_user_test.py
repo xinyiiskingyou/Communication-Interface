@@ -30,13 +30,22 @@ def register_user2():
 ############ users_all tests #############
 ##########################################
 
+# Access error when invalid token
+def test_user_all_invalid_token(register_user1):
+    invalid_token = register_user1['token'] + 'adfsdf'
+    all1 = requests.get(config.url + "user/all/v1", params ={
+        'token': invalid_token
+    })
+    assert all1.status_code == 403
+
 # Valid case when there is only 1 user
 def test_user_all_1_member(register_user1):
 
     token = register_user1['token']
-    all1 = requests.get(config.url + "user/all/v1", json ={
+    all1 = requests.get(config.url + "user/all/v1", params ={
         'token': token
     })
+    assert all1.status_code == 200
 
     assert (json.loads(all1.text) == 
     [{
@@ -54,11 +63,11 @@ def test_user_all_several_members(register_user1, register_user2):
     token1 = register_user1['token']
     token2 = register_user2['token']
 
-    all1 = requests.get(config.url + "user/all/v1", json ={
+    all1 = requests.get(config.url + "user/all/v1", params ={
         'token': token1
     })
 
-    all2 = requests.get(config.url + "user/all/v1", json ={
+    all2 = requests.get(config.url + "user/all/v1", params ={
         'token': token2
     })
 
@@ -72,32 +81,48 @@ def test_user_all_several_members(register_user1, register_user2):
 ########## user_profile tests ############
 ##########################################
 
+# Access error when invalid token
+def test_user_profile_invalid_token(register_user1):
+
+    invalid_token = register_user1['token'] + 'adfsdf'
+    u_id = register_user1['auth_user_id']
+    profile1 = requests.get(config.url + "user/profile/v1", params ={
+        'token': invalid_token,
+        'u_id': u_id
+    })
+    assert profile1.status_code == 403
+
 # Input error for invalid u_id
 def test_user_profile_invalid_u_id(register_user1):
 
     token = register_user1['token']
     # Invalid u_id's
-    all1 = requests.get(config.url + "user/profile/v1", 
-        params = {
+    profile1 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': -1
     })
 
-    all2 = requests.get(config.url + "user/profile/v1", 
-        params = {
+    profile2 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': 0
     })
 
-    all3 = requests.get(config.url + "user/profile/v1", 
-        params = {
+    profile3 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': 256
     })
 
-    assert all1.status_code == 400
-    assert all2.status_code == 400
-    assert all3.status_code == 400
+    assert profile1.status_code == 400
+    assert profile2.status_code == 400
+    assert profile3.status_code == 400
+
+    # access error: invalid token and invalid u_id
+    invalid_token = register_user1['token'] + 'adfsdf'
+    profile4 = requests.get(config.url + "user/profile/v1", params ={
+        'token': invalid_token,
+        'u_id': -1
+    })
+    assert profile4.status_code == 403
 
 ##### Implementation #####
 
@@ -107,13 +132,13 @@ def test_user_profile_valid_own(register_user1):
     token = register_user1['token']
     u_id = register_user1['auth_user_id']
 
-    all1 = requests.get(config.url + "user/profile/v1", params ={
+    profile = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': u_id
     })
 
-    assert all1.status_code == 200
-    assert (json.loads(all1.text) == 
+    assert profile.status_code == 200
+    assert (json.loads(profile.text) == 
         {
         'u_id': u_id,
         'email': 'cat@gmail.com',
@@ -128,13 +153,13 @@ def test_user_profile_valid_someone_else(register_user1, register_user2):
     token = register_user1['token']
     u_id2 = (register_user2['auth_user_id'])
 
-    all1 = requests.get(config.url + "user/profile/v1", params ={
+    profile = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': u_id2
     })
 
-    assert all1.status_code == 200
-    assert (json.loads(all1.text) == 
+    assert profile.status_code == 200
+    assert (json.loads(profile.text) == 
         {
         'u_id': u_id2,
         'email': 'elephant@gmail.com',
@@ -146,6 +171,17 @@ def test_user_profile_valid_someone_else(register_user1, register_user2):
 ##########################################
 ###### user_profile_set_name tests #######
 ##########################################
+
+# Access error: invalid token
+def test_user_name_invalid_token(register_user1):
+
+    invalid_token = register_user1['token'] + 'adfsdf'
+    name = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': invalid_token,
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+    assert name.status_code == 403
 
 # Input error when length of first name is < 1 or > 50
 def test_user_name_invalid_name_first(register_user1):
@@ -168,6 +204,23 @@ def test_user_name_invalid_name_first(register_user1):
     assert name.status_code == 400
     assert name1.status_code == 400
 
+    # Access error: invalid token and invalid first name
+    invalid_token = register_user1['token'] + 'adfsdf'
+    name2 = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': invalid_token,
+        'name_first': 'a' * 51,
+        'name_last': 'lee'
+    })
+
+    name3 = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': invalid_token,
+        'name_first': 'a' * 51,
+        'name_last': 'lee'
+    })
+    assert name2.status_code == 403
+    assert name3.status_code == 403
+    
+
 # Input error when length of first name is < 1 or > 50
 def test_user_set_name_invalid_name_last(register_user1):
 
@@ -188,6 +241,22 @@ def test_user_set_name_invalid_name_last(register_user1):
 
     assert name.status_code == 400
     assert name1.status_code == 400
+
+    # Access error: invalid token and invalid last name
+    invalid_token = register_user1['token'] + 'adfsdf'
+    name2 = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': invalid_token,
+        'name_first': 'anna',
+        'name_last': ''
+    })
+
+    name3 = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': invalid_token,
+        'name_first': 'anna',
+        'name_last': 'a' * 51
+    })
+    assert name2.status_code == 403
+    assert name3.status_code == 403
 
 ##### Implementation #####
 
@@ -236,6 +305,16 @@ def test_user_set_name_valid_name_first_and_last(register_user1):
 ##### user_profile_set_email tests #######
 ##########################################
 
+# Access error: invalid token
+def test_user_set_email_invalid_token(register_user1):
+
+    invalid_token = register_user1['token'] + 'dsfhja'
+    mail = requests.put(config.url + "user/profile/setemail/v1", json ={
+        'token': invalid_token,
+        'email': 'aaaa123@gmail.com'
+    })
+    assert mail.status_code == 403
+
 # Input Error when email entered is not a valid email
 def test_user_set_email_invalid_email(register_user1):
 
@@ -252,6 +331,21 @@ def test_user_set_email_invalid_email(register_user1):
     })
     assert mail.status_code == 400
     assert mail1.status_code == 400
+
+    # access error: invalid token and invalid email
+    invalid_token = register_user1['token'] + 'dsfhja'
+    mail2 = requests.put(config.url + "user/profile/setemail/v1", json ={
+        'token': invalid_token,
+        'email': 'abc'
+    })
+
+    mail3 = requests.put(config.url + "user/profile/setemail/v1", json ={
+        'token': invalid_token,
+        'email': '123.com'
+    })
+    assert mail2.status_code == 403
+    assert mail3.status_code == 403
+
 
 # email address is already being used by another user
 def test_user_set_email_duplicate_email(register_user1, register_user2):
@@ -287,6 +381,16 @@ def test_user_set_email_valid(register_user1):
 ##### user_profile_set_handle tests ######
 ##########################################
 
+# Access Error: invalid token
+def test_user_set_handle_invalid_token(register_user1):
+
+    invalid_token = register_user1['token'] + 'hdfksa'
+    handle = requests.put(config.url + "user/profile/sethandle/v1", json ={
+        'token': invalid_token,
+        'handle_str': 'ohno'
+    })
+    assert handle.status_code == 403
+
 # length of handle_str is not between 3 and 20 characters inclusive
 def test_user_set_handle_invalid_length(register_user1):
 
@@ -303,6 +407,21 @@ def test_user_set_handle_invalid_length(register_user1):
     assert handle.status_code == 400
     assert handle1.status_code == 400
 
+    # Access Error: invalid token and invalid handle length
+    invalid_token = register_user1['token'] + 'hdfksa'
+    handle2 = requests.put(config.url + "user/profile/sethandle/v1", json ={
+        'token': invalid_token,
+        'handle_str': 'a1'
+    })
+
+    handle3 = requests.put(config.url + "user/profile/sethandle/v1", json ={
+        'token': invalid_token,
+        'handle_str': 'a' * 22
+    })
+    assert handle2.status_code == 403
+    assert handle3.status_code == 403
+
+
 # handle_str contains characters that are not alphanumeric
 def test_user_set_handle_non_alphanumeric(register_user1):
     
@@ -318,6 +437,20 @@ def test_user_set_handle_non_alphanumeric(register_user1):
         'handle_str': '___ad31__:  '
     })
     assert handle.status_code == 400
+
+    # Access Error: invalid token and invalid characters
+    invalid_token = register_user1['token'] + 'hdfksa'
+    handle2 = requests.put(config.url + "user/profile/sethandle/v1", json ={
+        'token': invalid_token,
+        'handle_str': '__ad31__++'
+    })
+
+    handle3 = requests.put(config.url + "user/profile/sethandle/v1", json ={
+        'token': invalid_token,
+        'handle_str': ' ___ad31__:'
+    })
+    assert handle2.status_code == 403
+    assert handle3.status_code == 403
 
 def test_user_set_handle(register_user1, register_user2):
 
