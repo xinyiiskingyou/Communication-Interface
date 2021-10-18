@@ -48,6 +48,8 @@ def auth_logout_v1(token):
     
     DATASTORE.set(store)
     
+    return {}
+
 
 def auth_register_v2(email, password, name_first, name_last):
     '''
