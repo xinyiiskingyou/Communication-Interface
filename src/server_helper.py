@@ -39,3 +39,5 @@ def valid_user(token):
     user_registered = decode_token(token)
     if user_registered is None:
         raise InputError(description="User does not exist")
+
+    return user_registered

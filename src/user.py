@@ -22,13 +22,12 @@ def users_all_v1(token):
         Returns <handle> of valid user
     '''
     store = DATASTORE.get()
-    token1 = bytes(token)
-    valid_user(token1)
+    #valid_user(token)
+    #decode_token(token)
 
     user_list = []
 
     for user in initial_object['users']:
-        
         if user['is_removed'] == False:
             user_list.append(user_info(user['auth_user_id']))
     
@@ -77,9 +76,6 @@ def user_profile_setname_v1(token, name_first, name_last):
     Return Value:
         Returns N/A
     '''
-
-    valid_user(token)
-    auth_user_id = decode_token(token)
 
     store = DATASTORE.get()
     # Invalid first name
