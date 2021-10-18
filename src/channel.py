@@ -6,7 +6,7 @@ from src.helper import check_valid_start, get_channel_details, check_valid_chann
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
 from src.helper import channels_create_check_valid_user, check_valid_owner, check_only_owner, check_global_owner
 from src.data_store import DATASTORE, initial_object
-from src.server_helper import decode_token
+from src.server_helper import decode_token, valid_user
 
 def channel_invite_v2(token, channel_id, u_id):
 
@@ -32,6 +32,7 @@ def channel_invite_v2(token, channel_id, u_id):
     Return Value:
         N/A
     '''
+    valid_user(token)
     auth_user_id = decode_token(token)
     store = DATASTORE.get()
 
@@ -91,6 +92,7 @@ def channel_details_v2(token, channel_id):
         Returns <owner_members> of valid channel requested by authorised user
         Returns <all_members> of valid channel requested by authorised user
     '''
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # Invalid channel_id
@@ -136,6 +138,7 @@ def channel_messages_v2(token, channel_id, start):
             -1 if function has returned the least recent messages in the channel
     '''
 
+    valid_user(token)
     auth_user_id = decode_token(token)
     
     # Invalid channel_id
@@ -195,6 +198,7 @@ def channel_join_v2(token, channel_id):
         N/A
     '''
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # Invalid channel_id
@@ -239,6 +243,7 @@ def channel_leave_v1(token, channel_id):
     '''
 
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # channel_id does not refer to a valid channel
@@ -285,6 +290,7 @@ def channel_addowner_v1(token, channel_id, u_id):
         N/A
     '''
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # invalid channel_id
@@ -342,6 +348,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
     Return Value:
         N/A
     '''
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     store = DATASTORE.get()
