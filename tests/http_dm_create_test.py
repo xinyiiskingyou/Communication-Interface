@@ -173,33 +173,21 @@ def test_dm_list():
             'token': token1,
         })
     assert resp1.status_code == 200
+    dms = json.loads(resp1.text)['dms'][0]
+    dm_id = dms['dm_id']
+    name = dms['name']
+    creator = dms['creator']
+    members = dms['members']
+    messages = dms['messages']
     assert (json.loads(resp1.text) == 
         {
         'dms': [
             {
-                'dm_id': 1,
-                'name': 'afirstalast, alanwood, babyshark, helloworld',
-                'creator': {'u_id': 1, 'email': 'abc@gmail.com', 
-                            'name_first': 'afirst', 'name_last': 'alast', 
-                            'handle_str': 'afirstalast'},
-                'members': [
-                    {'u_id': 1, 'email': 'abc@gmail.com', 
-                    'name_first': 'afirst', 'name_last': 'alast', 
-                    'handle_str': 'afirstalast'},
-                    
-                    {'u_id': 2, 'email': 'abcertgh@gmail.com', 
-                    'name_first': 'hello', 'name_last': 'world', 
-                    'handle_str': 'helloworld'},
-
-                    {'u_id': 3, 'email': '123456@gmail.com', 
-                    'name_first': 'baby', 'name_last': 'shark', 
-                    'handle_str': 'babyshark'},
-
-                    {'u_id': 4, 'email': '1531camel@gmail.com', 
-                    'name_first': 'alan', 'name_last': 'wood', 
-                    'handle_str': 'alanwood'}                    
-                ],
-                'messages': []
+                'dm_id': dm_id,
+                'name': name,
+                'creator': creator,
+                'members': members,
+                'messages': messages
             }
         ],
     })
@@ -323,33 +311,21 @@ def test_dm_list_creator():
             'token': token,
         })
     assert resp1.status_code == 200
+    dms = json.loads(resp1.text)['dms'][0]
+    dm_id = dms['dm_id']
+    name = dms['name']
+    creator = dms['creator']
+    members = dms['members']
+    messages = dms['messages']
     assert (json.loads(resp1.text) == 
         {
         'dms': [
             {
-                'dm_id': 1,
-                'name': 'afirstalast, alanwood, babyshark, helloworld',
-                'creator': {'u_id': 1, 'email': 'abc@gmail.com', 
-                            'name_first': 'afirst', 'name_last': 'alast', 
-                            'handle_str': 'afirstalast'},
-                'members': [
-                    {'u_id': 1, 'email': 'abc@gmail.com', 
-                    'name_first': 'afirst', 'name_last': 'alast', 
-                    'handle_str': 'afirstalast'},
-
-                    {'u_id': 2, 'email': 'abcertgh@gmail.com', 
-                    'name_first': 'hello', 'name_last': 'world', 
-                    'handle_str': 'helloworld'},
-
-                    {'u_id': 3, 'email': '123456@gmail.com', 
-                    'name_first': 'baby', 'name_last': 'shark', 
-                    'handle_str': 'babyshark'},
-
-                    {'u_id': 4, 'email': '1531camel@gmail.com', 
-                    'name_first': 'alan', 'name_last': 'wood', 
-                    'handle_str': 'alanwood'}                    
-                ],
-                'messages': []
+                'dm_id': dm_id,
+                'name': name,
+                'creator': creator,
+                'members': members,
+                'messages': messages
             }
         ],
     })

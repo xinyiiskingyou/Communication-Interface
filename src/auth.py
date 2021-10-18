@@ -5,7 +5,7 @@ import re
 import hashlib
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError
-from src.server_helper import generate_token
+from src.server_helper import generate_token, generate_sess_id
 
 def auth_login_v2(email, password):
     '''
@@ -27,12 +27,14 @@ def auth_login_v2(email, password):
     for user in initial_object['users']:
         # If the email and password the user inputs to login match and exist in data_store
         if (user['email'] == email) and (user['password'] == hashlib.sha256(password.encode()).hexdigest()):
+            session_id = generate_sess_id()
+            user['session_list'].append(session_id)
             auth_user_id = user['auth_user_id']
-            token = user['token']
             return {
-                'token': token,
+                'token': generate_token(auth_user_id, session_id),
                 'auth_user_id': auth_user_id
             }
+
     raise InputError(description='Email and/or password is not valid!')
 
 def auth_register_v2(email, password, name_first, name_last):
@@ -84,8 +86,8 @@ def auth_register_v2(email, password, name_first, name_last):
 
     # Creating unique auth_user_id and hashing and encoding the token and password
     auth_user_id = len(initial_object['users']) + 1
-    token = generate_token(auth_user_id)
-
+    session_id = generate_sess_id()
+    token = generate_token(auth_user_id, session_id)
     password = hashlib.sha256(password.encode()).hexdigest() 
 
     # Creating handle and adding to dict_user
@@ -115,16 +117,19 @@ def auth_register_v2(email, password, name_first, name_last):
     else:
         permission_id = 2
 
+    is_removed = False
     # Then append dictionary of user email onto initial_objects
     initial_object['users'].append({
         'email' : email,
         'password': password,
         'name_first': name_first,
         'name_last' : name_last,
+        'session_list': [session_id],
         'token': token,
         'auth_user_id' : int(auth_user_id),
         'handle_str' : handle,
-        'permission_id' : permission_id
+        'permission_id' : permission_id,
+        'is_removed': bool(is_removed)
     })
 
     DATASTORE.set(store)

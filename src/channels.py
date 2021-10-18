@@ -5,7 +5,7 @@ Channels implementation
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError, AccessError
 from src.helper import user_info, channels_create_check_valid_user
-from src.server_helper import decode_token
+from src.server_helper import decode_token, valid_user
 
 def channels_list_v2(token):
     '''
@@ -13,7 +13,7 @@ def channels_list_v2(token):
     user is part of.
 
     Arguments:
-        <token> (<hash>)    - an authorisation hash
+        <token> (<string>)    - an authorisation hash
 
     Exceptions:
         AccessError  - Occurs when the auth_user_id input is not a valid type
@@ -25,6 +25,7 @@ def channels_list_v2(token):
     '''
 
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     new_list = []
@@ -48,7 +49,7 @@ def channels_listall_v2(token):
     (and their associated details)
 
     Arguments:
-        <token> (<hash>)    - an authorisation hash
+        <token> (<string>)    - an authorisation hash
 
     Exceptions:
         AccessError  - Occurs when the auth_user_id input is not a valid type
@@ -59,6 +60,7 @@ def channels_listall_v2(token):
         are successfully listed by authorised user
     '''
     store = DATASTORE.get()
+    valid_user(token)
 
     listchannel = []
     for channels in initial_object['channels']:
@@ -74,7 +76,7 @@ def channels_create_v2(token, name, is_public):
     Creates a new channel with the given name that is either a public or private channel.
 
     Arguments:
-        <token>        (<hash>)    - an authorisation hash
+        <token>        (<string>)    - an authorisation hash
         <name>         (<string>)  - the name of the channel
         <is_public>    (<boolean>) - privacy setting: True - Public ; False - Private
 
@@ -89,6 +91,7 @@ def channels_create_v2(token, name, is_public):
         Returns <{channel_id}> when the channel is sucessfully created
     '''
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # Invalid channel name

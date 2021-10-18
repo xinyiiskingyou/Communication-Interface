@@ -180,7 +180,25 @@ def check_valid_email(email):
         return True
     return False
 
+def check_number_of_owners(u_id):
+    number = 0
+    for user in initial_object['users']:
+        if user['auth_user_id'] == u_id:
+            continue
+        if user['permission_id'] == 1:
+            number += 1
+    return number
 
+def check_permission(u_id, permission_id):
+
+    for user in initial_object['users']:
+        if user['auth_user_id'] != u_id:
+            continue
+        # If the user is a global owner
+        if permission_id == 1:
+            return True
+    return False
+    
 #################################################
 ######## Helper functions for dm.py      ########
 #################################################
@@ -230,10 +248,11 @@ def get_dm_info(auth_user_id):
     return type: list
     '''
     dms = []
+    handle = get_handle(auth_user_id)
     for dm in initial_object['dms']:
-        for member in dm['members']:
-            if member['u_id'] == auth_user_id:
-                dms.append(dm)
+        find = dm['name'].find(handle)
+        if find != -1:
+            dms.append(dm)
     return dms
 
 # check if the user is the creator of the given dm

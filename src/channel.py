@@ -6,7 +6,7 @@ from src.helper import check_valid_start, get_channel_details, check_valid_chann
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
 from src.helper import channels_create_check_valid_user, check_valid_owner, check_only_owner, check_global_owner
 from src.data_store import DATASTORE, initial_object
-from src.server_helper import decode_token
+from src.server_helper import decode_token, valid_user
 
 def channel_invite_v2(token, channel_id, u_id):
 
@@ -16,7 +16,7 @@ def channel_invite_v2(token, channel_id, u_id):
     In both public and private channels, all members are able to invite users.
 
     Arguments:
-        <token>        (<hash>)   - unique id of an authorised user who is doing the inviting
+        <token>        (<string>)   - unique id of an authorised user who is doing the inviting
         <channel_id>   (<int>)    - unique id if a channel
         <u_id>         (<int>)    - unique id of an authorised user who is being invited
 
@@ -32,6 +32,7 @@ def channel_invite_v2(token, channel_id, u_id):
     Return Value:
         N/A
     '''
+    valid_user(token)
     auth_user_id = decode_token(token)
     store = DATASTORE.get()
 
@@ -74,7 +75,7 @@ def channel_details_v2(token, channel_id):
     is a member of, provide basic details about the channel.
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id if a channel
 
     Exceptions:
@@ -91,6 +92,7 @@ def channel_details_v2(token, channel_id):
         Returns <owner_members> of valid channel requested by authorised user
         Returns <all_members> of valid channel requested by authorised user
     '''
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # Invalid channel_id
@@ -116,7 +118,7 @@ def channel_messages_v2(token, channel_id, start):
     return up to 50 messages between index "start" and "start + 50".
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <start>        (<int>)    - starting index of message pagination
 
@@ -136,6 +138,7 @@ def channel_messages_v2(token, channel_id, start):
             -1 if function has returned the least recent messages in the channel
     '''
 
+    valid_user(token)
     auth_user_id = decode_token(token)
     
     # Invalid channel_id
@@ -179,7 +182,7 @@ def channel_join_v2(token, channel_id):
     adds them to that channel.
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
 
     Exceptions:
@@ -195,6 +198,7 @@ def channel_join_v2(token, channel_id):
         N/A
     '''
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # Invalid channel_id
@@ -222,37 +226,45 @@ def channel_join_v2(token, channel_id):
 
 def channel_leave_v1(token, channel_id):
     ''' 
-    errors: 
-    Input: 
-    - when channel_id does not refer to a valid channel 
+    Given a channel with ID channel_id that the authorised user is a member of, 
+    remove them as a member of the channel. Their messages should remain in the 
+    channel. If the only channel owner leaves, the channel will remain.
 
-    Access: 
-    - when channel_id is valid but the auth user is not part of the channel 
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <channel_id>   (<int>)      - unique id of a channel
+    
+    Exceptions:  
+        InputError  - Occurs when channel_id does not refer to a valid channel 
+        AccessError - Occurs when channel_id is valid but the auth user is not part of the channel 
+
+     Return Value:
+        N/A
     '''
 
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
-    newuser = user_info(auth_user_id)
 
+    # channel_id does not refer to a valid channel
     if not isinstance(channel_id, int):
         raise InputError(description = 'This is an invalid channel_id')
     if not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel id is not valid')
 
-    # if not check_valid_member_in_channel (channel_id, auth_user_id):
-    #     if not check_permision_id(auth_user_id):
-    #         raise AccessError ('Not authorised member of the channel')
-    
+    # channel_id is valid and the authorised user is not a member of the channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
-
-    
 
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
             for member in channels['all_members']: 
                 if member['u_id'] == auth_user_id:
-                    channels['all_members'].remove(newuser)
+                    channels['all_members'].remove(member)
+            for owner in channels['owner_members']: 
+                if owner['u_id'] == auth_user_id:
+                    channels['owner_members'].remove(owner)
+            
     DATASTORE.set(store)
     return {}
 
@@ -261,7 +273,7 @@ def channel_addowner_v1(token, channel_id, u_id):
     Make user with user id u_id an owner of the channel
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <u_id>         (<int>)    - an unique auth_user_id of the user to
                                     be added as an owner of the channel
@@ -278,6 +290,7 @@ def channel_addowner_v1(token, channel_id, u_id):
         N/A
     '''
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     # invalid channel_id
@@ -289,7 +302,7 @@ def channel_addowner_v1(token, channel_id, u_id):
     # No owner permission
     if not check_valid_owner(auth_user_id, channel_id):
         if not check_global_owner(auth_user_id):
-            raise AccessError(description='No owner permission in the channel')
+            raise AccessError(description ='No owner permission in the channel')
             
     # invalid u_id
     if not isinstance(u_id, int):
@@ -318,7 +331,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
     Remove user with user id u_id as an owner of the channel.
 
     Arguments:
-        <token>        (<hash>)   - an authorisation hash
+        <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)    - unique id of a channel
         <u_id>         (<int>)    - an unique auth_user_id of the user to
                                     be removed as an owner of the channel
@@ -335,6 +348,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
     Return Value:
         N/A
     '''
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     store = DATASTORE.get()
