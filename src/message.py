@@ -125,6 +125,17 @@ def message_remove_v1(token, message_id):
     message = get_message_dict(message_id)
     messages.remove(message)
 
+    # Given a message_id for a message, remove message from the channel/DM
+    for channel in initial_object['channels']:
+        for message in channel['messages']:
+            if message['message_id'] == message_id:
+                channel['messages'].remove(message)
+
+    for dm in initial_object['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                dm['messages'].remove(message)
+
     DATASTORE.set(store)
 
     return {}
