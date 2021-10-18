@@ -298,6 +298,18 @@ def check_authorised_user_edit(auth_user_id, message_id):
     else:
         return False
 
+
+# return a dictionary of dm with given dm_id
+def get_message_dict(message_id):
+    '''
+    return type: dictionary
+    '''
+    for message in initial_object['messages']:
+        if message['message_id'] == message_id:
+            return message
+    return {}
+
+
     
 #################################################
 ######## Helper functions for dm.py      ########
