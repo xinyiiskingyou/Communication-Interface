@@ -22,16 +22,6 @@ def test_removeowner_invalid_channel_id():
     with pytest.raises(InputError):
         channel_removeowner_v1(id1['token'], '', id2['auth_user_id'])
 
-# invalid channel_id and no owner permission
-def test_removeowner_invalid_channel_id1():
-    clear_v1()
-    id1 = auth_register_v2('email@gmail.com', 'password', 'afirst', 'alast')
-    id2 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
-    with pytest.raises(AccessError):
-        channel_removeowner_v1(id2['token'], -1, id1['auth_user_id'])
-    with pytest.raises(AccessError):
-        channel_removeowner_v1(id2['token'], '', id1['auth_user_id'])
-
 # invalid u_id
 def test_removeowner_invalid_u_id():
     clear_v1()
