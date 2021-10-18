@@ -10,7 +10,6 @@ def users_all_v1(token):
 
     Arguments:
         <token>     (<string>)    - an authorisation hash
-        <u_id>      (<int>)       - an unique auth_user_id of the user to be added as an owner of the channel
 
     Exceptions:
         InputError  - Occurs when u_id does not refer to a valid user
@@ -77,6 +76,7 @@ def user_profile_setname_v1(token, name_first, name_last):
     Return Value:
         Returns N/A
     '''
+
     store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -111,6 +111,10 @@ def user_profile_setemail_v1(token, email):
     Return Value:
         Returns N/A
     '''
+
+    valid_user(token)
+    auth_user_id = decode_token(token)
+
     store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -146,6 +150,10 @@ def user_profile_sethandle_v1(token, handle_str):
     Return Value:
         Returns N/A
     '''
+
+    valid_user(token)
+    auth_user_id = decode_token(token)
+
     store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
