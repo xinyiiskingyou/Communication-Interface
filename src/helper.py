@@ -198,6 +198,106 @@ def check_permission(u_id, permission_id):
         if permission_id == 1:
             return True
     return False
+
+
+#################################################
+######## Helper functions for message.py ########
+#################################################
+
+# Helper function for message_edit_v1
+# Checks if message_id refers to a valid message within a channel/DM
+# that the authorised user has joined
+# Returns true if valid message_id
+# Returns false otherwise
+def check_valid_message_id(auth_user_id, message_id):
+    found_message_id = 0
+    channel_dm_id = 0
+    
+    for message in initial_object['messages']:
+        if message['message_id'] == message_id:
+            if message_id % 2 == 1:
+                # Odd message_id means it is a message in a channel
+                channel_dm_id = message['channel_id']
+            elif message_id % 2 == 0:
+                # Even message_id means it is a message in a DM
+                channel_dm_id = message['dm_id']
+            found_message_id = 1
+    
+    if found_message_id == 0:
+        return False
+
+    found_user = 0
+    if message_id % 2 == 1:
+        for channel in initial_object['channels']:
+            if channel['channel_id'] == channel_dm_id:
+                for member in channel['all_members']:
+                    if member['u_id'] == auth_user_id:
+                        found_user = 1
+
+    elif message_id % 2 == 0:
+        for dm in initial_object['dms']:
+            if dm['dm_id'] == channel_dm_id:
+                for member in dm['members']:
+                    if member['u_id'] == auth_user_id:
+                        found_user = 1
+
+    if found_user == 1 and found_message_id == 1:
+        return True
+    else:
+        return False
+
+# Helper function for message_edit_v1
+# Checks if user is authorised to edit message
+# Returns true if authorised user
+# Returns false otherwise 
+def check_authorised_user_edit(auth_user_id, message_id):
+    found_message_id = 0
+    found_u_id = 0
+    channel_dm_id = 0
+
+    # Check message_id is an existing id, and check if u_id of user that 
+    # sent the message is the auth_user_id
+    for message in initial_object['messages']:
+        if message['message_id'] == message_id:
+            found_message_id = 1
+            if message_id % 2 == 1:
+                # Odd message_id means it is a message in a channel
+                channel_dm_id = message['channel_id']
+            elif message_id % 2 == 0:
+                # Even message_id means it is a message in a DM
+                channel_dm_id = message['dm_id']
+
+            if message['u_id'] == auth_user_id:
+                found_u_id = 1
+
+    # Message_id refers to a valid message in joined channel/DM and
+    # message was sent by the authorised user making the request
+    if found_message_id == 1 and found_u_id == 1:
+        return True
+    
+    # If channel_dm_id is odd, this means that message is from channel
+    found_owner_creator = 0
+    if message_id % 2 == 1:
+        for channel in initial_object['channels']:
+            if channel['channel_id'] == channel_dm_id:
+                for owner in channel['owner_members']:
+                    if owner['u_id'] == auth_user_id:
+                        found_owner_creator = 1
+
+    # If channel_dm_id is even, this means that message is from DM
+    elif message_id % 2 == 0:
+        for dm in initial_object['dms']:
+            if dm['dm_id'] == channel_dm_id:
+                    if dm['creator']['u_id'] == auth_user_id:
+                        found_owner_creator = 1
+
+    # Message_id refers to a valid message in joined channel/DM and
+    # authorised user has owner permissions in the channel/DM
+    if found_message_id == 1 and found_owner_creator == 1:
+        return True
+    else:
+        return False
+
     
 #################################################
 ######## Helper functions for dm.py      ########
@@ -227,10 +327,6 @@ def check_valid_message(message):
     else:
         return True 
 
-
-#################################################
-########## Helper functions for dm.py ###########
-#################################################
 
 # get the handle of the authorised user
 def get_handle(auth_user_id):

@@ -437,6 +437,15 @@ def test_message_edit_basic_valid(setup):
     )
     message1_id = json.loads(send_message1.text)['message_id']
 
+    request_messages1 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'start': 0
+        }
+    )
+    assert (json.loads(request_messages1.text)['messages'][0]['message'] == 'hello')
+
     edit_message = requests.put(config.url + "message/edit/v1", 
         json = {
             'token': user1_token,
@@ -445,6 +454,17 @@ def test_message_edit_basic_valid(setup):
         }
     )
     assert edit_message.status_code == 200
+
+    request_messages2 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'start': 0
+        }
+    )
+    assert (json.loads(request_messages2.text)['messages'][0]['message'] == 'hello [edited]')
+    
+    
 
 
 # Message in channel was sent by the authorised user making this request
@@ -691,7 +711,7 @@ def test_message_edit_DM_owner_request(setup):
     )
     assert edit_message.status_code == 200
 
-
+'''
 # New message is empty, so the message is deleted
 def test_message_edit_empty(setup):
     user1 = requests.post(config.url + "auth/register/v2", 
@@ -748,3 +768,4 @@ def test_message_edit_empty(setup):
     )
     assert len(json.loads(messages.text)['messages']) == 0
     assert edit_message.status_code == 200
+'''
