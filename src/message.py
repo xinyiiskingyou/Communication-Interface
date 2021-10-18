@@ -12,7 +12,9 @@ import time
 def message_send_v1(token, channel_id, message):
     
     store = DATASTORE.get()
-    valid_user(token)
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
     
     # Invalid channel_id
