@@ -76,9 +76,6 @@ def message_edit_v1(token, message_id, message):
     if not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError("The user is unauthorised to edit the message.")
 
-    empty_message = False
-    if message == '':
-        empty_message = True
 
     for iterate_message in initial_object['messages']:
         if iterate_message['message_id'] == message_id:
