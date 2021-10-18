@@ -1,4 +1,4 @@
-from src.server_helper import decode_token
+from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user
 from src.helper import user_info
 from src.error import InputError
@@ -22,6 +22,7 @@ def users_all_v1(token):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
+    valid_user(token)
     user_list = []
 
     for user in initial_object['users']:
@@ -48,7 +49,7 @@ def user_profile_v1(token, u_id):
         Returns <name_last> of valid user
         Returns <handle> of valid user
     '''
-    #auth_user_id = decode_token(token)
+    valid_user(token)
 
     if not channels_create_check_valid_user(int(u_id)):
         raise InputError(description='The u_id does not refer to a valid user')
@@ -71,6 +72,10 @@ def user_profile_setname_v1(token, name_first, name_last):
     Return Value:
         Returns N/A
     '''
+
+    valid_user(token)
+    auth_user_id = decode_token(token)
+
     store = DATASTORE.get()
     # Invalid first name
     if len(name_first) not in range(1, 51):
@@ -102,6 +107,10 @@ def user_profile_setemail_v1(token, email):
     Return Value:
         Returns N/A
     '''
+
+    valid_user(token)
+    auth_user_id = decode_token(token)
+
     store = DATASTORE.get()
     # email entered is not a valid email
     if not check_valid_email(email):
@@ -134,6 +143,10 @@ def user_profile_sethandle_v1(token, handle_str):
     Return Value:
         Returns N/A
     '''
+
+    valid_user(token)
+    auth_user_id = decode_token(token)
+
     store = DATASTORE.get()
 
     # length of handle_str is not between 3 and 20 characters inclusive

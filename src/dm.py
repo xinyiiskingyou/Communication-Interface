@@ -1,6 +1,7 @@
 from src.server_helper import decode_token
 from src.helper import check_valid_email, channels_user_details, check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message
+from src.server_helper import decode_token, valid_user
 from src.error import InputError, AccessError
 from src.data_store import DATASTORE, initial_object
 from src.auth import auth_register_v2
@@ -26,10 +27,8 @@ Return Value:
     Returns name 
     Returns members
     '''
-    # store = DATASTORE.get() 
+    valid_user(token)
     auth_user_id = decode_token(token)
-
-
 
     if not check_valid_dm(dm_id): 
         raise InputError("This dm_id does not refer to a valid DM")
@@ -73,6 +72,7 @@ Return Value:
 
     '''
 
+    valid_user(token)
     auth_user_id = decode_token(token)
 
     #invalid dm_id
@@ -123,6 +123,8 @@ def dm_create_v1(token, u_ids):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
+    valid_user(token)
+    auth_user_id = decode_token(token)
 
     # error handling
     for i in range(len(u_ids)):
@@ -188,7 +190,9 @@ def dm_list_v1(token):
         Returns <{'dms'}> where 'dms' is a list of dictionary of dm 
         that this user is a member of
     '''
+    valid_user(token)
     auth_user_id = decode_token(token)
+
     return {'dms': get_dm_info(auth_user_id)}
 
 def dm_remove_v1(token, dm_id):    
@@ -207,6 +211,10 @@ def dm_remove_v1(token, dm_id):
     Return Value:
         Returns N/A
     '''
+
+    valid_user(token)
+    auth_user_id = decode_token(token)
+
     if not isinstance(dm_id, int):
         raise InputError(description = "This is an invalid dm_id")
     
@@ -226,7 +234,9 @@ def dm_remove_v1(token, dm_id):
 
 def message_senddm_v1(token, dm_id, message):
     
+    valid_user(token)
     auth_user_id = decode_token(token)
+
     store = DATASTORE.get()
 
     # Invalid dm_id
@@ -298,7 +308,9 @@ def dm_leave_v1(token,dm_id):
         Returns <{dm_id}> when the dm is sucessfully created
     '''
     store = DATASTORE.get()
+    valid_user(token)
     auth_user_id = decode_token(token)
+
     newuser = user_info(auth_user_id)
 
      
