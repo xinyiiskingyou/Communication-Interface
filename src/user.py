@@ -112,13 +112,11 @@ def user_profile_setemail_v1(token, email):
         Returns N/A
     '''
 
-    valid_user(token)
-    auth_user_id = decode_token(token)
-
     store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
+    auth_user_id = decode_token(token)
     # email entered is not a valid email
     if not check_valid_email(email):
         raise InputError(description='Email entered is not a valid email')
@@ -151,12 +149,11 @@ def user_profile_sethandle_v1(token, handle_str):
         Returns N/A
     '''
 
-    valid_user(token)
-    auth_user_id = decode_token(token)
-
     store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
 
     # length of handle_str is not between 3 and 20 characters inclusive
     if len(handle_str) not in range(3, 21):
