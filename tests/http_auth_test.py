@@ -47,7 +47,6 @@ def test_reg_duplicate_email_h():
 
     if resp1 == resp2:
         assert resp2.status_code == 400
-         
 
 # Input error for invalid password
 def test_reg_invalid_password_h():
