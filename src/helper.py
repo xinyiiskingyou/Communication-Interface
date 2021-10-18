@@ -309,6 +309,13 @@ def get_message_dict(message_id):
             return message
     return {}
 
+def check_valid_message_send_format(message):
+    len_message = len(message)
+    if len_message > 1000:
+        return False
+    else:
+        return True 
+
 
     
 #################################################
@@ -327,7 +334,7 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
                     return True
     return False
 
-# Helper function for message_send_v1
+
 # Checks if message is invalid 
 # Returns false if length of message is less than 1 or over 1000 characters
 # Returns true otherwise
