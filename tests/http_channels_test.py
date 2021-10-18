@@ -19,58 +19,56 @@ def register_user():
 ######### channels_create tests ##########
 ##########################################
 
-# AccessError Invalid auth_user_id
-def test_create_invalid_token():
-    requests.delete(config.url + "clear/v1")
+# AccessError Invalid token
+def test_create_invalid_token(register_user):
+    
+    invalid_token = register_user['token'] + 'asfadsfdfsd'
 
     # Public
     resp1 = requests.post(config.url + "channels/create/v2", json ={
-        'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw',
+        'token': invalid_token,
         'name': '1531_CAMEL',
         'is_public': True
     })
+    assert resp1.status_code == 403
 
     resp2 = requests.post(config.url + "channels/create/v2", json ={
-        'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA',
+        'token': '',
         'name': '1531_CAMEL',
         'is_public': True
     })
-
-    # Input Error
-    assert resp1.status_code == 403
     assert resp2.status_code == 403
 
     # Private
     resp3 = requests.post(config.url + "channels/create/v2", json ={
-            'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw',
-            'name': '1531_CAMEL',
-            'is_public': False
-    })
-
-    resp4 = requests.post(config.url + "channels/create/v2", json ={
-        'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA',
+        'token': invalid_token,
         'name': '1531_CAMEL',
         'is_public': False
     })
-
     assert resp3.status_code == 403
+
+    resp4 = requests.post(config.url + "channels/create/v2", json ={
+        'token': '',
+        'name': '1531_CAMEL',
+        'is_public': False
+    })
     assert resp4.status_code == 403
 
     # invalid token with invalid channel name
-    resp5 = requests.post(config.url + "channels/create/v2", json ={
-        'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjF9.csBzbal4Qczwb0lpZ8LzhpEdCpUbKgaaBV_bkYcriWw',
+    resp3 = requests.post(config.url + "channels/create/v2", json ={
+        'token': invalid_token,
         'name': ' ',
         'is_public': False
     })
 
-    resp6 = requests.post(config.url + "channels/create/v2", json ={
-        'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoX3VzZXJfaWQiOjJ9.jeXV_YsnPUUjY1Rjh3Sbzo4rw10xO0CUjuRV-JKqVYA',
+    resp4 = requests.post(config.url + "channels/create/v2", json ={
+        'token': '',
         'name': 'a' * 50,
         'is_public': True
     })
 
-    assert resp5.status_code == 400
-    assert resp6.status_code == 400
+    assert resp3.status_code == 403
+    assert resp4.status_code == 403
 
 # InputError when length of name is less than 1 or more than 20 characters
 def test_create_invalid_name(register_user):
@@ -177,15 +175,29 @@ def test_create_valid_channel_id(register_user):
 ######### channels_list tests ############
 ##########################################
 
+# Access Error: invalid token
+def test_channel_list_invalid_token(register_user):
+
+    invalid_token = register_user['token'] + 'hfkah123s'
+    list1 = requests.get(config.url + 'channels/list/v2', params ={
+        'token': invalid_token
+    })
+    assert list1.status_code == 403
+
+    list2 = requests.get(config.url + 'channels/list/v2', params ={
+        'token': ''
+    })
+    assert list2.status_code == 403
+
 # test when an user does not create a channel
 def test_no_channel(register_user):
 
     token = register_user['token']
-    list = requests.get(config.url + 'channels/list/v2', params ={
+    list1 = requests.get(config.url + 'channels/list/v2', params ={
         'token': token
     })
-    assert json.loads(list.text) == {'channels': []}
-    assert list.status_code == 200
+    assert json.loads(list1.text) == {'channels': []}
+    assert list1.status_code == 200
 
 # test one user creates a channel and can be appended in the list
 def test_channel_list(register_user):
@@ -218,6 +230,20 @@ def test_channel_list(register_user):
 ##########################################
 ######### channels_listall tests #########
 ##########################################
+
+# Access Error: invalid token
+def test_channel_listall_invalid_token(register_user):
+
+    invalid_token = register_user['token'] + 'hfkah3s'
+    listall = requests.get(config.url + 'channels/listall/v2', params ={
+        'token': invalid_token
+    })
+    assert listall.status_code == 403
+
+    listall1 = requests.get(config.url + 'channels/listall/v2', params ={
+        'token': ''
+    })
+    assert listall1.status_code == 403
 
 def test_listall_no_channel(register_user): 
 

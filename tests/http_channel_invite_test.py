@@ -43,6 +43,27 @@ def create_channel(register_user):
     channel_data = channel.json()
     return channel_data
 
+# Access error: invalid token
+def test_invite_invalid_u_id(register_user, register_user1, create_channel):
+    
+    invalid_token = register_user['token'] + 'hjsfhasklj'
+    u_id = register_user1['auth_user_id']
+    channel = create_channel['channel_id']
+
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': invalid_token,
+        'channel_id': channel,
+        'u_id': u_id
+    })
+    assert invite.status_code == 403
+
+    invite1 = requests.post(config.url + "channel/invite/v2", json ={
+        'token': '',
+        'channel_id': channel,
+        'u_id': u_id
+    })
+    assert invite1.status_code == 403
+
 # Invalid u_id
 def test_invite_invalid_u_id(register_user, register_user1, create_channel):
 
@@ -66,6 +87,15 @@ def test_invite_invalid_u_id(register_user, register_user1, create_channel):
     })
     assert invite.status_code == 403
 
+    # access error: invalid token and invalid u_id
+    invalid_token = register_user['token'] + 'hjsfhasklj'
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': invalid_token,
+        'channel_id': channel,
+        'u_id': -16
+    })
+    assert invite.status_code == 403
+
 # Invalid channel_id
 def test_invite_invalid_channel_id(register_user, register_user1):
 
@@ -78,9 +108,17 @@ def test_invite_invalid_channel_id(register_user, register_user1):
         'u_id': u_id
     })
     assert invite.status_code == 400
+
+    # access error: invalid token and invalid channel_id
+    invalid_token = register_user['token'] + 'hjsfhasklj'
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': invalid_token,
+        'channel_id': -16,
+        'u_id': u_id
+    })
+    assert invite.status_code == 403
     
 def test_invite_already_member(register_user, create_channel, register_user1):
-    requests.delete(config.url + "clear/v1")
 
     # create a user that has channel
     user1_token = register_user['token']
@@ -114,6 +152,15 @@ def test_invite_already_member(register_user, create_channel, register_user1):
         'u_id': user1_id
     })
     assert invite.status_code == 400
+
+    # access error: invalid token and u_id is already a member
+    invalid_token = register_user['token'] + 'hjsfhasklj'
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': invalid_token,
+        'channel_id': channel_id,
+        'u_id': user1_id
+    })
+    assert invite.status_code == 403
 
 def test_valid_channel_invite(register_user, create_channel, register_user1):
 
