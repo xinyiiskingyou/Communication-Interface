@@ -169,7 +169,7 @@ def channel_messages_v2(token, channel_id, start):
         message_pagination = message_pagination[start:]
     else:
         message_pagination = message_pagination[start:end]
-
+    print(f"TEST = {message_pagination}")
     return {
         'messages': message_pagination,
         'start': start,

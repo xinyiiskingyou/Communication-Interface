@@ -1,5 +1,5 @@
 import jwt
-from src.error import InputError
+from src.error import AccessError
 
 SESS_COUNTER = 0
 SECRET = "CAMEL"
@@ -38,6 +38,6 @@ def decode_token(token):
 def valid_user(token):
     user_registered = decode_token(token)
     if user_registered is None:
-        raise InputError(description="User does not exist")
+        raise AccessError(description="User does not exist")
 
     return user_registered
