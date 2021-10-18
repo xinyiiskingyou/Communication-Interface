@@ -41,7 +41,7 @@ def test_message_remove_invalid_message_id_negative(setup):
             'message': 'hello'
         }
     )
-    message1_id = json.loads(send_message1.text)['message_id']
+    json.loads(send_message1.text)['message_id']
 
     remove_message = requests.delete(config.url + "message/remove/v1", 
         json = {
@@ -83,7 +83,7 @@ def test_message_remove_invalid_message_id_nonexistant(setup):
             'message': 'hello'
         }
     )
-    message1_id = json.loads(send_message1.text)['message_id']
+    json.loads(send_message1.text)['message_id']
 
     remove_message = requests.delete(config.url + "message/remove/v1", 
         json = {
@@ -143,7 +143,7 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup)
             'message': 'hello'
         }
     )
-    message1_id = json.loads(send_message1.text)['message_id']
+    json.loads(send_message1.text)['message_id']
 
     send_message2 = requests.post(config.url + "message/send/v1", 
         json = {
@@ -417,7 +417,7 @@ def test_message_remove_basic_valid(setup):
             'start': 0
         }
     )
-    messages2 = json.loads(request_messages2.text)
+    json.loads(request_messages2.text)
     # assert len(messages2['messages']) == 0
 
 
@@ -512,7 +512,7 @@ def test_message_remove_DM_authorised_user_request(setup):
             'name_last': 'li'
         }
     )
-    user3_token = json.loads(user3.text)['token']
+    json.loads(user3.text)['token']
     user3_data = user3.json()
     u_id3 = user3_data['auth_user_id']
 
@@ -633,7 +633,7 @@ def test_message_remove_DM_owner_request(setup):
             'name_last': 'li'
         }
     )
-    user3_token = json.loads(user3.text)['token']
+    json.loads(user3.text)['token']
     user3_data = user3.json()
     u_id3 = user3_data['auth_user_id']
 
