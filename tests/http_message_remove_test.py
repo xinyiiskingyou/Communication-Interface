@@ -417,8 +417,8 @@ def test_message_remove_basic_valid(setup):
             'start': 0
         }
     )
-    json.loads(request_messages2.text)
-    # assert len(messages2['messages']) == 0
+    messages2 = json.loads(request_messages2.text)
+    assert len(messages2['messages']) == 0
 
 
 # Message in channel was sent by the authorised user making this request
@@ -660,3 +660,92 @@ def test_message_remove_DM_owner_request(setup):
         }
     )
     assert remove_message.status_code == 200
+
+
+# Given 2 messages, check it deletes one 
+
+def test_message_remove_channel_2_messages(setup):
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
+
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+            'token': user1_token,
+            'name': 'anna_channel',
+            'is_public': False
+        }
+    )
+    channel1_id = json.loads(channel1.text)['channel_id']
+
+    send_message1 = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'message': 'hello'
+        }
+    )
+    message1_id = json.loads(send_message1.text)['message_id']
+
+    send_message2 = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'message': 'goodbye'
+        }
+    )
+    message2_id = json.loads(send_message2.text)['message_id']
+
+    request_messages1 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'start': 0
+        }
+    )
+    messages1 = json.loads(request_messages1.text)
+    assert len(messages1['messages']) == 2
+
+    remove_message1 = requests.delete(config.url + "message/remove/v1", 
+        json = {
+            'token': user1_token,
+            'message_id': message1_id
+        }
+    )
+    assert remove_message1.status_code == 200
+
+    request_messages1 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'start': 0
+        }
+    )
+    messages1 = json.loads(request_messages1.text)
+    assert len(messages1['messages']) == 1
+
+    remove_message2 = requests.delete(config.url + "message/remove/v1", 
+        json = {
+            'token': user1_token,
+            'message_id': message2_id
+        }
+    )
+    assert remove_message2.status_code == 200
+
+    request_messages2 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'start': 0
+        }
+    )
+    messages2 = json.loads(request_messages2.text)
+    assert len(messages2['messages']) == 0
+
+
