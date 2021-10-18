@@ -97,7 +97,6 @@ def test_removeowner_invalid_channel_id(register_user, register_user1):
 def test_removeowner_invalid_u_id(register_user, register_user1, create_channel):
 
     user1_token = register_user['token']
-    user1_id = register_user['auth_user_id']
     user1_channel = create_channel['channel_id']
 
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
