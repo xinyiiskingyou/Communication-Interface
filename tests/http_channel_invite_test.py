@@ -3,10 +3,6 @@ import requests
 import json
 from src import config 
 
-##########################################
-########## channel_invite tests ##########
-##########################################
-
 @pytest.fixture
 def register_user():
 
@@ -43,8 +39,12 @@ def create_channel(register_user):
     channel_data = channel.json()
     return channel_data
 
+##########################################
+########## channel_invite tests ##########
+##########################################
+
 # Access error: invalid token
-def test_invite_invalid_u_id(register_user, register_user1, create_channel):
+def test_invite_invalid_token(register_user, register_user1, create_channel):
     
     invalid_token = register_user['token'] + 'hjsfhasklj'
     u_id = register_user1['auth_user_id']
