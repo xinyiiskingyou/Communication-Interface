@@ -295,17 +295,19 @@ dm_remove_v1(id3['token'], dm2['dm_id'])
 
 def dm_leave_v1(token,dm_id):
     '''
-    Creates a dm with name generated based on users' handle
+    given a dm_id and token - removes the person from the dm 
 
     Arguments:
         <token>        (<hash>)    - an authorisation hash
-        <u_ids>        (<list>)    - a list of u_id 
+        <dm_id>        (<int>)    - a unique id for a dm  
 
     Exceptions:
-        InputError  - Occurs when one of u_id given does not refer to a valid user
+        InputError  - Occurs when dm_id is not valid/does not refer
+                        to a valid dm 
+        AccessError - occurs when user is not part of the dm 
 
     Return Value:
-        Returns <{dm_id}> when the dm is sucessfully created
+        none 
     '''
     store = DATASTORE.get()
     valid_user(token)
