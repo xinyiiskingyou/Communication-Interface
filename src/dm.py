@@ -29,11 +29,11 @@ Return Value:
     '''
     valid_user(token)
     auth_user_id = decode_token(token)
-
+    #not valid dm_id 
     if not check_valid_dm(dm_id): 
         raise InputError("This dm_id does not refer to a valid DM")
 
-    #not a valid user 
+    #not authorised user 
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError("The user is not an authorised member of the DM")
 
