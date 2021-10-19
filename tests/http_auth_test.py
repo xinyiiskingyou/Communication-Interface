@@ -139,7 +139,7 @@ def test_reg_handle_h():
     })
     profile2 = requests.get(config.url + "users/all/v1", params ={
         'token': token2
-    })
+    })  
 
     handle1 = json.loads(profile1.text)[0]['handle_str']
     assert handle1 == 'annapark'
