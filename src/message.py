@@ -49,7 +49,6 @@ def message_send_v1(token, channel_id, message):
         if channel['channel_id'] == channel_id:
             channel['messages'].insert(0, message_details_channels)
 
-
     message_details_messages = {
         'message_id': message_id,
         'u_id': auth_user_id, 

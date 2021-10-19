@@ -29,7 +29,7 @@ def users_all_v1(token):
     for user in initial_object['users']:
         if user['is_removed'] == False:
             user_list.append(user_info(user['auth_user_id']))
-    
+
     return (user_list)
 
 def user_profile_v1(token, u_id):
@@ -158,7 +158,7 @@ def user_profile_sethandle_v1(token, handle_str):
 
     # length of handle_str is not between 3 and 20 characters inclusive
     if len(handle_str) not in range(3, 21):
-        raise InputError(description='handle_str is not between 1 - 20 characters in length')
+        raise InputError(description='handle_str is not between 3 - 21 characters in length')
 
     # handle_str contains characters that are not alphanumeric
     if not handle_str.isalnum():

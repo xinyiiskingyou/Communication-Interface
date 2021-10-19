@@ -144,13 +144,21 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
 
     assert dm.status_code == 200
 
-    # user2 sends a message
+    # user2 sends a message in the channel
     message = requests.post(config.url + "message/send/v1", json ={
         'token': user2_token,
         'channel_id': channel_id,
         'message': 'hello there'
     })
     assert message.status_code == 200
+
+    # user2 sends a message in dm
+    send_dm = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user2_token,
+        'dm_id': dm_id,
+        'message': 'hi'
+    })
+    assert send_dm.status_code == 200
 
     # now remove user2
     remove = requests.delete(config.url + "admin/user/remove/v1", json ={
@@ -173,19 +181,25 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     })
     assert len(json.loads(dm_detail.text)['members']) == 1
 
-    '''
     # the contents of the messages will be replaced by 'Removed user'
-    messages = requests.get(config.url + "channel/messages/v2", 
-        params = {
-            'token': token2,
-            'channel_id': channel_id,
-            'start': 0
-        }
-    )
-    print(json.loads(messages.text))
-    assert json.loads(messages.text)['messages'] == 'Removed user'
-    '''
+    messages = requests.get(config.url + "channel/messages/v2", params = {
+        'token': user1_token,
+        'channel_id': channel_id,
+        'start': 0
+    })
+    channel_message = json.loads(messages.text)['messages'][0]['message']
+    assert channel_message == 'Removed user'
 
+    dm = requests.get(config.url + "dm/messages/v1", params ={ 
+        'token': user1_token,
+        'dm_id': dm_id, 
+        'start': 0
+    })
+    dm_message = json.loads(dm.text)['messages'][0]['message']
+    assert dm_message == 'Removed user'
+
+    assert channel_message == dm_message
+    
     # there are only 1 valid user in user/all now
     user_list = requests.get(config.url + "users/all/v1", params ={
         'token': user1_token
@@ -197,6 +211,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'token': user1_token,
         'u_id': user2_id
     })  
+
     # name_first should be 'Removed' and name_last should be 'user'.
     assert profile.status_code == 200
     assert json.loads(profile.text)['name_first'] == 'Removed'

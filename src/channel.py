@@ -112,7 +112,7 @@ def channel_details_v2(token, channel_id):
     }
 
 def channel_messages_v2(token, channel_id, start):
-
+    
     '''
     Given a channel with ID channel_id that the authorised user is a member of,
     return up to 50 messages between index "start" and "start + 50".
