@@ -1,5 +1,5 @@
 from src.server_helper import decode_token, valid_user
-from src.helper import check_valid_email, channels_user_details, channels_create_check_valid_user
+from src.helper import check_valid_email, get_user_details, channels_create_check_valid_user
 from src.helper import user_info
 from src.error import AccessError, InputError
 from src.data_store import DATASTORE, initial_object
@@ -90,9 +90,10 @@ def user_profile_setname_v1(token, name_first, name_last):
         raise InputError(description='name_last is not between 1 - 50 characters in length')
 
     auth_user_id = decode_token(token)
-    user = channels_user_details(auth_user_id)
+    user = get_user_details(auth_user_id)
     user['name_first'] = name_first
-    user['name_first'] = name_last
+    user['name_last'] = name_last
+
     DATASTORE.set(store)
     return {}
 
@@ -127,7 +128,7 @@ def user_profile_setemail_v1(token, email):
             raise InputError(description='Email address is already being used by another user')
 
     auth_user_id = decode_token(token)
-    user = channels_user_details(auth_user_id)
+    user = get_user_details(auth_user_id)
     user['email'] = email
     DATASTORE.set(store)
     return {}
@@ -169,7 +170,7 @@ def user_profile_sethandle_v1(token, handle_str):
              raise InputError(description='The handle is already used by another user')
 
     auth_user_id = decode_token(token)
-    user = channels_user_details(auth_user_id)
+    user = get_user_details(auth_user_id)
     user['handle_str'] = handle_str
     DATASTORE.set(store)
     return {}

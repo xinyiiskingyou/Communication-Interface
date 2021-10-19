@@ -28,6 +28,7 @@ def channel_invite_v2(token, channel_id, u_id):
                     - Occurs when the auth_user_id doesn't refer to a valid user
                     - Occurs when channel_id is valid and the authorised user is not a
                     member of the channel
+                    - Occurs when token is invalid
 
     Return Value:
         N/A
@@ -39,29 +40,22 @@ def channel_invite_v2(token, channel_id, u_id):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    # Invalid u_id
-    if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
-        # Access error channel_id is valid and authorised user is not a member of the channel
-        # and the u_id is invalid
-        if not check_valid_member_in_channel(channel_id, auth_user_id):
-            raise AccessError(description = 'Authorised user is not a member of channel and u_id is invalid')
-        raise InputError(description = 'The u_id does not refer to a valid user')
 
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int) or not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel_id does not refer to a valid channel')
 
-    # Input error when u_id refers to a user who is already a member of the channel
-    if check_valid_member_in_channel(channel_id, u_id):
-        # Access error channel_id is valid and authorised user is not a member of the channel
-        # and the u_id is already a member of the channel
-        if not check_valid_member_in_channel(channel_id, auth_user_id):
-            raise AccessError(description = 'The authorised user is not a member of the channel')
-        raise InputError(description = 'u_id is already a member of the channel')
-
     # Access error channel_id is valid and the authorised user is not a member of the channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
+    
+    # Invalid u_id
+    if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
+        raise InputError(description = 'The u_id does not refer to a valid user')
+
+    # Input error when u_id refers to a user who is already a member of the channel
+    if check_valid_member_in_channel(channel_id, u_id):
+        raise InputError(description = 'u_id is already a member of the channel')
 
     new_user = user_info(u_id)
     for channel in initial_object['channels']:
@@ -88,6 +82,7 @@ def channel_details_v2(token, channel_id):
                     - Occurs when the auth_user_id doesn't refer to a valid user
                     - Occurs when channel_id is valid and the authorised user is not a member
                       of the channel
+                    - Occurs when token is invalid
 
     Return Value:
         Returns <name> of valid channel requested by authorised user
@@ -135,6 +130,7 @@ def channel_messages_v2(token, channel_id, start):
                     - Occurs when the auth_user_id doesn't refer to a valid user
                     - Occurs when channel_id is valid and the authorised user is not a
                         member of the channel
+                    - Occurs when token is invalid
 
     Return Value:
         Returns <messages> of valid channel requested by authorised user with valid starting index
@@ -201,11 +197,13 @@ def channel_join_v2(token, channel_id):
                     - Occurs when the auth_user_id doesn't refer to a valid user
                     - channel_id refers to a channel that is private and the authorised
                     user is not already a channel member and is not a global owner
+                    - Occurs when token is invalid
 
     Return Value:
         N/A
     '''
     store = DATASTORE.get()
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -217,12 +215,15 @@ def channel_join_v2(token, channel_id):
     if not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel id is not valid')
 
-    if check_valid_member_in_channel(channel_id, auth_user_id):
-        raise InputError(description = 'Already a member of this channel')
-
+    # channel_id refers to a channel that is private and the 
+    # authorised user is not already a channel member and is not a global owner
     if not check_valid_member_in_channel (channel_id, auth_user_id):
         if check_channel_private(channel_id) and not check_permision_id(auth_user_id):
             raise AccessError (description = 'Not authorised to join channel')
+
+    # the authorised user is already a member of the channel
+    if check_valid_member_in_channel(channel_id, auth_user_id):
+        raise InputError(description = 'Already a member of this channel')
 
     new_user = user_info(auth_user_id)
 
@@ -246,6 +247,7 @@ def channel_leave_v1(token, channel_id):
     Exceptions:  
         InputError  - Occurs when channel_id does not refer to a valid channel 
         AccessError - Occurs when channel_id is valid but the auth user is not part of the channel 
+                    - Occurs when token is invalid
 
      Return Value:
         N/A
@@ -268,13 +270,12 @@ def channel_leave_v1(token, channel_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
 
     for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id:
-            for member in channels['all_members']: 
-                if member['u_id'] == auth_user_id:
-                    channels['all_members'].remove(member)
-            for owner in channels['owner_members']: 
-                if owner['u_id'] == auth_user_id:
-                    channels['owner_members'].remove(owner)
+        for member in channels['all_members']: 
+            if member['u_id'] == auth_user_id:
+                channels['all_members'].remove(member)
+        for owner in channels['owner_members']: 
+            if owner['u_id'] == auth_user_id:
+                channels['owner_members'].remove(owner)
             
     DATASTORE.set(store)
     return {}
@@ -295,7 +296,8 @@ def channel_addowner_v1(token, channel_id, u_id):
                     - Occurs when u_id refers to a user who is not a member of the channel
 
         AccessError - Occurs when channel_id is valid and the auth user doesn't have owner
-                      permission in the channel
+                    permission in the channel
+                    - Occurs when token is invalid
 
     Return Value:
         N/A
@@ -320,8 +322,6 @@ def channel_addowner_v1(token, channel_id, u_id):
             raise AccessError(description ='No owner permission in the channel')
     
     # invalid u_id
-    if not isinstance(u_id, int):
-        raise InputError(description = 'This is an invalid u_id')
     if not channels_create_check_valid_user(u_id):
         raise InputError(description = 'user is not valid')
 
@@ -335,8 +335,7 @@ def channel_addowner_v1(token, channel_id, u_id):
    
     user = user_info(u_id)
     for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id:
-            channels['owner_members'].append(user)
+        channels['owner_members'].append(user)
 
     DATASTORE.set(store)
     return {}
@@ -359,6 +358,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
 
         AccessError - Occurs when channel_id is valid and the auth user doesn't have owner
                     permission in the channel
+                    - Occurs when token is invalid
 
     Return Value:
         N/A
@@ -370,19 +370,17 @@ def channel_removeowner_v1(token, channel_id, u_id):
 
     auth_user_id = decode_token(token)
     
-
     # channel_id does not refer to a valid channel
     if not check_valid_channel_id(channel_id) or not isinstance(channel_id, int):
         raise InputError(description = 'The channel_id does not refer to a valid channel')
 
     # channel_id is valid and the authorised user does not have owner permissions in the channel
     if not check_valid_owner(auth_user_id, channel_id):
-        for user in initial_object['users']:
-            if user['permission_id'] != 1:
-                raise AccessError(description = 'The authorised user does not have owner permissions in the channel')
+        if not check_global_owner(auth_user_id):
+            raise AccessError(description ='No owner permission in the channel')
 
     # u_id does not refer to a valid user
-    if not channels_create_check_valid_user(u_id) or not isinstance(u_id, int):
+    if not channels_create_check_valid_user(u_id):
         raise InputError(description = 'The u_id does not refer to a valid user')
     
     # u_id refers to a user who is not an owner of the channel
@@ -395,10 +393,9 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError(description = 'The u_id refers to a user who is currently the only owner of the channel')
     
     for channel in initial_object['channels']:
-        if channel['channel_id'] == channel_id:
-            for owner in channel['owner_members']:
-                if owner['u_id'] == u_id:
-                    channel['owner_members'].remove(owner)
+        for owner in channel['owner_members']:
+            if owner['u_id'] == u_id:
+                channel['owner_members'].remove(owner)
 
     DATASTORE.set(store)
     return {}

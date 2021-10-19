@@ -71,6 +71,12 @@ def test_invalid_leave_channel_id(register_user):
     }) 
     assert leave.status_code == 400
 
+    leave = requests.post(config.url + "channel/leave/v1",json = { 
+        'token': token, 
+        'channel_id': ''
+    }) 
+    assert leave.status_code == 400
+
     # access error: invalid token and invalid channel_id
     invalid_token = register_user['token'] + 'shdfjkhak3'
     leave1 = requests.post(config.url + "channel/leave/v1",json = { 

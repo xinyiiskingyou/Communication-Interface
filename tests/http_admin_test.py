@@ -160,8 +160,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     assert remove.status_code == 200
 
     # id2 is removed from id1's channel
-    channel_detail = requests.get(config.url + "channel/details/v2", 
-        params = {
+    channel_detail = requests.get(config.url + "channel/details/v2", params = {
         'token': user1_token,
         'channel_id': channel_id
     })
@@ -169,11 +168,10 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
 
     # id2 is removed from id1's dm
     dm_detail = requests.get(config.url + "dm/details/v1", params = { 
-        'token': user2_token,
+        'token': user1_token,
         'dm_id': [dm_id]
     })
-    # since id2 is not valid now
-    assert dm_detail.status_code == 403
+    assert len(json.loads(dm_detail.text)['members']) == 1
 
     '''
     # the contents of the messages will be replaced by 'Removed user'
@@ -189,7 +187,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     '''
 
     # there are only 1 valid user in user/all now
-    user_list = requests.get(config.url + "user/all/v1", params ={
+    user_list = requests.get(config.url + "users/all/v1", params ={
         'token': user1_token
     })
     assert len(json.loads(user_list.text)) == 1
@@ -214,13 +212,29 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     assert user3.status_code == 200
 
 # Streams owners can remove other Streams owners (including the original first owner)
-def test_admin_remove_valid1(global_owner, register_user2):
+def test_admin_remove_valid1(global_owner, create_channel, register_user2):
 
     token = global_owner['token']
     u_id = global_owner['auth_user_id']
+    channel_id = create_channel['channel_id']
 
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
+
+    # user 1 creates a dm 
+    dm = requests.post(config.url + "dm/create/v1", json ={ 
+        'token': token,
+        'u_ids': [u_id2]
+    })
+    dm_data = dm.json()
+    dm_id = dm_data['dm_id']
+
+    dm_detail = requests.get(config.url + "dm/details/v1", params = { 
+        'token': token2,
+        'dm_id': [dm_id]
+    })
+    original_dm_length = json.loads(dm_detail.text)['members']
+    assert len(original_dm_length) == 2
 
     # promote user2 to be a new stream owner
     promote = requests.post(config.url + "admin/userpermission/change/v1", json ={
@@ -230,12 +244,52 @@ def test_admin_remove_valid1(global_owner, register_user2):
     })
     assert promote.status_code == 200
 
+    # promotes user2 to be a channel owner
+    requests.post(config.url + 'channel/invite/v2', json ={
+        'token': token,
+        'channel_id': channel_id,
+        'u_id': u_id2
+    })
+    resp1 = requests.post(config.url + "channel/addowner/v1", json ={
+        'token': token,
+        'channel_id': channel_id,
+        'u_id': u_id2
+    })
+    assert resp1.status_code == 200
+
+    channel_detail = requests.get(config.url + "channel/details/v2", params = {
+        'token': token2,
+        'channel_id': channel_id
+    })
+    original_owner_length = len(json.loads(channel_detail.text)['owner_members'])
+    assert original_owner_length == 2
+    original_member_length = len(json.loads(channel_detail.text)['owner_members'])
+    assert original_member_length == 2
+
     # remove the original first owner
     demote = requests.delete(config.url + "admin/user/remove/v1", json ={
         'token': token2,
         'u_id': u_id
     })
     assert demote.status_code == 200
+
+    # only user2 left in the channel
+    channel_detail = requests.get(config.url + "channel/details/v2", params = {
+        'token': token2,
+        'channel_id': channel_id
+    })
+    assert len(json.loads(channel_detail.text)['all_members']) == 1
+    assert original_member_length != len(json.loads(channel_detail.text)['all_members'])
+    assert len(json.loads(channel_detail.text)['owner_members']) == 1
+    assert original_owner_length != len(json.loads(channel_detail.text)['owner_members'])
+
+    # only user2 left in the dm
+    dm_detail = requests.get(config.url + "dm/details/v1", params = { 
+        'token': token2,
+        'dm_id': [dm_id]
+    })
+    assert len(json.loads(dm_detail.text)['members']) == 1
+    assert original_dm_length != len(json.loads(dm_detail.text)['members'])
 
 ##########################################
 #### admin_userpermission_change tests ###
@@ -372,7 +426,7 @@ def test_admin_invalid_permission_id(global_owner, register_user2):
     perm2 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
         'token': token2,
         'u_id': u_id,
-        'permission_id': -100
+        'permission_id': 100
     })
     assert perm2.status_code == 403
 

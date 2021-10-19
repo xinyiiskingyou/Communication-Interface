@@ -5,7 +5,7 @@ from src.auth import auth_register_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_messages_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
-from src.helper import *
+from src.helper import check_permision_id, get_user_details
 from src.dm import dm_create_v1, dm_details_v1
 from src.user import users_all_v1, user_profile_v1
 from src.message import message_send_v1
@@ -202,8 +202,8 @@ def test_valid_permission_change():
     # user2 and user3 have owner permission
     admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], 1)
     admin_userpermission_change_v1(user1['token'], user3['auth_user_id'], 1)
-    user2_details = channels_user_details(user2['auth_user_id'])
-    user3_details = channels_user_details(user3['auth_user_id'])
+    user2_details = get_user_details(user2['auth_user_id'])
+    user3_details = get_user_details(user3['auth_user_id'])
     assert user2_details['permission_id'] == 1
     assert user3_details['permission_id'] == 1
     
