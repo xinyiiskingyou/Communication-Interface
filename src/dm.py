@@ -1,4 +1,4 @@
-from src.server_helper import decode_token
+from src.server_helper import decode_token, valid_token
 from src.helper import check_valid_email, channels_user_details, check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message
 from src.server_helper import decode_token, valid_user
@@ -27,7 +27,9 @@ Return Value:
     Returns name 
     Returns members
     '''
-    valid_user(token)
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
 
     if not check_valid_dm(dm_id): 
@@ -72,7 +74,9 @@ Return Value:
 
     '''
 
-    valid_user(token)
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
 
     #invalid dm_id
@@ -123,7 +127,10 @@ def dm_create_v1(token, u_ids):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
-    valid_user(token)
+
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
 
     # error handling
@@ -190,7 +197,9 @@ def dm_list_v1(token):
         Returns <{'dms'}> where 'dms' is a list of dictionary of dm 
         that this user is a member of
     '''
-    valid_user(token)
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
 
     return {'dms': get_dm_info(auth_user_id)}
@@ -212,7 +221,9 @@ def dm_remove_v1(token, dm_id):
         Returns N/A
     '''
 
-    valid_user(token)
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
 
     if not isinstance(dm_id, int):
@@ -233,11 +244,12 @@ def dm_remove_v1(token, dm_id):
     return {}
 
 def message_senddm_v1(token, dm_id, message):
-    
-    valid_user(token)
-    auth_user_id = decode_token(token)
 
     store = DATASTORE.get()
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
 
     # Invalid dm_id
     if not check_valid_dm(dm_id):
