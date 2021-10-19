@@ -71,43 +71,15 @@ def create_dm(creator, register_user1, register_user2, register_user3):
 
 # access error: invalid token
 def test_create_invalid_u_id(creator, register_user1):
+
     invalid_token = creator['token'] + 'sdhakhfdskfds'
     user2_id = register_user1['auth_user_id']
 
-
-def test_dm_details_not_valid(): 
-    requests.delete(config.url + "clear/v1")
-
-    user = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'helloee@gmail.com',
-        'password': 'password',
-        'name_first': 'afirst',
-        'name_last': 'alast'
+    resp1 = requests.post(config.url + "dm/create/v1", json = {
+        'token': invalid_token,
+        'u_ids': [user2_id]
     })
-    token = json.loads(user.text)['token']
-
-    user1 = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'abcde@gmail.com',
-        'password': 'passef',
-        'name_first': 'ashley',
-        'name_last': 'wong'
-    })
-    token1 = json.loads(user1.text)['token']
-    dm1 = requests.post(config.url + "dm/create/v1",
-        json = { 
-            'token': token,
-            'u_ids': []
-        })
-    dm_id = json.loads(dm1.text)['dm_id']
-    
-
-    resp1 = requests.get(config.url + "dm/details/v1", 
-        params { 
-            'token': token1,
-            'dm_id': dm_id
-        })
-        dm_details_v1(id2['token'], dm1['dm_id'])
-##add valid tests 
+    assert resp1.status_code == 403
 
     resp1 = requests.post(config.url + "dm/create/v1", json = {
         'token': '',
@@ -172,59 +144,6 @@ def test_valid_u_ids(creator, register_user1, register_user2, register_user3):
 ##########################################
 ############# dm_list tests ##############
 ##########################################
-
-
-
-def test_http_not_auth(): 
-    requests.delete(config.url + "clear/v1")
-    user1 = requests.post(config.url + "auth/register/v2",
-        json = { 
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'park'
-        })
-    token = json.loads(user1.text)['token']
-
-    user2 = requests.post(config.url + "auth/register/v2", 
-        json = { 
-            'email': 'email@gmail.com',
-            'password': 'password',
-            'name_first': 'john',
-            'name_last': 'doe'
-        })
-    token2 = json.loads(user2.text)['token']
-    dm1 = requests.post(config.url + "dm/create/v1",
-        json = { 
-            'token': token,
-            'u_ids': []
-        })
-    dm_id = json.loads(dm1.text)['dm_id']
-
-    resp1 = requests.get(config.url + "dm/details/v1",
-        params = { 
-            'token': token2,
-            'dm_id': dm_id
-        })
-    assert resp1.status_code == 403
-    
-
-def test_http_invalid(): 
-    requests.delete(config.url + "clear/v1")
-    user1 = requests.post(config.url + "auth/register/v2",
-        json = { 
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'park'
-        })
-    token = json.loads(user1.text)['token']
-    resp1 = requests.get(config.url + "dm/details/v1",
-        params = { 
-            'token': token,
-            'dm_id': -1
-        })
-    assert resp1.status_code == 400
 
 # access error: invalid token
 def test_dm_list_invalid_token(creator):
@@ -414,12 +333,6 @@ def test_dm_remove_valid(creator, create_dm):
     })
     assert resp2.status_code == 200
 
-
-def test_dm_messages_error_dm_id(): 
-    clear_v1()
-    id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
-    with pytest.raises(InputError): 
-        dm_messages_v1(id1['token'], 'jasjdlak', 0)
 ##########################################
 #########   Dm details tests    ##########
 ##########################################
@@ -498,24 +411,6 @@ def test_http_dm_details_valid(creator, register_user1):
     })
     assert resp1.status_code == 200 
 
-def test_dm_message_valid_start0 (): 
-    requests.delete(config.url + "clear/v1")
-    user1 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'anna@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'li'
-        }
-    )
-    user1_token = json.loads(user1.text)['token']
-    user2 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': '1531camel@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'alast'
-        })
 ##########################################
 #########   Dm leave tests      ##########
 ##########################################
@@ -811,100 +706,3 @@ def test_dm_message_valid_start0(creator, register_user1):
     assert message.status_code == 200 
 
 
-##error 
-
-def test_notvalid_dm_id (): 
-    requests.delete(config.url + "clear/v1")
-    user = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'afirst',
-            'name_last': 'alast'
-        })
-    token = json.loads(user.text)['token']
-
-    resp1 = requests.get(config.url + "dm/messages/v1",
-        params = { 
-            'token': token,
-            'dm_id': -1,
-            'start': 0 
-        })
-    assert resp1.status_code == 400
-##########################################
-#########   Dm leave tests      ##########
-##########################################
-
-def test_error_leave_dmid(): 
-    clear_v1()
-    id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
-    with pytest.raises(InputError): 
-        dm_leave_v1(id1['token'], '123')
-
-    
-def test_dm_leave_valid (): 
-    clear_v1()
-    id1 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
-    id2 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')
-    dm1 = dm_create_v1(id2['token'], [id1['auth_user_id']])
-    
-
-    dm_leave_v1(id1['token'], dm1['dm_id'])
-
-
-    dmdetails1 = dm_details_v1(id2['token'], dm1['dm_id'])
-    assert len(dmdetails1['members']) == 1
-
-def test_leave_invalid_dm_id(): 
-    requests.delete(config.url + "clear/v1")
-    creator = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'afirst',
-            'name_last': 'alast'
-        })
-    token = json.loads(creator.text)['token']
-    resp1 = requests.post(config.url + "dm/leave/v1", 
-        json = {
-            'token': token,
-            'dm_id': -1
-        })
-    assert resp1.status_code == 400
-    
-
-def test_leave_http_valid(): 
-    requests.delete(config.url + "clear/v1")
-
-    user1 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'park'
-        })
-    user2 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'email@gmail.com',
-            'password': 'password',
-            'name_first': 'john',
-            'name_last': 'doe'
-        })
-    token1 = json.loads(user1.text)['token']
-    token2 = json.loads(user2.text)['token']
-    u_id2 = json.loads(user2.text)['auth_user_id']
-
-    dm1 = requests.post(config.url + "dm/create/v1", 
-        json = { 
-            'token': token1, 
-            'u_ids': [u_id2]
-        })
-    dm_id1 = json.loads(dm1.text)['dm_id']
-
-    respo = requests.post(config.url + "dm/leave/v1",
-        json = { 
-        'token': token2, 
-        'dm_id': dm_id1,
-        })  
-    
-    assert respo.status_code == 200
