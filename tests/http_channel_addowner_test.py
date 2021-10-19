@@ -76,7 +76,7 @@ def test_invalid_channel_id(register_user, register_user1):
 
     resp2 = requests.post(config.url + "channel/addowner/v1", json ={
         'token': token,
-        'channel_id': '123',
+        'channel_id': 'abc',
         'u_id': u_id
     })
     assert resp1.status_code == 400
