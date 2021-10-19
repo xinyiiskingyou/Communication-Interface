@@ -300,7 +300,7 @@ def test_message_edit_invalid_message_id_not_belong_in_relevant_DM_global_owner(
     )
     user2_token = json.loads(user2.text)['token']
     user2_data = user2.json()
-    u_id2 = user2_data['auth_user_id']
+    user2_data['auth_user_id']
 
     user3 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -310,7 +310,7 @@ def test_message_edit_invalid_message_id_not_belong_in_relevant_DM_global_owner(
             'name_last': 'li'
         }
     )
-    user3_token = json.loads(user3.text)['token']
+    json.loads(user3.text)['token']
     user3_data = user3.json()
     u_id3 = user3_data['auth_user_id']
 
