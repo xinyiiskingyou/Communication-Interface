@@ -62,6 +62,13 @@ def test_addowner_invalid_token(register_user, register_user1, create_channel):
     })
     assert resp2.status_code == 403
 
+    resp2 = requests.post(config.url + "channel/addowner/v1", json ={
+        'token': 12222,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+    assert resp2.status_code == 403
+
 # Input error: invalid channel_id
 def test_invalid_channel_id(register_user, register_user1):
 
