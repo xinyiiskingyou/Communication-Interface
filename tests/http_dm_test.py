@@ -23,6 +23,14 @@ def test_dm_details_error_dm_id():
     with pytest.raises(InputError): 
         dm_details_v1(id1['token'], '123')
 
+
+def test_dm_details_not_valid(): 
+    clear_v1()
+    id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v2('abcd@gmail.com', 'passef', 'ashley', 'wong')
+    dm1 = dm_create_v1(id1['token'], [])
+    with pytest.raises(AccessError): 
+        dm_details_v1(id2['token'], dm1['dm_id'])
 ##add valid tests 
 
 def test_dm_details_valid(): 
@@ -71,6 +79,40 @@ def test_http_dm_details_valid():
         })
     assert resp1.status_code == 200 
 
+
+
+def test_http_not_auth(): 
+    requests.delete(config.url + "clear/v1")
+    user1 = requests.post(config.url + "auth/register/v2",
+        json = { 
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        })
+    token = json.loads(user1.text)['token']
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = { 
+            'email': 'email@gmail.com',
+            'password': 'password',
+            'name_first': 'john',
+            'name_last': 'doe'
+        })
+    token2 = json.loads(user2.text)['token']
+    dm1 = requests.post(config.url + "dm/create/v1",
+        json = { 
+            'token': token,
+            'u_ids': []
+        })
+    dm_id = json.loads(dm1.text)['dm_id']
+
+    resp1 = requests.get(config.url + "dm/details/v1",
+        params = { 
+            'token': token2,
+            'dm_id': dm_id
+        })
+    assert resp1.status_code == 403
     
 ##########################################
 #########   Dm messages tests   ##########
@@ -81,6 +123,7 @@ def test_http_dm_details_valid():
 #     with pytest.raises(InputError):
 #         dm_messages_v1('asjasd','12', 0)
 
+
 def test_dm_messages_error_dm_id(): 
     clear_v1()
     id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
@@ -88,8 +131,6 @@ def test_dm_messages_error_dm_id():
         dm_messages_v1(id1['token'], 'jasjdlak', 0)
 
 #####HTTP######
-
-
 
 def test_dm_message_valid_start0 (): 
     requests.delete(config.url + "clear/v1")
@@ -144,7 +185,26 @@ def test_dm_message_valid_start0 ():
     assert message.status_code == 200 
 
 
+##error 
 
+def test_notvalid_dm_id (): 
+    requests.delete(config.url + "clear/v1")
+    user = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'afirst',
+            'name_last': 'alast'
+        })
+    token = json.loads(user.text)['token']
+
+    resp1 = requests.get(config.url + "dm/messages/v1",
+        params = { 
+            'token': token,
+            'dm_id': -1,
+            'start': 0 
+        })
+    assert resp1.status_code == 400
 ##########################################
 #########   Dm leave tests      ##########
 ##########################################
