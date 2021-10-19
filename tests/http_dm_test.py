@@ -71,17 +71,41 @@ def create_dm(creator, register_user1, register_user2, register_user3):
 
 # access error: invalid token
 def test_create_invalid_u_id(creator, register_user1):
-
     invalid_token = creator['token'] + 'sdhakhfdskfds'
     user2_id = register_user1['auth_user_id']
 
 
 def test_dm_details_not_valid(): 
-    clear_v1()
-    id1 = auth_register_v2('abc1@gmail.com', 'password', 'afirst', 'alast')
-    id2 = auth_register_v2('abcd@gmail.com', 'passef', 'ashley', 'wong')
-    dm1 = dm_create_v1(id1['token'], [])
-    with pytest.raises(AccessError): 
+    requests.delete(config.url + "clear/v1")
+
+    user = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'helloee@gmail.com',
+        'password': 'password',
+        'name_first': 'afirst',
+        'name_last': 'alast'
+    })
+    token = json.loads(user.text)['token']
+
+    user1 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcde@gmail.com',
+        'password': 'passef',
+        'name_first': 'ashley',
+        'name_last': 'wong'
+    })
+    token1 = json.loads(user1.text)['token']
+    dm1 = requests.post(config.url + "dm/create/v1",
+        json = { 
+            'token': token,
+            'u_ids': []
+        })
+    dm_id = json.loads(dm1.text)['dm_id']
+    
+
+    resp1 = requests.get(config.url + "dm/details/v1", 
+        params { 
+            'token': token1,
+            'dm_id': dm_id
+        })
         dm_details_v1(id2['token'], dm1['dm_id'])
 ##add valid tests 
 
