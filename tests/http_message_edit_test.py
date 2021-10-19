@@ -711,7 +711,7 @@ def test_message_edit_DM_owner_request(setup):
     )
     assert edit_message.status_code == 200
 
-'''
+
 # New message is empty, so the message is deleted
 def test_message_edit_empty(setup):
     user1 = requests.post(config.url + "auth/register/v2", 
@@ -768,4 +768,4 @@ def test_message_edit_empty(setup):
     )
     assert len(json.loads(messages.text)['messages']) == 0
     assert edit_message.status_code == 200
-'''
+

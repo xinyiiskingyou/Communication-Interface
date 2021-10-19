@@ -37,7 +37,13 @@ def decode_token(token):
     decode = jwt.decode(token, SECRET, algorithms=['HS256'])
     return decode['auth_user_id']
 
-# Finding valid user from token
+# Decode token to find the session_id
+def decode_token_session_id(token):
+    global SECRET
+    decode = jwt.decode(token, SECRET, algorithms=['HS256'])
+    return decode['session_id']
+
+# Finding valid user form token
 def valid_user(token):
     valid_users = valid_token
     for i in range(len(valid_users)):
