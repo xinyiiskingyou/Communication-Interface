@@ -93,16 +93,13 @@ def dm_list_v1(token):
     Return Value:
         Returns <{'dms'}> where 'dms' is a list of dictionary of dm that this user is a member of
     '''
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    dm_info = get_dm_info(auth_user_id)
+    return {'dms': get_dm_info(auth_user_id)}
 
-    return {
-        'dm_id': dm_info['dm_id'],
-        'name': dm_info['name']
-    }
 
 def dm_remove_v1(token, dm_id):    
 
