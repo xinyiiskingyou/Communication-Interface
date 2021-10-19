@@ -26,7 +26,7 @@ def generate_token(auth_user_id, session_id=None):
         'auth_user_id': auth_user_id,
         'session_id': session_id
     }
-    token = str(jwt.encode(payload, SECRET, algorithm='HS256'))
+    token = jwt.encode(payload, SECRET, algorithm='HS256')
     # append the token in the list
     valid_token.append(token)
     return token
