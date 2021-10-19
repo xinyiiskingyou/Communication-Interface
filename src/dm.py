@@ -93,11 +93,13 @@ def dm_list_v1(token):
     Return Value:
         Returns <{'dms'}> where 'dms' is a list of dictionary of dm that this user is a member of
     '''
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
     return {'dms': get_dm_info(auth_user_id)}
+
 
 def dm_remove_v1(token, dm_id):    
 
@@ -227,7 +229,7 @@ def dm_messages_v1(token, dm_id, start):
     '''
     Given a dm with dm_id that authorised user
     is a member, return up to 50 messages between a index "start"
-     and "start + 50". Message with index 0 is the most recent message 
+    and "start + 50". Message with index 0 is the most recent message 
     in the channel. returns a new index 'end'  which is 'start + 50'. 
     returns -1 in end - no more messages to load. 
 
