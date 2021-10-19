@@ -275,7 +275,7 @@ def test_message_edit_invalid_message_id_not_belong_in_relevant_DM_global_member
 
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
-    # 3.b) message_id exists but does not belong to DM that user is part of
+    # 3.c) message_id exists but does not belong to DM that user is part of
     # User has global permission as "Owner"
     # Streams owners do not have owner permissions in DMs. 
     # The only users with owner permissions in DMs are the original creators of each DM.
