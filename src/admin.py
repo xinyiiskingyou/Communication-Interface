@@ -122,7 +122,6 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     if permission_id < 1 or permission_id > 2:
         raise InputError(description='The permission_id is invalid')
 
-
     user = channels_user_details(u_id)
     user['permission_id'] = permission_id
     DATASTORE.set(store)
