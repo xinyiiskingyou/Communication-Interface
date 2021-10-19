@@ -3,7 +3,7 @@ Channels implementation
 '''
 from src.data_store import DATASTORE, initial_object
 from src.error import InputError, AccessError
-from src.helper import user_info, channels_create_check_valid_user
+from src.helper import user_info, get_channel_member
 from src.server_helper import decode_token, valid_user
 
 def channels_list_v2(token):
@@ -31,11 +31,9 @@ def channels_list_v2(token):
 
     new_list = []
     for channel in initial_object['channels']:
-        for member in channel['all_members']:
-            # if the users are authorised (the auth_user_id can be found in the user list)
-            if int(member['u_id']) == auth_user_id:
-                # append to an empty list
-                new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})
+        if get_channel_member(auth_user_id, channel):
+            # append to an empty list
+            new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})
 
     DATASTORE.set(store)
 
@@ -104,8 +102,7 @@ def channels_create_v2(token, name, is_public):
         raise InputError(description='Length of name is less than 1 or more than 20 characters')
     if name[0] == ' ':
         raise InputError(description='Name cannot be blank')
-    if not channels_create_check_valid_user(auth_user_id):
-        raise AccessError(description='The token does not refer to a valid user')
+
     channels = initial_object['channels']
 
     # generate channel_id according the number of existing channels

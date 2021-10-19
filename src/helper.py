@@ -11,7 +11,7 @@ def user_info(auth_user_id):
     '''
     return type: dict
     '''
-    user = channels_user_details(auth_user_id)
+    user = get_user_details(auth_user_id)
     return {
         'u_id': auth_user_id,
         'email': user['email'],
@@ -37,11 +37,10 @@ def channels_create_check_valid_user(auth_user_id):
             return True
     return False
 
-
 # Helper function for helper user_info
 # Access the details of the given auth_user_id
 # Returns the specific dictionary of one user
-def channels_user_details(auth_user_id):
+def get_user_details(auth_user_id):
     '''
     return type: dict
     '''
@@ -49,7 +48,6 @@ def channels_user_details(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return user
     return {}
-
 
 #################################################
 ######## Helper functions for channel.py ########
@@ -95,7 +93,12 @@ def check_valid_channel_id(channel_id):
     for channel in initial_object['channels']:
         if int(channel_id) == int(channel['channel_id']):
             return True
+    return False
 
+def get_channel_member(auth_user_id, channel):
+    for member in channel['all_members']:
+        if member['u_id'] == auth_user_id:
+            return member
     return False
 
 # Helper function for channel_invite, channel_details,
@@ -114,7 +117,6 @@ def check_valid_member_in_channel(channel_id, auth_user_id):
                 if member['u_id'] == auth_user_id:
                     return True
     return False
-
 
 # Helper function for channel_join
 # Checks if the channel is public or private
@@ -317,7 +319,6 @@ def check_valid_message_send_format(message):
         return True 
 
 
-    
 #################################################
 ######## Helper functions for dm.py      ########
 #################################################

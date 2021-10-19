@@ -109,7 +109,7 @@ def test_removeowner_invalid_u_id(register_user, register_user1, create_channel)
     remove1 = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user1_token,
         'channel_id': user1_channel,
-        'u_id': ''
+        'u_id': 'abc'
     })
     assert remove1.status_code == 400
 
@@ -129,6 +129,13 @@ def test_removeowner_invalid_u_id(register_user, register_user1, create_channel)
         'u_id': -100
     })
     assert remove2.status_code == 403
+
+    remove4 = requests.post(config.url + "channel/removeowner/v1", json ={
+        'token': user2_token,
+        'channel_id': user1_channel,
+        'u_id': 'abc'
+    })
+    assert remove4.status_code == 403
 
     # access error when invalid token and invalid u_id
     invalid_token = register_user['token'] + 'hgjdasfi3'
@@ -217,7 +224,6 @@ def test_removeowner_only_owner(register_user, register_user1, create_channel):
 def test_removeowener_no_permission(register_user, register_user1, create_channel):
 
     user1_token = register_user['token']
-    user1_id = register_user['auth_user_id']
     user1_channel = create_channel['channel_id']
 
     user2_id = register_user1['auth_user_id']
@@ -233,18 +239,16 @@ def test_removeowener_no_permission(register_user, register_user1, create_channe
     user3_token = user3_data['token']
 
     # invite user1 and user2 to join the channel as a member
-    invite = requests.post(config.url + 'channel/invite/v2', json ={
+    requests.post(config.url + 'channel/invite/v2', json ={
         'token': user1_token,
         'channel_id': user1_channel,
         'u_id': user2_id
     })
-    invite2 = requests.post(config.url + 'channel/invite/v2', json ={
+    requests.post(config.url + 'channel/invite/v2', json ={
         'token': user1_token,
         'channel_id': user1_channel,
         'u_id': user3_id
     })
-    assert invite.status_code == 200
-    assert invite2.status_code == 200
 
     # add user2 to be an owner
     add = requests.post(config.url + "channel/addowner/v1", json = {
@@ -257,7 +261,7 @@ def test_removeowener_no_permission(register_user, register_user1, create_channe
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user3_token,
         'channel_id': user1_channel,
-        'u_id': user1_id
+        'u_id': user2_id
     })
     assert remove.status_code == 403
 
