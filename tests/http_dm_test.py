@@ -182,18 +182,12 @@ def test_dm_list(creator, register_user1, register_user2, register_user3):
     dms = json.loads(resp1.text)['dms'][0]
     dm_id = dms['dm_id']
     name = dms['name']
-    creator = dms['creator']
-    members = dms['members']
-    messages = dms['messages']
     assert (json.loads(resp1.text) == 
         {
         'dms': [
             {
                 'dm_id': dm_id,
-                'name': name,
-                'creator': creator,
-                'members': members,
-                'messages': messages
+                'name': name
             }
         ],
     })
@@ -240,18 +234,12 @@ def test_dm_list_creator(creator, register_user1, register_user2, register_user3
     dms = json.loads(resp1.text)['dms'][0]
     dm_id = dms['dm_id']
     name = dms['name']
-    creator = dms['creator']
-    members = dms['members']
-    messages = dms['messages']
     assert (json.loads(resp1.text) == 
         {
         'dms': [
             {
                 'dm_id': dm_id,
-                'name': name,
-                'creator': creator,
-                'members': members,
-                'messages': messages
+                'name': name
             }
         ],
     })

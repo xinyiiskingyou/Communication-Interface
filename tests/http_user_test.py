@@ -33,7 +33,7 @@ def register_user2():
 # Access error when invalid token
 def test_user_all_invalid_token(register_user1):
     invalid_token = register_user1['token'] + 'adfsdf'
-    all1 = requests.get(config.url + "user/all/v1", params ={
+    all1 = requests.get(config.url + "users/all/v1", params ={
         'token': invalid_token
     })
     assert all1.status_code == 403
@@ -42,7 +42,7 @@ def test_user_all_invalid_token(register_user1):
 def test_user_all_1_member(register_user1):
 
     token = register_user1['token']
-    all1 = requests.get(config.url + "user/all/v1", params ={
+    all1 = requests.get(config.url + "users/all/v1", params ={
         'token': token
     })
     assert all1.status_code == 200
@@ -63,11 +63,11 @@ def test_user_all_several_members(register_user1, register_user2):
     token1 = register_user1['token']
     token2 = register_user2['token']
 
-    all1 = requests.get(config.url + "user/all/v1", params ={
+    all1 = requests.get(config.url + "users/all/v1", params ={
         'token': token1
     })
 
-    all2 = requests.get(config.url + "user/all/v1", params ={
+    all2 = requests.get(config.url + "users/all/v1", params ={
         'token': token2
     })
 
@@ -264,6 +264,7 @@ def test_user_set_name_invalid_name_last(register_user1):
 def test_user_set_name_valid_name_first(register_user1):
 
     token = register_user1['token']
+    u_id = register_user1['auth_user_id']
 
     # Valid last name
     name = requests.put(config.url + "user/profile/setname/v1", json ={
@@ -272,12 +273,27 @@ def test_user_set_name_valid_name_first(register_user1):
         'name_last': 'lee'
     })
 
+    profile = requests.get(config.url + "user/profile/v1", params ={
+        'token': token,
+        'u_id': u_id
+    })
+   
+    assert (json.loads(profile.text) == 
+    {
+        'u_id': 1,
+        'email': 'cat@gmail.com',
+        'name_first': 'annabelle',
+        'name_last': 'lee',
+        'handle_str': 'annalee'
+    })
+
     assert name.status_code == 200
 
 # Valid last name change
 def test_user_set_name_valid_name_last(register_user1):
 
     token = register_user1['token']
+    u_id = register_user1['auth_user_id']
 
     # Valid last name
     name = requests.put(config.url + "user/profile/setname/v1", json ={
@@ -285,18 +301,48 @@ def test_user_set_name_valid_name_last(register_user1):
         'name_first': 'anna',
         'name_last': 'park'
     })
+
+    profile = requests.get(config.url + "user/profile/v1", params ={
+        'token': token,
+        'u_id': u_id
+    })
+   
+    assert (json.loads(profile.text) == 
+    {
+        'u_id': 1,
+        'email': 'cat@gmail.com',
+        'name_first': 'anna',
+        'name_last': 'park',
+        'handle_str': 'annalee'
+    })
+
     assert name.status_code == 200
 
 # Valid first and last name change
 def test_user_set_name_valid_name_first_and_last(register_user1):
 
     token = register_user1['token']
+    u_id = register_user1['auth_user_id']
 
     # Invalid last name
     name = requests.put(config.url + "user/profile/setname/v1", json ={
         'token': token,
         'name_first': 'annabelle',
         'name_last': 'parker'
+    })
+
+    profile = requests.get(config.url + "user/profile/v1", params ={
+        'token': token,
+        'u_id': u_id
+    })
+   
+    assert (json.loads(profile.text) == 
+    {
+        'u_id': 1,
+        'email': 'cat@gmail.com',
+        'name_first': 'annabelle',
+        'name_last': 'parker',
+        'handle_str': 'annalee'
     })
 
     assert name.status_code == 200

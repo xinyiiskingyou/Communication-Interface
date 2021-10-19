@@ -92,7 +92,8 @@ def user_profile_setname_v1(token, name_first, name_last):
     auth_user_id = decode_token(token)
     user = get_user_details(auth_user_id)
     user['name_first'] = name_first
-    user['name_first'] = name_last
+    user['name_last'] = name_last
+
     DATASTORE.set(store)
     return {}
 
