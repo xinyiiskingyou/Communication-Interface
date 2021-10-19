@@ -83,7 +83,7 @@ def test_reg_invalid_name_h():
 
 ##### Implementation #####
 
-# Asseert correct return values for auth/register/v2
+# Assert correct return values for auth/register/v2
 def test_reg_return_values_h():
     requests.delete(config.url + "clear/v1", json={})
     resp1 = requests.post(config.url + "auth/register/v2", 
@@ -112,6 +112,40 @@ def test_reg_return_values_h():
     assert id1 != id2
     assert resp1.status_code == 200
     assert resp2.status_code == 200
+
+def test_reg_handle_h():
+    requests.delete(config.url + "clear/v1", json={})
+    resp1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }) 
+
+    resp2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abcd@gmail.com',
+            'password': 'password',
+            'name_first': 'annabelle',
+            'name_last': 'parkerparker'
+        })
+
+    token1 = json.loads(resp1.text)['token']
+    token2 = json.loads(resp2.text)['token']
+
+    profile1 = requests.get(config.url + "users/all/v1", params ={
+        'token': token1
+    })
+    profile2 = requests.get(config.url + "users/all/v1", params ={
+        'token': token2
+    })  
+
+    handle1 = json.loads(profile1.text)[0]['handle_str']
+    assert handle1 == 'annapark'
+
+    handle2 = json.loads(profile2.text)[1]['handle_str']
+    assert handle2 == 'annabelleparkerparke'
 
 
 ##########################################

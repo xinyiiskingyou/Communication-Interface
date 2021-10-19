@@ -193,11 +193,13 @@ def dm_list_v1(token):
     Return Value:
         Returns <{'dms'}> where 'dms' is a list of dictionary of dm that this user is a member of
     '''
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
     return {'dms': get_dm_info(auth_user_id)}
+
 
 def dm_remove_v1(token, dm_id):    
 
@@ -327,7 +329,7 @@ def dm_messages_v1(token, dm_id, start):
     '''
     Given a dm with dm_id that authorised user
     is a member, return up to 50 messages between a index "start"
-     and "start + 50". Message with index 0 is the most recent message 
+    and "start + 50". Message with index 0 is the most recent message 
     in the channel. returns a new index 'end'  which is 'start + 50'. 
     returns -1 in end - no more messages to load. 
 
@@ -410,7 +412,7 @@ def message_senddm_v1(token, dm_id, message):
     # Current time message was created and sent
     time_created = time.time()
 
-    dmsend_details = {
+    dmsend_details_channels = {
         'message_id': dmsend_id,
         'u_id': auth_user_id, 
         'message': message,
@@ -420,11 +422,18 @@ def message_senddm_v1(token, dm_id, message):
     # Append dictionary of message details into initial_objects['dm']['messages']
     for dm in initial_object['dms']:
         if dm['dm_id'] == dm_id:
-            dm['messages'].append(dmsend_details)
+            dm['messages'].insert(0, dmsend_details_channels)
+
+    dmsend_details_messages = {
+        'message_id': dmsend_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_created, 
+        'dm_id': dm_id
+    }
 
     # Append dictionary of message details into intital_objects['messages']
-    dmsend_details['dm_id'] = dm_id
-    initial_object['messages'].append(dmsend_details)
+    initial_object['messages'].insert(0, dmsend_details_messages)
 
     DATASTORE.set(store)
 

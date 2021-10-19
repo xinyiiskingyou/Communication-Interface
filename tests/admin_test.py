@@ -5,8 +5,8 @@ from src.auth import auth_register_v2
 from src.channel import channel_details_v2, channel_invite_v2, channel_messages_v2
 from src.channels import channels_create_v2
 from src.other import clear_v1
-from src.helper import *
-from src.dm import dm_create_v1, dm_details_v1
+from src.helper import get_user_details
+from src.dm import dm_create_v1, dm_details_v1, message_senddm_v1, dm_messages_v1
 from src.user import users_all_v1, user_profile_v1
 from src.message import message_send_v1
 
@@ -75,6 +75,9 @@ def test_admin_remove_valid():
     message_send_v1(id2['token'], channel_id1['channel_id'], 'how are you')
     msg1 = channel_messages_v2(id1['token'], channel_id1['channel_id'], 0)
 
+    message_senddm_v1(id2['token'], dm_id['dm_id'], 'hihi')
+    dm1 = dm_messages_v1(id1['token'], dm_id['dm_id'], 0)
+
     # remove id2
     admin_user_remove_v1(id1['token'], id2['auth_user_id'])
 
@@ -91,6 +94,7 @@ def test_admin_remove_valid():
 
     # the contents of the messages they sent will be replaced by 'Removed user'
     assert msg1['messages'][0]['message'] == 'Removed user'
+    assert dm1['messages'][0]['message'] == 'Removed user'
 
     # there are only 2 valid users in user/all now
     assert len(users_all_v1(id1['token'])) == 2

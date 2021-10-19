@@ -35,7 +35,7 @@ def message_send_v1(token, channel_id, message):
     # Current time message was created and sent
     time_created = time.time()
 
-    message_details = {
+    message_details_channels = {
         'message_id': message_id,
         'u_id': auth_user_id, 
         'message': message,
@@ -45,11 +45,18 @@ def message_send_v1(token, channel_id, message):
     # Append dictionary of message details into initial_objects['channels']['messages']
     for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
-            channel['messages'].append(message_details)
+            channel['messages'].insert(0, message_details_channels)
+
+    message_details_messages = {
+        'message_id': message_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_created,
+        'channel_id': channel_id
+    }
 
     # Append dictionary of message details into intital_objects['messages']
-    message_details['channel_id'] = channel_id
-    initial_object['messages'].append(message_details)
+    initial_object['messages'].insert(0, message_details_messages)
 
     DATASTORE.set(store)
 

@@ -1,5 +1,6 @@
 from src.error import InputError, AccessError
-from src.helper import *
+from src.helper import check_permision_id, channels_create_check_valid_user, check_number_of_owners, check_permission
+from src.helper import get_user_details, get_handle
 from src.data_store import DATASTORE, initial_object
 from src.server_helper import decode_token, valid_user
 
@@ -47,7 +48,10 @@ def admin_user_remove_v1(token, u_id):
         for owner in channel['owner_members']:
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
-    
+        for message in channel['messages']:
+            if message['u_id'] == u_id:
+                message['message'] = 'Removed user'
+
     # remove users from dm
     for dm in initial_object['dms']:
         # remove the name of the user
@@ -59,6 +63,9 @@ def admin_user_remove_v1(token, u_id):
                 dm['members'].remove(member)
         if dm['creator']['u_id'] == u_id:
             dm['creator'].clear()
+        for message in dm['messages']:
+            if message['u_id'] == u_id:
+                message['message'] = 'Removed user'
     
     #  the contents of the messages they sent will be replaced by 'Removed user'
     for message in initial_object['messages']:
