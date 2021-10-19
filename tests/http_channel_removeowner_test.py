@@ -224,7 +224,6 @@ def test_removeowner_only_owner(register_user, register_user1, create_channel):
 def test_removeowener_no_permission(register_user, register_user1, create_channel):
 
     user1_token = register_user['token']
-    user1_id = register_user['auth_user_id']
     user1_channel = create_channel['channel_id']
 
     user2_id = register_user1['auth_user_id']
