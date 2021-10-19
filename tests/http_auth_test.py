@@ -123,14 +123,30 @@ def test_reg_handle_h():
             'name_last': 'park'
         }) 
 
-    token = json.loads(resp1.text)['token']
-    u_id = json.loads(resp1.text)['auth_user_id']
+    resp2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abcd@gmail.com',
+            'password': 'password',
+            'name_first': 'annabelle',
+            'name_last': 'parkerparker'
+        })
 
-    profile = requests.get(config.url + "users/all/v1", params ={
-        'token': token
+    token1 = json.loads(resp1.text)['token']
+    token2 = json.loads(resp2.text)['token']
+
+    profile1 = requests.get(config.url + "users/all/v1", params ={
+        'token': token1
     })
-    handle = json.loads(profile.text)[0]['handle_str']
-    assert handle == 'annapark'
+    profile2 = requests.get(config.url + "users/all/v1", params ={
+        'token': token2
+    })
+
+    handle1 = json.loads(profile1.text)[0]['handle_str']
+    assert handle1 == 'annapark'
+
+    handle2 = json.loads(profile2.text)[1]['handle_str']
+    assert handle2 == 'annabelleparkerparke'
+
 
 ##########################################
 ############ auth_login tests ############
