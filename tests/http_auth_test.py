@@ -113,6 +113,24 @@ def test_reg_return_values_h():
     assert resp1.status_code == 200
     assert resp2.status_code == 200
 
+def test_reg_handle_h():
+    requests.delete(config.url + "clear/v1", json={})
+    resp1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        }) 
+
+    token = json.loads(resp1.text)['token']
+    u_id = json.loads(resp1.text)['auth_user_id']
+
+    profile = requests.get(config.url + "users/all/v1", params ={
+        'token': token
+    })
+    handle = json.loads(profile.text)[0]['handle_str']
+    assert handle == 'annapark'
 
 ##########################################
 ############ auth_login tests ############
