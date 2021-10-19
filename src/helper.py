@@ -288,8 +288,8 @@ def check_authorised_user_edit(auth_user_id, message_id):
     elif message_id % 2 == 0:
         for dm in initial_object['dms']:
             if dm['dm_id'] == channel_dm_id:
-                    if dm['creator']['u_id'] == auth_user_id:
-                        found_owner_creator = 1
+                if dm['creator']['u_id'] == auth_user_id:
+                    found_owner_creator = 1
 
     # Message_id refers to a valid message in joined channel/DM and
     # authorised user has owner permissions in the channel/DM

@@ -160,6 +160,7 @@ def channel_messages_v2(token, channel_id, start):
         if channel['channel_id'] == channel_id:
             num_messages = len(channel['messages'])
             message_pagination = channel['messages']
+            
 
     # if this function has returned the least recent messages in the channel,
     # returns -1 in "end" to indicate there are no more messages to load after this return
@@ -176,7 +177,7 @@ def channel_messages_v2(token, channel_id, start):
         message_pagination = message_pagination[start:]
     else:
         message_pagination = message_pagination[start:end]
-    print(f"TEST = {message_pagination}")
+        
     return {
         'messages': message_pagination,
         'start': start,
