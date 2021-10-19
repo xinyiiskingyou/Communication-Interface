@@ -368,7 +368,10 @@ def get_dm_info(auth_user_id):
     for dm in initial_object['dms']:
         find = dm['name'].find(handle)
         if find != -1:
-            dms.append(dm)
+            dm_dict = {}
+            dm_dict['dm_id'] = dm['dm_id']
+            dm_dict['name'] = dm['name']
+            dms.append(dm_dict)
     return dms
 
 # check if the user is the creator of the given dm
