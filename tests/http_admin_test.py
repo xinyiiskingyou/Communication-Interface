@@ -187,7 +187,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     '''
 
     # there are only 1 valid user in user/all now
-    user_list = requests.get(config.url + "user/all/v1", params ={
+    user_list = requests.get(config.url + "users/all/v1", params ={
         'token': user1_token
     })
     assert len(json.loads(user_list.text)) == 1
