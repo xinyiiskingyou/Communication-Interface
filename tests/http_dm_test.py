@@ -114,6 +114,25 @@ def test_http_not_auth():
         })
     assert resp1.status_code == 403
     
+
+def test_http_invalid(): 
+    requests.delete(config.url + "clear/v1")
+    user1 = requests.post(config.url + "auth/register/v2",
+        json = { 
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        })
+    token = json.loads(user1.text)['token']
+    resp1 = requests.get(config.url + "dm/details/v1",
+        params = { 
+            'token': token,
+            'dm_id': -1
+        })
+    assert resp1.status_code == 400
+
+
 ##########################################
 #########   Dm messages tests   ##########
 ##########################################
