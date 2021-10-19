@@ -202,8 +202,8 @@ def test_valid_permission_change():
     # user2 and user3 have owner permission
     admin_userpermission_change_v1(user1['token'], user2['auth_user_id'], 1)
     admin_userpermission_change_v1(user1['token'], user3['auth_user_id'], 1)
-    user2_details = channels_user_details(user2['auth_user_id'])
-    user3_details = channels_user_details(user3['auth_user_id'])
+    user2_details = get_user_details(user2['auth_user_id'])
+    user3_details = get_user_details(user3['auth_user_id'])
     assert user2_details['permission_id'] == 1
     assert user3_details['permission_id'] == 1
     
