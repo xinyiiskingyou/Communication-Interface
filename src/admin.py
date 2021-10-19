@@ -15,6 +15,7 @@ def admin_user_remove_v1(token, u_id):
         InputError  - Occurs when u_id does not refer to a valid user
                     - Occurs when u_id refers to a user who is the only global owner
         AccessError - Occurs when the authorised user is not a global owner
+                    - Occurs when token is invalid
 
     Return Value:
         N/A
@@ -94,6 +95,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
                     - Occurs when u_id refers to a user who is the only global owner and 
                     they are being demoted to a user
         AccessError - Occurs when the authorised user is not a global owner
+                    - Occurs when token is invalid
 
     Return Value:
         N/A
@@ -122,7 +124,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     if permission_id < 1 or permission_id > 2:
         raise InputError(description='The permission_id is invalid')
 
-    user = channels_user_details(u_id)
+    user = get_user_details(u_id)
     user['permission_id'] = permission_id
     DATASTORE.set(store)
     return {}
