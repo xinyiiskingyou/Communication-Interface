@@ -43,8 +43,10 @@ def auth_logout_v1(token):
     store = DATASTORE.get()
     session_id = decode_token_session_id(token)
     for user in initial_object['users']:
+        print(f"session_list before removal = {user['session_list']}")
         if user['token'] == token:
             user['session_list'].remove(session_id)
+        print(f"session_list after removal = {user['session_list']}")
     
     DATASTORE.set(store)
     

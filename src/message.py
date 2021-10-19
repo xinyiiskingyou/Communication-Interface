@@ -42,8 +42,6 @@ def message_send_v1(token, channel_id, message):
         'time_created': time_created
     }
 
-    message_details_messages = message_details_channels
-
     # Append dictionary of message details into initial_objects['channels']['messages']
     for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
