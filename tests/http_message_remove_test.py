@@ -97,6 +97,7 @@ def test_message_remove_invalid_message_id_nonexistant(setup):
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
     # 3.a) message_id exists but does not belong to channel that user is part of
+    # User has global permission of "Member"
 def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup):
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -143,7 +144,7 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup)
             'message': 'hello'
         }
     )
-    json.loads(send_message1.text)['message_id']
+    message1_id = json.loads(send_message1.text)['message_id']
 
     send_message2 = requests.post(config.url + "message/send/v1", 
         json = {
@@ -152,12 +153,12 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup)
             'message': 'goodbye'
         }
     )
-    message2_id = json.loads(send_message2.text)['message_id']
+    json.loads(send_message2.text)['message_id']
 
     remove_message = requests.delete(config.url + "message/remove/v1", 
         json = {
-            'token': user1_token,
-            'message_id': message2_id,
+            'token': user2_token,
+            'message_id': message1_id,
         }
     )
     assert remove_message.status_code == 400
