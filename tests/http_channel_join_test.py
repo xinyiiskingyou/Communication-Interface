@@ -71,13 +71,26 @@ def test_invalid_join_channel_id(register_user1):
     })
     assert join1.status_code == 400
 
+    join2 = requests.post(config.url + 'channel/join/v2', json ={
+        'token': token,
+        'channel_id': '',
+    })
+    assert join2.status_code == 400
+
     # access error: invalid token and invalid channel_id
     invalid_token = register_user1['token'] + 'shdfjkhak3'
-    join2 = requests.post(config.url + 'channel/join/v2', json ={
+    join3 = requests.post(config.url + 'channel/join/v2', json ={
         'token': invalid_token,
         'channel_id': -16,
     })
-    assert join2.status_code == 403
+    assert join3.status_code == 403
+
+    join4 = requests.post(config.url + 'channel/join/v2', json ={
+        'token': invalid_token,
+        'channel_id': '',
+    })
+    assert join4.status_code == 403
+
 
 # the authorised user is already a member of the channel
 def test_already_joined_public(register_user1, create_channel):
