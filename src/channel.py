@@ -143,7 +143,7 @@ def channel_messages_v2(token, channel_id, start):
 
     valid_user(token)
     auth_user_id = decode_token(token)
-    
+
     # Invalid channel_id
     if not check_valid_channel_id(channel_id):
         raise InputError(description = 'The channel_id does not refer to a valid channel')
@@ -310,8 +310,6 @@ def channel_addowner_v1(token, channel_id, u_id):
     auth_user_id = decode_token(token)
      
     # invalid channel_id
-    if not isinstance(channel_id, int):
-        raise InputError(description = 'This is an invalid channel_id')
     if not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel id is not valid')
         

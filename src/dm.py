@@ -254,11 +254,11 @@ def dm_messages_v1(token, dm_id, start):
 
     auth_user_id = decode_token(token)
 
-    #invalid dm_id
+    # invalid dm_id
     if not check_valid_dm(dm_id): 
         raise InputError("This dm_id does not refer to a valid DM")
 
-    #not authorised  
+    # not authorised  
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError("The user is not an authorised member of the DM")
 
@@ -271,6 +271,7 @@ def dm_messages_v1(token, dm_id, start):
     if end >= num_messages: 
         end = -1
 
+    # Start is greater than the total number of messages in the channel
     if not check_valid_start(num_messages, start): 
         raise InputError(description = 'Start is greater then total messages')
 
