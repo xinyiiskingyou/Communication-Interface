@@ -62,15 +62,13 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     return dm_data
 
 def test_dm_list_invalid_token(creator):
-    token = creator['token'] + 'sdaf'
+    token = creator['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
 
     resp1 = requests.get(config.url + "dm/list/v1", params = {
         'token': token,
-    })
-    assert resp1.status_code == 403
-
-    resp1 = requests.get(config.url + "dm/list/v1", params = {
-        'token': '',
     })
     assert resp1.status_code == 403
 

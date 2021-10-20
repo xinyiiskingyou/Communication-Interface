@@ -87,17 +87,13 @@ def test_dm_details_not_valid():
             'u_ids': []
         })
     dm_id = json.loads(dm1.text)['dm_id']
-    
 
     resp1 = requests.get(config.url + "dm/details/v1", 
         params = { 
             'token': token1,
             'dm_id': dm_id
         })
-##add valid tests 
     assert resp1.status_code == 403
-
-
 
 def test_http_not_auth(): 
     requests.delete(config.url + "clear/v1")
@@ -150,23 +146,19 @@ def test_http_invalid():
         })
     assert resp1.status_code == 400
 
-
 # invalid token
 def test_http_dm_details_invalid_token(creator, create_dm):
 
-    invalid_token = creator['token'] +'sfhkjadhasd2'
+    token = creator['token']
     dm_id = create_dm['dm_id']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     resp1 = requests.get(config.url + "dm/details/v1", params = { 
-        'token': invalid_token,
+        'token': token,
         'dm_id':  dm_id
     })
-    assert resp1.status_code == 403 
-
-    resp1 = requests.get(config.url + "dm/details/v1", params = { 
-        'token': '',
-        'dm_id':  dm_id
-    })
-    assert resp1.status_code == 403 
+    assert resp1.status_code == 403  
 
 # invalid dm_id
 def test_http_dm_details_invalid_dm_id(creator):
@@ -180,9 +172,11 @@ def test_http_dm_details_invalid_dm_id(creator):
     assert resp1.status_code == 400
 
     # access error: invalid token and invalid dm_id
-    invalid_token = creator['token'] +'sfhkjadhasd2'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     resp1 = requests.get(config.url + "dm/details/v1", params = { 
-        'token': invalid_token,
+        'token': token,
         'dm_id':  -1
     })
     assert resp1.status_code == 403

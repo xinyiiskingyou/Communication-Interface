@@ -49,22 +49,20 @@ def create_channel(register_user):
 ##############################################
 
 def test_channel_messages_invalid_token(register_user, create_channel):
-    invalid_token = register_user['token'] + 'afjkdshfkdsf'
+    token = register_user['token']
     channel_id = create_channel['channel_id']
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+
     send_message = requests.get(config.url + "channel/messages/v2", params ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': channel_id, 
         'start': 0
     })
     assert send_message.status_code == 403
 
-    send_message = requests.get(config.url + "channel/messages/v2", params ={
-        'token': '',
-        'channel_id': channel_id, 
-        'start': 0
-    })
-    assert send_message.status_code == 403
 
 # Input error when channel_id does not refer to a valid channel
 # Channel id is negative
@@ -80,9 +78,12 @@ def test_channel_messages_invalid_channel_id_negative(register_user):
     assert send_message.status_code == 400
 
     # access error: invalid token and invalid channel_id
-    invalid_token = register_user['token'] + 'afjkdshfkdsf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
     send_message = requests.get(config.url + "channel/messages/v2", params ={
-        'token': invalid_token,
+        'token': user1_token,
         'channel_id': -1, 
         'start': 0
     })
@@ -115,9 +116,11 @@ def test_channel_messages_invalid_channel_id_nonexistant(register_user, register
     assert messages.status_code == 400
 
     # access error: invalid token and invalid channel_id
-    invalid_token = register_user['token'] + 'safdsaf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
     send_message = requests.get(config.url + "channel/messages/v2", params ={
-        'token': invalid_token,
+        'token': user1_token,
         'channel_id': 256, 
         'start': 0
     })
@@ -146,17 +149,19 @@ def test_channel_messages_invalid_start_gt(register_user, create_channel):
     assert messages2.status_code == 400
 
     # access error: invalid token and invalid start number
-    invalid_token = register_user['token'] + 'safadsfdsaf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
     
     messages3 = requests.get(config.url + "channel/messages/v2", params ={
-        'token': invalid_token,
+        'token': user1_token,
         'channel_id': channel1_id, 
         'start': 256
     })
     assert messages3.status_code == 403
 
     messages4 = requests.get(config.url + "channel/messages/v2", params ={
-        'token': invalid_token,
+        'token': user1_token,
         'channel_id': channel1_id, 
         'start': -1
     })

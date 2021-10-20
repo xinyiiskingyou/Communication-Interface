@@ -44,10 +44,13 @@ def create_channel(global_owner):
 def test_admin_invalid_token(global_owner, register_user2):
 
     # create an invalid token
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    token = global_owner['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     u_id = register_user2['auth_user_id']
     remove = requests.delete(config.url + 'admin/user/remove/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id
     })
     assert remove.status_code == 403
@@ -76,9 +79,11 @@ def test_admin_remove_invalid_u_id(global_owner, register_user2):
     assert remove2.status_code == 403
 
     # access error: invalid token and invalid u_id
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     remove3 = requests.delete(config.url + 'admin/user/remove/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': -1
     })
     assert remove3.status_code == 403
@@ -96,9 +101,11 @@ def test_admin_global_owner(global_owner):
     assert remove.status_code == 400
 
     # access error: invalid token and u_id is the only global owner
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     remove3 = requests.delete(config.url + 'admin/user/remove/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id
     })
     assert remove3.status_code == 403
@@ -313,10 +320,13 @@ def test_admin_remove_valid1(global_owner, create_channel, register_user2):
 # access error: invalid token 
 def test_admin_perm_invalid_token(global_owner, register_user2):
    
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    token = global_owner['token']
     u_id = register_user2['auth_user_id']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id,
         'permission_id': 1
     })
@@ -351,9 +361,11 @@ def test_admin_perm_invalid_u_id(global_owner, register_user2):
     assert perm2.status_code == 403
 
     # access error: invalid token and invalid u_id
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': ' ',
         'permission_id': 1
     })
@@ -373,9 +385,11 @@ def test_admin_invalid_demote(global_owner):
     assert perm.status_code == 400
 
     # access error: invalid token and demote the only owner
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id,
         'permission_id': 2
     })
@@ -446,9 +460,11 @@ def test_admin_invalid_permission_id(global_owner, register_user2):
     assert perm2.status_code == 403
 
     # access error: invalid token and invalid permission id
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id2,
         'permission_id': -1100
     })
