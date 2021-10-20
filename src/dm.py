@@ -68,8 +68,6 @@ def dm_create_v1(token, u_ids):
     separation = ", "
     name = separation.join(handle_list)
 
-    is_removed = False
-
     dm = {
         'dm_id': dm_id,
         'name': name,
