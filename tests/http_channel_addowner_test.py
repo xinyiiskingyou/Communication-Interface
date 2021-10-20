@@ -44,30 +44,18 @@ def create_channel(register_user):
 
 # Access error: invalid token
 def test_addowner_invalid_token(register_user, register_user1, create_channel):
-    invalid_token = register_user['token'] +'dskfjoiie'
+    token = register_user['token']
     channel_id = create_channel['channel_id']
     u_id = register_user1['auth_user_id']
-
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     resp1 = requests.post(config.url + "channel/addowner/v1", json ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': channel_id,
         'u_id': u_id
     })
     assert resp1.status_code == 403
-
-    resp2 = requests.post(config.url + "channel/addowner/v1", json ={
-        'token': '',
-        'channel_id': channel_id,
-        'u_id': u_id
-    })
-    assert resp2.status_code == 403
-
-    resp2 = requests.post(config.url + "channel/addowner/v1", json ={
-        'token': 12222,
-        'channel_id': channel_id,
-        'u_id': u_id
-    })
-    assert resp2.status_code == 403
 
 # Input error: invalid channel_id
 def test_invalid_channel_id(register_user, register_user1):
@@ -90,9 +78,11 @@ def test_invalid_channel_id(register_user, register_user1):
     assert resp2.status_code == 400
 
     # access error: invalid token and invalid channel_id
-    invalid_token = register_user['token'] +'dskfjoiie'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     resp3 = requests.post(config.url + "channel/addowner/v1", json ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': 123,
         'u_id': u_id
     })
@@ -110,15 +100,6 @@ def test_invalid_u_id(register_user, register_user1, create_channel):
         'u_id': -1
     })
     assert resp1.status_code == 400
-
-    # access error: invalid token and invalid u_id
-    invalid_token = register_user['token'] +'dskfjoiie'
-    resp3 = requests.post(config.url + "channel/addowner/v1", json ={
-        'token': invalid_token,
-        'channel_id': channel_id,
-        'u_id': -1
-    })
-    assert resp3.status_code == 403
 
     # access error: invalid u_id and token has no owner permission
     token2 = register_user1['token']
@@ -144,6 +125,17 @@ def test_invalid_u_id(register_user, register_user1, create_channel):
     assert resp1.status_code == 403
     assert resp2.status_code == 403
 
+    # access error: invalid token and invalid u_id
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+    resp3 = requests.post(config.url + "channel/addowner/v1", json ={
+        'token': token,
+        'channel_id': channel_id,
+        'u_id': -1
+    })
+    assert resp3.status_code == 403
+
 # u_id not a member of the channel
 def test_not_member_u_id(register_user, register_user1, create_channel):
 
@@ -151,7 +143,7 @@ def test_not_member_u_id(register_user, register_user1, create_channel):
     channel_id = create_channel['channel_id']
 
     u_id = register_user1['auth_user_id']
-    token2 = register_user1['auth_user_id']
+    token2 = register_user1['token']
 
     resp1 = requests.post(config.url + "channel/addowner/v1", json ={
         'token': token,
@@ -160,22 +152,24 @@ def test_not_member_u_id(register_user, register_user1, create_channel):
     })
     assert resp1.status_code == 400
 
-    # access error: invalid token and u_id is not a member of the channel
-    invalid_token = register_user['token'] +'dskfjoiie'
-    resp3 = requests.post(config.url + "channel/addowner/v1", json ={
-        'token': invalid_token,
-        'channel_id': channel_id,
-        'u_id': u_id
-    })
-    assert resp3.status_code == 403
-
     # access error: token has no owner permission and u_id is not a member
     resp2 = requests.post(config.url + "channel/addowner/v1", json = {
         'token': token2,
         'channel_id': channel_id,
         'u_id': u_id
     })
-    assert resp2.status_code == 403
+    assert resp2.status_code == 403 
+
+    # access error: invalid token and u_id is not a member of the channel
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+    resp3 = requests.post(config.url + "channel/addowner/v1", json ={
+        'token': token,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+    assert resp3.status_code == 403
 
 # u_id already owner of the channel
 def test_already_owner(register_user, register_user1, create_channel):

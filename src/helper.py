@@ -81,6 +81,12 @@ def get_channel_details(channel_id):
             return channel
     return False
 
+def get_user_status():
+    for user in initial_object['users']:
+        if user['is_removed'] == False:
+            return True
+    return False
+
 # Helper function for channel_invite, channel_details,
 # channel_messages and channel_join
 # Checks if a valid channel_id is being passed in or not
@@ -300,8 +306,8 @@ def check_authorised_user_edit(auth_user_id, message_id):
     elif message_id % 2 == 0:
         for dm in initial_object['dms']:
             if dm['dm_id'] == channel_dm_id:
-                    if dm['creator']['u_id'] == auth_user_id:
-                        found_owner_creator = 1
+                if dm['creator']['u_id'] == auth_user_id:
+                    found_owner_creator = 1
 
     # In the case where message being edited is part of a channel, 
     # check if auth_user_id is global owner of Streams

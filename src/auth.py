@@ -38,7 +38,6 @@ def auth_login_v2(email, password):
 
     raise InputError(description='Email and/or password is not valid!')
 
-
 def auth_logout_v1(token):
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
@@ -47,7 +46,6 @@ def auth_logout_v1(token):
         if user['auth_user_id'] == auth_user_id:
             user['session_list'].remove(session_id)
     DATASTORE.set(store)
-    
     return {}
 
 
@@ -100,8 +98,10 @@ def auth_register_v2(email, password, name_first, name_last):
 
     # Creating unique auth_user_id and hashing and encoding the token and password
     auth_user_id = len(initial_object['users']) + 1
+
     session_id = generate_sess_id()
     token = generate_token(auth_user_id, session_id)
+
     password = hashlib.sha256(password.encode()).hexdigest() 
 
     # Creating handle and adding to dict_user
@@ -139,11 +139,10 @@ def auth_register_v2(email, password, name_first, name_last):
         'name_first': name_first,
         'name_last' : name_last,
         'session_list': [session_id],
-        'token': token,
         'auth_user_id' : int(auth_user_id),
         'handle_str' : handle,
         'permission_id' : permission_id,
-        'is_removed': bool(is_removed)
+        'is_removed': bool(is_removed),
     })
 
     DATASTORE.set(store)
