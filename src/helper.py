@@ -228,6 +228,8 @@ def check_valid_message_id(auth_user_id, message_id):
     if found_message_id == 0:
         return False
 
+    # If message_id is odd, message is from channel
+    # Go through channels to determine if user is part of channel of that message_id
     found_user = 0
     if message_id % 2 == 1:
         for channel in initial_object['channels']:
@@ -236,12 +238,20 @@ def check_valid_message_id(auth_user_id, message_id):
                     if member['u_id'] == auth_user_id:
                         found_user = 1
 
+    # If message_id is odd, message is from DM
+    # Go through DMs to determine if user is part of DM of that message_id
     elif message_id % 2 == 0:
         for dm in initial_object['dms']:
             if dm['dm_id'] == channel_dm_id:
                 for member in dm['members']:
                     if member['u_id'] == auth_user_id:
                         found_user = 1
+
+    # In the case where message being edited is part of a channel, 
+    # check if auth_user_id is global owner of Streams
+    if message_id % 2 == 1:
+        if check_permision_id(auth_user_id):
+            found_user = 1
 
     if found_user == 1 and found_message_id == 1:
         return True
@@ -290,8 +300,14 @@ def check_authorised_user_edit(auth_user_id, message_id):
     elif message_id % 2 == 0:
         for dm in initial_object['dms']:
             if dm['dm_id'] == channel_dm_id:
-                    if dm['creator']['u_id'] == auth_user_id:
-                        found_owner_creator = 1
+                if dm['creator']['u_id'] == auth_user_id:
+                    found_owner_creator = 1
+
+    # In the case where message being edited is part of a channel, 
+    # check if auth_user_id is global owner of Streams
+    if message_id % 2 == 1:
+        if check_permision_id(auth_user_id):
+            found_owner_creator = 1
 
     # Message_id refers to a valid message in joined channel/DM and
     # authorised user has owner permissions in the channel/DM

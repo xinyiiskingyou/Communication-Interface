@@ -512,7 +512,7 @@ def test_leave_http_valid_owner(create_dm, creator):
     assert respo.status_code == 200
     
 ##########################################
-#########   Dm messages tests   ##########
+#######   Dmsend messages tests   ########
 ##########################################
 
 # invalid token
@@ -705,4 +705,23 @@ def test_dm_message_valid_start0(creator, register_user1):
 
     assert message.status_code == 200 
 
+# valid case
+def test_dm_message_appending(creator, register_user1): 
 
+    user1_token = creator['token']
+    u_id2 = register_user1['auth_user_id']
+
+    dm1 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': user1_token, 
+        'u_ids': [u_id2]
+    })
+    dm_id1 = json.loads(dm1.text)['dm_id']
+
+    for x in range(NUM_MESSAGE_MORE): 
+        requests.post(config.url + "message/senddm/v1",
+        json = {
+            'token': user1_token,
+            'dm_id': dm_id1,
+            'message': f'hi{x}'
+        })
+        

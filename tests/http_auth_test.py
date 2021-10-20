@@ -83,7 +83,7 @@ def test_reg_invalid_name_h():
 
 ##### Implementation #####
 
-# Asseert correct return values for auth/register/v2
+# Assert correct return values for auth/register/v2
 def test_reg_return_values_h():
     requests.delete(config.url + "clear/v1", json={})
     resp1 = requests.post(config.url + "auth/register/v2", 
