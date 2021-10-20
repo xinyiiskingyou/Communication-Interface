@@ -479,7 +479,6 @@ def test_user_set_handle_invalid_length(register_user1):
     assert handle1.status_code == 400
 
     # Access Error: invalid token and invalid handle length
-    token = register_user1['token'] + 'hdfksa'
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -487,12 +486,12 @@ def test_user_set_handle_invalid_length(register_user1):
         'token': token,
         'handle_str': 'a1'
     })
+    assert handle2.status_code == 403
 
     handle3 = requests.put(config.url + "user/profile/sethandle/v1", json ={
         'token': token,
         'handle_str': 'a' * 22
     })
-    assert handle2.status_code == 403
     assert handle3.status_code == 403
 
 
