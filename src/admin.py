@@ -52,11 +52,7 @@ def admin_user_remove_v1(token, u_id):
                 message['message'] = 'Removed user'
 
     # remove users from dm
-    for dm in initial_object['dms']:
-        # remove the name of the user
-        handle = get_handle(u_id)
-        new_string = dm['name'].replace(handle + ", ", "")
-        dm['name'] = new_string
+    for dm in initial_object['dms']:    
         for member in dm['members']:
             if member['u_id'] == u_id:
                 dm['members'].remove(member)

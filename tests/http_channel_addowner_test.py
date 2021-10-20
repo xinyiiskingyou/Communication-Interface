@@ -296,6 +296,8 @@ def test_no_perm_not_owner(register_user, create_channel, register_user1):
     })
     assert resp1.status_code == 403
 
+
+##### Implementation ######
 # valid case
 def test_valid_addowner(register_user, register_user1, create_channel):
 
@@ -317,6 +319,7 @@ def test_valid_addowner(register_user, register_user1, create_channel):
     })
 
     assert resp1.status_code == 200
+
 
 def test_addowner_valid_global(register_user, register_user1):
 
