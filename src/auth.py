@@ -41,13 +41,11 @@ def auth_login_v2(email, password):
 
 def auth_logout_v1(token):
     store = DATASTORE.get()
+    auth_user_id = decode_token(token)
     session_id = decode_token_session_id(token)
     for user in initial_object['users']:
-        print(f"session_list before removal = {user['session_list']}")
-        if user['token'] == token:
+        if user['auth_user_id'] == auth_user_id:
             user['session_list'].remove(session_id)
-        print(f"session_list after removal = {user['session_list']}")
-    
     DATASTORE.set(store)
     
     return {}
