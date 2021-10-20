@@ -48,6 +48,7 @@ def create_channel(register_user):
 ########## channel/messages/v2 tests #########
 ##############################################
 
+# Test for invalid token 
 def test_channel_messages_invalid_token(register_user, create_channel):
     token = register_user['token']
     channel_id = create_channel['channel_id']

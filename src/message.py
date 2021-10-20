@@ -138,10 +138,6 @@ def message_remove_v1(token, message_id):
     if not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError("The user is unauthorised to edit the message.")
 
-    messages = initial_object['messages']
-    message = get_message_dict(message_id)
-    messages.remove(message)
-
     # Given a message_id for a message, remove message from the channel/DM
     for channel in initial_object['channels']:
         for message in channel['messages']:
