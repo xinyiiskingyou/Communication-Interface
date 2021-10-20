@@ -170,7 +170,7 @@ def test_login_email_not_belong_to_user():
     )
     assert resp2.status_code == 400
 
-def test__login_incorrect_password():
+def test_login_incorrect_password():
     requests.delete(config.url + "clear/v1")
     requests.post(config.url + "auth/register/v2", 
         json = {
@@ -187,6 +187,7 @@ def test__login_incorrect_password():
         }
     )
     assert resp2.status_code == 400
+
 
 ##########################################
 ############ auth_logout tests ###########
