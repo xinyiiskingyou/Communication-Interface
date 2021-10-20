@@ -150,38 +150,7 @@ def test_dm_list_creator(creator, register_user1, register_user2, register_user3
         ],
     })
 
-# valid case
-def test_dm_list(creator, register_user1, register_user2, register_user3):
 
-    token = creator['token']
-
-    u_id1 = register_user1['auth_user_id']
-    u_id2 = register_user2['auth_user_id']
-    u_id3 = register_user3['auth_user_id']
-    token1 = register_user3['token']
-
-    requests.post(config.url + "dm/create/v1", json = {
-        'token': token,
-        'u_ids': [u_id1, u_id2, u_id3]
-    })
-
-    resp1 = requests.get(config.url + "dm/list/v1", params = {
-        'token': token1,
-    })
-
-    assert resp1.status_code == 200
-    dms = json.loads(resp1.text)['dms'][0]
-    dm_id = dms['dm_id']
-    name = dms['name']
-    assert (json.loads(resp1.text) == 
-        {
-        'dms': [
-            {
-                'dm_id': dm_id,
-                'name': name
-            }
-        ],
-    })
 
 def test_dm_list_no_dm(creator, register_user1, register_user2, register_user3):
 
@@ -204,7 +173,7 @@ def test_dm_list_no_dm(creator, register_user1, register_user2, register_user3):
     assert resp1.status_code == 200
     assert json.loads(resp1.text) == {'dms': []}
 
-def test_dm_list_creator(creator, register_user1, register_user2, register_user3):
+def test_dm_list_creator_1(creator, register_user1, register_user2, register_user3):
 
     token = creator['token']
     
