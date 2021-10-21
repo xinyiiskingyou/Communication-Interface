@@ -52,7 +52,7 @@ def test_user_all_1_member(register_user1):
     })
     assert all1.status_code == 200
 
-    assert (json.loads(all1.text) == 
+    assert (json.loads(all1.text)['users'] == 
     [{
         'u_id': u_id,
         'email': 'cat@gmail.com',
@@ -78,9 +78,9 @@ def test_user_all_several_members(register_user1, register_user2):
 
     # test using length of list as cannot be certain 
     # the listed order of users
-    assert len(json.loads(all1.text)) == 2
-    assert len(json.loads(all2.text)) == 2
-    assert len(json.loads(all1.text)) == len(json.loads(all2.text))
+    assert len(json.loads(all1.text)['users']) == 2
+    assert len(json.loads(all2.text)['users']) == 2
+    assert len(json.loads(all1.text)['users']) == len(json.loads(all2.text)['users'])
 
 ##########################################
 ########## user_profile tests ############
@@ -148,7 +148,7 @@ def test_user_profile_valid_own(register_user1):
     })
 
     assert profile.status_code == 200
-    assert (json.loads(profile.text) == 
+    assert (json.loads(profile.text)['user'] == 
         {
         'u_id': u_id,
         'email': 'cat@gmail.com',
@@ -169,7 +169,7 @@ def test_user_profile_valid_someone_else(register_user1, register_user2):
     })
 
     assert profile.status_code == 200
-    assert (json.loads(profile.text) == 
+    assert (json.loads(profile.text)['user'] == 
         {
         'u_id': u_id2,
         'email': 'elephant@gmail.com',
@@ -295,7 +295,7 @@ def test_user_set_name_valid_name_first(register_user1):
         'u_id': u_id
     })
    
-    assert (json.loads(profile.text) == 
+    assert (json.loads(profile.text)['user'] == 
     {
         'u_id': 1,
         'email': 'cat@gmail.com',
@@ -324,7 +324,7 @@ def test_user_set_name_valid_name_last(register_user1):
         'u_id': u_id
     })
    
-    assert (json.loads(profile.text) == 
+    assert (json.loads(profile.text)['user'] == 
     {
         'u_id': 1,
         'email': 'cat@gmail.com',
@@ -353,7 +353,7 @@ def test_user_set_name_valid_name_first_and_last(register_user1):
         'u_id': u_id
     })
    
-    assert (json.loads(profile.text) == 
+    assert (json.loads(profile.text)['user'] == 
     {
         'u_id': 1,
         'email': 'cat@gmail.com',
