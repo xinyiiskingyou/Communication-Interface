@@ -61,29 +61,18 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
+def test_create_invalid_token(creator, register_user1):
 
-# u_id empty
-# one of u_ids not valid
-
-def test_create_invalid_u_id(creator, register_user1):
-
-    invalid_token = creator['token'] + 'sdhakhfdskfds'
+    token = creator['token']
     user2_id = register_user1['auth_user_id']
-
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     resp1 = requests.post(config.url + "dm/create/v1", json = {
-        'token': invalid_token,
+        'token': token,
         'u_ids': [user2_id]
     })
     assert resp1.status_code == 403
-
-    resp1 = requests.post(config.url + "dm/create/v1", json = {
-        'token': '',
-        'u_ids': [user2_id]
-    })
-    assert resp1.status_code == 403
-
-
-
 
 def test_invalid_u_id(creator, register_user1):
 
@@ -97,18 +86,14 @@ def test_invalid_u_id(creator, register_user1):
     assert resp1.status_code == 400
 
     # access error: invalid token and invalid u_id
-    invalid_token = creator['token'] + 'sdhakhfdskfds'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
     resp1 = requests.post(config.url + "dm/create/v1", json = {
-        'token': invalid_token,
+        'token': user1_token,
         'u_ids': [user2_id, -1]
     })
     assert resp1.status_code == 403
-
-    resp2 = requests.post(config.url + "dm/create/v1", json = {
-        'token': '',
-        'u_ids': [user2_id, -1]
-    })
-    assert resp2.status_code == 403
 
 # test no other members join dm
 def test_valid_empty_u_id(creator):

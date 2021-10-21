@@ -29,7 +29,8 @@ initial_object = {
     'users': [],
     'channels': [],     # list of dictionaries of channels
     'messages': [],     # list of dictionaries of messages
-    'dms': []           # list of dictionaries of dms 
+    'dms': [],           # list of dictionaries of dms 
+    'complete_dms': []
 }
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE

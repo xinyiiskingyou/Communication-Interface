@@ -37,8 +37,9 @@ def dm_create_v1(token, u_ids):
     auth_user_id = decode_token(token)
 
     dms = initial_object['dms']
+    complete_dms = initial_object['complete_dms']
     # generate dm_id according the number of existing dms
-    dm_id = len(dms) + 1
+    dm_id = len(complete_dms) + 1
 
     # create a list that stores the handles of all the users given 
     # including creator
@@ -72,10 +73,12 @@ def dm_create_v1(token, u_ids):
         'name': name,
         'creator': creator_info,
         'members': member_list,
-        'messages': []
+        'messages': [],
     }
     dms.append(dm)
+    complete_dms.append(dm)
     DATASTORE.set(store)
+
     return {
         'dm_id': dm_id
     }
@@ -99,7 +102,6 @@ def dm_list_v1(token):
 
     auth_user_id = decode_token(token)
     return {'dms': get_dm_info(auth_user_id)}
-
 
 def dm_remove_v1(token, dm_id):    
 
@@ -126,8 +128,6 @@ def dm_remove_v1(token, dm_id):
     auth_user_id = decode_token(token)
 
     # invalid dm_id
-    if not isinstance(dm_id, int):
-        raise InputError(description = "This is an invalid dm_id")
     if not check_valid_dm(dm_id):
         raise InputError(description = "This does not refer to a valid dm")
 
@@ -139,8 +139,11 @@ def dm_remove_v1(token, dm_id):
     dms = initial_object['dms']
     dm = get_dm_dict(dm_id)
     dms.remove(dm)
+
     DATASTORE.set(store)
+
     return {}
+
 
 def dm_details_v1(token, dm_id): 
     '''
@@ -219,8 +222,9 @@ def dm_leave_v1(token, dm_id):
             for member in dm['members']:
                 if member['u_id'] == auth_user_id: 
                     dm['members'].remove(newuser)
-        if dm['creator']['u_id'] == auth_user_id:
-            dm['creator'].clear()
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == auth_user_id:
+                dm['creator'].clear()
     
     DATASTORE.set(store)
     return{}
@@ -254,11 +258,11 @@ def dm_messages_v1(token, dm_id, start):
 
     auth_user_id = decode_token(token)
 
-    #invalid dm_id
+    # invalid dm_id
     if not check_valid_dm(dm_id): 
         raise InputError("This dm_id does not refer to a valid DM")
 
-    #not authorised  
+    # not authorised  
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError("The user is not an authorised member of the DM")
 
@@ -271,6 +275,7 @@ def dm_messages_v1(token, dm_id, start):
     if end >= num_messages: 
         end = -1
 
+    # Start is greater than the total number of messages in the channel
     if not check_valid_start(num_messages, start): 
         raise InputError(description = 'Start is greater then total messages')
 
