@@ -293,6 +293,19 @@ def test_user_set_name_valid_name_first(register_user1):
         'token': token,
         'u_id': u_id
     })
+
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': token,
+        'name': '1531_CAMEL',
+        'is_public': False
+    })
+    channel_id = json.loads(channel.text)['channel_id']
+    
+    dm1 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': token,
+        'u_ids': [u_id]
+    })
+    dm_id = json.loads(dm1.text)['dm_id']
    
     assert (json.loads(profile.text)['user'] == 
     {
@@ -304,13 +317,6 @@ def test_user_set_name_valid_name_first(register_user1):
     })
     assert name.status_code == 200
 
-    channel = requests.post(config.url + "channels/create/v2", json ={
-        'token': token,
-        'name': '1531_CAMEL',
-        'is_public': False
-    })
-    channel_id = json.loads(channel.text)['channel_id']
-
     channel_details = requests.get(config.url + "channel/details/v2", params = {
         'token': token,
         'channel_id': channel_id
@@ -320,11 +326,6 @@ def test_user_set_name_valid_name_first(register_user1):
     owner_name = json.loads(channel_details.text)['all_members'][0]['name_first']
     assert owner_name == member_name
 
-    dm1 = requests.post(config.url + "dm/create/v1", json = { 
-        'token': token,
-        'u_ids': [u_id]
-    })
-    dm_id = json.loads(dm1.text)['dm_id']
     dm_details = requests.get(config.url + "dm/details/v1", params = { 
         'token': token,
         'dm_id':  dm_id
@@ -362,13 +363,6 @@ def test_user_set_name_valid_name_last(register_user1):
 def test_user_set_name_valid_channel(register_user1):
     token = register_user1['token']
 
-    name = requests.put(config.url + "user/profile/setname/v1", json ={
-        'token': token,
-        'name_first': 'annabelle',
-        'name_last': 'li'
-    })
-    assert name.status_code == 200
-
     channel = requests.post(config.url + "channels/create/v2", json ={
         'token': token,
         'name': '1531_CAMEL',
@@ -376,6 +370,13 @@ def test_user_set_name_valid_channel(register_user1):
     })
     assert channel.status_code == 200
     channel_id = json.loads(channel.text)['channel_id']
+    
+    name = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': token,
+        'name_first': 'annabelle',
+        'name_last': 'li'
+    })
+    assert name.status_code == 200
 
     channel_details = requests.get(config.url + "channel/details/v2", params = {
         'token': token,
@@ -397,6 +398,13 @@ def test_user_set_name_valid_dm(register_user1):
 
     token = register_user1['token']
     u_id = register_user1['auth_user_id']
+
+    dm1 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': token,
+        'u_ids': [u_id]
+    })
+    dm_id = json.loads(dm1.text)['dm_id']
+
     name = requests.put(config.url + "user/profile/setname/v1", json ={
         'token': token,
         'name_first': 'emily',
@@ -404,11 +412,6 @@ def test_user_set_name_valid_dm(register_user1):
     })
     assert name.status_code == 200
 
-    dm1 = requests.post(config.url + "dm/create/v1", json = { 
-        'token': token,
-        'u_ids': [u_id]
-    })
-    dm_id = json.loads(dm1.text)['dm_id']
     dm_details = requests.get(config.url + "dm/details/v1", params = { 
         'token': token,
         'dm_id':  dm_id
@@ -442,7 +445,6 @@ def test_user_set_name_valid_name_first_and_last(register_user1):
         'handle_str': 'annalee'
     })
     assert name.status_code == 200
-
 
 ##########################################
 ##### user_profile_set_email tests #######
@@ -526,12 +528,6 @@ def test_user_set_email_valid(register_user1):
 def test_user_set_email_valid_channel_coverage(register_user1):
     token = register_user1['token']
 
-    mail = requests.put(config.url + "user/profile/setemail/v1", json ={
-        'token': token,
-        'email': 'comp1531@gmail.com'
-    })
-    assert mail.status_code == 200
-
     channel = requests.post(config.url + "channels/create/v2", json ={
         'token': token,
         'name': '1531_CAMEL',
@@ -539,6 +535,13 @@ def test_user_set_email_valid_channel_coverage(register_user1):
     })
     channel_id = json.loads(channel.text)['channel_id']
     assert channel_id > 0 
+
+    mail = requests.put(config.url + "user/profile/setemail/v1", json ={
+        'token': token,
+        'email': 'comp1531@gmail.com'
+    })
+    assert mail.status_code == 200
+
     channel_details = requests.get(config.url + "channel/details/v2", params = {
         'token': token,
         'channel_id': channel_id
@@ -552,17 +555,19 @@ def test_user_set_email_valid_channel_coverage(register_user1):
 def test_user_set_email_valid_dm_coverage(register_user1):
     token = register_user1['token']
     u_id = register_user1['auth_user_id']
-    mail = requests.put(config.url + "user/profile/setemail/v1", json ={
-        'token': token,
-        'email': 'comp1531@gmail.com'
-    })
-    assert mail.status_code == 200
 
     dm1 = requests.post(config.url + "dm/create/v1", json = { 
         'token': token,
         'u_ids': [u_id]
     })
     dm_id = json.loads(dm1.text)['dm_id']
+
+    mail = requests.put(config.url + "user/profile/setemail/v1", json ={
+        'token': token,
+        'email': 'comp1531@gmail.com'
+    })
+    assert mail.status_code == 200
+
     dm_details = requests.get(config.url + "dm/details/v1", params = { 
         'token': token,
         'dm_id':  dm_id
@@ -656,19 +661,25 @@ def test_user_set_handle(register_user1, register_user2):
     user1_id = register_user1['auth_user_id']
     user2_token = register_user2['token']
 
-    # valid case
-    handle = requests.put(config.url + "user/profile/sethandle/v1", json ={
-        'token': user1_token,
-        'handle_str': 'anna'
-    })
-    assert handle.status_code == 200
-
     channel = requests.post(config.url + "channels/create/v2", json ={
         'token': user1_token,
         'name': '1531_CAMEL',
         'is_public': False
     })
     channel_id = json.loads(channel.text)['channel_id']
+
+    dm1 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': user1_token,
+        'u_ids': [user1_id]
+    })
+    dm_id = json.loads(dm1.text)['dm_id']
+    
+    # valid case
+    handle = requests.put(config.url + "user/profile/sethandle/v1", json ={
+        'token': user1_token,
+        'handle_str': 'anna'
+    })
+    assert handle.status_code == 200
 
     channel_details = requests.get(config.url + "channel/details/v2", params = {
         'token': user1_token,
@@ -679,11 +690,6 @@ def test_user_set_handle(register_user1, register_user2):
     owner_handle = json.loads(channel_details.text)['all_members'][0]['handle_str']
     assert owner_handle == member_handle
 
-    dm1 = requests.post(config.url + "dm/create/v1", json = { 
-        'token': user1_token,
-        'u_ids': [user1_id]
-    })
-    dm_id = json.loads(dm1.text)['dm_id']
     dm_details = requests.get(config.url + "dm/details/v1", params = { 
         'token': user1_token,
         'dm_id':  dm_id
