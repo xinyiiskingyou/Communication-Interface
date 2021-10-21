@@ -2,7 +2,7 @@ from src.error import InputError, AccessError
 from src.helper import check_permision_id, channels_create_check_valid_user, check_number_of_owners, check_permission
 from src.helper import get_user_details, get_handle
 from src.data_store import DATASTORE, initial_object
-from src.server_helper import decode_token, valid_user
+from src.server_helper import decode_token, valid_user, decode_token_session_id
 
 def admin_user_remove_v1(token, u_id):
     '''
@@ -26,7 +26,6 @@ def admin_user_remove_v1(token, u_id):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-
     # the authorised user is not a global owner
     if not check_permision_id(auth_user_id):
         raise AccessError(description='The authorised user is not a global owner')
@@ -53,11 +52,7 @@ def admin_user_remove_v1(token, u_id):
                 message['message'] = 'Removed user'
 
     # remove users from dm
-    for dm in initial_object['dms']:
-        # remove the name of the user
-        handle = get_handle(u_id)
-        new_string = dm['name'].replace(handle + ", ", "")
-        dm['name'] = new_string
+    for dm in initial_object['dms']:    
         for member in dm['members']:
             if member['u_id'] == u_id:
                 dm['members'].remove(member)
@@ -83,6 +78,7 @@ def admin_user_remove_v1(token, u_id):
             # so that it can be reusable.
             user['handle_str'] = ''
             user['email'] = ''
+            user['session_list'].clear()
 
     DATASTORE.set(store)
     return {}

@@ -2,7 +2,6 @@ import pytest
 import requests
 import json
 from src import config
-from src.other import clear_v1 
 
 
 NUM_MESSAGE_EXACT = 50
@@ -68,10 +67,7 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
-
-
-
-def test_dm_messages_error_dm_id(creator, register_user1): 
+def test_dm_messages_error_dm_id(creator): 
 
     token = creator['token']
     message = requests.get(config.url + "dm/messages/v1", params = { 
@@ -89,16 +85,18 @@ def test_dm_messages_error_dm_id(creator, register_user1):
     assert resp.status_code == 400
 
     # invalid token and invalid dm_id
-    invalid_token = register_user1['token'] +'agadsf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     message = requests.get(config.url + "dm/messages/v1", params = { 
-        'token': invalid_token,
+        'token': token,
         'dm_id': -1, 
         'start': 0 
     })
     assert message.status_code == 403
 
     resp = requests.post(config.url + "message/senddm/v1",json = {
-        'token': invalid_token,
+        'token': token,
         'dm_id': -1,
         'message': 'hi'
     })
@@ -124,23 +122,24 @@ def test_dm_messages_invalid_start_gt(creator, create_dm):
     })
     assert messages2.status_code == 400
 
-        # access error: invalid token and invalid start number
-    invalid_token = creator['token'] + 'safadsfdsaf'
+    # access error: invalid token and invalid start number
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
         
     messages3 = requests.get(config.url + "dm/messages/v1", params ={
-        'token': invalid_token,
+        'token': user1_token,
         'dm_id': dm_id, 
         'start': 256
     })
     assert messages3.status_code == 403
 
     messages4 = requests.get(config.url + "dm/messages/v1", params ={
-        'token': invalid_token,
+        'token': user1_token,
         'dm_id': dm_id, 
         'start': -1
     })
     assert messages4.status_code == 403
-
     
 # dm_id is valid and the authorised user is not a member of the DM
 def test_dm_message_not_a_member(create_dm):
@@ -333,19 +332,21 @@ def test_dm_message_valid_empty(creator, register_user1):
     assert message.status_code == 200 
 
 
-
-
 def test_messages_invalid_token(create_dm, creator):	
     dm_id1 = create_dm['dm_id']	
-    invalid_token = creator['token'] +'agadsf'	
+    token = creator['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     message = requests.get(config.url + "dm/messages/v1", params = { 	
-        'token': invalid_token,	
+        'token': token,	
         'dm_id': dm_id1, 	
         'start': 0 	
     })	
     assert message.status_code == 403	
+
     resp = requests.post(config.url + "message/senddm/v1",json = {	
-        'token': invalid_token,	
+        'token': token,	
         'dm_id': dm_id1,	
         'message': 'hi'	
     })	
@@ -373,21 +374,22 @@ def test_message_send_dm_invalid_length(creator, create_dm, register_user1):
     assert resp.status_code == 400
 
     # invalid token and invalid length
-    invalid_token = register_user1['token'] +'agadsf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
     resp = requests.post(config.url + "message/senddm/v1",json = {
-        'token': invalid_token,
+        'token': user1_token,
         'dm_id': dm_id,
         'message': 'a' * 1001
     })
     assert resp.status_code == 403
 
     resp = requests.post(config.url + "message/senddm/v1",json = {
-        'token': invalid_token,
+        'token': user1_token,
         'dm_id': dm_id,
         'message': ''
     })
     assert resp.status_code == 403
-    
 
 def test_notvalid_dm_id (): 	
     requests.delete(config.url + "clear/v1")	

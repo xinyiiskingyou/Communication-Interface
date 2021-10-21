@@ -3,7 +3,6 @@ import requests
 import json
 from src import config 
 
-
 @pytest.fixture
 def creator():
     requests.delete(config.url + "clear/v1")
@@ -62,20 +61,16 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
-
-
 def test_dm_remove_invalid_token(creator, create_dm):
 
-    token = creator['token'] + 'fsaddsf2'
+    token = creator['token']
     dm_id = create_dm['dm_id']
+
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     resp1 = requests.delete(config.url + "dm/remove/v1", json = {
         'token': token,
-        'dm_id': dm_id
-    })
-    assert resp1.status_code == 403
-
-    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
-        'token': '',
         'dm_id': dm_id
     })
     assert resp1.status_code == 403
@@ -97,15 +92,17 @@ def test_dm_remove_invalid_dm_id(creator):
     assert resp1.status_code == 400
 
     # access error: invalid token and invalid dm_id
-    invalid_token = creator['token'] + 'fsaddsf2'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     resp1 = requests.delete(config.url + "dm/remove/v1", json = {
-        'token': invalid_token,
+        'token': token,
         'dm_id': -1
     })
     assert resp1.status_code == 403
 
     resp1 = requests.delete(config.url + "dm/remove/v1", json = {
-        'token': invalid_token,
+        'token': token,
         'dm_id': ''
     })
     assert resp1.status_code == 403

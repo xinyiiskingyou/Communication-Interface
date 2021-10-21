@@ -45,23 +45,20 @@ def create_channel(register_user):
 
 # access error: invalid token
 def test_removeowner_invalid_token(register_user, register_user1, create_channel):
-    invalid_token = register_user['token'] + 'hgjdasfi3'
+    token = register_user['token']
     channel_id = create_channel
     user2_id = register_user1['auth_user_id']
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': channel_id,
         'u_id': user2_id
     })
     assert remove.status_code == 403
 
-    remove = requests.post(config.url + "channel/removeowner/v1", json ={
-        'token': '',
-        'channel_id': channel_id,
-        'u_id': user2_id
-    })
-    assert remove.status_code == 403
 
 # invalid channel_id
 def test_removeowner_invalid_channel_id(register_user, register_user1):
@@ -85,9 +82,11 @@ def test_removeowner_invalid_channel_id(register_user, register_user1):
     assert remove1.status_code == 400
 
     # access error when invalid channel_id and invalid token
-    invalid_token = register_user['token'] + 'hgjdasfi3'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user_token
+    })
     remove3 = requests.post(config.url + "channel/removeowner/v1", json ={
-        'token': invalid_token,
+        'token': user_token,
         'channel_id': -256,
         'u_id': user2_id
     })
@@ -138,9 +137,11 @@ def test_removeowner_invalid_u_id(register_user, register_user1, create_channel)
     assert remove4.status_code == 403
 
     # access error when invalid token and invalid u_id
-    invalid_token = register_user['token'] + 'hgjdasfi3'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
     remove3 = requests.post(config.url + "channel/removeowner/v1", json ={
-        'token': invalid_token,
+        'token': user1_token,
         'channel_id': user1_channel,
         'u_id': -16
     })
@@ -180,9 +181,11 @@ def test_removeowner_invalid_owner_u_id(register_user, register_user1, create_ch
     assert remove1.status_code == 403
 
     # access error when invalid token and u_id is not an owner
-    invalid_token = register_user['token'] + 'hgjdasfi3'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
     remove3 = requests.post(config.url + "channel/removeowner/v1", json ={
-        'token': invalid_token,
+        'token': user1_token,
         'channel_id': user1_channel,
         'u_id': user2_id
     })
@@ -212,9 +215,11 @@ def test_removeowner_only_owner(register_user, register_user1, create_channel):
     assert remove1.status_code == 403
 
     # access error when invalid token and u_id is not an owner
-    invalid_token = register_user['token'] + 'hgjdasfi3'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
     remove2 = requests.post(config.url + "channel/removeowner/v1", json ={
-        'token': invalid_token,
+        'token': user1_token,
         'channel_id': user1_channel,
         'u_id': user1_id
     })
