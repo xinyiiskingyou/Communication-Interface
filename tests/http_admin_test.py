@@ -218,17 +218,16 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'token': user1_token,
         'u_id': user2_id
     })  
+    # name_first should be 'Removed' and name_last should be 'user'.
+    assert profile.status_code == 200
+    assert json.loads(profile.text)['name_first'] == 'Removed'
+    assert json.loads(profile.text)['name_last'] == 'user'
 
     invalid = requests.get(config.url + "users/all/v1", params ={
         'token': user2_token
     })
     assert invalid.status_code == 403
 
-    # name_first should be 'Removed' and name_last should be 'user'.
-    assert profile.status_code == 200
-    assert json.loads(profile.text)['name_first'] == 'Removed'
-    assert json.loads(profile.text)['name_last'] == 'user'
-    
     # user2's email and handle should be reusable.
     user3 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'elephant@gmail.com',

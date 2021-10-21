@@ -61,8 +61,6 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
-
-
 def test_dm_details_not_valid(): 
     requests.delete(config.url + "clear/v1")
 
@@ -218,7 +216,4 @@ def test_http_dm_details_valid(creator, register_user1):
         'dm_id':  dm_id
     })
     assert resp1.status_code == 200 
-
-
-
 
