@@ -97,6 +97,7 @@ def test_message_remove_invalid_message_id_nonexistant(setup):
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
     # 3.a) message_id exists but does not belong to channel that user is part of
+    # User has global permission of "Member"
 def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup):
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -143,7 +144,7 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup)
             'message': 'hello'
         }
     )
-    json.loads(send_message1.text)['message_id']
+    message1_id = json.loads(send_message1.text)['message_id']
 
     send_message2 = requests.post(config.url + "message/send/v1", 
         json = {
@@ -152,12 +153,12 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup)
             'message': 'goodbye'
         }
     )
-    message2_id = json.loads(send_message2.text)['message_id']
+    json.loads(send_message2.text)['message_id']
 
     remove_message = requests.delete(config.url + "message/remove/v1", 
         json = {
-            'token': user1_token,
-            'message_id': message2_id,
+            'token': user2_token,
+            'message_id': message1_id,
         }
     )
     assert remove_message.status_code == 400
@@ -166,7 +167,10 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(setup)
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
     # 3.b) message_id exists but does not belong to DM that user is part of
-def test_message_remove_invalid_message_id_not_belong_in_relevant_DM(setup):
+    # User has global permission as "Owner"
+    # Streams owners do not have owner permissions in DMs. 
+    # The only users with owner permissions in DMs are the original creators of each DM.
+def test_message_remove_invalid_message_id_not_belong_in_relevant_DM_global_owner(setup):
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {
             'email': 'anna@gmail.com',
@@ -187,7 +191,7 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_DM(setup):
     )
     user2_token = json.loads(user2.text)['token']
     user2_data = user2.json()
-    u_id2 = user2_data['auth_user_id']
+    user2_data['auth_user_id']
 
     user3 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -197,14 +201,15 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_DM(setup):
             'name_last': 'li'
         }
     )
-    user3_token = json.loads(user3.text)['token']
+    json.loads(user3.text)['token']
+    user3_data = user3.json()
+    u_id3 = user3_data['auth_user_id']
 
     create_dm1 = requests.post(config.url + "dm/create/v1", 
         json = {
-            'token': user1_token,
-            'u_ids': [u_id2]
+            'token': user2_token,
+            'u_ids': [u_id3]
         })
-
     assert create_dm1.status_code == 200
     dm1_id = json.loads(create_dm1.text)['dm_id']
 
@@ -220,11 +225,12 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_DM(setup):
 
     remove_message = requests.delete(config.url + "message/remove/v1", 
         json = {
-            'token': user3_token,
+            'token': user1_token,
             'message_id': message_id1,
         }
     )
     assert remove_message.status_code == 400
+
 
 
 # Access error when:
@@ -432,6 +438,8 @@ def test_message_remove_channel_authorised_user_request(setup):
         }
     )
     user1_token = json.loads(user1.text)['token']
+    user1_data = user1.json()
+    u_id1 = user1_data['auth_user_id']
 
     user2 = requests.post(config.url + "auth/register/v2", 
         json = {
@@ -442,12 +450,10 @@ def test_message_remove_channel_authorised_user_request(setup):
         }
     )
     user2_token = json.loads(user2.text)['token']
-    user2_data = user2.json()
-    u_id2 = user2_data['auth_user_id']
 
     channel1 = requests.post(config.url + "channels/create/v2", 
         json = {
-            'token': user1_token,
+            'token': user2_token,
             'name': 'anna_channel',
             'is_public': False
         }
@@ -456,25 +462,26 @@ def test_message_remove_channel_authorised_user_request(setup):
 
     requests.post(config.url + 'channel/invite/v2', 
         json = {
-            'token': user1_token,
+            'token': user2_token,
             'channel_id': channel1_id,
-            'u_id': u_id2
+            'u_id': u_id1
         }
     )
 
-    send_message2 = requests.post(config.url + "message/send/v1", 
+    send_message1 = requests.post(config.url + "message/send/v1", 
         json = {
-            'token': user2_token,
+            'token': user1_token,
             'channel_id': channel1_id,
             'message': 'hello'
         }
     )
-    message2_id = json.loads(send_message2.text)['message_id']
+    message1_id = json.loads(send_message1.text)['message_id']
 
+    # Since user2 is the owner of 'anna_channel', user2 is able to remove user1's message in channel
     remove_message = requests.delete(config.url + "message/remove/v1", 
         json = {
             'token': user2_token,
-            'message_id': message2_id,
+            'message_id': message1_id,
         }
     )
     assert remove_message.status_code == 200
@@ -662,8 +669,135 @@ def test_message_remove_DM_owner_request(setup):
     assert remove_message.status_code == 200
 
 
-# Given 2 messages, check it deletes one 
+# Owner of UNSW Streams is able to remove message from any channel 
+def test_message_edit_DM_global_owner_any_channel(setup):
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
 
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'sally@gmail.com',
+            'password': 'password',
+            'name_first': 'sally',
+            'name_last': 'li'
+        }
+    )
+    user2_token = json.loads(user2.text)['token']
+
+    user3 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'larry@gmail.com',
+            'password': 'password',
+            'name_first': 'larry',
+            'name_last': 'li'
+        }
+    )
+    user3_token = json.loads(user3.text)['token']
+
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+            'token': user2_token,
+            'name': 'sally_channel',
+            'is_public': False
+        }
+    )
+    channel1_id = json.loads(channel1.text)['channel_id']
+
+    channel2 = requests.post(config.url + "channels/create/v2", 
+        json = {
+            'token': user3_token,
+            'name': 'larry_channel',
+            'is_public': True
+        }
+    )
+    channel2_id = json.loads(channel2.text)['channel_id']
+
+    send_message1 = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user2_token,
+            'channel_id': channel1_id,
+            'message': 'hello from user2'
+        }
+    )
+    message1_id = json.loads(send_message1.text)['message_id']
+
+    send_message2 = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user3_token,
+            'channel_id': channel2_id,
+            'message': 'hello from user3'
+        }
+    )
+    message2_id = json.loads(send_message2.text)['message_id']
+
+    request_messages1 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user2_token,
+            'channel_id': channel1_id,
+            'start': 0
+        }
+    )
+    messages1 = json.loads(request_messages1.text)
+    assert len(messages1['messages']) == 1
+
+    request_messages2 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user3_token,
+            'channel_id': channel2_id,
+            'start': 0
+        }
+    )
+    messages2 = json.loads(request_messages2.text)
+    assert len(messages2['messages']) == 1
+
+    remove_message1 = requests.delete(config.url + "message/remove/v1", 
+        json = {
+            'token': user1_token,
+            'message_id': message1_id,
+        }
+    )
+    assert remove_message1.status_code == 200
+
+    remove_message2 = requests.delete(config.url + "message/remove/v1", 
+        json = {
+            'token': user1_token,
+            'message_id': message2_id,
+        }
+    )
+    assert remove_message2.status_code == 200
+
+
+    # Checks that messages from user2 were edited by global owner of streams
+    request_messages3 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user2_token,
+            'channel_id': channel1_id,
+            'start': 0
+        }
+    )
+    messages3 = json.loads(request_messages3.text)
+    assert len(messages3['messages']) == 0
+
+    # Checks that messages from user3 were edited by global owner of streams
+    request_messages4 = requests.get(config.url + "channel/messages/v2", 
+        params = {
+            'token': user3_token,
+            'channel_id': channel2_id,
+            'start': 0
+        }
+    )
+    messages4 = json.loads(request_messages4.text)
+    assert len(messages4['messages']) == 0
+
+
+# Given 2 messages, check it deletes one 
 def test_message_remove_channel_2_messages(setup):
     user1 = requests.post(config.url + "auth/register/v2", 
         json = {

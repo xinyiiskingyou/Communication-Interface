@@ -44,10 +44,13 @@ def create_channel(global_owner):
 def test_admin_invalid_token(global_owner, register_user2):
 
     # create an invalid token
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    token = global_owner['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     u_id = register_user2['auth_user_id']
     remove = requests.delete(config.url + 'admin/user/remove/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id
     })
     assert remove.status_code == 403
@@ -76,9 +79,11 @@ def test_admin_remove_invalid_u_id(global_owner, register_user2):
     assert remove2.status_code == 403
 
     # access error: invalid token and invalid u_id
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     remove3 = requests.delete(config.url + 'admin/user/remove/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': -1
     })
     assert remove3.status_code == 403
@@ -96,9 +101,11 @@ def test_admin_global_owner(global_owner):
     assert remove.status_code == 400
 
     # access error: invalid token and u_id is the only global owner
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     remove3 = requests.delete(config.url + 'admin/user/remove/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id
     })
     assert remove3.status_code == 403
@@ -144,13 +151,21 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
 
     assert dm.status_code == 200
 
-    # user2 sends a message
+    # user2 sends a message in the channel
     message = requests.post(config.url + "message/send/v1", json ={
         'token': user2_token,
         'channel_id': channel_id,
         'message': 'hello there'
     })
     assert message.status_code == 200
+
+    # user2 sends a message in dm
+    send_dm = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user2_token,
+        'dm_id': dm_id,
+        'message': 'hi'
+    })
+    assert send_dm.status_code == 200
 
     # now remove user2
     remove = requests.delete(config.url + "admin/user/remove/v1", json ={
@@ -173,21 +188,27 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     })
     assert len(json.loads(dm_detail.text)['members']) == 1
 
-    '''
     # the contents of the messages will be replaced by 'Removed user'
-    messages = requests.get(config.url + "channel/messages/v2", 
-        params = {
-            'token': token2,
-            'channel_id': channel_id,
-            'start': 0
-        }
-    )
-    print(json.loads(messages.text))
-    assert json.loads(messages.text)['messages'] == 'Removed user'
-    '''
+    messages = requests.get(config.url + "channel/messages/v2", params = {
+        'token': user1_token,
+        'channel_id': channel_id,
+        'start': 0
+    })
+    channel_message = json.loads(messages.text)['messages'][0]['message']
+    assert channel_message == 'Removed user'
 
+    dm = requests.get(config.url + "dm/messages/v1", params ={ 
+        'token': user1_token,
+        'dm_id': dm_id, 
+        'start': 0
+    })
+    dm_message = json.loads(dm.text)['messages'][0]['message']
+    assert dm_message == 'Removed user'
+
+    assert channel_message == dm_message
+    
     # there are only 1 valid user in user/all now
-    user_list = requests.get(config.url + "user/all/v1", params ={
+    user_list = requests.get(config.url + "users/all/v1", params ={
         'token': user1_token
     })
     assert len(json.loads(user_list.text)) == 1
@@ -197,6 +218,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'token': user1_token,
         'u_id': user2_id
     })  
+
     # name_first should be 'Removed' and name_last should be 'user'.
     assert profile.status_code == 200
     assert json.loads(profile.text)['name_first'] == 'Removed'
@@ -298,10 +320,13 @@ def test_admin_remove_valid1(global_owner, create_channel, register_user2):
 # access error: invalid token 
 def test_admin_perm_invalid_token(global_owner, register_user2):
    
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    token = global_owner['token']
     u_id = register_user2['auth_user_id']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id,
         'permission_id': 1
     })
@@ -336,9 +361,11 @@ def test_admin_perm_invalid_u_id(global_owner, register_user2):
     assert perm2.status_code == 403
 
     # access error: invalid token and invalid u_id
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': ' ',
         'permission_id': 1
     })
@@ -358,9 +385,11 @@ def test_admin_invalid_demote(global_owner):
     assert perm.status_code == 400
 
     # access error: invalid token and demote the only owner
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id,
         'permission_id': 2
     })
@@ -431,9 +460,11 @@ def test_admin_invalid_permission_id(global_owner, register_user2):
     assert perm2.status_code == 403
 
     # access error: invalid token and invalid permission id
-    invalid_token = global_owner['token'] + 'abdfhkjsdhf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': invalid_token,
+        'token': token,
         'u_id': u_id2,
         'permission_id': -1100
     })

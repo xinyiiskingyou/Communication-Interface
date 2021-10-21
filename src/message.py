@@ -35,7 +35,7 @@ def message_send_v1(token, channel_id, message):
     # Current time message was created and sent
     time_created = time.time()
 
-    message_details = {
+    message_details_channels = {
         'message_id': message_id,
         'u_id': auth_user_id, 
         'message': message,
@@ -45,11 +45,18 @@ def message_send_v1(token, channel_id, message):
     # Append dictionary of message details into initial_objects['channels']['messages']
     for channel in initial_object['channels']:
         if channel['channel_id'] == channel_id:
-            channel['messages'].append(message_details)
+            channel['messages'].insert(0, message_details_channels)
+
+    message_details_messages = {
+        'message_id': message_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_created,
+        'channel_id': channel_id
+    }
 
     # Append dictionary of message details into intital_objects['messages']
-    message_details['channel_id'] = channel_id
-    initial_object['messages'].append(message_details)
+    initial_object['messages'].insert(0, message_details_messages)
 
     DATASTORE.set(store)
 
@@ -63,6 +70,18 @@ def message_edit_v1(token, message_id, message):
     auth_user_id = decode_token(token)
     store = DATASTORE.get()
 
+    # Input and Access Error are raised -> Access Error
+    # Invalid message AND (checks if message was sent by auth user making request AND/OR 
+    # the authorised user has owner permissions in the channel/DM)
+    if not check_valid_message_send_format(message) and not check_authorised_user_edit(auth_user_id, message_id):
+        raise AccessError("The user is unauthorised to edit the message.")
+
+    # Input and Access Error are raised -> Access Error
+    # Invalid message AND (checks if message was sent by auth user making request AND/OR 
+    # the authorised user has owner permissions in the channel/DM)
+    if not check_valid_message_send_format(message) and not check_authorised_user_edit(auth_user_id, message_id):
+        raise AccessError("The user is unauthorised to edit the message.")
+
     # Invalid message: Less than 1 or over 1000 characters
     if not check_valid_message_send_format(message):
         raise InputError("Message is invalid as length of message is less than 1 or over 1000 characters.")
@@ -71,7 +90,7 @@ def message_edit_v1(token, message_id, message):
     # that the authorised user has joined
     if not check_valid_message_id(auth_user_id, message_id):
         raise InputError("The message_id is invalid.")
-    
+
     # Checks if the message was sent by the authorised user making this request
     # AND/OR
     # the authorised user has owner permissions in the channel/DM
@@ -118,10 +137,6 @@ def message_remove_v1(token, message_id):
     # the authorised user has owner permissions in the channel/DM
     if not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError("The user is unauthorised to edit the message.")
-
-    messages = initial_object['messages']
-    message = get_message_dict(message_id)
-    messages.remove(message)
 
     # Given a message_id for a message, remove message from the channel/DM
     for channel in initial_object['channels']:
