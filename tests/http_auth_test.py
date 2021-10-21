@@ -141,10 +141,10 @@ def test_reg_handle_h():
         'token': token2
     })  
 
-    handle1 = json.loads(profile1.text)[0]['handle_str']
+    handle1 = json.loads(profile1.text)['users'][0]['handle_str']
     assert handle1 == 'annapark'
 
-    handle2 = json.loads(profile2.text)[1]['handle_str']
+    handle2 = json.loads(profile2.text)['users'][1]['handle_str']
     assert handle2 == 'annabelleparkerparke'
 
 
