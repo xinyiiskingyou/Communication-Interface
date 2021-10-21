@@ -579,11 +579,15 @@ def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
         'message': 'user2'
     })
 
+    assert send_dm.status_code == 200
+
     send_dm2 = requests.post(config.url + "message/senddm/v1",json = {
         'token': user1_token,
         'dm_id': dm_id,
         'message': 'user1'
     })
+
+    assert send_dm2.status_code == 200
 
     messages1 = requests.get(config.url + "dm/messages/v1", params ={
         'token': user1_token,
@@ -598,6 +602,8 @@ def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
         'token': user1_token,
         'u_id': user2_id
     })
+
+    assert remove.status_code == 200
 
     messages2 = requests.get(config.url + "dm/messages/v1", params ={
         'token': user1_token,
@@ -622,6 +628,7 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'u_id': user2_id
     })
 
+    assert invite.status_code == 200
 
     # user2 sends a message in the channel
     message = requests.post(config.url + "message/send/v1", json ={
@@ -629,6 +636,8 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'channel_id': channel_id,
         'message': 'hello there'
     })
+
+    assert message.status_code == 200
 
     # user1 sends a message in the channel
     message = requests.post(config.url + "message/send/v1", json ={
@@ -652,6 +661,8 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'token': user1_token,
         'u_id': user2_id
     })
+
+    assert remove.status_code == 200 
 
     messages2 = requests.get(config.url + "channel/messages/v2", params ={
         'token': user1_token,
