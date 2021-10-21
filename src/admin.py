@@ -1,8 +1,8 @@
 from src.error import InputError, AccessError
 from src.helper import check_permision_id, channels_create_check_valid_user, check_number_of_owners, check_permission
-from src.helper import get_user_details, get_handle
+from src.helper import get_user_details, get_channel_message
 from src.data_store import DATASTORE, initial_object
-from src.server_helper import decode_token, valid_user, decode_token_session_id
+from src.server_helper import decode_token, valid_user
 
 def admin_user_remove_v1(token, u_id):
     '''
@@ -38,7 +38,7 @@ def admin_user_remove_v1(token, u_id):
     user = check_number_of_owners(u_id)
     if user == 0:
         raise InputError(description='The u_id refers to a user who is the only global owner')
-
+    
     # remove users from channel
     for channel in initial_object['channels']:
         for member in channel['all_members']:
@@ -47,17 +47,17 @@ def admin_user_remove_v1(token, u_id):
         for owner in channel['owner_members']:
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
-        for message in channel['messages']:
-            if message['u_id'] == u_id:
-                message['message'] = 'Removed user'
+        message = get_channel_message(u_id, channel)
+        message['message'] = 'Removed user'
 
     # remove users from dm
     for dm in initial_object['dms']:    
         for member in dm['members']:
             if member['u_id'] == u_id:
                 dm['members'].remove(member)
-        if dm['creator']['u_id'] == u_id:
-            dm['creator'].clear()
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == u_id:
+                dm['creator'].clear()
         for message in dm['messages']:
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
