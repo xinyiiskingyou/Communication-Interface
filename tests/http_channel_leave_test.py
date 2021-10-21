@@ -45,20 +45,18 @@ def create_channel(register_user):
 # Access error: invalid token
 def test_leave_invalid_token(register_user, create_channel):
 
-    invalid_token = register_user['token'] + 'shdfjkhak3'
+    token = register_user['token']
     channel_id = create_channel['channel_id']
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+
     leave = requests.post(config.url + "channel/leave/v1",json = { 
-        'token': invalid_token, 
+        'token': token, 
         'channel_id': channel_id
     }) 
     assert leave.status_code == 403
-
-    leave1 = requests.post(config.url + "channel/leave/v1",json = { 
-        'token': '', 
-        'channel_id': channel_id
-    }) 
-    assert leave1.status_code == 403
 
 # Invalid channel_id 
 def test_invalid_leave_channel_id(register_user):
@@ -78,9 +76,11 @@ def test_invalid_leave_channel_id(register_user):
     assert leave.status_code == 400
 
     # access error: invalid token and invalid channel_id
-    invalid_token = register_user['token'] + 'shdfjkhak3'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     leave1 = requests.post(config.url + "channel/leave/v1",json = { 
-        'token': invalid_token, 
+        'token': token, 
         'channel_id': -1
     }) 
     assert leave1.status_code == 403
@@ -97,6 +97,9 @@ def test_invalid_leave_not_member(register_user1, create_channel):
     }) 
     assert leave.status_code == 403
 
+
+
+###### Implementation ######
 # remove the member of the channel
 def test_channel_leave_valid(register_user, register_user1, create_channel): 
 

@@ -22,53 +22,35 @@ def register_user():
 # AccessError Invalid token
 def test_create_invalid_token(register_user):
     
-    invalid_token = register_user['token'] + 'asfadsfdfsd'
+    token = register_user['token']
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     # Public
     resp1 = requests.post(config.url + "channels/create/v2", json ={
-        'token': invalid_token,
+        'token': token,
         'name': '1531_CAMEL',
         'is_public': True
     })
     assert resp1.status_code == 403
 
-    resp2 = requests.post(config.url + "channels/create/v2", json ={
-        'token': '',
-        'name': '1531_CAMEL',
-        'is_public': True
-    })
-    assert resp2.status_code == 403
-
     # Private
     resp3 = requests.post(config.url + "channels/create/v2", json ={
-        'token': invalid_token,
+        'token': token,
         'name': '1531_CAMEL',
         'is_public': False
     })
     assert resp3.status_code == 403
 
-    resp4 = requests.post(config.url + "channels/create/v2", json ={
-        'token': '',
-        'name': '1531_CAMEL',
-        'is_public': False
-    })
-    assert resp4.status_code == 403
-
     # invalid token with invalid channel name
     resp3 = requests.post(config.url + "channels/create/v2", json ={
-        'token': invalid_token,
+        'token': token,
         'name': ' ',
         'is_public': False
     })
 
-    resp4 = requests.post(config.url + "channels/create/v2", json ={
-        'token': '',
-        'name': 'a' * 50,
-        'is_public': True
-    })
-
     assert resp3.status_code == 403
-    assert resp4.status_code == 403
 
 # InputError when length of name is less than 1 or more than 20 characters
 def test_create_invalid_name(register_user):
@@ -178,16 +160,15 @@ def test_create_valid_channel_id(register_user):
 # Access Error: invalid token
 def test_channel_list_invalid_token(register_user):
 
-    invalid_token = register_user['token'] + 'hfkah123s'
+    token = register_user['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+
     list1 = requests.get(config.url + 'channels/list/v2', params ={
-        'token': invalid_token
+        'token': token
     })
     assert list1.status_code == 403
-
-    list2 = requests.get(config.url + 'channels/list/v2', params ={
-        'token': ''
-    })
-    assert list2.status_code == 403
 
 # test when an user does not create a channel
 def test_no_channel(register_user):
@@ -234,16 +215,14 @@ def test_channel_list(register_user):
 # Access Error: invalid token
 def test_channel_listall_invalid_token(register_user):
 
-    invalid_token = register_user['token'] + 'hfkah3s'
+    token = register_user['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     listall = requests.get(config.url + 'channels/listall/v2', params ={
-        'token': invalid_token
+        'token': token
     })
     assert listall.status_code == 403
-
-    listall1 = requests.get(config.url + 'channels/listall/v2', params ={
-        'token': ''
-    })
-    assert listall1.status_code == 403
 
 def test_listall_no_channel(register_user): 
 
