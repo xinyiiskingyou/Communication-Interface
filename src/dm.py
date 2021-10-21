@@ -222,8 +222,7 @@ def dm_leave_v1(token, dm_id):
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator'].clear()
-        
-        
+    
     DATASTORE.set(store)
     return{}
 
