@@ -221,8 +221,8 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
 
     # name_first should be 'Removed' and name_last should be 'user'.
     assert profile.status_code == 200
-    assert json.loads(profile.text)['name_first'] == 'Removed'
-    assert json.loads(profile.text)['name_last'] == 'user'
+    assert json.loads(profile.text)['user']['name_first'] == 'Removed'
+    assert json.loads(profile.text)['user']['name_last'] == 'user'
     
     # user2's email and handle should be reusable.
     user3 = requests.post(config.url + "auth/register/v2", json ={

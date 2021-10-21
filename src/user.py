@@ -30,7 +30,9 @@ def users_all_v1(token):
         if user['is_removed'] == False:
             user_list.append(user_info(user['auth_user_id']))
 
-    return (user_list)
+    return {
+        'users': (user_list)
+    }
 
 def user_profile_v1(token, u_id):
     '''
@@ -57,7 +59,9 @@ def user_profile_v1(token, u_id):
 
     if not channels_create_check_valid_user(int(u_id)):
         raise InputError(description='The u_id does not refer to a valid user')
-    return (user_info(int(u_id)))
+    return {
+        'user': user_info(int(u_id))
+    }
 
 def user_profile_setname_v1(token, name_first, name_last):
     '''
