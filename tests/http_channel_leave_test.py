@@ -97,7 +97,18 @@ def test_invalid_leave_not_member(register_user1, create_channel):
     }) 
     assert leave.status_code == 403
 
-
+    user1 = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'anna@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'li'
+    })
+    user1_token = json.loads(user1.text)['token']
+    leave = requests.post(config.url + "channel/leave/v1",json = { 
+        'token': user1_token, 
+        'channel_id': channel_id1
+    }) 
+    assert leave.status_code == 403
 
 ###### Implementation ######
 # remove the member of the channel

@@ -67,8 +67,12 @@ def message_send_v1(token, channel_id, message):
 
 def message_edit_v1(token, message_id, message):
 
-    auth_user_id = decode_token(token)
+   
     store = DATASTORE.get()
+    auth_user_id = decode_token(token)
+    
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
 
     # Input and Access Error are raised -> Access Error
     # Invalid message AND (checks if message was sent by auth user making request AND/OR 
@@ -79,7 +83,7 @@ def message_edit_v1(token, message_id, message):
     # Input and Access Error are raised -> Access Error
     # Invalid message AND (checks if message was sent by auth user making request AND/OR 
     # the authorised user has owner permissions in the channel/DM)
-    if not check_valid_message_send_format(message) and not check_authorised_user_edit(auth_user_id, message_id):
+    if not not check_valid_message_id(auth_user_id, message_id) and not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError("The user is unauthorised to edit the message.")
 
     # Invalid message: Less than 1 or over 1000 characters
@@ -124,8 +128,13 @@ def message_edit_v1(token, message_id, message):
     
 
 def message_remove_v1(token, message_id):
-    auth_user_id = decode_token(token)
+   
     store = DATASTORE.get()
+    
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
+    auth_user_id = decode_token(token)
 
     # Checks if message_id does not refer to a valid message within a channel/DM 
     # that the authorised user has joined
