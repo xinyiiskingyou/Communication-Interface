@@ -219,6 +219,11 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'u_id': user2_id
     })  
 
+    invalid = requests.get(config.url + "users/all/v1", params ={
+        'token': user2_token
+    })
+    assert invalid.status_code == 403
+
     # name_first should be 'Removed' and name_last should be 'user'.
     assert profile.status_code == 200
     assert json.loads(profile.text)['name_first'] == 'Removed'
