@@ -46,20 +46,18 @@ def create_channel(register_user1):
 # Access error: invalid token
 def test_join_invalid_token(register_user1, create_channel):
 
-    invalid_token = register_user1['token'] + 'shdfjkhak3'
+    token = register_user1['token']
     channel_id = create_channel['channel_id']
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     join1 = requests.post(config.url + 'channel/join/v2', json ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': channel_id,
     })
     assert join1.status_code == 403
 
-    join2 = requests.post(config.url + 'channel/join/v2', json ={
-        'token': '',
-        'channel_id': channel_id,
-    })
-    assert join2.status_code == 403
 
 # Invalid channel_id 
 def test_invalid_join_channel_id(register_user1):
@@ -78,15 +76,17 @@ def test_invalid_join_channel_id(register_user1):
     assert join2.status_code == 400
 
     # access error: invalid token and invalid channel_id
-    invalid_token = register_user1['token'] + 'shdfjkhak3'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     join3 = requests.post(config.url + 'channel/join/v2', json ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': -16,
     })
     assert join3.status_code == 403
 
     join4 = requests.post(config.url + 'channel/join/v2', json ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': '',
     })
     assert join4.status_code == 403

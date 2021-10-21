@@ -81,6 +81,12 @@ def get_channel_details(channel_id):
             return channel
     return False
 
+def get_user_status():
+    for user in initial_object['users']:
+        if user['is_removed'] == False:
+            return True
+    return False
+
 # Helper function for channel_invite, channel_details,
 # channel_messages and channel_join
 # Checks if a valid channel_id is being passed in or not

@@ -46,29 +46,17 @@ def create_public_channel(register_user):
 # Access error when token is not valid
 def test_details_invalid_token(register_user, create_public_channel):
 
-    token1 = register_user['token']
+    token = register_user['token']
     channel = create_public_channel['channel_id']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
 
-    invalid_token = token1 + 'fsdaf'
     resp1 = requests.get(config.url + "channel/details/v2", params ={
-        'token': invalid_token,
+        'token': token,
         'channel_id': channel
     })
     assert resp1.status_code == 403
-
-    # Private
-    channel2 = requests.post(config.url + "channels/create/v2", json ={
-        'token': token1,
-        'name': 'channel2',
-        'is_public': False
-    }) 
-    
-    resp2 = requests.get(config.url + "channel/details/v2", params ={
-        'token': invalid_token,
-        'channel_id': json.loads(channel2.text)['channel_id']
-    })
-    
-    assert resp2.status_code == 403
 
 # Input error when channel_id is not valid
 def test_details_invalid_channel_id_h(register_user):
@@ -96,9 +84,11 @@ def test_details_invalid_channel_id_h(register_user):
     assert resp3.status_code == 400
 
     # access error: invalid token and invalid channel_id
-    invalid_token = token1 + 'fsdaf'
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token1
+    })
     resp1 = requests.get(config.url + "channel/details/v2", params ={
-        'token': invalid_token,
+        'token': token1,
         'channel_id': 256
     })
     assert resp1.status_code == 403
