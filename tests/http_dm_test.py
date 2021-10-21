@@ -409,8 +409,14 @@ def test_http_dm_details_valid(creator, register_user1):
         'token': token2,
         'dm_id':  dm_id
     })
+    name = json.loads(resp1.text)['name']
+    members = json.loads(resp1.text)['members']
     assert resp1.status_code == 200 
-
+    assert (json.loads(resp1.text) == 
+        {
+        'name': name,
+        'members': members
+    })
 ##########################################
 #########   Dm leave tests      ##########
 ##########################################
