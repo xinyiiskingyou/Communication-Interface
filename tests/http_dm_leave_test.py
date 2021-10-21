@@ -65,16 +65,14 @@ def create_dm(creator, register_user1, register_user2, register_user3):
 
 def test_leave_invalid_token(create_dm, register_user1):
     dm_id1 = create_dm['dm_id']
-    invalid_token = register_user1['token'] +'agadsf'
+    token = register_user1['token']
+
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
 
     respo = requests.post(config.url + "dm/leave/v1", json = { 
-        'token': invalid_token, 
-        'dm_id': dm_id1
-    })  
-    assert respo.status_code == 403
-
-    respo = requests.post(config.url + "dm/leave/v1", json = { 
-        'token': '', 
+        'token': token, 
         'dm_id': dm_id1
     })  
     assert respo.status_code == 403
@@ -85,33 +83,35 @@ def test_error_leave_dmid(creator):
     token = creator['token']
     respo = requests.post(config.url + "dm/leave/v1", json = { 
         'token': token, 
-        'dm_id': -1,
+        'dm_id': -1
     })  
     assert respo.status_code == 400
 
     respo1 = requests.post(config.url + "dm/leave/v1", json = { 
         'token': token, 
-        'dm_id': '',
+        'dm_id': ''
     })  
     assert respo1.status_code == 400
 
     respo2 = requests.post(config.url + "dm/leave/v1", json = { 
         'token': token, 
-        'dm_id': 123,
+        'dm_id': 123
     })
- 
+    
+    assert respo2.status_code == 400 
 
-
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
     # access error when invalid token and invalid dm_id
-    invalid_token = creator['token'] +'agadsf'
     respo = requests.post(config.url + "dm/leave/v1", json = { 
-        'token': invalid_token, 
+        'token': token, 
         'dm_id': -1
     })  
     assert respo.status_code == 403
 
     respo = requests.post(config.url + "dm/leave/v1", json = { 
-        'token': invalid_token, 
+        'token': token, 
         'dm_id': ''
     })  
     assert respo.status_code == 403
