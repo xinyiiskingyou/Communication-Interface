@@ -24,6 +24,10 @@ def user_info(auth_user_id):
 ####### Helper functions for channels.py ########
 #################################################
 
+def get_channel():
+    for channel in initial_object['channels']:
+        return channel
+
 # Helper function for channel_list, channel_listall, channel_create
 # Checks if the auth_user_id given is registered
 # Returns true if auth_user_id is registered in streams

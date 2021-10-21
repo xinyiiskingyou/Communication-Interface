@@ -357,7 +357,16 @@ def test_user_set_name_valid_name_last(register_user1):
         'name_last': 'park',
         'handle_str': 'annalee'
     })
+    assert name.status_code == 200
 
+def test_user_set_name_valid_channel(register_user1):
+    token = register_user1['token']
+
+    name = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': token,
+        'name_first': 'annabelle',
+        'name_last': 'li'
+    })
     assert name.status_code == 200
 
     channel = requests.post(config.url + "channels/create/v2", json ={
@@ -365,16 +374,35 @@ def test_user_set_name_valid_name_last(register_user1):
         'name': '1531_CAMEL',
         'is_public': False
     })
+    assert channel.status_code == 200
     channel_id = json.loads(channel.text)['channel_id']
 
     channel_details = requests.get(config.url + "channel/details/v2", params = {
         'token': token,
         'channel_id': channel_id
     })
+    assert channel_details.status_code == 200
+    
     member_name = json.loads(channel_details.text)['all_members'][0]['name_last']
-    assert member_name == 'park'
+    assert member_name == 'li'
     owner_name = json.loads(channel_details.text)['all_members'][0]['name_last']
     assert owner_name == member_name
+
+    member_name = json.loads(channel_details.text)['all_members'][0]['name_first']
+    assert member_name == 'annabelle'
+    owner_name = json.loads(channel_details.text)['all_members'][0]['name_first']
+    assert owner_name == member_name
+
+def test_user_set_name_valid_dm(register_user1):
+
+    token = register_user1['token']
+    u_id = register_user1['auth_user_id']
+    name = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': token,
+        'name_first': 'emily',
+        'name_last': 'wong'
+    })
+    assert name.status_code == 200
 
     dm1 = requests.post(config.url + "dm/create/v1", json = { 
         'token': token,
@@ -385,7 +413,8 @@ def test_user_set_name_valid_name_last(register_user1):
         'token': token,
         'dm_id':  dm_id
     })
-    assert json.loads(dm_details.text)['members'][0]['name_last'] == 'park'
+    assert json.loads(dm_details.text)['members'][0]['name_first'] == 'emily'
+    assert json.loads(dm_details.text)['members'][0]['name_last'] == 'wong'
 
 # Valid first and last name change
 def test_user_set_name_valid_name_first_and_last(register_user1):
@@ -487,7 +516,15 @@ def test_user_set_email_duplicate_email(register_user1, register_user2):
 def test_user_set_email_valid(register_user1):
 
     token = register_user1['token']
-    u_id = register_user1['auth_user_id']
+
+    mail = requests.put(config.url + "user/profile/setemail/v1", json ={
+        'token': token,
+        'email': 'comp1531@gmail.com'
+    })
+    assert mail.status_code == 200
+
+def test_user_set_email_valid_channel_coverage(register_user1):
+    token = register_user1['token']
 
     mail = requests.put(config.url + "user/profile/setemail/v1", json ={
         'token': token,
@@ -501,14 +538,25 @@ def test_user_set_email_valid(register_user1):
         'is_public': False
     })
     channel_id = json.loads(channel.text)['channel_id']
+    assert channel_id > 0 
     channel_details = requests.get(config.url + "channel/details/v2", params = {
         'token': token,
         'channel_id': channel_id
     })
+
     member_email = json.loads(channel_details.text)['all_members'][0]['email']
     assert member_email == 'comp1531@gmail.com'
-    owner_email = json.loads(channel_details.text)['all_members'][0]['email']
+    owner_email = json.loads(channel_details.text)['owner_members'][0]['email']
     assert owner_email == member_email
+
+def test_user_set_email_valid_dm_coverage(register_user1):
+    token = register_user1['token']
+    u_id = register_user1['auth_user_id']
+    mail = requests.put(config.url + "user/profile/setemail/v1", json ={
+        'token': token,
+        'email': 'comp1531@gmail.com'
+    })
+    assert mail.status_code == 200
 
     dm1 = requests.post(config.url + "dm/create/v1", json = { 
         'token': token,
@@ -648,5 +696,3 @@ def test_user_set_handle(register_user1, register_user2):
         'handle_str': 'anna'
     })
     assert handle.status_code == 400
-
-

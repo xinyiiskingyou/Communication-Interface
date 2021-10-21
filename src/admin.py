@@ -55,9 +55,8 @@ def admin_user_remove_v1(token, u_id):
         for member in dm['members']:
             if member['u_id'] == u_id:
                 dm['members'].remove(member)
-        if len(dm['creator']) > 0:
-            if dm['creator']['u_id'] == u_id:
-                dm['creator'].clear()
+        if dm['creator']['u_id'] == u_id:
+            dm['creator'].clear()
         for message in dm['messages']:
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'

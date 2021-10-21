@@ -218,16 +218,12 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'token': user1_token,
         'u_id': user2_id
     })  
+
     # name_first should be 'Removed' and name_last should be 'user'.
     assert profile.status_code == 200
     assert json.loads(profile.text)['name_first'] == 'Removed'
     assert json.loads(profile.text)['name_last'] == 'user'
-
-    invalid = requests.get(config.url + "users/all/v1", params ={
-        'token': user2_token
-    })
-    assert invalid.status_code == 403
-
+    
     # user2's email and handle should be reusable.
     user3 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'elephant@gmail.com',
@@ -557,7 +553,6 @@ def test_valid_permission_change1(global_owner, register_user2):
     })
     assert perm.status_code == 200
 
-
 def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
 
     # user 1 creates a channel
@@ -582,7 +577,6 @@ def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
         'dm_id': dm_id,
         'message': 'user2'
     })
-
     assert send_dm.status_code == 200
 
     send_dm2 = requests.post(config.url + "message/senddm/v1",json = {
@@ -598,7 +592,6 @@ def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
         'dm_id': dm_id,
         'start': 0
     })
-
     assert json.loads(messages1.text)['messages'][0]['message'] == 'user1'
 
     # now remove user2
@@ -606,7 +599,6 @@ def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
         'token': user1_token,
         'u_id': user2_id
     })
-
     assert remove.status_code == 200
 
     messages2 = requests.get(config.url + "dm/messages/v1", params ={
@@ -614,7 +606,6 @@ def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
         'dm_id': dm_id,
         'start': 0
     })
-   
     assert json.loads(messages2.text)['messages'][1]['message'] == 'Removed user'
     
 def test_admin_remove_channel_coverage(global_owner, register_user2, create_channel):
@@ -640,7 +631,6 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'channel_id': channel_id,
         'message': 'hello there'
     })
-
     assert message.status_code == 200
 
     # user1 sends a message in the channel
@@ -650,14 +640,12 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'message': 'user1'
     })
 
-
    # the contents of the messages will be replaced by 'Removed user'
     messages1 = requests.get(config.url + "channel/messages/v2", params = {
         'token': user1_token,
         'channel_id': channel_id,
         'start': 0
     })
-  
     assert json.loads(messages1.text)['messages'][0]['message'] == 'user1'
 
     # now remove user2
@@ -665,7 +653,6 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'token': user1_token,
         'u_id': user2_id
     })
-
     assert remove.status_code == 200 
 
     messages2 = requests.get(config.url + "channel/messages/v2", params ={

@@ -256,12 +256,11 @@ def test_removeowener_no_permission(register_user, register_user1, create_channe
     })
 
     # add user2 to be an owner
-    add = requests.post(config.url + "channel/addowner/v1", json = {
+    requests.post(config.url + "channel/addowner/v1", json = {
         'token': user1_token,
         'channel_id': user1_channel,
         'u_id': user2_id
     })
-    assert add.status_code == 200
 
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user3_token,
