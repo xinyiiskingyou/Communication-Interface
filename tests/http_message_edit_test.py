@@ -11,6 +11,39 @@ def setup():
 ########## message/edit/v1 tests #########
 ##########################################
 
+# Test for invalid token
+def test_channel_messages_invalid_token():
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
+
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+            'token': user1_token,
+            'name': 'anna_channel',
+            'is_public': False
+        }
+    )
+    channel1_id = json.loads(channel1.text)['channel_id']
+
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    send_message = requests.get(config.url + "channel/messages/v2", params ={
+        'token': user1_token,
+        'channel_id': channel1_id, 
+        'start': 0
+    })
+    assert send_message.status_code == 403
+
+
 # Input error when length of message is over 1000 characters
 def test_message_edit_invalid_message_length(setup):
     user1 = requests.post(config.url + "auth/register/v2", 

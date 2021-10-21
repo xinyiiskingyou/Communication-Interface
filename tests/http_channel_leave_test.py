@@ -97,6 +97,9 @@ def test_invalid_leave_not_member(register_user1, create_channel):
     }) 
     assert leave.status_code == 403
 
+
+
+###### Implementation ######
 # remove the member of the channel
 def test_channel_leave_valid(register_user, register_user1, create_channel): 
 
