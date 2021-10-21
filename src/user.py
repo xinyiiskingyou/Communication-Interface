@@ -94,6 +94,28 @@ def user_profile_setname_v1(token, name_first, name_last):
     user['name_first'] = name_first
     user['name_last'] = name_last
 
+    # change user's first name and last name in channel
+    for channel in initial_object['channels']:
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                member['name_first'] = name_first
+                member['name_last'] = name_last
+        for owner in channel['owner_members']:
+            if owner['u_id'] == auth_user_id:
+                owner['name_first'] = name_first
+                owner['name_last'] = name_last      
+
+    # change user's first name and last name in dm
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                member['name_first'] = name_first
+                member['name_last'] = name_last      
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == auth_user_id:
+                dm['creator']['name_first'] = name_first
+                dm['creator']['name_last'] = name_last  
+
     DATASTORE.set(store)
     return {}
 
@@ -130,6 +152,25 @@ def user_profile_setemail_v1(token, email):
     auth_user_id = decode_token(token)
     user = get_user_details(auth_user_id)
     user['email'] = email
+
+    # change user's first name and last name in channel
+    for channel in initial_object['channels']:
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                member['email'] = email
+        for owner in channel['owner_members']:
+            if owner['u_id'] == auth_user_id:
+                owner['email'] = email
+    
+    # change user's first name and last name in dm
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                member['email'] = email  
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == auth_user_id:
+                dm['creator']['email'] = email
+
     DATASTORE.set(store)
     return {}
 
@@ -172,5 +213,23 @@ def user_profile_sethandle_v1(token, handle_str):
     auth_user_id = decode_token(token)
     user = get_user_details(auth_user_id)
     user['handle_str'] = handle_str
+
+    # change user's first name and last name in channel
+    for channel in initial_object['channels']:
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                member['handle_str'] = handle_str
+        for owner in channel['owner_members']:
+            if owner['u_id'] == auth_user_id:
+                owner['handle_str'] = handle_str
+    
+    # change user's first name and last name in dm
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                member['handle_str'] = handle_str
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == auth_user_id:
+                dm['creator']['handle_str'] = handle_str
     DATASTORE.set(store)
     return {}
