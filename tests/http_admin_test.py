@@ -552,3 +552,111 @@ def test_valid_permission_change1(global_owner, register_user2):
         'permission_id': 2
     })
     assert perm.status_code == 200
+
+
+def test_admin_remove_dm_coverage(global_owner, register_user2, create_channel):
+
+    # user 1 creates a channel
+    user1_token = global_owner['token']
+
+    user2_token = register_user2['token']
+    user2_id = register_user2['auth_user_id']
+
+    # user 1 creates a dm with user2
+    dm = requests.post(config.url + "dm/create/v1", json ={ 
+        'token': user1_token,
+        'u_ids': [user2_id]
+    })
+    dm_data = dm.json()
+    dm_id = dm_data['dm_id']
+
+    assert dm.status_code == 200
+
+    # user2 sends a message in dm
+    send_dm = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user2_token,
+        'dm_id': dm_id,
+        'message': 'user2'
+    })
+
+    send_dm2 = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user1_token,
+        'dm_id': dm_id,
+        'message': 'user1'
+    })
+
+    messages1 = requests.get(config.url + "dm/messages/v1", params ={
+        'token': user1_token,
+        'dm_id': dm_id,
+        'start': 0
+    })
+
+    assert json.loads(messages1.text)['messages'][0]['message'] == 'user1'
+
+    # now remove user2
+    remove = requests.delete(config.url + "admin/user/remove/v1", json ={
+        'token': user1_token,
+        'u_id': user2_id
+    })
+
+    messages2 = requests.get(config.url + "dm/messages/v1", params ={
+        'token': user1_token,
+        'dm_id': dm_id,
+        'start': 0
+    })
+   
+    assert json.loads(messages2.text)['messages'][1]['message'] == 'Removed user'
+    
+def test_admin_remove_channel_coverage(global_owner, register_user2, create_channel):
+    # user 1 creates a channel
+    user1_token = global_owner['token']
+    channel_id = create_channel['channel_id']
+
+    user2_token = register_user2['token']
+    user2_id = register_user2['auth_user_id']
+
+    # invites user2 to join user1's channel
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': user1_token,
+        'channel_id': channel_id,
+        'u_id': user2_id
+    })
+
+
+    # user2 sends a message in the channel
+    message = requests.post(config.url + "message/send/v1", json ={
+        'token': user2_token,
+        'channel_id': channel_id,
+        'message': 'hello there'
+    })
+
+    # user1 sends a message in the channel
+    message = requests.post(config.url + "message/send/v1", json ={
+        'token': user1_token,
+        'channel_id': channel_id,
+        'message': 'user1'
+    })
+
+
+   # the contents of the messages will be replaced by 'Removed user'
+    messages1 = requests.get(config.url + "channel/messages/v2", params = {
+        'token': user1_token,
+        'channel_id': channel_id,
+        'start': 0
+    })
+  
+    assert json.loads(messages1.text)['messages'][0]['message'] == 'user1'
+
+    # now remove user2
+    remove = requests.delete(config.url + "admin/user/remove/v1", json ={
+        'token': user1_token,
+        'u_id': user2_id
+    })
+
+    messages2 = requests.get(config.url + "channel/messages/v2", params ={
+        'token': user1_token,
+        'channel_id': channel_id,
+        'start': 0
+    })
+    assert json.loads(messages2.text)['messages'][1]['message'] == 'Removed user'
+    
