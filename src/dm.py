@@ -1,5 +1,5 @@
 from src.server_helper import decode_token, valid_user
-from src.helper import check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
+from src.helper import check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message
 from src.server_helper import decode_token, valid_user
 from src.error import InputError, AccessError
@@ -100,7 +100,14 @@ def dm_list_v1(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    return {'dms': get_dm_info(auth_user_id)}
+    dm_list = []
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                dm_list.append({'dm_id': dm['dm_id'], 'name': dm['name']})
+
+    return {'dms':dm_list}
+
 
 def dm_remove_v1(token, dm_id):    
 
