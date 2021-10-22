@@ -61,6 +61,11 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
+##########################################
+############# dm_list tests ##############
+##########################################
+
+# Access Error: Invalid token
 def test_dm_list_invalid_token(creator):
     token = creator['token']
     requests.post(config.url + "auth/logout/v1", json = {
