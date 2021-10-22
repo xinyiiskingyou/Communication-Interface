@@ -100,7 +100,12 @@ def dm_list_v1(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    return {'dms': get_dm_info(auth_user_id)}
+    dm_list = []
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                dm_list.append({'dm_id': dm['dm_id'], 'name': dm['name']})
+    return {'dms':dm_list}
 
 def dm_remove_v1(token, dm_id):    
 
