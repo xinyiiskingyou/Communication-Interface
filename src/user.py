@@ -17,6 +17,7 @@ def users_all_v1(token):
 
     Exceptions:
         InputError  - Occurs when u_id does not refer to a valid user
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns <auth_user_id> of valid user
@@ -45,10 +46,10 @@ def user_profile_v1(token, u_id):
     Arguments:
         <token>     (<string>)    - an authorisation hash
         <u_id>      (<int>)       - an unique auth_user_id of the user to be added as an owner of the channel
-        ...
 
     Exceptions:
         InputError  - Occurs when u_id does not refer to a valid user
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns <auth_user_id> of valid user
@@ -75,11 +76,11 @@ def user_profile_setname_v1(token, name_first, name_last):
         <token>         (<string>)    - an authorisation hash
         <name_first>    (<string>)    - alphanumerical first name
         <name_last>     (<string>)    - alphanumerical first name
-        ...
 
     Exceptions:
         InputError  - Occurs when length of name_first is not between 1 and 50 characters inclusive
                     - Occurs when length of name_last is not between 1 and 50 characters inclusive
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns N/A
@@ -138,6 +139,7 @@ def user_profile_setemail_v1(token, email):
     Exceptions:
         InputError  - Occurs when email entered is not a valid email
                     - Occurs when email address is already being used by another user
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns N/A
@@ -194,7 +196,7 @@ def user_profile_sethandle_v1(token, handle_str):
         InputError  - Occurs when length of handle_str is not between 3 and 20 characters inclusive
                     - Occurs when handle_str contains characters that are not alphanumeric
                     - Occurs when the handle is already used by another user
-
+        AccessError - Occurs when token is invalid
     Return Value:
         Returns N/A
     '''
