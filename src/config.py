@@ -1,3 +1,3 @@
-port = 8042
+port = 8015
 
 url = f"http://localhost:{port}/"
