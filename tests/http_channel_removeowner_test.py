@@ -283,7 +283,6 @@ def test_remove_owner_global_owner(register_user, register_user1):
     })
     user3_data = user3.json()
     user3_id = user3_data['auth_user_id']
-    user3_token = user3_data['token']
 
     # User2 creates a channel
     user2_channel = requests.post(config.url + "channels/create/v2", json ={
