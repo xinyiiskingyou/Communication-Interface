@@ -108,7 +108,6 @@ def dm_list_v1(token):
 
     return {'dms':dm_list}
 
-
 def dm_remove_v1(token, dm_id):    
 
     '''
