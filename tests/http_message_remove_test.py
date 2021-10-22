@@ -11,6 +11,52 @@ def setup():
 ########## message/remove/v1 tests #########
 ############################################
 
+# Test for invalid token
+def test_message_remove_invalid_token(setup):
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
+    assert user1.status_code == 200
+    
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+            'token': user1_token,
+            'name': 'anna_channel',
+            'is_public': False
+        }
+    )
+    channel1_id = json.loads(channel1.text)['channel_id']
+    assert channel1.status_code == 200
+
+    send_message1 = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'message': 'hello'
+        }
+    )
+    message1_id = json.loads(send_message1.text)['message_id']
+    assert send_message1.status_code == 200
+
+    logout = requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+    assert logout.status_code == 200
+
+    edit_message = requests.delete(config.url + "message/remove/v1", 
+        json = {
+            'token': user1_token,
+            'message_id': message1_id,
+        }
+    )
+    assert edit_message.status_code == 403
+
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
     # 1. Negative message_id
@@ -882,4 +928,67 @@ def test_message_remove_channel_2_messages(setup):
     messages2 = json.loads(request_messages2.text)
     assert len(messages2['messages']) == 0
 
+# Removing message in a dm with 2 or more messages
+def test_message_remove_dm_id_two_messages(setup):
+    # Registered users
+    user1 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'anna@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'li'
+        }
+    )
+    user1_token = json.loads(user1.text)['token']
+    assert user1.status_code == 200
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = {
+            'email': 'ben@gmail.com',
+            'password': 'password',
+            'name_first': 'ben',
+            'name_last': 'li'
+        }
+    )
+    user2_id = json.loads(user1.text)['auth_user_id']
+    assert user2.status_code == 200
+    
+    # Created a dm
+    dm1 = requests.post(config.url + "dm/create/v1", 
+        json = {
+            'token': user1_token,
+            'u_ids': [user2_id],
+        }
+    )
+    dm_id1 = json.loads(dm1.text)['dm_id']
+    assert dm1.status_code == 200
+
+    # User 1 sends 2 messages in the dm
+    send_message1 = requests.post(config.url + "message/senddm/v1", 
+        json = {
+            'token': user1_token,
+            'dm_id': dm_id1,
+            'message': 'hello1'
+        }
+    )
+    message1_id = json.loads(send_message1.text)['message_id']
+    assert send_message1.status_code == 200
+
+    send_message2 = requests.post(config.url + "message/senddm/v1", 
+        json = {
+            'token': user1_token,
+            'dm_id': dm_id1,
+            'message': 'hello2'
+        }
+    )
+    message2_id = json.loads(send_message2.text)['message_id']
+    assert send_message2.status_code == 200
+
+    # User 1 tries to edit a message wihin dm
+    remove_message = requests.delete(config.url + "message/remove/v1", 
+        json = {
+            'token': user1_token,
+            'message_id': message1_id,
+        })
+    assert remove_message.status_code == 200
 
