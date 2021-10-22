@@ -1,6 +1,7 @@
 import pytest 
 import requests
-import json 
+import json
+from requests.api import request 
 from src import config
 
 @pytest.fixture
@@ -154,3 +155,39 @@ def test_channel_leave_valid1(register_user, register_user1, create_channel):
         'channel_id': channel_id1
     })  
     assert respo.status_code == 200
+
+def test_owner_leave_add(register_user, register_user1, create_channel): 
+    token1 = register_user['token']
+    token2 = register_user1['token']
+
+    channel_id1 = create_channel['channel_id']
+
+        # add token2 to the channel
+    respo1 = requests.post(config.url + "channel/join/v2", json ={ 
+        'token': token2, 
+        'channel_id': channel_id1
+    })   
+    assert respo1.status_code == 200
+
+    # the only owner leaves the channel
+    leave = requests.post(config.url + "channel/leave/v1",json = { 
+        'token': token1, 
+        'channel_id': channel_id1
+    })  
+    assert leave.status_code == 200
+
+    join = requests.post(config.url + "channel/join/v2", json = { 
+        'token': token1, 
+        'channel_id': channel_id1
+    })
+    assert join.status_code == 200 
+
+    details = requests.get(config.url + "channel/details/v2", params = { 
+        'token': token1, 
+        'channel_id': channel_id1
+    })
+
+    member_list = json.loads(details.text)['all_members']
+    assert len(member_list) == 2
+    owner_list = json.loads(details.text)['owner_members']
+    assert len(owner_list) == 0
