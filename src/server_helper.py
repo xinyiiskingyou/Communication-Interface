@@ -50,6 +50,6 @@ def valid_user(token):
     for user in initial_object['users']:
         if user['auth_user_id'] == decode_token(token):
             for session in range(len(user['session_list'])):
-                # if (user['session_list'][session]) == decode_token_session_id(token):
-                return True
+                if (user['session_list'][session]) == decode_token_session_id(token):
+                    return True
     return False
