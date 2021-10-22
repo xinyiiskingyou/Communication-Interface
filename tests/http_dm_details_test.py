@@ -75,8 +75,6 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
-
-
 def test_dm_details_not_valid(): 
     requests.delete(config.url + "clear/v1")
 

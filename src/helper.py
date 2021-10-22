@@ -24,6 +24,10 @@ def user_info(auth_user_id):
 ####### Helper functions for channels.py ########
 #################################################
 
+def get_channel():
+    for channel in initial_object['channels']:
+        return channel
+
 # Helper function for channel_list, channel_listall, channel_create
 # Checks if the auth_user_id given is registered
 # Returns true if auth_user_id is registered in streams
@@ -81,11 +85,6 @@ def get_channel_details(channel_id):
             return channel
     return False
 
-def get_user_status():
-    for user in initial_object['users']:
-        if user['is_removed'] == False:
-            return True
-    return False
 
 # Helper function for channel_invite, channel_details,
 # channel_messages and channel_join
@@ -104,7 +103,7 @@ def check_valid_channel_id(channel_id):
 def get_channel_member(auth_user_id, channel):
     for member in channel['all_members']:
         if member['u_id'] == auth_user_id:
-            return member
+            return True
     return False
 
 # Helper function for channel_invite, channel_details,
@@ -177,6 +176,12 @@ def check_global_owner(auth_user_id):
         if user['permission_id'] == 1:
             return True
     return False
+
+def get_channel_message(u_id, channel):
+    for message in channel['messages']:
+        if message['u_id'] == u_id:
+            return message
+    return {}
 
 # checking valid email
 def check_valid_email(email):

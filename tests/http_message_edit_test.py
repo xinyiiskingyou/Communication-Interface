@@ -22,7 +22,7 @@ def test_channel_messages_invalid_token():
         }
     )
     user1_token = json.loads(user1.text)['token']
-
+    
     channel1 = requests.post(config.url + "channels/create/v2", 
         json = {
             'token': user1_token,
@@ -32,17 +32,27 @@ def test_channel_messages_invalid_token():
     )
     channel1_id = json.loads(channel1.text)['channel_id']
 
+    send_message1 = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user1_token,
+            'channel_id': channel1_id,
+            'message': 'hello'
+        }
+    )
+    message1_id = json.loads(send_message1.text)['message_id']
+
     requests.post(config.url + "auth/logout/v1", json = {
         'token': user1_token
     })
 
-    send_message = requests.get(config.url + "channel/messages/v2", params ={
-        'token': user1_token,
-        'channel_id': channel1_id, 
-        'start': 0
-    })
-    assert send_message.status_code == 403
-
+    edit_message = requests.put(config.url + "message/edit/v1", 
+        json = {
+            'token': user1_token,
+            'message_id': message1_id,
+            'message': 'a' * 1001
+        }
+    )
+    assert edit_message.status_code == 403
 
 # Input error when length of message is over 1000 characters
 def test_message_edit_invalid_message_length(setup):
@@ -83,7 +93,32 @@ def test_message_edit_invalid_message_length(setup):
     )
     assert edit_message.status_code == 400
 
+    user2 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcdef@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+    user2_token = json.loads(user2.text)['token']
 
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user2_token,
+        'message_id': message1_id,
+        'message': 'a' * 1001
+    })
+    assert edit_message.status_code == 403
+
+    # invalid token and invalid length
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+        'message': 'a' * 1001
+    })
+    assert edit_message.status_code == 403
 
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
@@ -125,6 +160,17 @@ def test_message_edit_invalid_message_id_negative(setup):
         }
     )
     assert edit_message.status_code == 400
+
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': -1,
+        'message': 'heeeeloo'
+    })
+    assert edit_message.status_code == 403
 
 
 # Input error when message_id does not refer to a valid message 
@@ -169,6 +215,16 @@ def test_message_edit_invalid_message_id_nonexistant(setup):
     )
     assert edit_message.status_code == 400
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': 256,
+        'message': 'heeeeloo'
+    })
+    assert edit_message.status_code == 403
 
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
@@ -239,7 +295,6 @@ def test_message_edit_invalid_message_id_not_belong_in_relevant_channel(setup):
         }
     )
     assert edit_message.status_code == 400
-
 
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined

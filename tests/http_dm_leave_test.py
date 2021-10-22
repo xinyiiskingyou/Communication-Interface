@@ -165,8 +165,6 @@ def test_leave_http_valid_owner(create_dm, creator):
     })  
     assert respo.status_code == 200
 
-
-
 def test_leave_invalid_dm_id(): 
     requests.delete(config.url + "clear/v1")
     creator = requests.post(config.url + "auth/register/v2", 

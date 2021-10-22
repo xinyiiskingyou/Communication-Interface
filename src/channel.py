@@ -226,10 +226,8 @@ def channel_join_v2(token, channel_id):
         raise InputError(description = 'Already a member of this channel')
 
     new_user = user_info(auth_user_id)
-
-    for channels in initial_object['channels']:
-        if channels['channel_id'] == channel_id:
-            channels['all_members'].append(new_user)
+    channel = get_channel_details(channel_id)
+    channel['all_members'].append(new_user)
 
     DATASTORE.set(store)
     return {}
@@ -269,13 +267,13 @@ def channel_leave_v1(token, channel_id):
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
 
-    for channels in initial_object['channels']:
-        for member in channels['all_members']: 
-            if member['u_id'] == auth_user_id:
-                channels['all_members'].remove(member)
-        for owner in channels['owner_members']: 
-            if owner['u_id'] == auth_user_id:
-                channels['owner_members'].remove(owner)
+    channels = get_channel_details(channel_id)
+    for member in channels['all_members']: 
+        if member['u_id'] == auth_user_id:
+            channels['all_members'].remove(member)
+    for owner in channels['owner_members']: 
+        if owner['u_id'] == auth_user_id:
+            channels['owner_members'].remove(owner)
             
     DATASTORE.set(store)
     return {}
