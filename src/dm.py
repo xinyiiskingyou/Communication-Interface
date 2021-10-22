@@ -137,7 +137,7 @@ def dm_remove_v1(token, dm_id):
         raise InputError(description = "This does not refer to a valid dm")
 
     # valid dm_id but user is not the dm creator
-    if not check_creator(auth_user_id, dm_id):
+    if not check_creator(auth_user_id):
         raise AccessError(description = 'The user is not the original DM creator')
 
     store = DATASTORE.get()
