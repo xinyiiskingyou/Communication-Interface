@@ -22,14 +22,12 @@ def register_user():
 @pytest.fixture
 def register_user2():
 
-    user2 = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'sally@gmail.com',
-            'password': 'password',
-            'name_first': 'sally',
-            'name_last': 'li'
-        }
-    )
+    user2 = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'sally@gmail.com',
+        'password': 'password',
+        'name_first': 'sally',
+        'name_last': 'li'
+    })
     user2_data = user2.json()
     return user2_data
 
@@ -174,11 +172,24 @@ def test_channel_messages_unauthorised_user(register_user2, create_channel):
 
     # user 1 has a channel
     channel1_id = create_channel['channel_id']
-
     user2_token = register_user2['token']
 
     messages = requests.get(config.url + "channel/messages/v2", params ={
         'token': user2_token,
+        'channel_id': channel1_id,
+        'start': 0
+    })
+    assert messages.status_code == 403
+
+    user3 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'emily12234@gmail.com',
+        'password': 'password',
+        'name_first': 'emily',
+        'name_last': 'wu'
+    })
+    user3_token = json.loads(user3.text)['token']
+    messages = requests.get(config.url + "channel/messages/v2", params ={
+        'token': user3_token,
         'channel_id': channel1_id,
         'start': 0
     })

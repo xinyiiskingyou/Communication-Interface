@@ -28,11 +28,9 @@ def channels_list_v2(token):
         raise AccessError(description='User is not valid')
     
     auth_user_id = decode_token(token)
-
     new_list = []
     for channel in initial_object['channels']:
         if get_channel_member(auth_user_id, channel):
-            # append to an empty list
             new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})
 
     DATASTORE.set(store)
