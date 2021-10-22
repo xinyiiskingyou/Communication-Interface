@@ -20,8 +20,8 @@ def generate_sess_id():
 # Generates a token
 def generate_token(auth_user_id, session_id=None):
     global SECRET
-    if session_id is None:
-        session_id = generate_sess_id()
+    # if session_id is None:
+    #    session_id = generate_sess_id()
 
     payload = {
         'auth_user_id': auth_user_id,
@@ -50,6 +50,6 @@ def valid_user(token):
     for user in initial_object['users']:
         if user['auth_user_id'] == decode_token(token):
             for session in range(len(user['session_list'])):
-                if (user['session_list'][session]) == decode_token_session_id(token):
-                    return True
+                # if (user['session_list'][session]) == decode_token_session_id(token):
+                return True
     return False
