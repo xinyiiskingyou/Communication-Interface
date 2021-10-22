@@ -83,7 +83,7 @@ def message_edit_v1(token, message_id, message):
     # Input and Access Error are raised -> Access Error
     # Invalid message AND (checks if message was sent by auth user making request AND/OR 
     # the authorised user has owner permissions in the channel/DM)
-    if not not check_valid_message_id(auth_user_id, message_id) and not check_authorised_user_edit(auth_user_id, message_id):
+    if not check_valid_message_id(auth_user_id, message_id) and not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError("The user is unauthorised to edit the message.")
 
     # Invalid message: Less than 1 or over 1000 characters
