@@ -16,7 +16,7 @@ def message_send_v1(token, channel_id, message):
     Arguments:
         <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)      - unique id of a channel
-        <message>        (<int>)    - the content of the message
+        <message>      (<string>)   - the content of the message
 
     Exceptions:
         InputError  - Occurs when channel_id does not refer to a valid channel
@@ -88,7 +88,7 @@ def message_edit_v1(token, message_id, message):
     Arguments:
         <token>        (<string>)   - an authorisation hash
         <message_id>   (<int>)      - unique id of a message
-        <message>      (<int>)      - the new content of the message
+        <message>      (<string>)   - the new content of the message
 
     Exceptions:
         InputError  - Occurs when length of message is over 1000 characters

@@ -1,3 +1,7 @@
+'''
+Admin implementation
+'''
+
 from src.error import InputError, AccessError
 from src.helper import check_permision_id, channels_create_check_valid_user, check_number_of_owners, check_permission
 from src.helper import get_user_details, get_channel_message

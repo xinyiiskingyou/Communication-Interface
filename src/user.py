@@ -1,3 +1,7 @@
+'''
+User implementation
+'''
+
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, get_user_details, channels_create_check_valid_user
 from src.helper import user_info

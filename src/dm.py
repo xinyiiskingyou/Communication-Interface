@@ -299,7 +299,7 @@ def message_senddm_v1(token, dm_id, message):
     Arguments: 
         token   (<string>)  - a user's unique token 
         dm_id   (<int>)     - a user's unique dm id
-        message (<int>)     - the content of the message
+        message (<string>)  - the content of the message
 
     Exceptions:
         InputError  - Occurs when dm_id does not refer to a valid DM.
