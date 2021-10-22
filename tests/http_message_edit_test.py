@@ -67,7 +67,7 @@ def register_user3():
 
 # Test for invalid token
 def test_channel_messages_invalid_token(register_user1, user1_channel_message_id):
-
+    
     user1_token = register_user1['token']
     message1_id = user1_channel_message_id
 
@@ -221,7 +221,6 @@ def test_message_edit_invalid_message_id_not_belong_in_relevant_DM_global_member
         'message': 'hello there from dm1 [edited]'
     })
     assert edit_message.status_code == 400
-
 
 # Input error when message_id does not refer to a valid message 
 # within a channel/DM that the authorised user has joined
@@ -564,8 +563,11 @@ def test_message_edit_DM_global_owner_any_channel(register_user1, register_user2
     })
     assert (json.loads(request_messages4.text)['messages'][0]['message'] == 'hello there from user 3 [edited]')
 
-# New message is empty, so the message is deleted
-def test_message_edit_empty(register_user1, user1_channel_message_id, user1_channel_id):
+# New message is empty, so the message is deleted in channel
+def test_message_edit_channel_empty(register_user1, user1_channel_id, user1_channel_message_id):
+
+    user1_token = register_user1['token']
+    channel1_id = user1_channel_id
 
     user1_token = register_user1['token']
     channel1_id = user1_channel_id
@@ -592,3 +594,86 @@ def test_message_edit_empty(register_user1, user1_channel_message_id, user1_chan
     })
     assert len(json.loads(messages.text)['messages']) == 0
     
+# New message is empty, so the message is deleted in dm
+def test_message_edit_dm_empty(register_user1, register_user2):
+
+    # Register users
+
+    user1_token = register_user1['token']
+
+    user2_id = register_user2['auth_user_id']
+
+    # Create dm with user1 and user2
+    dm1 = requests.post(config.url + "dm/create/v1", json = {
+        'token': user1_token,
+        'u_ids': [user2_id]
+    })
+    dm1_id = json.loads(dm1.text)['dm_id']
+
+    # Send one message
+    send_message1 = requests.post(config.url + "message/senddm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm1_id,
+        'message': 'hello'
+    })
+    message1_id = json.loads(send_message1.text)['message_id']
+
+    messages = requests.get(config.url + "dm/messages/v1", params = {
+        'token': user1_token,
+        'dm_id': dm1_id,
+        'start': 0
+    })
+    assert len(json.loads(messages.text)['messages']) == 1
+
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+        'message': ''
+    })
+
+    messages = requests.get(config.url + "dm/messages/v1", params = {
+        'token': user1_token,
+        'dm_id': dm1_id,
+        'start': 0
+    })
+    assert len(json.loads(messages.text)['messages']) == 0
+    assert edit_message.status_code == 200
+
+## Removing message in a dm with 2 or more messages
+def test_message_remove_dm_id_two_messages(register_user1, register_user2):
+    # Registered users
+    user1_token = register_user1['token']
+
+    user2_id = register_user2['auth_user_id']
+    
+    # Created a dm
+    dm1 = requests.post(config.url + "dm/create/v1", json = {
+        'token': user1_token,
+        'u_ids': [user2_id],
+    })
+    dm_id1 = json.loads(dm1.text)['dm_id']
+    assert dm1.status_code == 200
+
+    # User 1 sends 2 messages in the dm
+    send_message1 = requests.post(config.url + "message/senddm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm_id1,
+        'message': 'hello1'
+    })
+    message1_id = json.loads(send_message1.text)['message_id']
+    assert send_message1.status_code == 200
+
+    send_message2 = requests.post(config.url + "message/senddm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm_id1,
+        'message': 'hello2'
+    })
+    assert send_message2.status_code == 200
+
+    # User 1 tries to edit a message wihin channel
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+        'message': ''
+    })
+    assert edit_message.status_code == 200

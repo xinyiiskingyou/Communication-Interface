@@ -13,6 +13,7 @@ def register_user1():
         'name_first': 'anna',
         'name_last': 'li'
     })
+    assert user.status_code == 200
     user_data = user.json()
     return user_data
 
@@ -24,6 +25,7 @@ def register_user2():
         'name_first': 'sally',
         'name_last': 'li'
     })
+    assert user2.status_code == 200
     user2_data = user2.json()
     return user2_data
 
@@ -36,6 +38,7 @@ def channel_id(register_user1):
         'name': 'anna_channel',
         'is_public': False
     })
+    assert channel.status_code == 200
     channel_data = channel.json()
     return channel_data['channel_id']
 
@@ -48,6 +51,7 @@ def channel_message_id(register_user1, channel_id):
         'channel_id': channel_id,
         'message': 'hello'
     })
+    assert send_message1.status_code == 200
     message1_id = json.loads(send_message1.text)['message_id']
     return message1_id
 
@@ -57,7 +61,7 @@ def channel_message_id(register_user1, channel_id):
 
 # Test for invalid token
 def test_channel_messages_invalid_token(register_user1, channel_message_id):
-
+    
     user1_token = register_user1['token']
     message1_id = channel_message_id
 
@@ -536,3 +540,43 @@ def test_message_remove_channel_2_messages(register_user1, channel_id, channel_m
     })
     messages2 = json.loads(request_messages2.text)
     assert len(messages2['messages']) == 0
+
+# Removing message in a dm with 2 or more messages
+def test_message_remove_dm_id_two_messages(register_user1, register_user2):
+    # Registered users
+
+    user1_token = register_user1['token']
+
+    user2_id = register_user2['auth_user_id']
+    
+    # Created a dm
+    dm1 = requests.post(config.url + "dm/create/v1", json = {
+        'token': user1_token,
+        'u_ids': [user2_id],
+    })
+    dm_id1 = json.loads(dm1.text)['dm_id']
+    assert dm1.status_code == 200
+
+    # User 1 sends 2 messages in the dm
+    send_message1 = requests.post(config.url + "message/senddm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm_id1,
+        'message': 'hello1'
+    })
+    message1_id = json.loads(send_message1.text)['message_id']
+    assert send_message1.status_code == 200
+
+    send_message2 = requests.post(config.url + "message/senddm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm_id1,
+        'message': 'hello2'
+    })
+    assert send_message2.status_code == 200
+
+    # User 1 tries to edit a message wihin dm
+    remove_message = requests.delete(config.url + "message/remove/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+    })
+    assert remove_message.status_code == 200
+
