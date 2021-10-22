@@ -269,6 +269,61 @@ def test_removeowener_no_permission(register_user, register_user1, create_channe
     })
     assert remove.status_code == 403
 
+# Global owner of streams that is member of channel is able to remove owners from channel
+def test_remove_owner_global_owner(register_user, register_user1):
+    user1_token = register_user['token']
+    user1_id = register_user['auth_user_id']
+    user2_token = register_user1['token']
+
+    user3 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'elephant@gmail.com',
+        'password': 'password',
+        'name_first': 'kelly',
+        'name_last': 'huang'
+    })
+    user3_data = user3.json()
+    user3_id = user3_data['auth_user_id']
+
+    # User2 creates a channel
+    user2_channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': user2_token,
+        'name': 'anna',
+        'is_public': True
+    })
+    channel1_id = json.loads(user2_channel.text)['channel_id']
+
+    # Invite user1 who is global owner of Streams
+    invite1 = requests.post(config.url + 'channel/invite/v2', json ={
+        'token': user2_token,
+        'channel_id': channel1_id,
+        'u_id': user1_id
+    })
+    assert invite1.status_code == 200
+
+    # invite user3 to join the channel as a member
+    invite3 = requests.post(config.url + 'channel/invite/v2', json ={
+        'token': user2_token,
+        'channel_id': channel1_id,
+        'u_id': user3_id
+    })
+    assert invite3.status_code == 200
+
+    # User2 (owner) adds User3 to be owner
+    addowner3 = requests.post(config.url + "channel/addowner/v1", json ={
+        'token': user2_token,
+        'channel_id': channel1_id,
+        'u_id': user3_id
+    })
+    assert addowner3.status_code == 200
+
+    remove = requests.post(config.url + "channel/removeowner/v1", json ={
+        'token': user1_token,
+        'channel_id': channel1_id,
+        'u_id': user3_id
+    })
+    assert remove.status_code == 200
+
+
 # valid case
 def test_remove_owner_valid(register_user, register_user1, create_channel):
 

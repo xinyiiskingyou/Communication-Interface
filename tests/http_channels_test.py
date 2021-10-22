@@ -170,6 +170,8 @@ def test_channel_list_invalid_token(register_user):
     })
     assert list1.status_code == 403
 
+##### Implementation #####
+
 # test when an user does not create a channel
 def test_no_channel(register_user):
 
@@ -207,6 +209,34 @@ def test_channel_list(register_user):
         ],
     })
     assert list1.status_code == 200
+
+# When user is not part of the channel
+def test_channel_list_not_member_of_channel(register_user):
+    id1_token = register_user['token']
+    id2 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abc2@gmail.com',
+        'password': 'password',
+        'name_first': 'bfirst',
+        'name_last': 'blast'
+    })
+    auth_user_id2 = json.loads(id2.text)['token']
+
+    resp2 = requests.post(config.url + "channels/create/v2", json ={
+        'token': auth_user_id2,
+        'name': '1531_CAMEL_2',
+        'is_public': True
+    })
+    assert resp2.status_code == 200
+
+    list1 = requests.get(config.url + 'channels/list/v2', params ={
+        'token': id1_token
+    })
+    assert (json.loads(list1.text) == 
+        {
+        'channels':[],
+    })
+    assert list1.status_code == 200
+
 
 ##########################################
 ######### channels_listall tests #########

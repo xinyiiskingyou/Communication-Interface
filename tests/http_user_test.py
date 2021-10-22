@@ -26,6 +26,18 @@ def register_user2():
     user2_data = user2.json()
     return user2_data
 
+@pytest.fixture
+def create_channel(register_user1):
+
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': register_user1['token'],
+        'name': 'anna',
+        'is_public': True
+    })
+    channel_data = channel.json()
+    return channel_data
+
+
 ##########################################
 ############ users_all tests #############
 ##########################################
@@ -157,6 +169,7 @@ def test_user_profile_valid_own(register_user1):
         'handle_str': 'annalee'
     })
 
+    
 # Valid Case for looking at someone elses profile
 def test_user_profile_valid_someone_else(register_user1, register_user2):
 
@@ -309,7 +322,7 @@ def test_user_set_name_valid_name_first(register_user1):
    
     assert (json.loads(profile.text)['user'] == 
     {
-        'u_id': 1,
+        'u_id': u_id,
         'email': 'cat@gmail.com',
         'name_first': 'annabelle',
         'name_last': 'lee',
@@ -352,7 +365,7 @@ def test_user_set_name_valid_name_last(register_user1):
    
     assert (json.loads(profile.text)['user'] == 
     {
-        'u_id': 1,
+        'u_id': u_id,
         'email': 'cat@gmail.com',
         'name_first': 'anna',
         'name_last': 'park',
@@ -438,13 +451,55 @@ def test_user_set_name_valid_name_first_and_last(register_user1):
    
     assert (json.loads(profile.text)['user'] == 
     {
-        'u_id': 1,
+        'u_id': u_id,
         'email': 'cat@gmail.com',
         'name_first': 'annabelle',
         'name_last': 'parker',
         'handle_str': 'annalee'
     })
     assert name.status_code == 200
+
+# User is not part of any channel or DM
+def test_user_set_name_not_in_channel_DM(register_user1, register_user2):
+    user1_token = register_user1['token']
+    user1_id = register_user1['auth_user_id']
+    user2_token = register_user2['token']
+
+    name = requests.put(config.url + "user/profile/setname/v1", json ={
+        'token': user1_token,
+        'name_first': 'emily',
+        'name_last': 'wong'
+    })
+    assert name.status_code == 200
+
+    profile = requests.get(config.url + "user/profile/v1", params ={
+        'token': user1_token,
+        'u_id': user1_id
+    })
+
+    assert (json.loads(profile.text)['user'] == 
+    {
+        'u_id': user1_id,
+        'email': 'cat@gmail.com',
+        'name_first': 'emily',
+        'name_last': 'wong',
+        'handle_str': 'annalee'
+    })
+
+    channel2 = requests.post(config.url + "channels/create/v2", json ={
+        'token': user2_token,
+        'name': '1531_CAMEL',
+        'is_public': False
+    })
+    assert channel2.status_code == 200
+    channel_id = json.loads(channel2.text)['channel_id']
+
+    channel_details = requests.get(config.url + "channel/details/v2", params = {
+        'token': user2_token,
+        'channel_id': channel_id
+    })
+    assert channel_details.status_code == 200
+
 
 ##########################################
 ##### user_profile_set_email tests #######

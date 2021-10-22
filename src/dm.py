@@ -215,10 +215,9 @@ def dm_leave_v1(token, dm_id):
         raise AccessError(description="The user is not an authorised member of the DM")
 
     for dm in initial_object['dms']: 
-        if dm['dm_id'] == dm_id: 
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id: 
-                    dm['members'].remove(newuser)
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id: 
+                dm['members'].remove(newuser)
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator'].clear()
