@@ -10,7 +10,24 @@ from src.server_helper import decode_token, valid_user
 import time
 
 def message_send_v1(token, channel_id, message):
-    
+    '''
+    Send a message from the authorised user to the channel specified by channel_id
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <channel_id>   (<int>)      - unique id of a channel
+        <message>      (<string>)   - the content of the message
+
+    Exceptions:
+        InputError  - Occurs when channel_id does not refer to a valid channel
+                    - Occurs when length of message is less than 1 or over 1000 characters
+
+        AccessError - Occurs when the channel_id is valid and the authorised user is 
+                    not a member of the channel
+                    - Occurs when token is invalid
+    Return Value:
+        Returns <message_id> of a valid message
+    '''
     store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -64,10 +81,28 @@ def message_send_v1(token, channel_id, message):
         'message_id': message_id
     }
 
-
 def message_edit_v1(token, message_id, message):
+    '''
+    Given a message, update its text with new text. 
 
-   
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+        <message>      (<string>)   - the new content of the message
+
+    Exceptions:
+        InputError  - Occurs when length of message is over 1000 characters
+                    - Occurs when message_id does not refer to a valid message within a channel/DM 
+                    that the authorised user has joined
+
+        AccessError - Occurs when message_id refers to a valid message in a joined channel/DM 
+                    and none of the following are true:
+                        -  the message was sent by the authorised user making this request
+                        -  the authorised user has owner permissions in the channel/DM
+                    - Occurs when token is invalid
+    Return Value:
+        N/A
+    '''
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
     
@@ -121,7 +156,25 @@ def message_edit_v1(token, message_id, message):
     return {}
     
 def message_remove_v1(token, message_id):
-   
+    '''
+    Given a message_id for a message, this message is removed from the channel/DM
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+
+    Exceptions:
+        InputError  - Occurs when message_id does not refer to a valid message within 
+                    a channel/DM that the authorised user has joined
+
+        AccessError - Occurs when message_id refers to a valid message in a joined channel/DM 
+                    and none of the following are true:
+                        -  the message was sent by the authorised user making this request
+                        -  the authorised user has owner permissions in the channel/DM
+                    - Occurs when token is invalid
+    Return Value:
+        N/A
+    '''
     store = DATASTORE.get()
     
     if not valid_user(token):

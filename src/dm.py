@@ -137,7 +137,7 @@ def dm_remove_v1(token, dm_id):
         raise InputError(description = "This does not refer to a valid dm")
 
     # valid dm_id but user is not the dm creator
-    if not check_creator(auth_user_id, dm_id):
+    if not check_creator(auth_user_id):
         raise AccessError(description = 'The user is not the original DM creator')
 
     store = DATASTORE.get()
@@ -293,7 +293,23 @@ def dm_messages_v1(token, dm_id, start):
     }
 
 def message_senddm_v1(token, dm_id, message):
+    '''
+    Send a message from authorised_user to the DM specified by dm_id. 
 
+    Arguments: 
+        token   (<string>)  - a user's unique token 
+        dm_id   (<int>)     - a user's unique dm id
+        message (<string>)  - the content of the message
+
+    Exceptions:
+        InputError  - Occurs when dm_id does not refer to a valid DM.
+                    - Occurs when length of message is less than 1 or over 1000 characters
+        AccessError - Occurs when the dm_id is valid and the authorised user is not a member of the DM
+                    - Occurs when invalid token
+
+    Return Value:
+        Returns end - if end is -1 then it returns the recent messages of the channel 
+    '''
     store = DATASTORE.get()
     
     if not valid_user(token):

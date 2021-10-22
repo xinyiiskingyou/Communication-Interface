@@ -353,18 +353,15 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
                 return True
     return False
 
-
 # Checks if message is invalid 
 # Returns false if length of message is less than 1 or over 1000 characters
 # Returns true otherwise
-
 def check_valid_message(message):
     len_message = len(message)
     if len_message > 1000 or len_message < 1:
         return False
     else:
         return True 
-
 
 # get the handle of the authorised user
 def get_handle(auth_user_id):
@@ -376,7 +373,7 @@ def get_handle(auth_user_id):
             return user['handle_str']
 
 # check if the user is the creator of the given dm
-def check_creator(auth_user_id, dm_id):
+def check_creator(auth_user_id):
     '''
     return type: bool
     '''

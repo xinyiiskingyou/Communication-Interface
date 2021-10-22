@@ -157,7 +157,6 @@ def channel_messages_v2(token, channel_id, start):
             num_messages = len(channel['messages'])
             message_pagination = channel['messages']
             
-
     # if this function has returned the least recent messages in the channel,
     # returns -1 in "end" to indicate there are no more messages to load after this return
     end = start + 50
@@ -395,5 +394,3 @@ def channel_removeowner_v1(token, channel_id, u_id):
 
     DATASTORE.set(store)
     return {}
-
-    
