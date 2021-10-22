@@ -105,6 +105,7 @@ def dm_list_v1(token):
         for member in dm['members']:
             if member['u_id'] == auth_user_id:
                 dm_list.append({'dm_id': dm['dm_id'], 'name': dm['name']})
+
     return {'dms':dm_list}
 
 def dm_remove_v1(token, dm_id):    
