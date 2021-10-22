@@ -108,13 +108,19 @@ def test_dm_remove_invalid_dm_id(creator):
     assert resp1.status_code == 403
 
 # dm_id is valid and the authorised user is not the original DM creator
-def test_dm_remove_not_dm_creator(register_user3, create_dm):
+def test_dm_remove_not_dm_creator(create_dm):
 
     dm_id = create_dm['dm_id']
-    token2 = register_user3['token']
+    user1 = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'anna@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'li'
+    })
+    user1_token = json.loads(user1.text)['token']
 
     resp2 = requests.delete(config.url + "dm/remove/v1", json = {
-        'token': token2,
+        'token': user1_token,
         'dm_id': dm_id
     })
     assert resp2.status_code == 403

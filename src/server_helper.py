@@ -20,8 +20,8 @@ def generate_sess_id():
 # Generates a token
 def generate_token(auth_user_id, session_id=None):
     global SECRET
-    if session_id is None:
-        session_id = generate_sess_id()
+    # if session_id is None:
+    #    session_id = generate_sess_id()
 
     payload = {
         'auth_user_id': auth_user_id,

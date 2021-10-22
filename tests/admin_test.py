@@ -97,12 +97,12 @@ def test_admin_remove_valid():
     assert dm1['messages'][0]['message'] == 'Removed user'
 
     # there are only 2 valid users in user/all now
-    assert len(users_all_v1(id1['token'])) == 2
+    assert len(users_all_v1(id1['token'])['users']) == 2
 
     # name_first should be 'Removed' and name_last should be 'user'.
     profile = user_profile_v1(id1['token'], id2['auth_user_id'])
-    assert (profile['name_first']) == 'Removed'
-    assert (profile['name_last']) == 'user'
+    assert (profile['user']['name_first']) == 'Removed'
+    assert (profile['user']['name_last']) == 'user'
     
     # user2's email and handle should be reusable.
     id4 = auth_register_v2('email@gmail.com', 'password', 'bfirst', 'blast')

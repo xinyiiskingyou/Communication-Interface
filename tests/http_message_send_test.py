@@ -10,6 +10,36 @@ def setup():
 ##########################################
 ########## message/send/v1 tests #########
 ##########################################
+def test_message_send_invalid_token(setup):
+    user1 = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'anna@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'li'
+    })
+    token = json.loads(user1.text)['token']
+
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+            'token': token,
+            'name': 'anna_channel',
+            'is_public': False
+        }
+    )
+    channel1_id = json.loads(channel1.text)['channel_id']
+
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+
+    send_message = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': token,
+            'channel_id': channel1_id, 
+            'message': 'hello there'
+        }
+    )
+    assert send_message.status_code == 403
 
 # Input Error when channel_id does not refer to a valid channel
 # Channel id is negative
@@ -33,7 +63,19 @@ def test_message_send_invalid_channel_id_negative(setup):
     )
     assert send_message.status_code == 400
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
 
+    send_message = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user1_token,
+            'channel_id': -1, 
+            'message': 'hello there'
+        }
+    )
+    assert send_message.status_code == 403
+    
 # Input Error when channel_id does not refer to a valid channel
 # id is positive integer, but is not an id to any channel
 def test_message_send_invalid_channel_id_nonexistant(setup):
@@ -82,6 +124,18 @@ def test_message_send_invalid_channel_id_nonexistant(setup):
     )
     assert send_message.status_code == 400
 
+    # invalid token
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+    send_message = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user1_token,
+            'channel_id': 256, 
+            'message': 'hello there'
+        }
+    )
+    assert send_message.status_code == 403
 
 # Input error when length of message is less than 1 or over 1000 characters
 def test_message_send_invalid_message(setup):
@@ -122,6 +176,17 @@ def test_message_send_invalid_message(setup):
     )
     assert send_message2.status_code == 400
 
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+    send_message = requests.post(config.url + "message/send/v1", 
+        json = {
+            'token': user1_token,
+            'channel_id': 256, 
+            'message': 'a' * 1001
+        }
+    )
+    assert send_message.status_code == 403
 
 # Access error when channel_id is valid and the authorised user 
 # is not a member of the channel
