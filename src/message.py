@@ -126,7 +126,6 @@ def message_edit_v1(token, message_id, message):
     DATASTORE.set(store)
     return {}
     
-
 def message_remove_v1(token, message_id):
    
     store = DATASTORE.get()
