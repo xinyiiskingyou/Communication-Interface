@@ -261,3 +261,45 @@ def test_listall(register_user):
         ],
     })
     assert listall1.status_code == 200
+
+def test_list_coverage(register_user):
+    token1 = register_user['token']
+
+    list1 = requests.get(config.url + "channels/list/v2", params ={ 
+            'token': token1
+    })
+
+    assert (json.loads(list1.text) == 
+    {
+        'channels':[]
+    })
+    assert len(json.loads(list1.text)['channels']) == 0
+
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+        'token': token1,
+        'name': 'channel1',
+        'is_public': True
+    })
+
+    channel2 = requests.post(config.url + "channels/create/v2", 
+        json = {
+        'token': token1,
+        'name': 'channel2',
+        'is_public': False
+    })
+
+    channel_id1 = json.loads(channel1.text)['channel_id']
+    channel_id2 = json.loads(channel2.text)['channel_id']
+
+    list1 = requests.get(config.url + "channels/list/v2", params ={ 
+            'token': token1
+    })
+
+    list1_all = requests.get(config.url + "channels/list/v2", params ={ 
+            'token': token1
+    })
+
+    print(json.loads(list1_all.text))
+
+    assert len(json.loads(list1_all.text)['channels']) == 2
