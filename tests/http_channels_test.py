@@ -311,6 +311,7 @@ def test_list_coverage(register_user):
         'name': 'channel1',
         'is_public': True
     })
+    assert channel1.status_code == 200
 
     channel2 = requests.post(config.url + "channels/create/v2", 
         json = {
@@ -318,9 +319,7 @@ def test_list_coverage(register_user):
         'name': 'channel2',
         'is_public': False
     })
-
-    channel_id1 = json.loads(channel1.text)['channel_id']
-    channel_id2 = json.loads(channel2.text)['channel_id']
+    assert channel2.status_code == 200
 
     list1 = requests.get(config.url + "channels/list/v2", params ={ 
             'token': token1

@@ -504,8 +504,6 @@ def test_user_set_name_not_in_channel_DM(register_user1, register_user2):
 def test_user_set_name_valid_dm_2_members(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
@@ -543,8 +541,6 @@ def test_user_set_name_valid_dm_2_members(register_user1, register_user2):
 def test_user_set_name_valid_onwer_left(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
@@ -560,6 +556,7 @@ def test_user_set_name_valid_onwer_left(register_user1, register_user2):
         'token': token1,
         'dm_id': dm_id1
     })
+    assert leave.status_code == 200
 
     # the creator of the dm who left changes name
     name1 = requests.put(config.url + "user/profile/setname/v1", json ={
@@ -579,8 +576,6 @@ def test_user_set_name_valid_onwer_left(register_user1, register_user2):
 def test_user_set_name_valid_channel_2_members(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
@@ -593,11 +588,12 @@ def test_user_set_name_valid_channel_2_members(register_user1, register_user2):
     channel_id1 = json.loads(channel1.text)['channel_id']
 
     # user 1 invites user 2
-    invite = requests.put(config.url + "channel/invite/v2", json ={
-        'token': token2,
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': token1,
         'channel_id': channel_id1,
         'u_id': u_id2
     })
+    assert invite.status_code == 200
 
     # User 1 changes name
     name1 = requests.put(config.url + "user/profile/setname/v1", json ={
@@ -605,6 +601,7 @@ def test_user_set_name_valid_channel_2_members(register_user1, register_user2):
         'name_first': 'emily',
         'name_last': 'wong'
     })
+    assert name1.status_code == 200
 
     # User 2 changes name
     name2 = requests.put(config.url + "user/profile/setname/v1", json ={
@@ -747,8 +744,6 @@ def test_user_set_email_valid_dm_coverage(register_user1):
 def test_user_set_email_dm_2_members(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
@@ -757,13 +752,14 @@ def test_user_set_email_dm_2_members(register_user1, register_user2):
         'token': token1,
         'u_ids': [u_id2]
     })
-    dm_id1 = json.loads(dm1.text)['dm_id']
+    assert dm1.status_code == 200
 
     # User 1 changes email
     email1 = requests.put(config.url + "user/profile/setemail/v1", json ={
         'token': token1,
         'email': 'pain@gmail.com'
     })
+    assert email1.status_code == 200
 
     # User 2 changes email
     email2 = requests.put(config.url + "user/profile/setemail/v1", json ={
@@ -777,9 +773,6 @@ def test_user_set_email_dm_2_members(register_user1, register_user2):
 def test_user_set_email_valid_onwer_left(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
-    token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
     # User 1 cerates a dm with user 2
@@ -794,20 +787,20 @@ def test_user_set_email_valid_onwer_left(register_user1, register_user2):
         'token': token1,
         'dm_id': dm_id1
     })
+    assert leave.status_code == 200
 
     # the creator of the dm who left changes email
     email1 = requests.put(config.url + "user/profile/setemail/v1", json ={
         'token': token1,
         'email': 'pain@gmail.com'
     })
+    assert email1.status_code == 200
 
 
 # Change more then 2 users email in a channel
 def test_user_set_email_valid_channel_2_members(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
@@ -820,25 +813,25 @@ def test_user_set_email_valid_channel_2_members(register_user1, register_user2):
     channel_id1 = json.loads(channel1.text)['channel_id']
 
     # user 1 invites user 2
-    invite = requests.put(config.url + "channel/invite/v2", json ={
-        'token': token2,
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': token1,
         'channel_id': channel_id1,
         'u_id': u_id2
     })
+    assert invite.status_code == 200
 
     # user 1 chnages email
     email1 = requests.put(config.url + "user/profile/setemail/v1", json ={
         'token': token1,
         'email': 'pain@gmail.com'
     })
-
+    assert email1.status_code == 200
     
     # user 2 changes email
     email2 = requests.put(config.url + "user/profile/setemail/v1", json ={
         'token': token2,
         'email': 'whyyyyy@gmail.com'
     })
-
     assert email2.status_code == 200
 
 ##########################################
@@ -974,8 +967,6 @@ def test_user_set_handle(register_user1, register_user2):
 def test_user_set_handle_dm_2_members(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
@@ -984,13 +975,14 @@ def test_user_set_handle_dm_2_members(register_user1, register_user2):
         'token': token1,
         'u_ids': [u_id2]
     })
-    dm_id1 = json.loads(dm1.text)['dm_id']
+    assert dm1.status_code == 200
 
     # User 1 changes handle
     handle1 = requests.put(config.url + "user/profile/sethandle/v1", json ={
         'token': token1,
         'handle_str': 'paiiiin'
     })
+    assert handle1.status_code == 200
 
     # User 2 changes handle
     handle2 = requests.put(config.url + "user/profile/sethandle/v1", json ={
@@ -1004,9 +996,6 @@ def test_user_set_handle_dm_2_members(register_user1, register_user2):
 def test_user_set_handle_valid_onwer_left(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
-    token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
     # User 1 cerates a dm with user 2
@@ -1014,6 +1003,7 @@ def test_user_set_handle_valid_onwer_left(register_user1, register_user2):
         'token': token1,
         'u_ids': [u_id2]
     })
+    assert dm1.status_code == 200
     dm_id1 = json.loads(dm1.text)['dm_id']
 
     # creator of dm leaves
@@ -1021,20 +1011,19 @@ def test_user_set_handle_valid_onwer_left(register_user1, register_user2):
         'token': token1,
         'dm_id': dm_id1
     })
+    assert leave.status_code == 200
 
     # the creator of the dm who left changes handle
     handle1 = requests.put(config.url + "user/profile/sethandle/v1", json ={
         'token': token1,
         'handle_str': 'paiin'
     })
-
+    assert handle1.status_code == 200
 
 # Change more then 2 users handle in a channel
 def test_user_set_handle_valid_channel_2_members(register_user1, register_user2):
 
     token1 = register_user1['token']
-    u_id1 = register_user1['auth_user_id']
-
     token2 = register_user2['token']
     u_id2 = register_user2['auth_user_id']
 
@@ -1047,23 +1036,23 @@ def test_user_set_handle_valid_channel_2_members(register_user1, register_user2)
     channel_id1 = json.loads(channel1.text)['channel_id']
 
     # user 1 invites user 2
-    invite = requests.put(config.url + "channel/invite/v2", json ={
-        'token': token2,
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': token1,
         'channel_id': channel_id1,
         'u_id': u_id2
     })
+    assert invite.status_code == 200
 
     # user 1 chnages email
     handle1 = requests.put(config.url + "user/profile/sethandle/v1", json ={
         'token': token1,
         'handle_str': 'paiiin'
     })
-
+    assert handle1.status_code == 200
     
     # user 2 changes email
     handle2 = requests.put(config.url + "user/profile/sethandle/v1", json ={
         'token': token2,
         'handle_str': 'whyy'
     })
-
     assert handle2.status_code == 200

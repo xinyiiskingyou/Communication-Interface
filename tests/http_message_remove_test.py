@@ -981,7 +981,6 @@ def test_message_remove_dm_id_two_messages(setup):
             'message': 'hello2'
         }
     )
-    message2_id = json.loads(send_message2.text)['message_id']
     assert send_message2.status_code == 200
 
     # User 1 tries to edit a message wihin dm
