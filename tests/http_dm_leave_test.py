@@ -61,8 +61,11 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
+##########################################
+############ dm_leave tests ##############
+##########################################
 
-
+# Access Error: Invalid token
 def test_leave_invalid_token(create_dm, register_user1):
     dm_id1 = create_dm['dm_id']
     token = register_user1['token']
@@ -135,24 +138,6 @@ def test_dm_leave_not_a_member(create_dm):
     })  
     assert respo.status_code == 403
 
-def test_leave_invalid_dm_id(): 
-    requests.delete(config.url + "clear/v1")
-    creator = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'afirst',
-            'name_last': 'alast'
-        })
-    token = json.loads(creator.text)['token']
-    resp1 = requests.post(config.url + "dm/leave/v1", 
-        json = {
-            'token': token,
-            'dm_id': -1
-        })
-    assert resp1.status_code == 400
-
-
 ##### Implementation #####
 
 # valid case: member leaves dm
@@ -185,7 +170,6 @@ def test_leave_http_valid_owner(create_dm, creator):
     })  
     assert respo.status_code == 200
 
-
 # Creator has left the DM and the remaining members can also leave DM
 def test_leave_creator_left(create_dm, creator, register_user1, register_user2, register_user3):
     dm_id = create_dm['dm_id']
@@ -204,11 +188,14 @@ def test_leave_creator_left(create_dm, creator, register_user1, register_user2, 
     })  
     assert id1_leave.status_code == 200
     
+    id2_leave = requests.post(config.url + "dm/leave/v1",json = { 
+        'token': register_user2['token'], 
+        'dm_id': dm_id,
+    })  
+    assert id2_leave.status_code == 200
 
-
-
-
-
-
-    
-
+    id3_leave = requests.post(config.url + "dm/leave/v1",json = { 
+        'token': register_user3['token'], 
+        'dm_id': dm_id,
+    })  
+    assert id3_leave.status_code == 200
