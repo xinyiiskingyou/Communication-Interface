@@ -37,7 +37,6 @@ def create_channel(register_user1):
     channel_data = channel.json()
     return channel_data
 
-
 ##########################################
 ############ users_all tests #############
 ##########################################
@@ -169,7 +168,6 @@ def test_user_profile_valid_own(register_user1):
         'handle_str': 'annalee'
     })
 
-    
 # Valid Case for looking at someone elses profile
 def test_user_profile_valid_someone_else(register_user1, register_user2):
 
