@@ -19,15 +19,15 @@ def message_send_v1(token, channel_id, message):
     
     # Invalid channel_id
     if not check_valid_channel_id(channel_id):
-        raise InputError("The channel_id does not refer to a valid channel")
+        raise InputError(description="The channel_id does not refer to a valid channel")
 
     # Authorised user not a member of channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
-        raise AccessError("Authorised user is not a member of channel with channel_id")
+        raise AccessError(description="Authorised user is not a member of channel with channel_id")
 
     # Invalid message: Less than 1 or over 1000 characters
     if not check_valid_message(message):
-        raise InputError("Message is invalid as length of message is less than 1 or over 1000 characters.")
+        raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
 
     # Creating unique message_id 
     message_id = (len(initial_object['messages']) * 2) + 1
@@ -78,28 +78,22 @@ def message_edit_v1(token, message_id, message):
     # Invalid message AND (checks if message was sent by auth user making request AND/OR 
     # the authorised user has owner permissions in the channel/DM)
     if not check_valid_message_send_format(message) and not check_authorised_user_edit(auth_user_id, message_id):
-        raise AccessError("The user is unauthorised to edit the message.")
-
-    # Input and Access Error are raised -> Access Error
-    # Invalid message AND (checks if message was sent by auth user making request AND/OR 
-    # the authorised user has owner permissions in the channel/DM)
-    if not not check_valid_message_id(auth_user_id, message_id) and not check_authorised_user_edit(auth_user_id, message_id):
-        raise AccessError("The user is unauthorised to edit the message.")
+        raise AccessError(description="The user is unauthorised to edit the message.")
 
     # Invalid message: Less than 1 or over 1000 characters
     if not check_valid_message_send_format(message):
-        raise InputError("Message is invalid as length of message is less than 1 or over 1000 characters.")
+        raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
 
     # Checks if message_id does not refer to a valid message within a channel/DM 
     # that the authorised user has joined
     if not check_valid_message_id(auth_user_id, message_id):
-        raise InputError("The message_id is invalid.")
+        raise InputError(description="The message_id is invalid.")
 
     # Checks if the message was sent by the authorised user making this request
     # AND/OR
     # the authorised user has owner permissions in the channel/DM
     if not check_authorised_user_edit(auth_user_id, message_id):
-        raise AccessError("The user is unauthorised to edit the message.")
+        raise AccessError(description="The user is unauthorised to edit the message.")
 
     if message == '':
         messages = initial_object['messages']
@@ -138,13 +132,13 @@ def message_remove_v1(token, message_id):
     # Checks if message_id does not refer to a valid message within a channel/DM 
     # that the authorised user has joined
     if not check_valid_message_id(auth_user_id, message_id):
-        raise InputError("The message_id is invalid.")
+        raise InputError(description="The message_id is invalid.")
     
     # Checks if the message was sent by the authorised user making this request
     # AND/OR
     # the authorised user has owner permissions in the channel/DM
     if not check_authorised_user_edit(auth_user_id, message_id):
-        raise AccessError("The user is unauthorised to edit the message.")
+        raise AccessError(description="The user is unauthorised to edit the message.")
 
     # Given a message_id for a message, remove message from the channel/DM
     for channel in initial_object['channels']:

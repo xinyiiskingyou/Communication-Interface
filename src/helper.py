@@ -375,22 +375,6 @@ def get_handle(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return user['handle_str']
 
-# get the dm info of which the auth user is a member of
-def get_dm_info(auth_user_id):
-    '''
-    return type: list
-    '''
-    dms = []
-    handle = get_handle(auth_user_id)
-    for dm in initial_object['dms']:
-        find = dm['name'].find(handle)
-        if find != -1:
-            dm_dict = {}
-            dm_dict['dm_id'] = dm['dm_id']
-            dm_dict['name'] = dm['name']
-            dms.append(dm_dict)
-    return dms
-
 # check if the user is the creator of the given dm
 def check_creator(auth_user_id, dm_id):
     '''
