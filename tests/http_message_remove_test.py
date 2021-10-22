@@ -5,7 +5,7 @@ from src import config
 
 @pytest.fixture
 def register_user1():
-
+    
     requests.delete(config.url + "clear/v1")
     user = requests.post(config.url + "auth/register/v2", json = {
         'email': 'anna@gmail.com',
