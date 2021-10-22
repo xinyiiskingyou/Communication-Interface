@@ -221,12 +221,13 @@ def dm_leave_v1(token, dm_id):
         raise AccessError(description="The user is not an authorised member of the DM")
 
     for dm in initial_object['dms']: 
-        for member in dm['members']:
-            if member['u_id'] == auth_user_id: 
-                dm['members'].remove(newuser)
-        if len(dm['creator']) > 0:
-            if dm['creator']['u_id'] == auth_user_id:
-                dm['creator'].clear()
+        if dm['dm_id'] == dm_id:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id: 
+                    dm['members'].remove(newuser)
+            if len(dm['creator']) > 0:
+                if dm['creator']['u_id'] == auth_user_id:
+                    dm['creator'].clear()
     
     DATASTORE.set(store)
     return{}
@@ -316,7 +317,7 @@ def message_senddm_v1(token, dm_id, message):
     dmsend_id = (len(initial_object['messages']) * 2) 
 
     # Current time message was created and sent
-    time_created = time.time()
+    time_created = int(time.time())
 
     dmsend_details_channels = {
         'message_id': dmsend_id,

@@ -33,7 +33,7 @@ def message_send_v1(token, channel_id, message):
     message_id = (len(initial_object['messages']) * 2) + 1
 
     # Current time message was created and sent
-    time_created = time.time()
+    time_created = int(time.time())
 
     message_details_channels = {
         'message_id': message_id,
