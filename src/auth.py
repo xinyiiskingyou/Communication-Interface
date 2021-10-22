@@ -164,4 +164,3 @@ def auth_register_v2(email, password, name_first, name_last):
         'token': token,
         'auth_user_id': auth_user_id
     }
-

@@ -394,5 +394,3 @@ def channel_removeowner_v1(token, channel_id, u_id):
 
     DATASTORE.set(store)
     return {}
-
-    
