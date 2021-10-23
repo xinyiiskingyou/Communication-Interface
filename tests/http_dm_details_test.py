@@ -1,21 +1,7 @@
 import pytest
 import requests
 import json
-from requests.api import request
 from src import config 
-
-
-@pytest.fixture
-def global_owner():
-    requests.delete(config.url + "clear/v1")
-    user = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'cat@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-    user_data = user.json()
-    return user_data
 
 @pytest.fixture
 def creator():

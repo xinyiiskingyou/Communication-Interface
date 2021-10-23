@@ -138,6 +138,8 @@ def test_dm_leave_not_a_member(create_dm):
     })  
     assert respo.status_code == 403
 
+def test_leave_invalid_dmid(creator, register_user3):
+    
     user1_token = creator['token']
     user2_token = register_user3['token']
 
@@ -173,6 +175,7 @@ def test_dm_leave_not_a_member(create_dm):
 
 ##### Implementation #####
 
+# valid case: member leaves dm
 def test_leave_http_valid(creator, register_user1): 
 
     token1 = creator['token']
