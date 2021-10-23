@@ -1,3 +1,5 @@
+import json
+
 '''
 data_store.py
 
@@ -32,6 +34,20 @@ initial_object = {
     'dms': [],           # list of dictionaries of dms 
     'complete_dms': []
 }
+
+##### Persistence #####
+with open('database.json', 'r') as FILE:
+    data = json.load(FILE)
+    # print(f"Loaded Data", data)
+
+def get_data():
+    global initial_object
+    return initial_object
+
+def save():
+    data = get_data()
+    with open('database.json', 'w') as FILE:
+        json.dump(data, FILE)
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
