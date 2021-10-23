@@ -378,8 +378,9 @@ def check_creator(auth_user_id):
     return type: bool
     '''
     for dm in initial_object['dms']:
-        if dm['creator']['u_id'] == auth_user_id:
-            return True
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == auth_user_id:
+                return True
     return False
 
 # check valid dm
