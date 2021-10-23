@@ -6,6 +6,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError
 from src import config
+from src.data_store import save, get_data
 
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
@@ -63,6 +64,7 @@ def clear():
 def register(): 
     json = request.get_json()
     resp = auth_register_v2(json['email'], json['password'], json['name_first'], json['name_last'])
+    save()
     return dumps({
         'token': resp['token'],
         'auth_user_id': resp['auth_user_id']
@@ -73,6 +75,7 @@ def register():
 def login():
     json = request.get_json()
     resp = auth_login_v2(json['email'], json['password'])
+    save()
     return dumps({
         'token': resp['token'],
         'auth_user_id': resp['auth_user_id']
@@ -83,6 +86,7 @@ def login():
 def logout():
     json = request.get_json()
     resp = auth_logout_v1(json['token'])
+    save()
     return dumps(resp)
 
 ############ CHANNELS #################
@@ -92,6 +96,7 @@ def logout():
 def channel_create():
     json = request.get_json()
     resp = channels_create_v2(json['token'], json['name'], json['is_public'])
+    save()
     return dumps({
         'channel_id': resp['channel_id']
     })
@@ -99,11 +104,13 @@ def channel_create():
 # Return the list that authorised user is part of
 @APP.route("/channels/list/v2", methods=['GET'])
 def channels_list(): 
+    save()
     return dumps(channels_list_v2(request.args.get('token')))
 
 # Return the list of all channels
 @APP.route ("/channels/listall/v2", methods= ['GET'])
 def listall():
+    save()
     return dumps(channels_listall_v2(request.args.get('token')))
 
 ############ CHANNEL #################
@@ -113,6 +120,7 @@ def listall():
 def channel_invite():
     json = request.get_json()
     resp = channel_invite_v2(json['token'], json['channel_id'], json['u_id'])
+    save()
     return dumps(resp)
 
 # Add the user to the channel
@@ -120,6 +128,7 @@ def channel_invite():
 def channel_join():
     json = request.get_json()
     resp1 = channel_join_v2(json['token'], json['channel_id'])
+    save()
     return dumps (resp1)
 
 # Gives details about channel
@@ -127,6 +136,7 @@ def channel_join():
 def channel_details(): 
     token = (request.args.get('token'))
     channel_id = int(request.args.get('channel_id'))
+    save()
     return dumps(channel_details_v2(token, channel_id))
    
 # Add an owner of the channel
@@ -134,6 +144,7 @@ def channel_details():
 def channel_addowner():
     json = request.get_json()
     resp = channel_addowner_v1(json['token'], json['channel_id'], json['u_id'])
+    save()
     return dumps(resp)
 
 # Remove an owner of the channel
@@ -141,6 +152,7 @@ def channel_addowner():
 def channel_remove_owner():
     json = request.get_json()
     resp = channel_removeowner_v1(json['token'], json['channel_id'], json['u_id'])
+    save()
     return dumps(resp)
 
 # Given a channel with ID channel_id that the authorised user is a member of, 
@@ -149,6 +161,7 @@ def channel_remove_owner():
 def channel_leave(): 
     json = request.get_json()
     resp = channel_leave_v1(json['token'], json['channel_id'])
+    save()
     return dumps(resp)
 
 # Given a channel with ID channel_id that the authorised user is a member of, 
@@ -158,6 +171,7 @@ def channel_messages():
     token = (request.args.get('token'))
     channel_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
+    save()
     return dumps(channel_messages_v2(token, channel_id, start))
 
 ############ USER #################
@@ -166,12 +180,14 @@ def channel_messages():
 @APP.route("/users/all/v1", methods=['GET'])
 def user_all(): 
     token = (request.args.get('token'))
+    save()
     return dumps(users_all_v1(token))
 
 # Returns information about 1 user
 @APP.route("/user/profile/v1", methods=['GET'])
 def user_profile(): 
     result = user_profile_v1(request.args.get('token'), request.args.get('u_id'))
+    save()
     return dumps(result)
 
 # Update the authorised user's first and/or last name
@@ -179,6 +195,7 @@ def user_profile():
 def user_setename(): 
     json = request.get_json()
     resp = user_profile_setname_v1(json['token'], json['name_first'], json['name_last'])
+    save()
     return dumps(resp)
 
 # Update the authorised user's email
@@ -186,6 +203,7 @@ def user_setename():
 def user_setemail(): 
     json = request.get_json()
     resp = user_profile_setemail_v1(json['token'], json['email'])
+    save()
     return dumps(resp)
 
 # Update the authorised user's handle
@@ -193,6 +211,7 @@ def user_setemail():
 def user_sethandle(): 
     json = request.get_json()
     resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
+    save()
     return dumps(resp)
 
 ############ MESSAGE ############
@@ -202,6 +221,7 @@ def user_sethandle():
 def message_send():
     json = request.get_json()
     resp = message_send_v1(json['token'], json['channel_id'], json['message'])
+    save()
     return dumps(resp)
 
 # Given a message, update its text with new text. 
@@ -210,6 +230,7 @@ def message_send():
 def message_edit():
     json = request.get_json()
     resp = message_edit_v1(json['token'], json['message_id'], json['message'])
+    save()
     return dumps(resp)
 
 # Given a message_id for a message, this message is removed from the channel/DM
@@ -217,6 +238,7 @@ def message_edit():
 def message_remove():
     json = request.get_json()
     resp = message_remove_v1(json['token'], json['message_id'])
+    save()
     return dumps(resp)
 
 # Send a message from the authorised user to the channel specified by dm_id.
@@ -224,6 +246,7 @@ def message_remove():
 def message_senddm():
     json = request.get_json()
     resp = message_senddm_v1(json['token'], json['dm_id'], json['message'])
+    save()
     return dumps(resp)
 
 ############ DM #################
@@ -233,6 +256,7 @@ def message_senddm():
 def dm_details(): 
     token = (request.args.get('token'))
     dm_id = int(request.args.get('dm_id'))
+    save()
     return dumps(dm_details_v1(token, dm_id))
 
 # Create DM
@@ -240,6 +264,7 @@ def dm_details():
 def dm_create():
     json = request.get_json()
     resp = dm_create_v1(json['token'], json['u_ids'])
+    save()
     return dumps({
         'dm_id': resp['dm_id']
     })
@@ -249,11 +274,13 @@ def dm_message():
     token = (request.args.get('token'))
     dm_id = int(request.args.get('dm_id'))
     start = int(request.args.get('start'))
+    save()
     return dumps(dm_messages_v1(token, dm_id, start))
 
 # List all DMs that the user is a member of
 @APP.route("/dm/list/v1", methods=['GET'])
 def dm_list():
+    save()
     return dumps(dm_list_v1(request.args.get('token')))
 
 # Remove DM that the user if the creator of
@@ -261,6 +288,7 @@ def dm_list():
 def dm_remove():
     json = request.get_json()
     resp = dm_remove_v1(json['token'], json['dm_id'])
+    save()
     return dumps(resp)
 
 # Remove user as a member of the DM
@@ -268,6 +296,7 @@ def dm_remove():
 def dm_leave(): 
     json = request.get_json()
     resp = dm_leave_v1(json['token'], json['dm_id'])
+    save()
     return dumps(resp)
 
 ############ ADMIN #################
@@ -277,6 +306,7 @@ def dm_leave():
 def admin_user_remove():
     json = request.get_json()
     resp = admin_user_remove_v1(json['token'], json['u_id'])
+    save()
     return dumps(resp)
 
 # Change permission of the user
@@ -284,6 +314,7 @@ def admin_user_remove():
 def admin_userpermission():
     json = request.get_json()
     resp = admin_userpermission_change_v1(json['token'], json['u_id'], json['permission_id'])
+    save()
     return dumps(resp)
 
 #### NO NEED TO MODIFY BELOW THIS POINT

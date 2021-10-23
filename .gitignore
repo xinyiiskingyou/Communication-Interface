@@ -125,3 +125,6 @@ dmypy.json
 
 # Other
 *.py~
+
+# Database.json for persistence 
+database.json
