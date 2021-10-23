@@ -1,4 +1,5 @@
 import json
+import os
 
 '''
 data_store.py
@@ -46,8 +47,10 @@ def get_data():
 
 def save():
     data = get_data()
-    with open('database.json', 'w') as FILE:
-        json.dump(data, FILE)
+    if os.path.exists('database.json'):
+        with open('database.json', 'w') as FILE:
+            json.dump(data, FILE)
+
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
