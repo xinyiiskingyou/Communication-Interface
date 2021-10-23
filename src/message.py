@@ -82,10 +82,6 @@ def message_send_v1(token, channel_id, message):
     }
 
 def message_edit_v1(token, message_id, message):
-<<<<<<< HEAD
-
-   
-=======
     '''
     Given a message, update its text with new text. 
 
@@ -107,7 +103,6 @@ def message_edit_v1(token, message_id, message):
     Return Value:
         N/A
     '''
->>>>>>> master
     store = DATASTORE.get()
     auth_user_id = decode_token(token)
     
