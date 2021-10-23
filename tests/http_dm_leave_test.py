@@ -138,9 +138,41 @@ def test_dm_leave_not_a_member(create_dm):
     })  
     assert respo.status_code == 403
 
+    user1_token = creator['token']
+    user2_token = register_user3['token']
+
+    # user 1 creates a dm
+    dm1 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': user1_token, 
+        'u_ids': []
+    })
+    assert dm1.status_code == 200
+    dm_id1 = json.loads(dm1.text)['dm_id']
+
+    respo1 = requests.post(config.url + "dm/leave/v1", json = { 
+        'token': user2_token, 
+        'dm_id': dm_id1
+    })  
+    assert respo1.status_code == 403
+    
+    # user2 creates a dm
+    dm2 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': user2_token, 
+        'u_ids': []
+    })
+    assert dm2.status_code == 200
+    dm_id2 = json.loads(dm2.text)['dm_id']
+
+    assert dm_id1 != dm_id2
+
+    respo = requests.post(config.url + "dm/leave/v1", json = { 
+        'token': user1_token, 
+        'dm_id': dm_id2
+    })  
+    assert respo.status_code == 403
+
 ##### Implementation #####
 
-# valid case: member leaves dm
 def test_leave_http_valid(creator, register_user1): 
 
     token1 = creator['token']

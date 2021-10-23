@@ -185,6 +185,18 @@ def test_logout_invalid_token():
     })
     token = json.loads(user.text)['token']
 
+# Access error: invalid token
+def test_logout_invalid_token():
+
+    requests.delete(config.url + "clear/v1")
+    user = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+    token = json.loads(user.text)['token']
+
     logout = requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -194,52 +206,39 @@ def test_logout_invalid_token():
         'token': token
     })
     assert logout1.status_code == 403
-'''
 def test_logout():
     requests.delete(config.url + "clear/v1")
-    register = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'anna',
-            'name_last': 'park'
-        }
-    )
+    register = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
     token1 = json.loads(register.text)['token']
 
-    login1 = requests.post(config.url + "auth/login/v2",
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-        }
-    )
+    login1 = requests.post(config.url + "auth/login/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+    })
     token2 = json.loads(login1.text)['token']
 
-    login2 = requests.post(config.url + "auth/login/v2",
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-        }
-    )
+    login2 = requests.post(config.url + "auth/login/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+    })
     token3 = json.loads(login2.text)['token']
 
-    logout1 = requests.post(config.url + "auth/logout/v1",
-        json = {
-            'token': token1
-        }
-    )
+    logout1 = requests.post(config.url + "auth/logout/v1", json = {
+        'token': token1
+    })
     assert logout1.status_code == 200
 
-    logout2 = requests.post(config.url + "auth/logout/v1",
-        json = {
-            'token': token3
-        }
-    )
+    logout2 = requests.post(config.url + "auth/logout/v1", json = {
+        'token': token3
+    })
     assert logout2.status_code == 200
 
-    logout3 = requests.post(config.url + "auth/logout/v1",
-        json = {
-            'token': token2
-        }
-    )
+    logout3 = requests.post(config.url + "auth/logout/v1", json = {
+        'token': token2
+    })
     assert logout3.status_code == 200

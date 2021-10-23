@@ -20,17 +20,14 @@ Assume all parameters in every function is given input.
 # For message/send/v1:
 1. Assume the function always returns a positive integer number for message_id. 
 
-# For channel_add_owner:
-1. Assume that the users must be in the channel before they become the owner
-
 # For dm_create_v1:
 1. Assume the dm_id always be positive
-2. Assume the u_ids have distinct u_id
+2. Assume the u_ids are distinct u_ids
 3. Assume the creator is a valid user
 
 # For admin_user_remove_v1:
-1. Assume everything but first name, last name and u_id are empty keys when we called user/profile
+1. Assume other keys except for first name, last name and u_id of the removed users are empty.
+2. Assume the token will be invalidated after the user is removed.
 
 # For admin_userpermission_change_v1:
-1. Assume nothing happened (i.e. no error will be raised) when the global owner changes their permission id 
-to be 1
+1. Assume no error will be raised when the global owner changes their permission id to be 1.

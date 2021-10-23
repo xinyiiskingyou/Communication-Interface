@@ -4,9 +4,9 @@ Auth implementation
 import re
 import hashlib
 from src.data_store import DATASTORE, initial_object
-from src.error import InputError
+from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
-from src.server_helper import decode_token, decode_token_session_id
+from src.server_helper import decode_token, decode_token_session_id, valid_user
 
 def auth_login_v2(email, password):
     '''
@@ -35,19 +35,34 @@ def auth_login_v2(email, password):
                 'token': generate_token(auth_user_id, session_id),
                 'auth_user_id': auth_user_id
             }
-
     raise InputError(description='Email and/or password is not valid!')
 
 def auth_logout_v1(token):
+    '''
+    Given an active token, invalidates the token to log the user out.
+
+    Arguments:
+        <token> (<string>)    - an authorisation hash
+
+    Exceptions:
+        AccessError  - Occurs when token is invalid
+
+    Return Value:
+        N/A
+    '''
     store = DATASTORE.get()
+
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
     auth_user_id = decode_token(token)
     session_id = decode_token_session_id(token)
     for user in initial_object['users']:
         if user['auth_user_id'] == auth_user_id:
             user['session_list'].remove(session_id)
+
     DATASTORE.set(store)
     return {}
-
 
 def auth_register_v2(email, password, name_first, name_last):
     '''
@@ -59,7 +74,6 @@ def auth_register_v2(email, password, name_first, name_last):
         <password>   (<string>)    - password user used to register into Streams
         <name_first> (<string>)    - alphanumerical first name
         <name_last>  (<string>)    - alphanumerical last name
-        ...
 
     Exceptions:
         InputError  - Occurs when email entered is not a valid email
@@ -150,4 +164,3 @@ def auth_register_v2(email, password, name_first, name_last):
         'token': token,
         'auth_user_id': auth_user_id
     }
-
