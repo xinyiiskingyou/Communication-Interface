@@ -3,11 +3,9 @@ import requests
 import json
 from src import config
 
-
 NUM_MESSAGE_EXACT = 50
 NUM_MESSAGE_MORE = 100
 NUM_MESSAGE_LESS = 25
-
 
 @pytest.fixture
 def creator():
@@ -67,6 +65,32 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
+##########################################
+### dm_messages & message_senddm tests ###
+##########################################
+
+# Access error: invalid token
+def test_messages_invalid_token(create_dm, creator):	
+    dm_id1 = create_dm['dm_id']	
+    token = creator['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+    message = requests.get(config.url + "dm/messages/v1", params = { 	
+        'token': token,	
+        'dm_id': dm_id1, 	
+        'start': 0 	
+    })	
+    assert message.status_code == 403	
+
+    resp = requests.post(config.url + "message/senddm/v1",json = {	
+        'token': token,	
+        'dm_id': dm_id1,	
+        'message': 'hi'	
+    })	
+    assert resp.status_code == 403
+
+# Input error: dm_id does not refer to a valid DM
 def test_dm_messages_error_dm_id(creator): 
 
     token = creator['token']
@@ -102,7 +126,7 @@ def test_dm_messages_error_dm_id(creator):
     })
     assert resp.status_code == 403
 
-
+# Input error: start is greater than the total number of messages in the channel
 def test_dm_messages_invalid_start_gt(creator, create_dm):
 
     user1_token = creator['token']
@@ -141,7 +165,7 @@ def test_dm_messages_invalid_start_gt(creator, create_dm):
     })
     assert messages4.status_code == 403
     
-# dm_id is valid and the authorised user is not a member of the DM
+# Access error: dm_id is valid and the authorised user is not a member of the DM
 def test_dm_message_not_a_member(create_dm):
 
     dm_id = create_dm['dm_id']
@@ -165,6 +189,44 @@ def test_dm_message_not_a_member(create_dm):
         'token': token,
         'dm_id': dm_id,
         'message': 'hi'
+    })
+    assert resp.status_code == 403
+
+# length of message is less than 1 or over 1000 characters
+def test_message_send_dm_invalid_length(creator, create_dm):
+
+    user1_token = creator['token']
+    dm_id = create_dm['dm_id']
+
+    resp = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user1_token,
+        'dm_id': dm_id,
+        'message': ''
+    })
+    assert resp.status_code == 400
+
+    resp = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user1_token,
+        'dm_id': dm_id,
+        'message': 'a' * 1001
+    })
+    assert resp.status_code == 400
+
+    # invalid token and invalid length
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+    resp = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user1_token,
+        'dm_id': dm_id,
+        'message': 'a' * 1001
+    })
+    assert resp.status_code == 403
+
+    resp = requests.post(config.url + "message/senddm/v1",json = {
+        'token': user1_token,
+        'dm_id': dm_id,
+        'message': ''
     })
     assert resp.status_code == 403
 
@@ -202,7 +264,6 @@ def test_dm_message_valid_start0(creator, register_user1):
 
     assert message.status_code == 200 
 
-#check when server is back up 
 def test_dm_message_valid_recent_exact(creator, register_user1): 
 
     user1_token = creator['token']
@@ -227,16 +288,14 @@ def test_dm_message_valid_recent_exact(creator, register_user1):
         'dm_id': dm_id1, 
         'start': 0 
     })
+    assert message.status_code == 200
     
     message_start = json.loads(message.text)['start']
     message_end = json.loads(message.text)['end']
     assert message_start == 0 
     assert message_end == -1 
     assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_EXACT
-
-    assert message.status_code == 200 
-
-##check after server back up 
+ 
 def test_dm_message_valid_no_recent(creator, register_user1): 
 
     user1_token = creator['token']
@@ -270,8 +329,6 @@ def test_dm_message_valid_no_recent(creator, register_user1):
 
     assert message.status_code == 200 
 
-
-##check after server comes back on 
 def test_dm_message_valid_neither(creator, register_user1): 
 
     user1_token = creator['token']
@@ -330,81 +387,3 @@ def test_dm_message_valid_empty(creator, register_user1):
     assert len(json.loads(message.text)['messages']) == 0
 
     assert message.status_code == 200 
-
-
-def test_messages_invalid_token(create_dm, creator):	
-    dm_id1 = create_dm['dm_id']	
-    token = creator['token']
-    requests.post(config.url + "auth/logout/v1", json = {
-        'token': token
-    })
-    message = requests.get(config.url + "dm/messages/v1", params = { 	
-        'token': token,	
-        'dm_id': dm_id1, 	
-        'start': 0 	
-    })	
-    assert message.status_code == 403	
-
-    resp = requests.post(config.url + "message/senddm/v1",json = {	
-        'token': token,	
-        'dm_id': dm_id1,	
-        'message': 'hi'	
-    })	
-    assert resp.status_code == 403
-
-
-# length of message is less than 1 or over 1000 characters
-def test_message_send_dm_invalid_length(creator, create_dm, register_user1):
-
-    user1_token = creator['token']
-    dm_id = create_dm['dm_id']
-
-    resp = requests.post(config.url + "message/senddm/v1",json = {
-        'token': user1_token,
-        'dm_id': dm_id,
-        'message': ''
-    })
-    assert resp.status_code == 400
-
-    resp = requests.post(config.url + "message/senddm/v1",json = {
-        'token': user1_token,
-        'dm_id': dm_id,
-        'message': 'a' * 1001
-    })
-    assert resp.status_code == 400
-
-    # invalid token and invalid length
-    requests.post(config.url + "auth/logout/v1", json = {
-        'token': user1_token
-    })
-    resp = requests.post(config.url + "message/senddm/v1",json = {
-        'token': user1_token,
-        'dm_id': dm_id,
-        'message': 'a' * 1001
-    })
-    assert resp.status_code == 403
-
-    resp = requests.post(config.url + "message/senddm/v1",json = {
-        'token': user1_token,
-        'dm_id': dm_id,
-        'message': ''
-    })
-    assert resp.status_code == 403
-
-def test_notvalid_dm_id (): 	
-    requests.delete(config.url + "clear/v1")	
-    user = requests.post(config.url + "auth/register/v2", 	
-        json = {	
-            'email': 'abc@gmail.com',	
-            'password': 'password',	
-            'name_first': 'afirst',	
-            'name_last': 'alast'	
-        })	
-    token = json.loads(user.text)['token']	
-    resp1 = requests.get(config.url + "dm/messages/v1",	
-        params = { 	
-            'token': token,	
-            'dm_id': -1,	
-            'start': 0 	
-        })	
-    assert resp1.status_code == 400

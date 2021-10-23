@@ -1,11 +1,10 @@
 from src.server_helper import decode_token, valid_user
-from src.helper import check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, get_dm_info, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
+from src.helper import check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message
 from src.server_helper import decode_token, valid_user
 from src.error import InputError, AccessError
 from src.data_store import DATASTORE, initial_object
 import time
-
 
 def dm_create_v1(token, u_ids):
     '''
@@ -101,7 +100,13 @@ def dm_list_v1(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    return {'dms': get_dm_info(auth_user_id)}
+    dm_list = []
+    for dm in initial_object['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                dm_list.append({'dm_id': dm['dm_id'], 'name': dm['name']})
+
+    return {'dms':dm_list}
 
 def dm_remove_v1(token, dm_id):    
 
@@ -144,7 +149,6 @@ def dm_remove_v1(token, dm_id):
 
     return {}
 
-
 def dm_details_v1(token, dm_id): 
     '''
     Given an dm_id and token, the function provides basic details about the dm 
@@ -175,12 +179,11 @@ def dm_details_v1(token, dm_id):
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError(description="The user is not an authorised member of the DM")
 
-    for dm in initial_object['dms']: 
-        if dm_id == dm['dm_id']: 
-            return { 
-                'name': dm['name'],
-                'members': dm['members']
-            }
+    dm = get_dm_dict(dm_id)
+    return { 
+        'name': dm['name'],
+        'members': dm['members']
+    }
 
 def dm_leave_v1(token, dm_id):
     '''
@@ -218,10 +221,9 @@ def dm_leave_v1(token, dm_id):
         raise AccessError(description="The user is not an authorised member of the DM")
 
     for dm in initial_object['dms']: 
-        if dm['dm_id'] == dm_id: 
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id: 
-                    dm['members'].remove(newuser)
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id: 
+                dm['members'].remove(newuser)
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator'].clear()
@@ -266,10 +268,9 @@ def dm_messages_v1(token, dm_id, start):
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError("The user is not an authorised member of the DM")
 
-    for dm in initial_object['dms']: 
-        if dm['dm_id'] == dm_id: 
-            num_messages = len(dm['messages'])
-            dm_pagination = dm['messages']
+    dm = get_dm_dict(dm_id)
+    num_messages = len(dm['messages'])
+    dm_pagination = dm['messages']
 
     end = start + 50 
     if end >= num_messages: 
@@ -325,9 +326,8 @@ def message_senddm_v1(token, dm_id, message):
     }
 
     # Append dictionary of message details into initial_objects['dm']['messages']
-    for dm in initial_object['dms']:
-        if dm['dm_id'] == dm_id:
-            dm['messages'].insert(0, dmsend_details_channels)
+    dm = get_dm_dict(dm_id)
+    dm['messages'].insert(0, dmsend_details_channels)
 
     dmsend_details_messages = {
         'message_id': dmsend_id,

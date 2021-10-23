@@ -170,6 +170,8 @@ def test_channel_list_invalid_token(register_user):
     })
     assert list1.status_code == 403
 
+##### Implementation #####
+
 # test when an user does not create a channel
 def test_no_channel(register_user):
 
@@ -207,6 +209,34 @@ def test_channel_list(register_user):
         ],
     })
     assert list1.status_code == 200
+
+# When user is not part of the channel
+def test_channel_list_not_member_of_channel(register_user):
+    id1_token = register_user['token']
+    id2 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abc2@gmail.com',
+        'password': 'password',
+        'name_first': 'bfirst',
+        'name_last': 'blast'
+    })
+    auth_user_id2 = json.loads(id2.text)['token']
+
+    resp2 = requests.post(config.url + "channels/create/v2", json ={
+        'token': auth_user_id2,
+        'name': '1531_CAMEL_2',
+        'is_public': True
+    })
+    assert resp2.status_code == 200
+
+    list1 = requests.get(config.url + 'channels/list/v2', params ={
+        'token': id1_token
+    })
+    assert (json.loads(list1.text) == 
+        {
+        'channels':[],
+    })
+    assert list1.status_code == 200
+
 
 ##########################################
 ######### channels_listall tests #########
@@ -261,3 +291,44 @@ def test_listall(register_user):
         ],
     })
     assert listall1.status_code == 200
+
+def test_list_coverage(register_user):
+    token1 = register_user['token']
+
+    list1 = requests.get(config.url + "channels/list/v2", params ={ 
+            'token': token1
+    })
+
+    assert (json.loads(list1.text) == 
+    {
+        'channels':[]
+    })
+    assert len(json.loads(list1.text)['channels']) == 0
+
+    channel1 = requests.post(config.url + "channels/create/v2", 
+        json = {
+        'token': token1,
+        'name': 'channel1',
+        'is_public': True
+    })
+    assert channel1.status_code == 200
+
+    channel2 = requests.post(config.url + "channels/create/v2", 
+        json = {
+        'token': token1,
+        'name': 'channel2',
+        'is_public': False
+    })
+    assert channel2.status_code == 200
+
+    list1 = requests.get(config.url + "channels/list/v2", params ={ 
+            'token': token1
+    })
+
+    list1_all = requests.get(config.url + "channels/list/v2", params ={ 
+            'token': token1
+    })
+
+    print(json.loads(list1_all.text))
+
+    assert len(json.loads(list1_all.text)['channels']) == 2

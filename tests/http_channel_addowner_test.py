@@ -274,7 +274,7 @@ def test_no_perm_not_owner(register_user, create_channel, register_user1):
         'password': 'password',
         'name_first': 'hello',
         'name_last': 'world'
-        })
+    })
     u_id2 = json.loads(id3.text)['auth_user_id']
 
     requests.post(config.url + 'channel/invite/v2', json ={
@@ -320,7 +320,6 @@ def test_valid_addowner(register_user, register_user1, create_channel):
 
     assert resp1.status_code == 200
 
-
 def test_addowner_valid_global(register_user, register_user1):
 
     token = register_user['token']
@@ -339,7 +338,7 @@ def test_addowner_valid_global(register_user, register_user1):
         'password': 'password',
         'name_first': 'hello',
         'name_last': 'kitty'
-        })
+    })
     u_id = json.loads(id3.text)['auth_user_id']
 
     requests.post(config.url + 'channel/invite/v2', json ={
@@ -354,5 +353,4 @@ def test_addowner_valid_global(register_user, register_user1):
         'channel_id': channel_id,
         'u_id': u_id
     })
-
     assert resp1.status_code == 200

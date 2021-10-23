@@ -24,6 +24,7 @@ def user_info(auth_user_id):
 ####### Helper functions for channels.py ########
 #################################################
 
+
 # Helper function for channel_list, channel_listall, channel_create
 # Checks if the auth_user_id given is registered
 # Returns true if auth_user_id is registered in streams
@@ -47,7 +48,6 @@ def get_user_details(auth_user_id):
     for user in initial_object['users']:
         if user['auth_user_id'] == auth_user_id:
             return user
-    return {}
 
 #################################################
 ######## Helper functions for channel.py ########
@@ -61,8 +61,6 @@ def check_valid_start(num_messages, start):
     '''
     return type: bool
     '''
-    if not isinstance(start, int):
-        return False
     if start > num_messages:
         return False
     if start < 0:
@@ -79,13 +77,7 @@ def get_channel_details(channel_id):
     for channel in initial_object['channels']:
         if int(channel['channel_id']) == int(channel_id):
             return channel
-    return False
 
-def get_user_status():
-    for user in initial_object['users']:
-        if user['is_removed'] == False:
-            return True
-    return False
 
 # Helper function for channel_invite, channel_details,
 # channel_messages and channel_join
@@ -101,10 +93,12 @@ def check_valid_channel_id(channel_id):
             return True
     return False
 
+# Helper function 
+# Checks if user is a member of the channel
 def get_channel_member(auth_user_id, channel):
     for member in channel['all_members']:
         if member['u_id'] == auth_user_id:
-            return member
+            return True
     return False
 
 # Helper function for channel_invite, channel_details,
@@ -168,8 +162,8 @@ def check_only_owner(auth_user_id, channel_id):
             for member in channels['owner_members']:
                 if member['u_id'] == auth_user_id:
                     return channels
-    pass
 
+# Helper function that checks if auth_user_id is a global owner
 def check_global_owner(auth_user_id):
     for user in initial_object['users']:
         if user['auth_user_id'] != auth_user_id:
@@ -177,6 +171,12 @@ def check_global_owner(auth_user_id):
         if user['permission_id'] == 1:
             return True
     return False
+
+def get_channel_message(u_id, channel):
+    for message in channel['messages']:
+        if message['u_id'] == u_id:
+            return message
+    return {}
 
 # checking valid email
 def check_valid_email(email):
@@ -248,10 +248,9 @@ def check_valid_message_id(auth_user_id, message_id):
     # Go through DMs to determine if user is part of DM of that message_id
     elif message_id % 2 == 0:
         for dm in initial_object['dms']:
-            if dm['dm_id'] == channel_dm_id:
-                for member in dm['members']:
-                    if member['u_id'] == auth_user_id:
-                        found_user = 1
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id:
+                    found_user = 1
 
     # In the case where message being edited is part of a channel, 
     # check if auth_user_id is global owner of Streams
@@ -305,9 +304,8 @@ def check_authorised_user_edit(auth_user_id, message_id):
     # If channel_dm_id is even, this means that message is from DM
     elif message_id % 2 == 0:
         for dm in initial_object['dms']:
-            if dm['dm_id'] == channel_dm_id:
-                if dm['creator']['u_id'] == auth_user_id:
-                    found_owner_creator = 1
+            if dm['creator']['u_id'] == auth_user_id:
+                found_owner_creator = 1
 
     # In the case where message being edited is part of a channel, 
     # check if auth_user_id is global owner of Streams
@@ -331,7 +329,6 @@ def get_message_dict(message_id):
     for message in initial_object['messages']:
         if message['message_id'] == message_id:
             return message
-    return {}
 
 def check_valid_message_send_format(message):
     len_message = len(message)
@@ -351,10 +348,9 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
     '''
 
     for dm in initial_object['dms']:
-        if dm['dm_id'] == dm_id:
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id:
-                    return True
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                return True
     return False
 
 
@@ -378,23 +374,6 @@ def get_handle(auth_user_id):
     for user in initial_object['users']:
         if user['auth_user_id'] == auth_user_id:
             return user['handle_str']
-    return None
-
-# get the dm info of which the auth user is a member of
-def get_dm_info(auth_user_id):
-    '''
-    return type: list
-    '''
-    dms = []
-    handle = get_handle(auth_user_id)
-    for dm in initial_object['dms']:
-        find = dm['name'].find(handle)
-        if find != -1:
-            dm_dict = {}
-            dm_dict['dm_id'] = dm['dm_id']
-            dm_dict['name'] = dm['name']
-            dms.append(dm_dict)
-    return dms
 
 # check if the user is the creator of the given dm
 def check_creator(auth_user_id, dm_id):
@@ -402,8 +381,6 @@ def check_creator(auth_user_id, dm_id):
     return type: bool
     '''
     for dm in initial_object['dms']:
-        if dm['dm_id'] != dm_id:
-            continue
         if dm['creator']['u_id'] == auth_user_id:
             return True
     return False
@@ -426,4 +403,3 @@ def get_dm_dict(dm_id):
     for dm in initial_object['dms']:
         if dm['dm_id'] == dm_id:
             return dm
-    return {}
