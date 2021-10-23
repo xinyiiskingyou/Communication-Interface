@@ -77,7 +77,7 @@ def test_dm_list_invalid_token(creator):
     })
     assert resp1.status_code == 403
 
-# valid case
+# Valid case: able to list the dms of 1 user who is ba part of one dm
 def test_dm_list(creator, register_user1, register_user2, register_user3):
 
     token = creator['token']
@@ -110,6 +110,7 @@ def test_dm_list(creator, register_user1, register_user2, register_user3):
         ],
     })
 
+# Valid case: empty list when no dm's have been created
 def test_dm_list_no_dm(creator, register_user1, register_user2, register_user3):
 
     token = creator['token']
@@ -131,6 +132,7 @@ def test_dm_list_no_dm(creator, register_user1, register_user2, register_user3):
     assert resp1.status_code == 200
     assert json.loads(resp1.text) == {'dms': []}
 
+# Valid case: able to list the dms of the user who created the dm
 def test_dm_list_creator(creator, register_user1, register_user2, register_user3):
 
     token = creator['token']
