@@ -80,7 +80,6 @@ def dm_create_v1(token, u_ids):
         'dm_id': dm_id
     }
 
-
 def dm_list_v1(token):
     '''
     Returns the list of DMs that the user is a member of.
