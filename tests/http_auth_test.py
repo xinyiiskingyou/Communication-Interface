@@ -172,7 +172,7 @@ def test__login_incorrect_password():
 ##########################################
 ############ auth_logout tests ###########
 ##########################################
-'''
+
 # Access error: invalid token
 def test_logout_invalid_token():
 
