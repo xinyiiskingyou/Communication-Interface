@@ -47,9 +47,8 @@ def get_data():
 
 def save():
     global initial_object
-    if os.path.exists('database.json'):
-        with open('database.json', 'w') as FILE:
-            json.dump(initial_object, FILE)
+    with open('database.json', 'w') as FILE:
+        json.dump(initial_object, FILE)
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
