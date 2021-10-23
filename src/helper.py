@@ -304,8 +304,9 @@ def check_authorised_user_edit(auth_user_id, message_id):
     # If channel_dm_id is even, this means that message is from DM
     elif message_id % 2 == 0:
         for dm in initial_object['dms']:
-            if dm['creator']['u_id'] == auth_user_id:
-                found_owner_creator = 1
+            if len(dm['creator']) > 0:
+                if dm['creator']['u_id'] == auth_user_id:
+                    found_owner_creator = 1
 
     # In the case where message being edited is part of a channel, 
     # check if auth_user_id is global owner of Streams
@@ -346,11 +347,11 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
     '''
     return type: bool
     '''
-
     for dm in initial_object['dms']:
-        for member in dm['members']:
-            if member['u_id'] == auth_user_id:
-                return True
+        if dm['dm_id'] == dm_id:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id:
+                    return True
     return False
 
 # Checks if message is invalid 

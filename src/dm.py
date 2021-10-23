@@ -1,5 +1,5 @@
 from src.server_helper import decode_token, valid_user
-from src.helper import check_valid_dm, check_valid_member_in_dm, channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
+from src.helper import check_valid_dm, channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message
 from src.server_helper import decode_token, valid_user
 from src.error import InputError, AccessError
@@ -21,6 +21,7 @@ def dm_create_v1(token, u_ids):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
+    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -30,10 +31,7 @@ def dm_create_v1(token, u_ids):
     # error handling
     for i in range(len(u_ids)):
         if not channels_create_check_valid_user(u_ids[i]):
-            raise InputError(description = 'any u_id in u_ids does not refer to a valid user')
-
-    store = DATASTORE.get()
-    auth_user_id = decode_token(token)
+            raise InputError(description= 'any u_id in u_ids does not refer to a valid user')
 
     dms = initial_object['dms']
     complete_dms = initial_object['complete_dms']
@@ -109,7 +107,6 @@ def dm_list_v1(token):
     return {'dms':dm_list}
 
 def dm_remove_v1(token, dm_id):    
-
     '''
     Remove an existing DM, so all members are no longer in the DM. 
     This can only be done by the original creator of the DM.
@@ -126,6 +123,7 @@ def dm_remove_v1(token, dm_id):
     Return Value:
         Returns N/A
     '''
+    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -134,13 +132,12 @@ def dm_remove_v1(token, dm_id):
 
     # invalid dm_id
     if not check_valid_dm(dm_id):
-        raise InputError(description = "This does not refer to a valid dm")
+        raise InputError(description= "This does not refer to a valid dm")
 
     # valid dm_id but user is not the dm creator
     if not check_creator(auth_user_id):
-        raise AccessError(description = 'The user is not the original DM creator')
+        raise AccessError(description= 'The user is not the original DM creator')
 
-    store = DATASTORE.get()
     dms = initial_object['dms']
     dm = get_dm_dict(dm_id)
     dms.remove(dm)
@@ -212,9 +209,9 @@ def dm_leave_v1(token, dm_id):
     
     # dm_id does not refer to a valid DM
     if not isinstance(dm_id, int):
-        raise InputError("This is an invalid dm_id")
+        raise InputError(description="This is an invalid dm_id")
     if not check_valid_dm(dm_id):
-        raise InputError("This does not refer to a valid dm")
+        raise InputError(description="This does not refer to a valid dm")
 
     # dm_id is valid and the authorised user is not a member of the DM
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
@@ -263,11 +260,11 @@ def dm_messages_v1(token, dm_id, start):
 
     # invalid dm_id
     if not check_valid_dm(dm_id): 
-        raise InputError("This dm_id does not refer to a valid DM")
+        raise InputError(description="This dm_id does not refer to a valid DM")
 
     # not authorised  
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
-        raise AccessError("The user is not an authorised member of the DM")
+        raise AccessError(description="The user is not an authorised member of the DM")
 
     dm = get_dm_dict(dm_id)
     num_messages = len(dm['messages'])
@@ -319,15 +316,15 @@ def message_senddm_v1(token, dm_id, message):
 
     # Invalid dm_id
     if not check_valid_dm(dm_id):
-        raise InputError("The dm_id does not refer to a valid dm")
+        raise InputError(description="The dm_id does not refer to a valid dm")
 
     # Authorised user not a member of channel
     if not check_valid_member_in_dm(dm_id, auth_user_id):
-        raise AccessError("Authorised user is not a member of dm with dm_id")
+        raise AccessError(description="Authorised user is not a member of dm with dm_id")
 
     # Invalid message: Less than 1 or over 1000 characters
     if not check_valid_message(message):
-        raise InputError("Message is invalid as length of message is less than 1 or over 1000 characters.")
+        raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
 
     # Creating unique message_id 
     dmsend_id = (len(initial_object['messages']) * 2) 
