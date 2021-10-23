@@ -129,7 +129,7 @@ def channel_join():
     json = request.get_json()
     resp1 = channel_join_v2(json['token'], json['channel_id'])
     save()
-    return dumps (resp1)
+    return dumps(resp1)
 
 # Gives details about channel
 @APP.route("/channel/details/v2", methods=['GET'])
