@@ -139,6 +139,38 @@ def test_dm_remove_invalid_id_not_dm_creator(create_dm, register_user3):
     })
     assert resp1.status_code == 400
 
+# test after the creator left the dm and member cannot remove the dm
+def test_leave_dm(creator, register_user1):
+    
+    # create a dm with user2
+    creator_token = creator['token']
+    user2_id = register_user1['auth_user_id']
+
+    dm = requests.post(config.url + "dm/create/v1", json ={ 
+        'token': creator_token,
+        'u_ids': [user2_id]
+    })
+    dm_data = dm.json()
+    dm_id = dm_data['dm_id']
+
+    creator_leave = requests.post(config.url + "dm/leave/v1",json = { 
+        'token': creator_token, 
+        'dm_id': dm_id,
+    })  
+    assert creator_leave.status_code == 200
+
+    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': creator_token,
+        'dm_id': dm_id
+    })
+    assert resp1.status_code == 403
+
+    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': creator_token,
+        'dm_id': dm_id
+    })
+    assert resp1.status_code == 403
+
 # valid case
 def test_dm_remove_valid(creator, create_dm):
 
@@ -150,3 +182,4 @@ def test_dm_remove_valid(creator, create_dm):
         'dm_id': dm_id
     })
     assert resp2.status_code == 200
+    
