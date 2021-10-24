@@ -95,10 +95,10 @@ def dm_list_v1(token):
     Return Value:
         Returns <{'dms'}> where 'dms' is a list of dictionary of dm that this user is a member of
     '''
-
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
-
+    #creating the list 
     auth_user_id = decode_token(token)
     dm_list = []
     for dm in initial_object['dms']:
@@ -127,7 +127,7 @@ def dm_remove_v1(token, dm_id):
     Return Value:
         Returns N/A
     '''
-
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -140,7 +140,7 @@ def dm_remove_v1(token, dm_id):
     # valid dm_id but user is not the dm creator
     if not check_creator(auth_user_id, dm_id):
         raise AccessError(description = 'The user is not the original DM creator')
-
+    #removing dm 
     store = DATASTORE.get()
     dms = initial_object['dms']
     dm = get_dm_dict(dm_id)
@@ -168,11 +168,12 @@ def dm_details_v1(token, dm_id):
         Returns name 
         Returns members
     '''
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-
+    #not valid dm 
     if not check_valid_dm(dm_id): 
         raise InputError(description="This dm_id does not refer to a valid DM")
 
@@ -204,7 +205,7 @@ def dm_leave_v1(token, dm_id):
         Returns <{dm_id}> when the dm is sucessfully created
     '''
     store = DATASTORE.get()
-
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -214,17 +215,20 @@ def dm_leave_v1(token, dm_id):
     # dm_id does not refer to a valid DM
     if not isinstance(dm_id, int):
         raise InputError("This is an invalid dm_id")
+    #not valid dm 
     if not check_valid_dm(dm_id):
         raise InputError("This does not refer to a valid dm")
 
     # dm_id is valid and the authorised user is not a member of the DM
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError(description="The user is not an authorised member of the DM")
-
-    for dm in initial_object['dms']: 
-        for member in dm['members']:
-            if member['u_id'] == auth_user_id: 
-                dm['members'].remove(newuser)
+    #remove all users 
+    for dm in initial_object['dms']:
+        if dm['dm_id'] == dm_id:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id: 
+                    dm['members'].remove(newuser)
+        #clear the creator list 
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator'].clear()
@@ -255,7 +259,7 @@ def dm_messages_v1(token, dm_id, start):
     Return Value:
         Returns end - if end is -1 then it returns the recent messages of the channel 
     '''
-
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -280,7 +284,7 @@ def dm_messages_v1(token, dm_id, start):
     # Start is greater than the total number of messages in the channel
     if not check_valid_start(num_messages, start): 
         raise InputError(description = 'Start is greater then total messages')
-
+    #PAGINATION 
     if end == -1: 
         dm_pagination = dm_pagination[start:] 
     else: 
@@ -295,7 +299,7 @@ def dm_messages_v1(token, dm_id, start):
 def message_senddm_v1(token, dm_id, message):
 
     store = DATASTORE.get()
-    
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
