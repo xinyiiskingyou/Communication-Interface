@@ -1,9 +1,9 @@
 from src.server_helper import decode_token, valid_user
-from src.helper import check_valid_dm, channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
+from src.helper import channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message
 from src.server_helper import decode_token, valid_user
 from src.error import InputError, AccessError
-from src.data_store import DATASTORE, initial_object
+from src.data_store import get_data, save
 import time
 
 def dm_create_v1(token, u_ids):
@@ -21,7 +21,6 @@ def dm_create_v1(token, u_ids):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -33,8 +32,7 @@ def dm_create_v1(token, u_ids):
         if not channels_create_check_valid_user(u_ids[i]):
             raise InputError(description= 'any u_id in u_ids does not refer to a valid user')
 
-    dms = initial_object['dms']
-    complete_dms = initial_object['complete_dms']
+    complete_dms = get_data()['dms']
     # generate dm_id according the number of existing dms
     dm_id = len(complete_dms) + 1
 
@@ -65,17 +63,14 @@ def dm_create_v1(token, u_ids):
     separation = ", "
     name = separation.join(handle_list)
 
-    dm = {
+    get_data()['dms'].append({
         'dm_id': dm_id,
         'name': name,
         'creator': creator_info,
         'members': member_list,
         'messages': [],
-    }
-    dms.append(dm)
-    complete_dms.append(dm)
-    DATASTORE.set(store)
-
+    })
+    save()
     return {
         'dm_id': dm_id
     }
@@ -99,7 +94,7 @@ def dm_list_v1(token):
 
     auth_user_id = decode_token(token)
     dm_list = []
-    for dm in initial_object['dms']:
+    for dm in get_data()['dms']:
         for member in dm['members']:
             if member['u_id'] == auth_user_id:
                 dm_list.append({'dm_id': dm['dm_id'], 'name': dm['name']})
@@ -123,7 +118,6 @@ def dm_remove_v1(token, dm_id):
     Return Value:
         Returns N/A
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -138,11 +132,11 @@ def dm_remove_v1(token, dm_id):
     if not check_creator(auth_user_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
-    dms = initial_object['dms']
+    dms = get_data()['dms']
     dm = get_dm_dict(dm_id)
     dms.remove(dm)
 
-    DATASTORE.set(store)
+    save()
 
     return {}
 
@@ -199,7 +193,6 @@ def dm_leave_v1(token, dm_id):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -217,7 +210,7 @@ def dm_leave_v1(token, dm_id):
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError(description="The user is not an authorised member of the DM")
 
-    for dm in initial_object['dms']: 
+    for dm in get_data()['dms']: 
         if dm['dm_id'] == dm_id:
             for member in dm['members']:
                 if member['u_id'] == auth_user_id: 
@@ -225,8 +218,8 @@ def dm_leave_v1(token, dm_id):
             if len(dm['creator']) > 0:
                 if dm['creator']['u_id'] == auth_user_id:
                     dm['creator'].clear()
-    
-    DATASTORE.set(store)
+        save()
+    save()
     return{}
 
 def dm_messages_v1(token, dm_id, start): 
@@ -307,7 +300,6 @@ def message_senddm_v1(token, dm_id, message):
     Return Value:
         Returns end - if end is -1 then it returns the recent messages of the channel 
     '''
-    store = DATASTORE.get()
     
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -327,12 +319,12 @@ def message_senddm_v1(token, dm_id, message):
         raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
 
     # Creating unique message_id 
-    dmsend_id = (len(initial_object['messages']) * 2) 
+    dmsend_id = (len(get_data()['messages']) * 2) 
 
     # Current time message was created and sent
     time_created = int(time.time())
 
-    dmsend_details_channels = {
+    dmsend_details_dm = {
         'message_id': dmsend_id,
         'u_id': auth_user_id, 
         'message': message,
@@ -340,8 +332,10 @@ def message_senddm_v1(token, dm_id, message):
     }
 
     # Append dictionary of message details into initial_objects['dm']['messages']
-    dm = get_dm_dict(dm_id)
-    dm['messages'].insert(0, dmsend_details_channels)
+    for dm in get_data()['dms']:
+        if dm['dm_id'] == dm_id:
+            dm['messages'].insert(0, dmsend_details_dm)
+            save()
 
     dmsend_details_messages = {
         'message_id': dmsend_id,
@@ -352,9 +346,8 @@ def message_senddm_v1(token, dm_id, message):
     }
 
     # Append dictionary of message details into intital_objects['messages']
-    initial_object['messages'].insert(0, dmsend_details_messages)
-
-    DATASTORE.set(store)
+    get_data()['messages'].insert(0, dmsend_details_messages)
+    save()
 
     return {
         'message_id': dmsend_id
