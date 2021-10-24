@@ -212,7 +212,3 @@ def test_http_dm_details_valid(creator, register_user1):
         'dm_id':  dm_id
     })
     assert resp1.status_code == 200 
-<<<<<<< HEAD
-
-=======
->>>>>>> master
