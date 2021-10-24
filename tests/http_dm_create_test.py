@@ -61,6 +61,11 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
+##########################################
+############ dm_create tests #############
+##########################################
+
+# Access error: invalid token
 def test_create_invalid_token(creator, register_user1):
 
     token = creator['token']
@@ -74,6 +79,7 @@ def test_create_invalid_token(creator, register_user1):
     })
     assert resp1.status_code == 403
 
+# Input error: invalid u_id
 def test_invalid_u_id(creator, register_user1):
 
     user1_token = creator['token']
@@ -112,16 +118,10 @@ def test_valid_u_ids(creator, register_user1, register_user2, register_user3):
     user1_id = register_user1['auth_user_id']
 
     u_id2 = register_user2['auth_user_id']
-
     u_id3 = register_user3['auth_user_id']
 
     resp1 = requests.post(config.url + "dm/create/v1", json = {
         'token': token,
         'u_ids': [user1_id, u_id2, u_id3]
     })
-
     assert resp1.status_code == 200
-
-
-
-

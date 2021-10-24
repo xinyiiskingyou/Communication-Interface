@@ -1,23 +1,19 @@
-import json
-import sys
 import signal
 from json import dumps
 from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError
 from src import config
+from src.data_store import save, get_data
 
+from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
-from src.user import users_all_v1, user_profile_v1, user_profile_setname_v1, user_profile_setemail_v1, user_profile_sethandle_v1 
-from src.message import message_send_v1, message_edit_v1, message_remove_v1
-from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1
-from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
-from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
-from src.message import message_send_v1
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, message_senddm_v1, dm_messages_v1, dm_leave_v1
+from src.message import message_send_v1, message_edit_v1, message_remove_v1
+from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -59,6 +55,7 @@ def clear():
     resp = clear_v1()
     return dumps(resp)
 
+
 ############ AUTH #################
 
 # Registers user
@@ -71,7 +68,8 @@ def register():
         'auth_user_id': resp['auth_user_id']
     })
 
-# Logins user 
+# Logins user
+# Given a registered user's email and password, returns their `token` value.
 @APP.route("/auth/login/v2", methods=['POST'])
 def login():
     json = request.get_json()
@@ -82,15 +80,17 @@ def login():
     })
 
 # Logouts user
+# Given an active token, invalidates the token to log the user out.
 @APP.route("/auth/logout/v1", methods=['POST'])
 def logout():
     json = request.get_json()
     resp = auth_logout_v1(json['token'])
     return dumps(resp)
 
+
 ############ CHANNELS #################
 
-# channel create
+# Creates a new channel with the given name that is either a public or private channel. 
 @APP.route("/channels/create/v2", methods=['POST'])
 def channel_create():
     json = request.get_json()
@@ -99,15 +99,18 @@ def channel_create():
         'channel_id': resp['channel_id']
     })
 
-# Return the list that authorised user is part of
+# Provide a list of all channels (and their associated details) 
+# that the authorised user is part of.
 @APP.route("/channels/list/v2", methods=['GET'])
 def channels_list(): 
     return dumps(channels_list_v2(request.args.get('token')))
 
-# Return the list of all channels
+# Provide a list of all channels, including private channels, 
+# (and their associated details)
 @APP.route ("/channels/listall/v2", methods= ['GET'])
 def listall():
     return dumps(channels_listall_v2(request.args.get('token')))
+
 
 ############ CHANNEL #################
 
@@ -123,23 +126,23 @@ def channel_invite():
 def channel_join():
     json = request.get_json()
     resp1 = channel_join_v2(json['token'], json['channel_id'])
-    return dumps (resp1)
+    return dumps(resp1)
 
-# Gives details about channel
+# Provide basic details about the channel.
 @APP.route("/channel/details/v2", methods=['GET'])
 def channel_details(): 
     token = (request.args.get('token'))
     channel_id = int(request.args.get('channel_id'))
     return dumps(channel_details_v2(token, channel_id))
    
-# Add an owner of the channel
+# Make user with user id u_id an owner of the channel
 @APP.route("/channel/addowner/v1", methods=['POST'])
 def channel_addowner():
     json = request.get_json()
     resp = channel_addowner_v1(json['token'], json['channel_id'], json['u_id'])
     return dumps(resp)
 
-# Remove an owner of the channel
+# Remove user with user id u_id as an owner of the channel
 @APP.route("/channel/removeowner/v1", methods=['POST'])
 def channel_remove_owner():
     json = request.get_json()
@@ -162,6 +165,7 @@ def channel_messages():
     channel_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
     return dumps(channel_messages_v2(token, channel_id, start))
+
 
 ############ USER #################
 
@@ -198,6 +202,7 @@ def user_sethandle():
     resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
     return dumps(resp)
 
+
 ############ MESSAGE ############
 
 # Send a message from the authorised user to the channel specified by channel_id.
@@ -229,6 +234,7 @@ def message_senddm():
     resp = message_senddm_v1(json['token'], json['dm_id'], json['message'])
     return dumps(resp)
 
+
 ############ DM #################
 
 # Return basic details about the DM
@@ -238,7 +244,7 @@ def dm_details():
     dm_id = int(request.args.get('dm_id'))
     return dumps(dm_details_v1(token, dm_id))
 
-# Create DM
+# Create new DM
 @APP.route("/dm/create/v1", methods=['POST'])
 def dm_create():
     json = request.get_json()
@@ -247,6 +253,8 @@ def dm_create():
         'dm_id': resp['dm_id']
     })
 
+# Given a DM with ID dm_id that the authorised user is a member of, 
+# return up to 50 messages between index "start" and "start + 50"
 @APP.route ("/dm/messages/v1", methods=['GET'])
 def dm_message(): 
     token = (request.args.get('token'))
@@ -254,7 +262,7 @@ def dm_message():
     start = int(request.args.get('start'))
     return dumps(dm_messages_v1(token, dm_id, start))
 
-# List all DMs that the user is a member of
+# Returns the list of DMs that the user is a member of
 @APP.route("/dm/list/v1", methods=['GET'])
 def dm_list():
     return dumps(dm_list_v1(request.args.get('token')))
@@ -273,16 +281,18 @@ def dm_leave():
     resp = dm_leave_v1(json['token'], json['dm_id'])
     return dumps(resp)
 
+
 ############ ADMIN #################
 
-# Remove user
+# Given a user by their u_id, remove them from the Streams
 @APP.route("/admin/user/remove/v1", methods=['DELETE'])
 def admin_user_remove():
     json = request.get_json()
     resp = admin_user_remove_v1(json['token'], json['u_id'])
     return dumps(resp)
 
-# Change permission of the user
+# Given a user by their user ID, set their permissions to new 
+# permissions described by permission_id
 @APP.route("/admin/userpermission/change/v1", methods=['POST'])
 def admin_userpermission():
     json = request.get_json()

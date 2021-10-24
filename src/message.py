@@ -2,7 +2,7 @@
 Messages implementation
 '''
 
-from src.data_store import DATASTORE, initial_object
+from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_message_dict, check_valid_message
 from src.helper import check_valid_message_id, check_authorised_user_edit, check_valid_message_send_format
@@ -10,8 +10,25 @@ from src.server_helper import decode_token, valid_user
 import time
 
 def message_send_v1(token, channel_id, message):
-    
-    store = DATASTORE.get()
+    '''
+    Send a message from the authorised user to the channel specified by channel_id
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <channel_id>   (<int>)      - unique id of a channel
+        <message>      (<string>)   - the content of the message
+
+    Exceptions:
+        InputError      - Occurs when channel_id does not refer to a valid channel
+                        - Occurs when length of message is less than 1 or over 1000 characters
+
+        AccessError     - Occurs when the channel_id is valid and the authorised user is 
+                        not a member of the channel
+                        - Occurs when token is invalid
+    Return Value:
+        Returns <message_id> of a valid message
+    '''
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -30,10 +47,10 @@ def message_send_v1(token, channel_id, message):
         raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
 
     # Creating unique message_id 
-    message_id = (len(initial_object['messages']) * 2) + 1
+    message_id = (len(get_data()['messages']) * 2) + 1
 
     # Current time message was created and sent
-    time_created = time.time()
+    time_created = int(time.time())
 
     message_details_channels = {
         'message_id': message_id,
@@ -43,9 +60,10 @@ def message_send_v1(token, channel_id, message):
     }
 
     # Append dictionary of message details into initial_objects['channels']['messages']
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
             channel['messages'].insert(0, message_details_channels)
+            save()
 
     message_details_messages = {
         'message_id': message_id,
@@ -56,19 +74,36 @@ def message_send_v1(token, channel_id, message):
     }
 
     # Append dictionary of message details into intital_objects['messages']
-    initial_object['messages'].insert(0, message_details_messages)
-
-    DATASTORE.set(store)
+    get_data()['messages'].insert(0, message_details_messages)
+    save()
 
     return {
         'message_id': message_id
     }
 
-
 def message_edit_v1(token, message_id, message):
+    '''
+    Given a message, update its text with new text. 
 
-   
-    store = DATASTORE.get()
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+        <message>      (<string>)   - the new content of the message
+
+    Exceptions:
+        InputError      - Occurs when length of message is over 1000 characters
+                        - Occurs when message_id does not refer to a valid message within a channel/DM 
+                        that the authorised user has joined
+
+        AccessError     - Occurs when message_id refers to a valid message in a joined channel/DM 
+                        and none of the following are true:
+                        - The message was sent by the authorised user making this request
+                        - The authorised user has owner permissions in the channel/DM
+                        - Occurs when token is invalid
+    Return Value:
+        N/A
+    '''
+
     auth_user_id = decode_token(token)
     
     if not valid_user(token):
@@ -96,34 +131,53 @@ def message_edit_v1(token, message_id, message):
         raise AccessError(description="The user is unauthorised to edit the message.")
 
     if message == '':
-        messages = initial_object['messages']
+        messages = get_data()['messages']
         message_dict_remove = get_message_dict(message_id)
         messages.remove(message_dict_remove)
+        save()
 
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         for iterate_message in channel['messages']:
             if iterate_message['message_id'] == message_id:
                 if message == '':
                     channel['messages'].remove(iterate_message)
                 else:
                     iterate_message['message'] = message
+            save()
 
-
-    for dm in initial_object['dms']:
+    for dm in get_data()['dms']:
         for iterate_message in dm['messages']:
             if iterate_message['message_id'] == message_id:
                 if message == '':
                     dm['messages'].remove(iterate_message)
                 else:
                     iterate_message['message'] = message
+            save()
     
-    DATASTORE.set(store)
+    save()
     return {}
     
 
 def message_remove_v1(token, message_id):
-   
-    store = DATASTORE.get()
+    '''
+    Given a message_id for a message, this message is removed from the channel/DM
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+
+    Exceptions:
+        InputError      - Occurs when message_id does not refer to a valid message within 
+                        a channel/DM that the authorised user has joined
+
+        AccessError     - Occurs when message_id refers to a valid message in a joined channel/DM 
+                        and none of the following are true:
+                        - The message was sent by the authorised user making this request
+                        - The authorised user has owner permissions in the channel/DM
+                        - Occurs when token is invalid
+    Return Value:
+        N/A
+    '''
     
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -142,16 +196,17 @@ def message_remove_v1(token, message_id):
         raise AccessError(description="The user is unauthorised to edit the message.")
 
     # Given a message_id for a message, remove message from the channel/DM
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         for message in channel['messages']:
             if message['message_id'] == message_id:
                 channel['messages'].remove(message)
-
-    for dm in initial_object['dms']:
+                save()
+    
+    for dm in get_data()['dms']:
         for message in dm['messages']:
             if message['message_id'] == message_id:
                 dm['messages'].remove(message)
+                save()
 
-    DATASTORE.set(store)
-
+    save()
     return {}

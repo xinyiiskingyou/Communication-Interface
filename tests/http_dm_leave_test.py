@@ -61,8 +61,11 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
+##########################################
+############ dm_leave tests ##############
+##########################################
 
-
+# Access Error: Invalid token
 def test_leave_invalid_token(create_dm, register_user1):
     dm_id1 = create_dm['dm_id']
     token = register_user1['token']
@@ -77,7 +80,7 @@ def test_leave_invalid_token(create_dm, register_user1):
     })  
     assert respo.status_code == 403
 
-# dm_id does not refer to a valid DM
+# Input Error: dm_id does not refer to a valid DM
 def test_error_leave_dmid(creator): 
     
     token = creator['token']
@@ -116,7 +119,7 @@ def test_error_leave_dmid(creator):
     })  
     assert respo.status_code == 403
 
-# dm_id is valid and the authorised user is not a member of the DM
+# Access Error: dm_id is valid and the authorised user is not a member of the DM
 def test_dm_leave_not_a_member(create_dm):
 
     dm_id = create_dm['dm_id']
@@ -135,27 +138,45 @@ def test_dm_leave_not_a_member(create_dm):
     })  
     assert respo.status_code == 403
 
-def test_leave_invalid_dm_id(): 
-    requests.delete(config.url + "clear/v1")
-    creator = requests.post(config.url + "auth/register/v2", 
-        json = {
-            'email': 'abc@gmail.com',
-            'password': 'password',
-            'name_first': 'afirst',
-            'name_last': 'alast'
-        })
-    token = json.loads(creator.text)['token']
-    resp1 = requests.post(config.url + "dm/leave/v1", 
-        json = {
-            'token': token,
-            'dm_id': -1
-        })
-    assert resp1.status_code == 400
+# Access Error: Valid dm but authorised user is not a member of that dm
+def test_leave_invalid_dmid(creator, register_user3):
+    
+    user1_token = creator['token']
+    user2_token = register_user3['token']
 
+    # user 1 creates a dm
+    dm1 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': user1_token, 
+        'u_ids': []
+    })
+    assert dm1.status_code == 200
+    dm_id1 = json.loads(dm1.text)['dm_id']
+
+    respo1 = requests.post(config.url + "dm/leave/v1", json = { 
+        'token': user2_token, 
+        'dm_id': dm_id1
+    })  
+    assert respo1.status_code == 403
+    
+    # user2 creates a dm
+    dm2 = requests.post(config.url + "dm/create/v1", json = { 
+        'token': user2_token, 
+        'u_ids': []
+    })
+    assert dm2.status_code == 200
+    dm_id2 = json.loads(dm2.text)['dm_id']
+
+    assert dm_id1 != dm_id2
+
+    respo = requests.post(config.url + "dm/leave/v1", json = { 
+        'token': user1_token, 
+        'dm_id': dm_id2
+    })  
+    assert respo.status_code == 403
 
 ##### Implementation #####
 
-# valid case: member leaves dm
+# Valid case: member leaves dm
 def test_leave_http_valid(creator, register_user1): 
 
     token1 = creator['token']
@@ -174,7 +195,7 @@ def test_leave_http_valid(creator, register_user1):
     })  
     assert respo.status_code == 200
 
-# valid case: creator leaves dm
+# Valid case: creator leaves dm
 def test_leave_http_valid_owner(create_dm, creator):
 
     token = creator['token']
@@ -185,8 +206,7 @@ def test_leave_http_valid_owner(create_dm, creator):
     })  
     assert respo.status_code == 200
 
-
-# Creator has left the DM and the remaining members can also leave DM
+# Valid case: creator has left the DM and the remaining members can also leave DM
 def test_leave_creator_left(create_dm, creator, register_user1, register_user2, register_user3):
     dm_id = create_dm['dm_id']
     creator_token = creator['token']
@@ -204,7 +224,14 @@ def test_leave_creator_left(create_dm, creator, register_user1, register_user2, 
     })  
     assert id1_leave.status_code == 200
     
+    id2_leave = requests.post(config.url + "dm/leave/v1",json = { 
+        'token': register_user2['token'], 
+        'dm_id': dm_id,
+    })  
+    assert id2_leave.status_code == 200
 
-
-    
-
+    id3_leave = requests.post(config.url + "dm/leave/v1",json = { 
+        'token': register_user3['token'], 
+        'dm_id': dm_id,
+    })  
+    assert id3_leave.status_code == 200

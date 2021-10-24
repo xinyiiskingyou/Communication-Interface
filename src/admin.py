@@ -1,7 +1,11 @@
+'''
+Admin implementation
+'''
+
 from src.error import InputError, AccessError
 from src.helper import check_permision_id, channels_create_check_valid_user, check_number_of_owners, check_permission
 from src.helper import get_user_details, get_channel_message
-from src.data_store import DATASTORE, initial_object
+from src.data_store import get_data, save
 from src.server_helper import decode_token, valid_user
 
 def admin_user_remove_v1(token, u_id):
@@ -21,7 +25,7 @@ def admin_user_remove_v1(token, u_id):
     Return Value:
         N/A
     '''
-    store = DATASTORE.get()
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -38,9 +42,9 @@ def admin_user_remove_v1(token, u_id):
     user = check_number_of_owners(u_id)
     if user == 0:
         raise InputError(description='The u_id refers to a user who is the only global owner')
-    
+
     # remove users from channel
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         for member in channel['all_members']:
             if member['u_id'] == u_id:
                 channel['all_members'].remove(member)
@@ -49,24 +53,28 @@ def admin_user_remove_v1(token, u_id):
                 channel['owner_members'].remove(owner)
         message = get_channel_message(u_id, channel)
         message['message'] = 'Removed user'
+        save()
 
     # remove users from dm
-    for dm in initial_object['dms']:    
+    for dm in get_data()['dms']:    
         for member in dm['members']:
             if member['u_id'] == u_id:
                 dm['members'].remove(member)
-        if dm['creator']['u_id'] == u_id:
-            dm['creator'].clear()
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == u_id:
+                dm['creator'].clear()
         for message in dm['messages']:
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
+        save()
     
     #  the contents of the messages they sent will be replaced by 'Removed user'
-    for message in initial_object['messages']:
+    for message in get_data()['messages']:
         if message['u_id'] == u_id:
             message['message'] = 'Removed user'
+        save()
 
-    for user in initial_object['users']:
+    for user in get_data()['users']:
         if user['auth_user_id'] == u_id:
             # the user will not be included by user/all
             user['is_removed'] = True
@@ -77,9 +85,11 @@ def admin_user_remove_v1(token, u_id):
             # so that it can be reusable.
             user['handle_str'] = ''
             user['email'] = ''
+            # invalidate user's token
             user['session_list'].clear()
+            save()
 
-    DATASTORE.set(store)
+    save()
     return {}
 
 def admin_userpermission_change_v1(token, u_id, permission_id):
@@ -102,7 +112,6 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     Return Value:
         N/A
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -128,5 +137,5 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
 
     user = get_user_details(u_id)
     user['permission_id'] = permission_id
-    DATASTORE.set(store)
+    save()
     return {}

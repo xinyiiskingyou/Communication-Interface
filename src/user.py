@@ -1,8 +1,12 @@
+'''
+User implementation
+'''
+
 from src.server_helper import decode_token, valid_user
-from src.helper import check_valid_email, get_user_details, channels_create_check_valid_user
+from src.helper import check_valid_email, channels_create_check_valid_user
 from src.helper import user_info
 from src.error import AccessError, InputError
-from src.data_store import DATASTORE, initial_object
+from src.data_store import get_data, save
 
 def users_all_v1(token): 
     '''
@@ -13,6 +17,7 @@ def users_all_v1(token):
 
     Exceptions:
         InputError  - Occurs when u_id does not refer to a valid user
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns <auth_user_id> of valid user
@@ -26,7 +31,7 @@ def users_all_v1(token):
         raise AccessError(description='User is not valid')
 
     user_list = []
-    for user in initial_object['users']:
+    for user in get_data()['users']:
         if user['is_removed'] == False:
             user_list.append(user_info(user['auth_user_id']))
 
@@ -41,10 +46,10 @@ def user_profile_v1(token, u_id):
     Arguments:
         <token>     (<string>)    - an authorisation hash
         <u_id>      (<int>)       - an unique auth_user_id of the user to be added as an owner of the channel
-        ...
 
     Exceptions:
         InputError  - Occurs when u_id does not refer to a valid user
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns <auth_user_id> of valid user
@@ -71,17 +76,16 @@ def user_profile_setname_v1(token, name_first, name_last):
         <token>         (<string>)    - an authorisation hash
         <name_first>    (<string>)    - alphanumerical first name
         <name_last>     (<string>)    - alphanumerical first name
-        ...
 
     Exceptions:
         InputError  - Occurs when length of name_first is not between 1 and 50 characters inclusive
                     - Occurs when length of name_last is not between 1 and 50 characters inclusive
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns N/A
     '''
 
-    store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -94,12 +98,14 @@ def user_profile_setname_v1(token, name_first, name_last):
         raise InputError(description='name_last is not between 1 - 50 characters in length')
 
     auth_user_id = decode_token(token)
-    user = get_user_details(auth_user_id)
-    user['name_first'] = name_first
-    user['name_last'] = name_last
-
+    for user in get_data()['users']:
+        if user['auth_user_id'] == auth_user_id:
+            user['name_first'] = name_first
+            user['name_last'] = name_last
+            save()
+    
     # change user's first name and last name in channel
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         for member in channel['all_members']:
             if member['u_id'] == auth_user_id:
                 member['name_first'] = name_first
@@ -107,20 +113,22 @@ def user_profile_setname_v1(token, name_first, name_last):
         for owner in channel['owner_members']:
             if owner['u_id'] == auth_user_id:
                 owner['name_first'] = name_first
-                owner['name_last'] = name_last      
+                owner['name_last'] = name_last  
+        save()    
 
     # change user's first name and last name in dm
-    for dm in initial_object['dms']:
+    for dm in get_data()['dms']:
         for member in dm['members']:
             if member['u_id'] == auth_user_id:
                 member['name_first'] = name_first
-                member['name_last'] = name_last      
+                member['name_last'] = name_last    
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator']['name_first'] = name_first
                 dm['creator']['name_last'] = name_last  
+        save()
 
-    DATASTORE.set(store)
+    save()
     return {}
 
 def user_profile_setemail_v1(token, email):
@@ -134,12 +142,12 @@ def user_profile_setemail_v1(token, email):
     Exceptions:
         InputError  - Occurs when email entered is not a valid email
                     - Occurs when email address is already being used by another user
+        AccessError - Occurs when token is invalid
 
     Return Value:
         Returns N/A
     '''
 
-    store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -149,33 +157,39 @@ def user_profile_setemail_v1(token, email):
         raise InputError(description='Email entered is not a valid email')
 
     # email address is already being used by another user
-    for users in initial_object['users']:
+    for users in get_data()['users']:
         if users['email'] == email:
             raise InputError(description='Email address is already being used by another user')
 
     auth_user_id = decode_token(token)
-    user = get_user_details(auth_user_id)
-    user['email'] = email
+    for user in get_data()['users']:
+        if user['auth_user_id'] == auth_user_id:
+            user['email'] = email
+            save()
 
     # change user's first name and last name in channel
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         for member in channel['all_members']:
             if member['u_id'] == auth_user_id:
                 member['email'] = email
+                save()
         for owner in channel['owner_members']:
             if owner['u_id'] == auth_user_id:
                 owner['email'] = email
-    
+                save()
+
     # change user's first name and last name in dm
-    for dm in initial_object['dms']:
+    for dm in get_data()['dms']:
         for member in dm['members']:
             if member['u_id'] == auth_user_id:
                 member['email'] = email  
+                save()
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator']['email'] = email
+                save()
 
-    DATASTORE.set(store)
+    save()
     return {}
 
 def user_profile_sethandle_v1(token, handle_str):
@@ -190,12 +204,11 @@ def user_profile_sethandle_v1(token, handle_str):
         InputError  - Occurs when length of handle_str is not between 3 and 20 characters inclusive
                     - Occurs when handle_str contains characters that are not alphanumeric
                     - Occurs when the handle is already used by another user
-
+        AccessError - Occurs when token is invalid
     Return Value:
         Returns N/A
     '''
 
-    store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -210,30 +223,37 @@ def user_profile_sethandle_v1(token, handle_str):
         raise InputError(description='handle_str contains characters that are not alphanumeric')
 
     # the handle is already used by another user
-    for users in initial_object['users']:
+    for users in get_data()['users']:
         if users['handle_str'] == handle_str:
              raise InputError(description='The handle is already used by another user')
 
     auth_user_id = decode_token(token)
-    user = get_user_details(auth_user_id)
-    user['handle_str'] = handle_str
+
+    for user in get_data()['users']:
+        if user['auth_user_id'] == auth_user_id:
+            user['handle_str'] = handle_str
+            save()
 
     # change user's first name and last name in channel
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         for member in channel['all_members']:
             if member['u_id'] == auth_user_id:
                 member['handle_str'] = handle_str
+                save()
         for owner in channel['owner_members']:
             if owner['u_id'] == auth_user_id:
                 owner['handle_str'] = handle_str
+                save()
     
     # change user's first name and last name in dm
-    for dm in initial_object['dms']:
+    for dm in get_data()['dms']:
         for member in dm['members']:
             if member['u_id'] == auth_user_id:
                 member['handle_str'] = handle_str
+                save()
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator']['handle_str'] = handle_str
-    DATASTORE.set(store)
+                save()
+    save()
     return {}

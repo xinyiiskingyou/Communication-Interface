@@ -5,7 +5,7 @@ from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
 from src.helper import channels_create_check_valid_user, check_valid_owner, check_only_owner, check_global_owner
-from src.data_store import DATASTORE, initial_object
+from src.data_store import DATASTORE, save, get_data
 from src.server_helper import decode_token, valid_user
 
 def channel_invite_v2(token, channel_id, u_id):
@@ -33,8 +33,6 @@ def channel_invite_v2(token, channel_id, u_id):
     Return Value:
         N/A
     '''
-    
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -58,12 +56,12 @@ def channel_invite_v2(token, channel_id, u_id):
         raise InputError(description = 'u_id is already a member of the channel')
 
     new_user = user_info(u_id)
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
             # append the new user details to all_member
             channel['all_members'].append(new_user)
-
-    DATASTORE.set(store)
+            save()
+    save()
     return {}
 
 def channel_details_v2(token, channel_id):
@@ -90,6 +88,7 @@ def channel_details_v2(token, channel_id):
         Returns <owner_members> of valid channel requested by authorised user
         Returns <all_members> of valid channel requested by authorised user
     '''
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -138,10 +137,10 @@ def channel_messages_v2(token, channel_id, start):
         Returns <end> of valid channel requested by authorised user with valid starting index,
             -1 if function has returned the least recent messages in the channel
     '''
+
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
-    valid_user(token)
     auth_user_id = decode_token(token)
 
     # Invalid channel_id
@@ -152,12 +151,12 @@ def channel_messages_v2(token, channel_id, start):
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'Authorised user is not a member of channel with channel_id')
 
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
             num_messages = len(channel['messages'])
             message_pagination = channel['messages']
+            save()
             
-
     # if this function has returned the least recent messages in the channel,
     # returns -1 in "end" to indicate there are no more messages to load after this return
     end = start + 50
@@ -202,13 +201,12 @@ def channel_join_v2(token, channel_id):
     Return Value:
         N/A
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-
+    
     # Invalid channel_id
     if not isinstance(channel_id, int):
         raise InputError(description = 'This is an invalid channel_id')
@@ -228,8 +226,8 @@ def channel_join_v2(token, channel_id):
     new_user = user_info(auth_user_id)
     channel = get_channel_details(channel_id)
     channel['all_members'].append(new_user)
+    save()
 
-    DATASTORE.set(store)
     return {}
 
 def channel_leave_v1(token, channel_id):
@@ -251,7 +249,6 @@ def channel_leave_v1(token, channel_id):
         N/A
     '''
 
-    store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -271,11 +268,12 @@ def channel_leave_v1(token, channel_id):
     for member in channels['all_members']: 
         if member['u_id'] == auth_user_id:
             channels['all_members'].remove(member)
+            save()
     for owner in channels['owner_members']: 
         if owner['u_id'] == auth_user_id:
             channels['owner_members'].remove(owner)
-            
-    DATASTORE.set(store)
+            save()
+    save()
     return {}
 
 def channel_addowner_v1(token, channel_id, u_id):
@@ -300,7 +298,6 @@ def channel_addowner_v1(token, channel_id, u_id):
     Return Value:
         N/A
     '''
-    store = DATASTORE.get()
 
     # invalid token
     if not valid_user(token):
@@ -330,10 +327,11 @@ def channel_addowner_v1(token, channel_id, u_id):
         raise InputError(description = 'User is already an owner of the channel')
    
     user = user_info(u_id)
-    for channels in initial_object['channels']:
-        channels['owner_members'].append(user)
 
-    DATASTORE.set(store)
+    for channels in get_data()['channels']:
+        channels['owner_members'].append(user)
+        save()
+    save()
     return {}
 
 def channel_removeowner_v1(token, channel_id, u_id):
@@ -359,7 +357,6 @@ def channel_removeowner_v1(token, channel_id, u_id):
     Return Value:
         N/A
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -388,12 +385,10 @@ def channel_removeowner_v1(token, channel_id, u_id):
     if len(channel['owner_members']) == 1:
         raise InputError(description = 'The u_id refers to a user who is currently the only owner of the channel')
     
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         for owner in channel['owner_members']:
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
-
-    DATASTORE.set(store)
+                save()
+    save()
     return {}
-
-    

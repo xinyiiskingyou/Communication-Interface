@@ -61,6 +61,7 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
+# Access Error: invalid token
 def test_dm_remove_invalid_token(creator, create_dm):
 
     token = creator['token']
@@ -75,7 +76,7 @@ def test_dm_remove_invalid_token(creator, create_dm):
     })
     assert resp1.status_code == 403
 
-# invalid dm_id
+# Input Error: invalid dm_id
 def test_dm_remove_invalid_dm_id(creator):
 
     token = creator['token']
@@ -107,7 +108,7 @@ def test_dm_remove_invalid_dm_id(creator):
     })
     assert resp1.status_code == 403
 
-# dm_id is valid and the authorised user is not the original DM creator
+# Input Error: dm_id is valid and the authorised user is not the original DM creator
 def test_dm_remove_not_dm_creator(create_dm):
 
     dm_id = create_dm['dm_id']
@@ -125,7 +126,7 @@ def test_dm_remove_not_dm_creator(create_dm):
     })
     assert resp2.status_code == 403
 
-# access error when invalid dm_id and the token is not the original owner
+# Access Error: when invalid dm_id and the token is not the original owner
 def test_dm_remove_invalid_id_not_dm_creator(create_dm, register_user3):
 
     dm_id = create_dm['dm_id']
@@ -139,7 +140,39 @@ def test_dm_remove_invalid_id_not_dm_creator(create_dm, register_user3):
     })
     assert resp1.status_code == 400
 
-# valid case
+# Input Error: test after the creator left the dm and member cannot remove the dm
+def test_leave_dm(creator, register_user1):
+    
+    # create a dm with user2
+    creator_token = creator['token']
+    user2_id = register_user1['auth_user_id']
+
+    dm = requests.post(config.url + "dm/create/v1", json ={ 
+        'token': creator_token,
+        'u_ids': [user2_id]
+    })
+    dm_data = dm.json()
+    dm_id = dm_data['dm_id']
+
+    creator_leave = requests.post(config.url + "dm/leave/v1",json = { 
+        'token': creator_token, 
+        'dm_id': dm_id,
+    })  
+    assert creator_leave.status_code == 200
+
+    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': creator_token,
+        'dm_id': dm_id
+    })
+    assert resp1.status_code == 403
+
+    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': creator_token,
+        'dm_id': dm_id
+    })
+    assert resp1.status_code == 403
+
+# Valid case: able to remove dm
 def test_dm_remove_valid(creator, create_dm):
 
     token = creator['token']
@@ -150,3 +183,4 @@ def test_dm_remove_valid(creator, create_dm):
         'dm_id': dm_id
     })
     assert resp2.status_code == 200
+    

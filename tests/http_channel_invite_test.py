@@ -67,6 +67,7 @@ def test_invite_invalid_u_id(register_user, register_user1, create_channel):
     token = register_user['token']
     channel = create_channel['channel_id']
 
+    # Input Error: Invalid u_id
     invite = requests.post(config.url + "channel/invite/v2", json ={
         'token': token,
         'channel_id': channel,
@@ -74,8 +75,8 @@ def test_invite_invalid_u_id(register_user, register_user1, create_channel):
     })
     assert invite.status_code == 400
 
-    # Access error channel_id is valid and authorised user is not a member of the channel
-    # and the u_id is invalid
+    # Access error:  when channel_id and the u_id are valid 
+    #               but auth user is not a member of the channel
     user2_token = register_user1['token']
     invite = requests.post(config.url + "channel/invite/v2", json ={
         'token': user2_token,
@@ -84,7 +85,7 @@ def test_invite_invalid_u_id(register_user, register_user1, create_channel):
     })
     assert invite.status_code == 403
 
-    # access error: invalid token and invalid u_id
+    # Access error: invalid token and invalid u_id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -101,6 +102,7 @@ def test_invite_invalid_channel_id(register_user, register_user1):
     user_token = register_user['token']
     u_id = register_user1['auth_user_id']
 
+    # Input error: invalid channel_id
     invite = requests.post(config.url + "channel/invite/v2", json ={
         'token': user_token,
         'channel_id': -16,
@@ -108,7 +110,7 @@ def test_invite_invalid_channel_id(register_user, register_user1):
     })
     assert invite.status_code == 400
 
-    # access error: invalid token and invalid channel_id
+    # Access error: invalid token and invalid channel_id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': user_token
     })
@@ -118,15 +120,16 @@ def test_invite_invalid_channel_id(register_user, register_user1):
         'u_id': u_id
     })
     assert invite.status_code == 403
-    
+
+# u_id is alreay a member of the channel    
 def test_invite_already_member(register_user, create_channel, register_user1):
 
-    # create a user that has channel
+    # User1 is the channel_creator
     user1_token = register_user['token']
     user1_id = register_user['auth_user_id']
     channel_id = create_channel['channel_id']
 
-    # create 2 users that don't have channels
+    # User2 and User3 do not belong to this channel
     user2_id = register_user1['auth_user_id']
 
     user3 = requests.post(config.url + "auth/register/v2", json ={
@@ -138,7 +141,7 @@ def test_invite_already_member(register_user, create_channel, register_user1):
     user3_data = user3.json()
     user3_token = user3_data['token']
 
-    # test error when channel_id is valid but authorised user is not a member of the channel
+    # Access error: valid channel_id but auth user is not a member of the channel 
     channel_invite = requests.post(config.url + "channel/invite/v2", json ={
         'token': user3_token,
         'channel_id': channel_id,
@@ -146,7 +149,7 @@ def test_invite_already_member(register_user, create_channel, register_user1):
     })
     assert channel_invite.status_code == 403
 
-    # test error when u_id refers to a user who is already a member of the channel
+    # Input Error: u_id refers to a user who is already a member of the channel
     invite = requests.post(config.url + "channel/invite/v2", json ={
         'token': user1_token,
         'channel_id': channel_id,
@@ -154,7 +157,7 @@ def test_invite_already_member(register_user, create_channel, register_user1):
     })
     assert invite.status_code == 400
 
-    # access error: invalid token and u_id is already a member
+    # Access error: invalid token and u_id is already a member of the channel
     requests.post(config.url + "auth/logout/v1", json = {
         'token': user1_token
     })
@@ -165,11 +168,13 @@ def test_invite_already_member(register_user, create_channel, register_user1):
     })
     assert invite.status_code == 403
 
+##### Implementation #####
+
+# channel creator invites a user that is not a member of the channel
 def test_valid_channel_invite(register_user, create_channel, register_user1):
 
     token = register_user['token']
     channel_id = create_channel['channel_id']
-    # invite an user that is not a member of the channel
     u_id = register_user1['auth_user_id']
 
     invite = requests.post(config.url + "channel/invite/v2", json ={
