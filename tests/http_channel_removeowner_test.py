@@ -3,6 +3,8 @@ import requests
 import json
 from src import config 
 
+
+###fixtures###
 @pytest.fixture
 def register_user():
 
