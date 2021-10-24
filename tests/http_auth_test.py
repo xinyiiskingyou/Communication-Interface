@@ -134,7 +134,8 @@ def test_reg_handle_h():
     assert handle1 == 'annapark'
 
     handle2 = json.loads(profile2.text)['users'][1]['handle_str']
-    assert handle2 == 'annapark0'
+
+    assert handle1 != handle2
 
 ##########################################
 ############ auth_login tests ############
