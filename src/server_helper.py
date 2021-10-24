@@ -4,10 +4,6 @@ SESS_COUNTER = 0
 SECRET = "CAMEL"
 
 from src.data_store import get_data
-#################################################
-######### Helper functions for auth.py ##########
-#################################################
-
 
 def generate_sess_id():
     global SESS_COUNTER
