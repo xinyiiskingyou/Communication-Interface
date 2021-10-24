@@ -33,6 +33,20 @@ initial_object = {
     'complete_dms': []
 }
 
+
+##### Persistence ##### 
+def get_data():
+    global initial_object
+    if os.path.exists('database.json'):
+        initial_object = json.load(open('database.json', 'r'))
+    return initial_object
+
+def save():
+    data = get_data()
+    with open('database.json', 'w') as FILE:
+        json.dump(data, FILE)
+
+
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
 class Datastore:
