@@ -4,7 +4,7 @@ import time
 SESS_COUNTER = 0
 SECRET = "CAMEL"
 
-from src.data_store import initial_object
+from src.data_store import get_data
 #################################################
 ######### Helper functions for auth.py ##########
 #################################################
@@ -46,8 +46,8 @@ def decode_token_session_id(token):
 
 # Finding valid user form token
 def valid_user(token):
-
-    for user in initial_object['users']:
+    
+    for user in get_data()['users']:
         if user['auth_user_id'] == decode_token(token):
             for session in range(len(user['session_list'])):
                 if (user['session_list'][session]) == decode_token_session_id(token):

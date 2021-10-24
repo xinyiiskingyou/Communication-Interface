@@ -1,7 +1,7 @@
 '''
 Channels implementation
 '''
-from src.data_store import DATASTORE, initial_object
+from src.data_store import DATASTORE, get_data, save
 from src.error import InputError, AccessError
 from src.helper import user_info, get_channel_member
 from src.server_helper import decode_token, valid_user
@@ -23,17 +23,14 @@ def channels_list_v2(token):
         is part of are successfully listed by authorised user
     '''
 
-    store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
     
     auth_user_id = decode_token(token)
     new_list = []
-    for channel in initial_object['channels']:
+    for channel in get_data()['channels']:
         if get_channel_member(auth_user_id, channel):
             new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})
-
-    DATASTORE.set(store)
 
     # return to the new list
     return {
@@ -56,15 +53,13 @@ def channels_listall_v2(token):
         Returns <{channels}> when all channels (and its details) in Streams
         are successfully listed by authorised user
     '''
-    store = DATASTORE.get()
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     listchannel = []
-    for channels in initial_object['channels']:
+    for channels in get_data()['channels']:
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
 
-    DATASTORE.set(store)
     return {
         'channels': listchannel
     }
@@ -88,7 +83,6 @@ def channels_create_v2(token, name, is_public):
     Return Value:
         Returns <{channel_id}> when the channel is sucessfully created
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
@@ -101,23 +95,22 @@ def channels_create_v2(token, name, is_public):
     if name[0] == ' ':
         raise InputError(description='Name cannot be blank')
 
-    channels = initial_object['channels']
+    channels = get_data()['channels']
 
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
 
     user = user_info(auth_user_id)
-    new = {
+    get_data()['channels'].append({
         'channel_id': channel_id,
         'name': name,
         'is_public': bool(is_public),
         'owner_members': [user],
         'all_members': [user],
         'messages': []
-    }
-    channels.append(new)
-    DATASTORE.set(store)
+    })
 
+    save()
     return {
         'channel_id': channel_id,
     }

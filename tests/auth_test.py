@@ -77,6 +77,7 @@ def test_incorrect_password():
 ###########################################################
 
 # Register two users and log them in
+clear_v1()
 user1_reg = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
 user1_log = auth_login_v2('abc@unsw.edu.au', 'password')
 

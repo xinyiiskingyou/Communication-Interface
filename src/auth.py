@@ -1,9 +1,10 @@
 '''
 Auth implementation
 '''
+from os import initgroups
 import re
 import hashlib
-from src.data_store import DATASTORE, initial_object
+from src.data_store import DATASTORE, get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
 from src.server_helper import decode_token, decode_token_session_id, valid_user
@@ -25,12 +26,13 @@ def auth_login_v2(email, password):
     '''
 
     # Iterate through the initial_object list
-    for user in initial_object['users']:
+    for user in get_data()['users']:
         # If the email and password the user inputs to login match and exist in data_store
         if (user['email'] == email) and (user['password'] == hashlib.sha256(password.encode()).hexdigest()):
             session_id = generate_sess_id()
             user['session_list'].append(session_id)
             auth_user_id = user['auth_user_id']
+            save()
             return {
                 'token': generate_token(auth_user_id, session_id),
                 'auth_user_id': auth_user_id
@@ -50,18 +52,17 @@ def auth_logout_v1(token):
     Return Value:
         N/A
     '''
-    store = DATASTORE.get()
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
     session_id = decode_token_session_id(token)
-    for user in initial_object['users']:
+    for user in get_data()['users']:
         if user['auth_user_id'] == auth_user_id:
             user['session_list'].remove(session_id)
+            save()
 
-    DATASTORE.set(store)
     return {}
 
 def auth_register_v2(email, password, name_first, name_last):
@@ -86,15 +87,13 @@ def auth_register_v2(email, password, name_first, name_last):
         Returns <{auth_user_id, token}> when user successfully creates a new account in Streams
     '''
 
-    store = DATASTORE.get()
-
     # Error handling
     search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
     if not re.search(search, email):
         raise InputError(description='This email is of invalid form')
 
     # Check for duplicate emails
-    for user in initial_object['users']:
+    for user in get_data()['users']:
         if user['email'] == email:
             raise InputError(description='This email address has already been registered')
 
@@ -111,7 +110,7 @@ def auth_register_v2(email, password, name_first, name_last):
         raise InputError(description='name_last is not between 1 - 50 characters in length')
 
     # Creating unique auth_user_id and hashing and encoding the token and password
-    auth_user_id = len(initial_object['users']) + 1
+    auth_user_id = len(get_data()['users']) + 1
 
     session_id = generate_sess_id()
     token = generate_token(auth_user_id, session_id)
@@ -129,8 +128,8 @@ def auth_register_v2(email, password, name_first, name_last):
     # Check for duplicate handles
     num_dup = 0
     i = 0
-    while i < len(initial_object['users']):
-        user = initial_object['users'][i]
+    while i < len(get_data()['users']):
+        user = get_data()['users'][i]
         if user['handle_str'] == handle:
             handle = handle[0:new_len]
             handle = handle[0:20] + str(num_dup)
@@ -147,7 +146,7 @@ def auth_register_v2(email, password, name_first, name_last):
 
     is_removed = False
     # Then append dictionary of user email onto initial_objects
-    initial_object['users'].append({
+    get_data()['users'].append({
         'email' : email,
         'password': password,
         'name_first': name_first,
@@ -159,7 +158,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'is_removed': bool(is_removed),
     })
 
-    DATASTORE.set(store)
+    save()
     return {
         'token': token,
         'auth_user_id': auth_user_id
