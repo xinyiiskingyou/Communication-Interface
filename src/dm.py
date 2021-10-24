@@ -215,6 +215,7 @@ def dm_leave_v1(token, dm_id):
             for member in dm['members']:
                 if member['u_id'] == auth_user_id: 
                     dm['members'].remove(newuser)
+            #clearing the creator if the creator leaves 
             if len(dm['creator']) > 0:
                 if dm['creator']['u_id'] == auth_user_id:
                     dm['creator'].clear()
