@@ -206,9 +206,5 @@ def test_leave_creator_left(create_dm, creator, register_user1, register_user2, 
     
 
 
-
-
-
-
     
 
