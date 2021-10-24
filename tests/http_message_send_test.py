@@ -197,6 +197,7 @@ def test_message_send_valid_one_channel(register_user1, user1_channel_id, regist
         'message': 'general kenobi'
     })
     message_id2 = json.loads(send_message2.text)['message_id']
+    
     assert send_message2.status_code == 200
     assert message_id1 != message_id2
 

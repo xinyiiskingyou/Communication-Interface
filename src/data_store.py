@@ -44,10 +44,9 @@ def get_data():
     return initial_object
 
 def save():
-    data = get_data()
+    global initial_object
     with open('database.json', 'w') as FILE:
-        json.dump(data, FILE)
-    
+        json.dump(initial_object, FILE)
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 

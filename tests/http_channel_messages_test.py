@@ -222,7 +222,6 @@ def test_channel_messages_start0__no_least_recent(register_user, create_channel)
         'channel_id': channel1_id,
         'start': 0
     })
-
     messages_start = json.loads(messages.text)['start']
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 0
