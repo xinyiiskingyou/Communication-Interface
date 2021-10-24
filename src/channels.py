@@ -56,6 +56,7 @@ def channels_listall_v2(token):
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
+    # append all the channels into listchannel
     listchannel = []
     for channels in get_data()['channels']:
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
