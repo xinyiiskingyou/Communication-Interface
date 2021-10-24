@@ -29,6 +29,9 @@ def channels_list_v2(token):
     
     auth_user_id = decode_token(token)
     new_list = []
+
+    # append the channel information to the list
+    # if the user is part of this channel
     for channel in initial_object['channels']:
         if get_channel_member(auth_user_id, channel):
             new_list.append({'channel_id' : channel['channel_id'], 'name': channel['name']})
@@ -60,6 +63,7 @@ def channels_listall_v2(token):
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
+    # append all the channels into listchannel
     listchannel = []
     for channels in initial_object['channels']:
         listchannel.append({'channel_id' : channels['channel_id'], "name": channels['name']})
