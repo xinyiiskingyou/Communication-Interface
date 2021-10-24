@@ -47,7 +47,7 @@ def save():
     data = get_data()
     with open('database.json', 'w') as FILE:
         json.dump(data, FILE)
-
+    
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 

@@ -64,6 +64,7 @@ def test_invalid_leave_channel_id(register_user):
 
     token = register_user['token']
 
+    # Input error: invalid channel_id
     leave = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token, 
         'channel_id': -1
@@ -76,7 +77,7 @@ def test_invalid_leave_channel_id(register_user):
     }) 
     assert leave.status_code == 400
 
-    # access error: invalid token and invalid channel_id
+    # Access error: invalid token and invalid channel_id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -86,9 +87,10 @@ def test_invalid_leave_channel_id(register_user):
     }) 
     assert leave1.status_code == 403
 
-# channel_id is valid and the authorised user is not a member of the channel
+# Access error: valid channel_idd but the authorised user is not a member of the channel
 def test_invalid_leave_not_member(register_user1, create_channel):
 
+    # token doesn't not refer to any member in this channel
     token = register_user1['token']
     channel_id1 = create_channel['channel_id']
 
@@ -112,7 +114,8 @@ def test_invalid_leave_not_member(register_user1, create_channel):
     assert leave.status_code == 403
 
 ###### Implementation ######
-# remove the member of the channel
+
+# Valid case: remove the member of the channel
 def test_channel_leave_valid(register_user, register_user1, create_channel): 
 
     token1 = register_user['token']
@@ -120,7 +123,7 @@ def test_channel_leave_valid(register_user, register_user1, create_channel):
     assert token1 != token2
     channel_id1 = create_channel['channel_id']
 
-    # add token2 to the channel
+    # token2 joins the channel
     join = requests.post(config.url + "channel/join/v2", json ={ 
         'token': token2, 
         'channel_id': channel_id1
@@ -134,7 +137,7 @@ def test_channel_leave_valid(register_user, register_user1, create_channel):
     })  
     assert respo.status_code == 200
 
-# remove the only owner of the channel and the channel will remain
+# Valid case: remove the only owner of the channel and the channel will remain
 def test_channel_leave_valid1(register_user, register_user1, create_channel): 
 
     token1 = register_user['token']
@@ -142,7 +145,7 @@ def test_channel_leave_valid1(register_user, register_user1, create_channel):
 
     channel_id1 = create_channel['channel_id']
 
-    # add token2 to the channel
+    # token2 joins the channel
     respo1 = requests.post(config.url + "channel/join/v2", json ={ 
         'token': token2, 
         'channel_id': channel_id1
@@ -156,26 +159,29 @@ def test_channel_leave_valid1(register_user, register_user1, create_channel):
     })  
     assert respo.status_code == 200
 
+# Valid case: The only channel owner leaves and rejoins the channel as a member
 def test_owner_leave_add(register_user, register_user1, create_channel): 
     token1 = register_user['token']
     token2 = register_user1['token']
 
     channel_id1 = create_channel['channel_id']
 
-        # add token2 to the channel
+    # token2 joins to the channel
     respo1 = requests.post(config.url + "channel/join/v2", json ={ 
         'token': token2, 
         'channel_id': channel_id1
     })   
     assert respo1.status_code == 200
 
-    # the only owner leaves the channel
+    # the only owner token1 leaves the channel
     leave = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token1, 
         'channel_id': channel_id1
     })  
     assert leave.status_code == 200
 
+    # token1 rejoins the channel and is the member of channel
+    # token1 is not a owner of the channel
     join = requests.post(config.url + "channel/join/v2", json = { 
         'token': token1, 
         'channel_id': channel_id1
