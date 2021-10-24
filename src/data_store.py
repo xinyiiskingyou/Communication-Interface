@@ -36,12 +36,7 @@ initial_object = {
     'complete_dms': []
 }
 
-<<<<<<< HEAD
-
-##### Persistence ##### 
-=======
 ##### Persistence #####
->>>>>>> master
 def get_data():
     global initial_object
     if os.path.exists('database.json'):
@@ -49,16 +44,9 @@ def get_data():
     return initial_object
 
 def save():
-<<<<<<< HEAD
-    data = get_data()
-    with open('database.json', 'w') as FILE:
-        json.dump(data, FILE)
-
-=======
     global initial_object
     with open('database.json', 'w') as FILE:
         json.dump(initial_object, FILE)
->>>>>>> master
 
 ## YOU SHOULD MODIFY THIS OBJECT ABOVE
 
