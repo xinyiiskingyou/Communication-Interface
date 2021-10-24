@@ -93,13 +93,14 @@ def test_dm_details_not_valid():
         'name_last': 'wong'
     })
     token1 = json.loads(user1.text)['token']
+
+    #empty dm 
     dm1 = requests.post(config.url + "dm/create/v1",
         json = { 
             'token': token,
             'u_ids': []
         })
     dm_id = json.loads(dm1.text)['dm_id']
-
     resp1 = requests.get(config.url + "dm/details/v1", 
         params = { 
             'token': token1,
@@ -231,32 +232,3 @@ def test_http_dm_details_valid(creator, register_user1):
     })
     assert resp1.status_code == 200 
 
-# def test_dm_details_coverage(global_owner, create_dm):
-
-#     # user 1 creates a channel
-#     user1_token = global_owner['token']
-#     user1_id = global_owner['auth_user_id']
-#     dm_id = create_dm['dm_id']
-
-#     user1 = requests.post(config.url + "auth/register/v2", json ={
-#         'email': 'abcde@gmail.com',
-#         'password': 'passef',
-#         'name_first': 'ashley',
-#         'name_last': 'wong'
-#     })
-
-#     token1 = json.loads(user1.text)['token']
-#     user2_id = json.loads(user1.text)['auth_user_id']
-
-#     dm1 = requests.post(config.url + "dm/create/v1", json = { 
-#         'token': user1_token,
-#         'u_ids': [user2_id]
-#     })
-    
-#     dm_id1 = json.loads(dm1.text)['dm_id']
-
-#     resp1 = requests.get(config.url + "dm/details/v1", params = { 
-#         'token': user1_token,
-#         'dm_id': dm_id1
-#     })
-#     assert resp1.status_code == 200 
