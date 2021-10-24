@@ -3,6 +3,9 @@ import requests
 import json
 from src import config 
 
+
+
+###Fixtures###
 @pytest.fixture
 def creator():
     requests.delete(config.url + "clear/v1")
