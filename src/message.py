@@ -19,12 +19,12 @@ def message_send_v1(token, channel_id, message):
         <message>      (<string>)   - the content of the message
 
     Exceptions:
-        InputError  - Occurs when channel_id does not refer to a valid channel
-                    - Occurs when length of message is less than 1 or over 1000 characters
+        InputError      - Occurs when channel_id does not refer to a valid channel
+                        - Occurs when length of message is less than 1 or over 1000 characters
 
-        AccessError - Occurs when the channel_id is valid and the authorised user is 
-                    not a member of the channel
-                    - Occurs when token is invalid
+        AccessError     - Occurs when the channel_id is valid and the authorised user is 
+                        not a member of the channel
+                        - Occurs when token is invalid
     Return Value:
         Returns <message_id> of a valid message
     '''
@@ -91,15 +91,15 @@ def message_edit_v1(token, message_id, message):
         <message>      (<string>)   - the new content of the message
 
     Exceptions:
-        InputError  - Occurs when length of message is over 1000 characters
-                    - Occurs when message_id does not refer to a valid message within a channel/DM 
-                    that the authorised user has joined
+        InputError      - Occurs when length of message is over 1000 characters
+                        - Occurs when message_id does not refer to a valid message within a channel/DM 
+                        that the authorised user has joined
 
-        AccessError - Occurs when message_id refers to a valid message in a joined channel/DM 
-                    and none of the following are true:
-                        -  the message was sent by the authorised user making this request
-                        -  the authorised user has owner permissions in the channel/DM
-                    - Occurs when token is invalid
+        AccessError     - Occurs when message_id refers to a valid message in a joined channel/DM 
+                        and none of the following are true:
+                        - The message was sent by the authorised user making this request
+                        - The authorised user has owner permissions in the channel/DM
+                        - Occurs when token is invalid
     Return Value:
         N/A
     '''
@@ -130,6 +130,7 @@ def message_edit_v1(token, message_id, message):
     if not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError(description="The user is unauthorised to edit the message.")
 
+
     if message == '':
         messages = initial_object['messages']
         message_dict_remove = get_message_dict(message_id)
@@ -155,6 +156,7 @@ def message_edit_v1(token, message_id, message):
     DATASTORE.set(store)
     return {}
     
+
 def message_remove_v1(token, message_id):
     '''
     Given a message_id for a message, this message is removed from the channel/DM
@@ -164,14 +166,14 @@ def message_remove_v1(token, message_id):
         <message_id>   (<int>)      - unique id of a message
 
     Exceptions:
-        InputError  - Occurs when message_id does not refer to a valid message within 
-                    a channel/DM that the authorised user has joined
+        InputError      - Occurs when message_id does not refer to a valid message within 
+                        a channel/DM that the authorised user has joined
 
-        AccessError - Occurs when message_id refers to a valid message in a joined channel/DM 
-                    and none of the following are true:
-                        -  the message was sent by the authorised user making this request
-                        -  the authorised user has owner permissions in the channel/DM
-                    - Occurs when token is invalid
+        AccessError     - Occurs when message_id refers to a valid message in a joined channel/DM 
+                        and none of the following are true:
+                        - The message was sent by the authorised user making this request
+                        - The authorised user has owner permissions in the channel/DM
+                        - Occurs when token is invalid
     Return Value:
         N/A
     '''
@@ -199,6 +201,7 @@ def message_remove_v1(token, message_id):
             if message['message_id'] == message_id:
                 channel['messages'].remove(message)
 
+    
     for dm in initial_object['dms']:
         for message in dm['messages']:
             if message['message_id'] == message_id:

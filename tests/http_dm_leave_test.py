@@ -80,7 +80,7 @@ def test_leave_invalid_token(create_dm, register_user1):
     })  
     assert respo.status_code == 403
 
-# dm_id does not refer to a valid DM
+# Input Error: dm_id does not refer to a valid DM
 def test_error_leave_dmid(creator): 
     
     token = creator['token']
@@ -119,7 +119,7 @@ def test_error_leave_dmid(creator):
     })  
     assert respo.status_code == 403
 
-# dm_id is valid and the authorised user is not a member of the DM
+# Access Error: dm_id is valid and the authorised user is not a member of the DM
 def test_dm_leave_not_a_member(create_dm):
 
     dm_id = create_dm['dm_id']
@@ -138,6 +138,7 @@ def test_dm_leave_not_a_member(create_dm):
     })  
     assert respo.status_code == 403
 
+# Access Error: Valid dm but authorised user is not a member of that dm
 def test_leave_invalid_dmid(creator, register_user3):
     
     user1_token = creator['token']
@@ -175,7 +176,7 @@ def test_leave_invalid_dmid(creator, register_user3):
 
 ##### Implementation #####
 
-# valid case: member leaves dm
+# Valid case: member leaves dm
 def test_leave_http_valid(creator, register_user1): 
 
     token1 = creator['token']
@@ -194,7 +195,7 @@ def test_leave_http_valid(creator, register_user1):
     })  
     assert respo.status_code == 200
 
-# valid case: creator leaves dm
+# Valid case: creator leaves dm
 def test_leave_http_valid_owner(create_dm, creator):
 
     token = creator['token']
@@ -205,7 +206,7 @@ def test_leave_http_valid_owner(create_dm, creator):
     })  
     assert respo.status_code == 200
 
-# Creator has left the DM and the remaining members can also leave DM
+# Valid case: creator has left the DM and the remaining members can also leave DM
 def test_leave_creator_left(create_dm, creator, register_user1, register_user2, register_user3):
     dm_id = create_dm['dm_id']
     creator_token = creator['token']

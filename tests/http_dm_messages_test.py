@@ -192,7 +192,7 @@ def test_dm_message_not_a_member(create_dm):
     })
     assert resp.status_code == 403
 
-# length of message is less than 1 or over 1000 characters
+# Input Error: length of message is less than 1 or over 1000 characters
 def test_message_send_dm_invalid_length(creator, create_dm):
 
     user1_token = creator['token']
@@ -230,7 +230,7 @@ def test_message_send_dm_invalid_length(creator, create_dm):
     })
     assert resp.status_code == 403
 
-# valid case
+# Valid case: when start is 0
 def test_dm_message_valid_start0(creator, register_user1): 
 
     user1_token = creator['token']
@@ -264,6 +264,7 @@ def test_dm_message_valid_start0(creator, register_user1):
 
     assert message.status_code == 200 
 
+# Valid case: sending 50 messages
 def test_dm_message_valid_recent_exact(creator, register_user1): 
 
     user1_token = creator['token']
@@ -296,6 +297,7 @@ def test_dm_message_valid_recent_exact(creator, register_user1):
     assert message_end == -1 
     assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_EXACT
  
+# Valid case: sending 100 messages
 def test_dm_message_valid_no_recent(creator, register_user1): 
 
     user1_token = creator['token']
@@ -329,6 +331,7 @@ def test_dm_message_valid_no_recent(creator, register_user1):
 
     assert message.status_code == 200 
 
+# Valid case: sending 25 messages
 def test_dm_message_valid_neither(creator, register_user1): 
 
     user1_token = creator['token']
@@ -362,7 +365,7 @@ def test_dm_message_valid_neither(creator, register_user1):
 
     assert message.status_code == 200 
 
-##empty 
+# Valid case: no messages
 def test_dm_message_valid_empty(creator, register_user1): 
 
     user1_token = creator['token']

@@ -93,7 +93,7 @@ def check_valid_channel_id(channel_id):
             return True
     return False
 
-# Helper function 
+# Helper function for channels_list
 # Checks if user is a member of the channel
 def get_channel_member(auth_user_id, channel):
     for member in channel['all_members']:
@@ -147,7 +147,11 @@ def check_permision_id(auth_user_id):
                 return True
     return False
 
-# checking if the user is an owner
+
+# Helper function for channel_join
+# Check if the user is an owner of the channel
+# Returns true if owner
+# Returns false otherwise
 def check_valid_owner(auth_user_id, channel_id):
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
@@ -156,6 +160,11 @@ def check_valid_owner(auth_user_id, channel_id):
                     return True
     return False
 
+
+# Helper function for channel_removeowner
+# Check if there is only one owner left in channel
+# Returns true only one owner left
+# Returns false otherwise
 def check_only_owner(auth_user_id, channel_id):
     for channels in initial_object['channels']:
         if channels['channel_id'] == channel_id:
@@ -163,7 +172,11 @@ def check_only_owner(auth_user_id, channel_id):
                 if member['u_id'] == auth_user_id:
                     return channels
 
-# Helper function that checks if auth_user_id is a global owner
+
+# Helper function for channel_addowner, channel_removeowner
+# Checks if auth_user_id is a global owner
+# Returns true if global owner
+# Returns false otherwise
 def check_global_owner(auth_user_id):
     for user in initial_object['users']:
         if user['auth_user_id'] != auth_user_id:
@@ -172,13 +185,21 @@ def check_global_owner(auth_user_id):
             return True
     return False
 
+
+# Helper function for admin_user_remove
+# Gets messages of a user in channels
+# Returns message if found
+# Returns empty dict otherwise
 def get_channel_message(u_id, channel):
     for message in channel['messages']:
         if message['u_id'] == u_id:
             return message
     return {}
 
-# checking valid email
+# Helper function for user_profile_setemail
+# Checks valid email
+# Returns true if valid
+# Returns empty dict otherwise
 def check_valid_email(email):
     '''
     check if the email is valid
@@ -188,6 +209,9 @@ def check_valid_email(email):
         return True
     return False
 
+# Helper function for admin_user_remove, admin_userpermisisons_change
+# Checks number of owners of a channel
+# Returns number
 def check_number_of_owners(u_id):
     number = 0
     for user in initial_object['users']:
@@ -197,8 +221,11 @@ def check_number_of_owners(u_id):
             number += 1
     return number
 
+# Helper function for channel_join, admin_user_remove
+# Checks permissions of a user
+# Returns true if valid
+# Returns false otherwise
 def check_permission(u_id, permission_id):
-
     for user in initial_object['users']:
         if user['auth_user_id'] != u_id:
             continue
@@ -322,7 +349,8 @@ def check_authorised_user_edit(auth_user_id, message_id):
         return False
 
 
-# return a dictionary of dm with given dm_id
+# Helper function for message_edit
+# Returns a dictionary of dm with given dm_id
 def get_message_dict(message_id):
     '''
     return type: dictionary
@@ -331,6 +359,9 @@ def get_message_dict(message_id):
         if message['message_id'] == message_id:
             return message
 
+# Helper function for message_Edit
+# Returns true if valid message length
+# Returns false otherwise
 def check_valid_message_send_format(message):
     len_message = len(message)
     if len_message > 1000:
@@ -343,6 +374,10 @@ def check_valid_message_send_format(message):
 ######## Helper functions for dm.py      ########
 #################################################
 
+
+# Helper function for dm_details, dm_leave, dm_messages, messages_senddm
+# Returns true if valid memeber in dm
+# Returns false otherwise
 def check_valid_member_in_dm(dm_id, auth_user_id):
     '''
     return type: bool
@@ -354,9 +389,10 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
                     return True
     return False
 
-# Checks if message is invalid 
-# Returns false if length of message is less than 1 or over 1000 characters
-# Returns true otherwise
+
+# Helper function for message_senddm
+# Returns true if valid message length
+# Returns false otherwise
 def check_valid_message(message):
     len_message = len(message)
     if len_message > 1000 or len_message < 1:
@@ -364,7 +400,8 @@ def check_valid_message(message):
     else:
         return True 
 
-# get the handle of the authorised user
+# Helper function for dm_create
+# Returns handle of user
 def get_handle(auth_user_id):
     '''
     return type: <string>
@@ -373,7 +410,9 @@ def get_handle(auth_user_id):
         if user['auth_user_id'] == auth_user_id:
             return user['handle_str']
 
-# check if the user is the creator of the given dm
+# Helper function for dm_remove
+# Returns true if creator of dm
+# Returns false otherwise
 def check_creator(auth_user_id):
     '''
     return type: bool
@@ -384,7 +423,9 @@ def check_creator(auth_user_id):
                 return True
     return False
 
-# check valid dm
+# Helper function for dm_remove, dm_details, dm_leave, dm_messages, message_senddm
+# Returns true if dm exists
+# Returns false otherwise
 def check_valid_dm(dm_id):
     '''
     return type: bool
@@ -394,7 +435,8 @@ def check_valid_dm(dm_id):
             return True
     return False
 
-# return a dictionary of dm with given dm_id
+# Helper function for dm_remove, dm_details, dm_messages, message_send_dm
+# Returns a dict of dm if given dm_id exists
 def get_dm_dict(dm_id):
     '''
     return type: dictionary
