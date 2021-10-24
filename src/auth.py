@@ -1,10 +1,9 @@
 '''
 Auth implementation
 '''
-from os import initgroups
 import re
 import hashlib
-from src.data_store import DATASTORE, get_data, save
+from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
 from src.server_helper import decode_token, decode_token_session_id, valid_user
@@ -25,7 +24,7 @@ def auth_login_v2(email, password):
         Returns <{auth_user_id, token}> when user successfully logins into Streams
     '''
 
-    # Iterate through the initial_object list
+    # Iterate through the users list
     for user in get_data()['users']:
         # If the email and password the user inputs to login match and exist in data_store
         if (user['email'] == email) and (user['password'] == hashlib.sha256(password.encode()).hexdigest()):
@@ -53,6 +52,7 @@ def auth_logout_v1(token):
         N/A
     '''
 
+    # Access error when token in invalid
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -60,6 +60,7 @@ def auth_logout_v1(token):
     session_id = decode_token_session_id(token)
     for user in get_data()['users']:
         if user['auth_user_id'] == auth_user_id:
+            # invalidate the user's token and session_id
             user['session_list'].remove(session_id)
             save()
 
@@ -144,7 +145,9 @@ def auth_register_v2(email, password, name_first, name_last):
     else:
         permission_id = 2
 
+    # all the users are not be removed when they register
     is_removed = False
+
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
         'email' : email,
@@ -157,8 +160,8 @@ def auth_register_v2(email, password, name_first, name_last):
         'permission_id' : permission_id,
         'is_removed': bool(is_removed),
     })
-
     save()
+
     return {
         'token': token,
         'auth_user_id': auth_user_id

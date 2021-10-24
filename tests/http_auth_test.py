@@ -7,7 +7,7 @@ from src import config
 ########### auth_register tests ##########
 ##########################################
 
-# Input error for invalid email
+# Input error for invalid email format
 def test_reg_invalid_email_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", json = {
@@ -34,6 +34,7 @@ def test_reg_duplicate_email_h():
         'name_first': 'anna',
         'name_last': 'park'
     })
+    assert resp1.status_code == 200
 
     resp2 = requests.post(config.url + "auth/register/v2", json = {
         'email': 'abc@gmail.com',
@@ -41,9 +42,7 @@ def test_reg_duplicate_email_h():
         'name_first': 'john',
         'name_last': 'doe'
     }) 
-
-    if resp1 == resp2:
-        assert resp2.status_code == 400
+    assert resp2.status_code == 400
 
 # Input error for invalid password
 def test_reg_invalid_password_h():
@@ -56,7 +55,7 @@ def test_reg_invalid_password_h():
     }) 
     assert resp1.status_code == 400 
 
-# Input error for invalid name
+# Input error for the name is not between 1 and 50 characters
 def test_reg_invalid_name_h():
     requests.delete(config.url + "clear/v1")
     resp1 = requests.post(config.url + "auth/register/v2", json = {
@@ -104,6 +103,7 @@ def test_reg_return_values_h():
     assert resp1.status_code == 200
     assert resp2.status_code == 200
 
+# test valid handle generation
 def test_reg_handle_h():
     requests.delete(config.url + "clear/v1", json={})
     resp1 = requests.post(config.url + "auth/register/v2", json = {
@@ -137,10 +137,12 @@ def test_reg_handle_h():
     assert handle2 == 'annabelleparkerparke'
 
 
+
 ##########################################
 ############ auth_login tests ############
 ##########################################
 
+# Input error when email entered does not belong to a user
 def test_login_email_not_belong_to_user():
     requests.delete(config.url + "clear/v1")
     requests.post(config.url + "auth/register/v2", json = {
@@ -155,7 +157,8 @@ def test_login_email_not_belong_to_user():
     })
     assert resp2.status_code == 400
 
-def test__login_incorrect_password():
+# Input error when password is not correct
+def test_login_incorrect_password():
     requests.delete(config.url + "clear/v1")
     requests.post(config.url + "auth/register/v2", json = {
         'email': 'abc@gmail.com',
@@ -169,13 +172,29 @@ def test__login_incorrect_password():
     })
     assert resp2.status_code == 400
 
+# valid case
+def test_login_valid():
+    requests.delete(config.url + "clear/v1", json={})
+
+    # register a new user
+    requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    }) 
+    login = requests.post(config.url + "auth/login/v2",json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+    })
+    assert login.status_code == 200
+
 ##########################################
 ############ auth_logout tests ###########
 ##########################################
 
 # Access error: invalid token
 def test_logout_invalid_token():
-
     requests.delete(config.url + "clear/v1")
     user = requests.post(config.url + "auth/register/v2", json = {
         'email': 'abc@gmail.com',
@@ -195,6 +214,7 @@ def test_logout_invalid_token():
     })
     assert logout1.status_code == 403
 
+# valid case
 def test_logout():
     requests.delete(config.url + "clear/v1")
     register = requests.post(config.url + "auth/register/v2", json = {

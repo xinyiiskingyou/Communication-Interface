@@ -125,7 +125,7 @@ def test_user_profile_invalid_token(register_user1):
 def test_user_profile_invalid_u_id(register_user1):
 
     token = register_user1['token']
-    # Invalid u_id's
+
     profile1 = requests.get(config.url + "user/profile/v1", params ={
         'token': token,
         'u_id': -1
@@ -145,7 +145,7 @@ def test_user_profile_invalid_u_id(register_user1):
     assert profile2.status_code == 400
     assert profile3.status_code == 400
 
-    # access error: invalid token and invalid u_id
+    # Access error: invalid token and invalid u_id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -178,7 +178,7 @@ def test_user_profile_valid_own(register_user1):
         'handle_str': 'annalee'
     })
 
-# Valid Case for looking at someone elses profile
+# Valid Case for looking at someone else's profile
 def test_user_profile_valid_someone_else(register_user1, register_user2):
 
     token = register_user1['token']
@@ -371,6 +371,7 @@ def test_user_set_name_valid_name_last(register_user1):
     })
     assert name.status_code == 200
 
+# Test the user's name has been changed in the channel
 def test_user_set_name_valid_channel(register_user1):
     token = register_user1['token']
 
@@ -405,6 +406,7 @@ def test_user_set_name_valid_channel(register_user1):
     owner_name = json.loads(channel_details.text)['all_members'][0]['name_first']
     assert owner_name == member_name
 
+# Test the user's name has been changed in the dm
 def test_user_set_name_valid_dm(register_user1, user1_dm_id):
 
     token = register_user1['token']
@@ -621,7 +623,7 @@ def test_user_set_email_invalid_email(register_user1):
     assert mail.status_code == 400
     assert mail1.status_code == 400
 
-    # access error: invalid token and invalid email
+    # Access error: invalid token and invalid email
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -637,7 +639,7 @@ def test_user_set_email_invalid_email(register_user1):
     assert mail2.status_code == 403
     assert mail3.status_code == 403
 
-# email address is already being used by another user
+# Input error: email address is already being used by another user
 def test_user_set_email_duplicate_email(register_user1, register_user2):
 
     user1_token = register_user1['token']
@@ -666,6 +668,7 @@ def test_user_set_email_valid(register_user1):
     })
     assert mail.status_code == 200
 
+# Test the user's email has been changed in a channel
 def test_user_set_email_valid_channel_coverage(register_user1):
     token = register_user1['token']
 
@@ -693,6 +696,7 @@ def test_user_set_email_valid_channel_coverage(register_user1):
     owner_email = json.loads(channel_details.text)['owner_members'][0]['email']
     assert owner_email == member_email
 
+# Test the user's name has been changed in a dm
 def test_user_set_email_valid_dm_coverage(register_user1, user1_dm_id):
     token = register_user1['token']
     dm_id = user1_dm_id
@@ -808,7 +812,7 @@ def test_user_set_handle_invalid_token(register_user1):
     })
     assert handle.status_code == 403
 
-# length of handle_str is not between 3 and 20 characters inclusive
+# Input error: length of handle_str is not between 3 and 20 characters inclusive
 def test_user_set_handle_invalid_length(register_user1):
 
     token = register_user1['token']
@@ -840,7 +844,7 @@ def test_user_set_handle_invalid_length(register_user1):
     })
     assert handle3.status_code == 403
 
-# handle_str contains characters that are not alphanumeric
+# Input error: handle_str contains characters that are not alphanumeric
 def test_user_set_handle_non_alphanumeric(register_user1):
     
     token = register_user1['token']
@@ -872,6 +876,7 @@ def test_user_set_handle_non_alphanumeric(register_user1):
     assert handle2.status_code == 403
     assert handle3.status_code == 403
 
+# valid case
 def test_user_set_handle(register_user1, register_user2, user1_dm_id, user1_channel_id):
 
     user1_token = register_user1['token']

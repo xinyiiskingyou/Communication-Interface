@@ -88,7 +88,7 @@ def test_admin_remove_invalid_u_id(global_owner, register_user2):
     })
     assert remove3.status_code == 403
 
-# u_id refers to a user who is the only global owner
+# Input error: u_id refers to a user who is the only global owner
 def test_admin_global_owner(global_owner):
 
     token = global_owner['token']
@@ -279,6 +279,7 @@ def test_admin_remove_valid1(global_owner, create_channel, register_user2):
     })
     assert resp1.status_code == 200
 
+    # there will be 2 oweers in the channel
     channel_detail = requests.get(config.url + "channel/details/v2", params = {
         'token': token2,
         'channel_id': channel_id
@@ -313,6 +314,8 @@ def test_admin_remove_valid1(global_owner, create_channel, register_user2):
     assert len(json.loads(dm_detail.text)['members']) == 1
     assert original_dm_length != len(json.loads(dm_detail.text)['members'])
 
+# test the case when creator of the leave the dm
+# and the member is removed from dm
 def test_admin_remove_valid_dm(global_owner, register_user2):
     
     token = global_owner['token']
@@ -417,7 +420,6 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'channel_id': channel_id,
         'u_id': user2_id
     })
-
     assert invite.status_code == 200
 
     # user2 sends a message in the channel
@@ -435,7 +437,7 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'message': 'user1'
     })
 
-   # the contents of the messages will be replaced by 'Removed user'
+    # the contents of the messages will be replaced by 'Removed user'
     messages1 = requests.get(config.url + "channel/messages/v2", params = {
         'token': user1_token,
         'channel_id': channel_id,
@@ -461,7 +463,7 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
 #### admin_userpermission_change tests ###
 ##########################################
 
-# access error: invalid token 
+# Access error: invalid token 
 def test_admin_perm_invalid_token(global_owner, register_user2):
    
     token = global_owner['token']
@@ -476,11 +478,10 @@ def test_admin_perm_invalid_token(global_owner, register_user2):
     })
     assert perm.status_code == 403
 
-# u_id does not refer to a valid user
+# Input error: u_id does not refer to a valid user
 def test_admin_perm_invalid_u_id(global_owner, register_user2):
 
     token = global_owner['token']
-
     perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
         'token': token,
         'u_id': -1,
@@ -495,7 +496,7 @@ def test_admin_perm_invalid_u_id(global_owner, register_user2):
     })
     assert perm1.status_code == 400
 
-    # access error: u_id is invalid the authorised user is not a global owner
+    # Access error: u_id is invalid the authorised user is not a global owner
     token2 = register_user2['token']
     perm2 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
         'token': token2,
@@ -504,7 +505,7 @@ def test_admin_perm_invalid_u_id(global_owner, register_user2):
     })
     assert perm2.status_code == 403
 
-    # access error: invalid token and invalid u_id
+    # Access error: invalid token and invalid u_id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -515,7 +516,8 @@ def test_admin_perm_invalid_u_id(global_owner, register_user2):
     })
     assert perm3.status_code == 403
 
-# u_id refers to a user who is the only global owner and they are being demoted to a user
+# Input error: u_id refers to a user who is the only global owner 
+# and they are being demoted to a user
 def test_admin_invalid_demote(global_owner):
 
     token = global_owner['token']
@@ -528,7 +530,7 @@ def test_admin_invalid_demote(global_owner):
     })
     assert perm.status_code == 400
 
-    # access error: invalid token and demote the only owner
+    # Access error: invalid token and demote the only owner
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -539,6 +541,7 @@ def test_admin_invalid_demote(global_owner):
     })
     assert perm3.status_code == 403
 
+# more case for the only global owner is being demoted
 def test_admin_invalid_demote1(global_owner, register_user2):
 
     user1_token = global_owner['token']
@@ -572,7 +575,7 @@ def test_admin_invalid_demote1(global_owner, register_user2):
     })
     assert perm2.status_code == 400
 
-# permission id is invalid 
+# Input error: permission id is invalid 
 def test_admin_invalid_permission_id(global_owner, register_user2):
 
     token = global_owner['token']
@@ -595,7 +598,7 @@ def test_admin_invalid_permission_id(global_owner, register_user2):
     })
     assert perm1.status_code == 400
 
-    # access error when permission id is invalid and the authorised user is not a global owner
+    # Access error when permission id is invalid and the authorised user is not a global owner
     perm2 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
         'token': token2,
         'u_id': u_id,
@@ -603,7 +606,7 @@ def test_admin_invalid_permission_id(global_owner, register_user2):
     })
     assert perm2.status_code == 403
 
-    # access error: invalid token and invalid permission id
+    # Access error: invalid token and invalid permission id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -614,7 +617,7 @@ def test_admin_invalid_permission_id(global_owner, register_user2):
     })
     assert perm3.status_code == 403
 
-# the authorised user is not a global owner
+# Access error: the authorised user is not a global owner
 def test_admin_perm_not_global_owner(global_owner, register_user2):
 
     u_id = global_owner['auth_user_id']
