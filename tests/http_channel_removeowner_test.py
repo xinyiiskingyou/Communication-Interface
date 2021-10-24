@@ -104,7 +104,7 @@ def test_removeowner_invalid_u_id(register_user, register_user1, create_channel)
         'u_id': -16
     })
     assert remove.status_code == 400
-
+    #remove invalid 
     remove1 = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user1_token,
         'channel_id': user1_channel,
@@ -128,7 +128,7 @@ def test_removeowner_invalid_u_id(register_user, register_user1, create_channel)
         'u_id': -100
     })
     assert remove2.status_code == 403
-
+    #remove invalid and not owner 
     remove4 = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user2_token,
         'channel_id': user1_channel,
@@ -315,7 +315,7 @@ def test_remove_owner_global_owner(register_user, register_user1):
         'u_id': user3_id
     })
     assert addowner3.status_code == 200
-
+    #remove global owner 
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user1_token,
         'channel_id': channel1_id,
