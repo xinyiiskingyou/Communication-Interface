@@ -37,9 +37,6 @@ initial_object = {
 }
 
 ##### Persistence #####
-
-
-
 def get_data():
     global initial_object
     if os.path.exists('database.json'):
