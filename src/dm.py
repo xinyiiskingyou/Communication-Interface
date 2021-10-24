@@ -88,10 +88,10 @@ def dm_list_v1(token):
     Return Value:
         Returns <{'dms'}> where 'dms' is a list of dictionary of dm that this user is a member of
     '''
-
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
-
+    #creating the list 
     auth_user_id = decode_token(token)
     dm_list = []
     for dm in get_data()['dms']:
@@ -118,7 +118,7 @@ def dm_remove_v1(token, dm_id):
     Return Value:
         Returns N/A
     '''
-
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -158,11 +158,12 @@ def dm_details_v1(token, dm_id):
         Returns name 
         Returns members
     '''
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-
+    #not valid dm 
     if not check_valid_dm(dm_id): 
         raise InputError(description="This dm_id does not refer to a valid DM")
 
@@ -193,7 +194,6 @@ def dm_leave_v1(token, dm_id):
     Return Value:
         Returns <{dm_id}> when the dm is sucessfully created
     '''
-
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -215,6 +215,7 @@ def dm_leave_v1(token, dm_id):
             for member in dm['members']:
                 if member['u_id'] == auth_user_id: 
                     dm['members'].remove(newuser)
+            #clearing the creator if the creator leaves 
             if len(dm['creator']) > 0:
                 if dm['creator']['u_id'] == auth_user_id:
                     dm['creator'].clear()
@@ -245,7 +246,7 @@ def dm_messages_v1(token, dm_id, start):
     Return Value:
         Returns end - if end is -1 then it returns the recent messages of the channel 
     '''
-
+    #not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -270,7 +271,7 @@ def dm_messages_v1(token, dm_id, start):
     # Start is greater than the total number of messages in the channel
     if not check_valid_start(num_messages, start): 
         raise InputError(description = 'Start is greater then total messages')
-
+    #PAGINATION 
     if end == -1: 
         dm_pagination = dm_pagination[start:] 
     else: 
