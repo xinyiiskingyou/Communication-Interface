@@ -140,7 +140,6 @@ def test_http_not_auth():
         })
     assert resp1.status_code == 403
     
-
 def test_http_invalid(): 
     requests.delete(config.url + "clear/v1")
     user1 = requests.post(config.url + "auth/register/v2",
@@ -230,4 +229,3 @@ def test_http_dm_details_valid(creator, register_user1):
         'dm_id':  dm_id
     })
     assert resp1.status_code == 200 
-

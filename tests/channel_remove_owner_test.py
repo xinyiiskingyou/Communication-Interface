@@ -44,12 +44,12 @@ def test_removeowner_invalid_u_id1():
     clear_v1()
     id1 = auth_register_v2('email@gmail.com', 'password', 'afirst', 'alast')
     id2 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
-    channel_id1 = channels_create_v2(id1['token'], 'anna', True)
+    channel_id1 = channels_create_v2(id2['token'], 'anna', True)
 
     with pytest.raises(AccessError):
-        channel_removeowner_v1(id2['token'], channel_id1['channel_id'], -16)
+        channel_removeowner_v1(id1['token'], channel_id1['channel_id'], -16)
     with pytest.raises(AccessError):
-        channel_removeowner_v1(id2['token'], channel_id1['channel_id'], 0)
+        channel_removeowner_v1(id1['token'], channel_id1['channel_id'], 0)
 
 # u_id refers to a user who is not an owner of the channel
 def test_removeowner_invalid_owner_u_id():
@@ -80,16 +80,24 @@ def test_removeowener_no_permission():
 
     clear_v1()
     id2 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
-    id3 = auth_register_v2('bear@gmail.com', 'password', 'bfirst', 'blast')
     id4 = auth_register_v2('cat@gmail.com', 'password', 'cfirst', 'clast')
-
     channel_id2 = channels_create_v2(id2['token'], 'anna', True)
-    # add id3 as an owner so it would not raise Input error for only owner of the channel
-    channel_invite_v2(id2['token'], channel_id2['channel_id'], id3['auth_user_id'])
     channel_invite_v2(id2['token'], channel_id2['channel_id'], id4['auth_user_id'])
-    channel_addowner_v1(id2['token'], channel_id2['channel_id'], id3['auth_user_id'])
     with pytest.raises(AccessError):    
-        channel_removeowner_v1(id4['token'], channel_id2['channel_id'], id2['auth_user_id'])
+        channel_removeowner_v1(id4['token'], channel_id2['channel_id'], id4['auth_user_id'])
+
+# global owner is not a member of the channel
+def test_removeowener_global_no_permission():
+    
+    clear_v1()
+    id1 = auth_register_v2('email@gmail.com', 'password', 'afirst', 'alast')
+    id2 = auth_register_v2('abc@gmail.com', 'password', 'afirst', 'alast')
+    channel_id2 = channels_create_v2(id2['token'], 'anna', True)
+    id4 = auth_register_v2('cat@gmail.com', 'password', 'cfirst', 'clast')
+    channel_invite_v2(id2['token'], channel_id2['channel_id'], id4['auth_user_id'])
+    with pytest.raises(AccessError):    
+        channel_removeowner_v1(id1['token'], channel_id2['channel_id'], id2['auth_user_id'])
+
 '''
 # valid case
 def test_remove_owner_valid():
