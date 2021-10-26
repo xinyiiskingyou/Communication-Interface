@@ -311,6 +311,70 @@ def test_no_perm_not_owner(register_user1, create_channel, register_user2):
     })
     assert resp1.status_code == 403
 
+def test_global_owner_non_member_cant_addowner_private(register_user1, register_user2):
+    global_owner_token = register_user1['token']
+
+    channel_owner_token = register_user2['token']
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': channel_owner_token,
+        'name': 'anna',
+        'is_public': False
+    })
+    channel_id = json.loads(channel.text)['channel_id']
+
+    id3 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'hellokitty@gmail.com',
+        'password': 'password',
+        'name_first': 'hello',
+        'name_last': 'kitty'
+    })
+    user3_id = json.loads(id3.text)['auth_user_id']
+    requests.post(config.url + 'channel/invite/v2', json ={
+        'token': channel_owner_token,
+        'channel_id': channel_id,
+        'u_id': user3_id
+    })
+    # global owner is not able to add owener as they did not join the channel
+    resp1 = requests.post(config.url + "channel/addowner/v1", json = {
+        'token': global_owner_token,
+        'channel_id': channel_id,
+        'u_id': user3_id
+    })
+    assert resp1.status_code == 403
+
+def test_global_owner_non_member_cant_addowner_public(register_user1, register_user2):
+    global_owner_token = register_user1['token']
+
+    channel_owner_token = register_user2['token']
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': channel_owner_token,
+        'name': 'anna',
+        'is_public': True
+    })
+    channel_id = json.loads(channel.text)['channel_id']
+
+    id3 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'hellokitty@gmail.com',
+        'password': 'password',
+        'name_first': 'hello',
+        'name_last': 'kitty'
+    })
+    user3_id = json.loads(id3.text)['auth_user_id']
+
+    requests.post(config.url + 'channel/invite/v2', json ={
+        'token': channel_owner_token,
+        'channel_id': channel_id,
+        'u_id': user3_id
+    })
+
+    # global owner is not able to add owener as they did not join the channel
+    resp1 = requests.post(config.url + "channel/addowner/v1", json = {
+        'token': global_owner_token,
+        'channel_id': channel_id,
+        'u_id': user3_id
+    })
+    assert resp1.status_code == 403
+
 ##### Implementation ######
 
 # valid case

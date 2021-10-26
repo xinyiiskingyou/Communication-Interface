@@ -183,4 +183,16 @@ def test_dm_remove_valid(creator, create_dm):
         'dm_id': dm_id
     })
     assert resp2.status_code == 200
-    
+
+    resp1 = requests.get(config.url + "dm/list/v1", params = {
+        'token': token,
+    })
+    assert resp1.status_code == 200
+    assert json.loads(resp1.text) == {'dms': []}
+
+    resp2 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': token,
+        'dm_id': dm_id
+    })
+    assert resp2.status_code == 400
+   

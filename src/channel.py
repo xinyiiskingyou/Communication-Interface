@@ -4,7 +4,7 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner, check_only_owner, check_global_owner
+from src.helper import channels_create_check_valid_user, check_valid_owner, check_only_owner, check_channel_owner_permission
 from src.data_store import DATASTORE, save, get_data
 from src.server_helper import decode_token, valid_user
 
@@ -310,9 +310,8 @@ def channel_addowner_v1(token, channel_id, u_id):
         raise InputError(description = 'Channel id is not valid')
         
     # No owner permission
-    if not check_valid_owner(auth_user_id, channel_id):
-        if not check_global_owner(auth_user_id):
-            raise AccessError(description ='No owner permission in the channel')
+    if not check_channel_owner_permission(auth_user_id, channel_id):
+        raise AccessError(description ='No owner permission in the channel')
     
     # invalid u_id
     if not channels_create_check_valid_user(u_id):
@@ -357,7 +356,6 @@ def channel_removeowner_v1(token, channel_id, u_id):
     Return Value:
         N/A
     '''
-
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -368,10 +366,9 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError(description = 'The channel_id does not refer to a valid channel')
 
     # channel_id is valid and the authorised user does not have owner permissions in the channel
-    if not check_valid_owner(auth_user_id, channel_id):
-        if not check_global_owner(auth_user_id):
-            raise AccessError(description ='No owner permission in the channel')
-
+    if not check_channel_owner_permission(auth_user_id, channel_id):
+        raise AccessError(description = 'No owner permission in the channel')
+    
     # u_id does not refer to a valid user
     if not channels_create_check_valid_user(u_id):
         raise InputError(description = 'The u_id does not refer to a valid user')

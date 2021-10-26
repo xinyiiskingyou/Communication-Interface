@@ -70,6 +70,7 @@ def dm_create_v1(token, u_ids):
         'members': member_list,
         'messages': [],
     })
+
     save()
     return {
         'dm_id': dm_id
@@ -133,10 +134,12 @@ def dm_remove_v1(token, dm_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
     dms = get_data()['dms']
-    dm = get_dm_dict(dm_id)
-    dms.remove(dm)
-
-    save()
+    #dm = get_dm_dict(dm_id)
+    
+    for dm in dms:
+        if dm['dm_id'] == dm_id:
+            dms.remove(dm)
+            save()
 
     return {}
 
