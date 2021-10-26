@@ -2,6 +2,7 @@ import pytest
 import requests
 import json
 from src import config 
+from src.dm import dm_remove_v1, dm_list_v1
 
 @pytest.fixture
 def creator():
@@ -183,4 +184,6 @@ def test_dm_remove_valid(creator, create_dm):
         'dm_id': dm_id
     })
     assert resp2.status_code == 200
+    assert dm_remove_v1(token, dm_id) == {}
+    assert dm_list_v1(token) == []
     

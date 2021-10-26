@@ -135,7 +135,6 @@ def dm_remove_v1(token, dm_id):
     dms = get_data()['dms']
     dm = get_dm_dict(dm_id)
     dms.remove(dm)
-
     save()
 
     return {}
