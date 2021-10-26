@@ -3,6 +3,8 @@ import requests
 import json
 from src import config 
 
+
+###fixtures###
 @pytest.fixture
 def register_user():
 
@@ -104,7 +106,7 @@ def test_removeowner_invalid_u_id(register_user, register_user1, create_channel)
         'u_id': -16
     })
     assert remove.status_code == 400
-
+    #remove invalid 
     remove1 = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user1_token,
         'channel_id': user1_channel,
@@ -128,7 +130,7 @@ def test_removeowner_invalid_u_id(register_user, register_user1, create_channel)
         'u_id': -100
     })
     assert remove2.status_code == 403
-
+    #remove invalid and not owner 
     remove4 = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user2_token,
         'channel_id': user1_channel,
@@ -269,6 +271,41 @@ def test_removeowener_no_permission(register_user, register_user1, create_channe
     })
     assert remove.status_code == 403
 
+def test_global_owner_nonmember_cannot_remove_owner(register_user, register_user1):
+    global_owner_token = register_user['token']
+
+    channel_owner_token = register_user1['token']
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': channel_owner_token,
+        'name': 'anna',
+        'is_public': True
+    })
+    channel_data = channel.json()
+    channel_id = channel_data['channel_id']
+
+    user3 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'elephant@gmail.com',
+        'password': 'password',
+        'name_first': 'kelly',
+        'name_last': 'huang'
+    })
+    user3_data = user3.json()
+    user3_id = user3_data['auth_user_id']
+
+    invite = requests.post(config.url + 'channel/invite/v2', json ={
+        'token': channel_owner_token,
+        'channel_id': channel_id,
+        'u_id': user3_id
+    })
+    assert invite.status_code == 200
+
+    remove = requests.post(config.url + "channel/removeowner/v1", json ={
+        'token': global_owner_token,
+        'channel_id': channel_id,
+        'u_id': user3_id
+    })
+    assert remove.status_code == 403
+
 # Global owner of streams that is member of channel is able to remove owners from channel
 def test_remove_owner_global_owner(register_user, register_user1):
     user1_token = register_user['token']
@@ -315,7 +352,7 @@ def test_remove_owner_global_owner(register_user, register_user1):
         'u_id': user3_id
     })
     assert addowner3.status_code == 200
-
+    #remove global owner 
     remove = requests.post(config.url + "channel/removeowner/v1", json ={
         'token': user1_token,
         'channel_id': channel1_id,

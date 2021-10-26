@@ -254,6 +254,7 @@ def test_channel_listall_invalid_token(register_user):
     })
     assert listall.status_code == 403
 
+#empty 
 def test_listall_no_channel(register_user): 
 
     token = register_user['token']
@@ -291,7 +292,7 @@ def test_listall(register_user):
         ],
     })
     assert listall1.status_code == 200
-
+#test to fix coverage  
 def test_list_coverage(register_user):
     token1 = register_user['token']
 

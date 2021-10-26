@@ -62,6 +62,7 @@ def test_join_invalid_token(register_user1, create_channel):
 # Invalid channel_id 
 def test_invalid_join_channel_id(register_user1):
 
+    # Access error: invalid channel_id
     token = register_user1['token']
     join1 = requests.post(config.url + 'channel/join/v2', json ={
         'token': token,
@@ -69,13 +70,14 @@ def test_invalid_join_channel_id(register_user1):
     })
     assert join1.status_code == 400
 
+    # Access error: invalid channel_id
     join2 = requests.post(config.url + 'channel/join/v2', json ={
         'token': token,
         'channel_id': '',
     })
     assert join2.status_code == 400
 
-    # access error: invalid token and invalid channel_id
+    # Access error: invalid token and invalid channel_id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -85,6 +87,7 @@ def test_invalid_join_channel_id(register_user1):
     })
     assert join3.status_code == 403
 
+    # Access error: invalid token and invalid channel_id
     join4 = requests.post(config.url + 'channel/join/v2', json ={
         'token': token,
         'channel_id': '',
@@ -92,7 +95,7 @@ def test_invalid_join_channel_id(register_user1):
     assert join4.status_code == 403
 
 
-# the authorised user is already a member of the channel
+# Input error: the authorised user is already a member of the public channel
 def test_already_joined_public(register_user1, create_channel):
 
     token = register_user1['token']
@@ -104,9 +107,10 @@ def test_already_joined_public(register_user1, create_channel):
     })
     assert channel_join_error.status_code == 400
 
+# Input error: the authorised user is already a member of the private channel
 def test_already_joined_private(register_user1): 
     
-    # create a user that has channel
+    # this user is a private channel owner
     token = register_user1['token']
 
     private = requests.post(config.url + "channels/create/v2", json = {
@@ -123,10 +127,10 @@ def test_already_joined_private(register_user1):
     assert channel_join_priv_error.status_code == 400
 
 # AccessError when: channel_id refers to a channel that is private 
-# and the authorised user is not already a channel member and is not a global owner
+# and the authorised user is neither a channel member nor a global owner
 def test_join_priv_but_not_global_owner(register_user1, register_user2):
 
-    # user 1 creates a private channel
+    # user1 is a private channel owner
     user1_token = register_user1['token']
     private = requests.post(config.url + "channels/create/v2", json = {
         'token': user1_token,
@@ -144,7 +148,9 @@ def test_join_priv_but_not_global_owner(register_user1, register_user2):
     })
     assert channel_join_priv_error.status_code == 403
 
-# valid case
+##### Implementation #####
+
+# valid case: the authorised user is able to join a public channel
 def test_http_join(create_channel, register_user2): 
 
     channel_id1 = create_channel['channel_id']

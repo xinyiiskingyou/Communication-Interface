@@ -1,7 +1,21 @@
 import pytest
 import requests
 import json
+from requests.api import request
 from src import config 
+
+
+@pytest.fixture
+def global_owner():
+    requests.delete(config.url + "clear/v1")
+    user = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'cat@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'lee'
+    })
+    user_data = user.json()
+    return user_data
 
 @pytest.fixture
 def creator():
@@ -61,11 +75,89 @@ def create_dm(creator, register_user1, register_user2, register_user3):
     dm_data = dm.json()
     return dm_data
 
-##########################################
-############ dm_details tests ############
-##########################################
+def test_dm_details_not_valid(): 
+    requests.delete(config.url + "clear/v1")
 
-# Access Error: invalid token
+    user = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'helloee@gmail.com',
+        'password': 'password',
+        'name_first': 'afirst',
+        'name_last': 'alast'
+    })
+    token = json.loads(user.text)['token']
+
+    user1 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcde@gmail.com',
+        'password': 'passef',
+        'name_first': 'ashley',
+        'name_last': 'wong'
+    })
+    token1 = json.loads(user1.text)['token']
+    dm1 = requests.post(config.url + "dm/create/v1",
+        json = { 
+            'token': token,
+            'u_ids': []
+        })
+    dm_id = json.loads(dm1.text)['dm_id']
+
+    resp1 = requests.get(config.url + "dm/details/v1", 
+        params = { 
+            'token': token1,
+            'dm_id': dm_id
+        })
+    assert resp1.status_code == 403
+
+def test_http_not_auth(): 
+    requests.delete(config.url + "clear/v1")
+    user1 = requests.post(config.url + "auth/register/v2",
+        json = { 
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        })
+    token = json.loads(user1.text)['token']
+
+    user2 = requests.post(config.url + "auth/register/v2", 
+        json = { 
+            'email': 'email@gmail.com',
+            'password': 'password',
+            'name_first': 'john',
+            'name_last': 'doe'
+        })
+    token2 = json.loads(user2.text)['token']
+    dm1 = requests.post(config.url + "dm/create/v1",
+        json = { 
+            'token': token,
+            'u_ids': []
+        })
+    dm_id = json.loads(dm1.text)['dm_id']
+
+    resp1 = requests.get(config.url + "dm/details/v1",
+        params = { 
+            'token': token2,
+            'dm_id': dm_id
+        })
+    assert resp1.status_code == 403
+    
+def test_http_invalid(): 
+    requests.delete(config.url + "clear/v1")
+    user1 = requests.post(config.url + "auth/register/v2",
+        json = { 
+            'email': 'abc@gmail.com',
+            'password': 'password',
+            'name_first': 'anna',
+            'name_last': 'park'
+        })
+    token = json.loads(user1.text)['token']
+    resp1 = requests.get(config.url + "dm/details/v1",
+        params = { 
+            'token': token,
+            'dm_id': -1
+        })
+    assert resp1.status_code == 400
+
+# invalid token
 def test_http_dm_details_invalid_token(creator, create_dm):
 
     token = creator['token']
@@ -79,26 +171,7 @@ def test_http_dm_details_invalid_token(creator, create_dm):
     })
     assert resp1.status_code == 403  
 
-# Access Error: dm_id is valid and the authorised user is not a member of the DM
-def test_dm_details_user_not_a_member(creator, register_user1): 
-
-    token = creator['token']
-
-    token1 = register_user1['token']
-
-    dm1 = requests.post(config.url + "dm/create/v1",json = { 
-        'token': token,
-        'u_ids': []
-    })
-    dm_id = json.loads(dm1.text)['dm_id']
-
-    resp1 = requests.get(config.url + "dm/details/v1", params = { 
-        'token': token1,
-        'dm_id': dm_id
-    })
-    assert resp1.status_code == 403
-
-# Input Error: dm_id does not refer to a valid DM
+# invalid dm_id
 def test_http_dm_details_invalid_dm_id(creator):
 
     token = creator['token']
@@ -138,7 +211,6 @@ def test_http_dm_details_not_a_member(create_dm):
     })
     assert resp1.status_code == 403
 
-# valid case
 def test_http_dm_details_valid(creator, register_user1): 
 
     token = creator['token']

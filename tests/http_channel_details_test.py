@@ -28,6 +28,7 @@ def register_user1():
     user1_data = user1.json()
     return user1_data
 
+# user 1 creates a channel
 @pytest.fixture
 def create_public_channel(register_user):
 
@@ -97,24 +98,25 @@ def test_details_invalid_channel_id_h(register_user):
 def test_deatils_not_member_h(register_user1, create_public_channel):
 
     channel_id = create_public_channel['channel_id']
+    # register user2 to not be a member of the channel
     token2 = register_user1['token']
 
-    # Test invalid 
     resp1 = requests.get(config.url + "channel/details/v2", params = {
         'token': token2,
         'channel_id': channel_id
     })
     assert resp1.status_code == 403
 
-    user1 = requests.post(config.url + "auth/register/v2", json = {
-        'email': 'anna@gmail.com',
+    user3 = requests.post(config.url + "auth/register/v2", json = {
+        'email': '1531camel@gmail.com',
         'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'li'
+        'name_first': 'alan',
+        'name_last': 'wood'
     })
-    user1_token = json.loads(user1.text)['token']
+    user3_data = user3.json()['token']
+
     resp1 = requests.get(config.url + "channel/details/v2", params = {
-        'token': user1_token,
+        'token': user3_data,
         'channel_id': channel_id
     })
     assert resp1.status_code == 403
@@ -158,7 +160,6 @@ def test_details_return_values_pub_h(register_user, create_public_channel):
             }
         ]
     })
-
     assert resp1.status_code == 200
 
 # Check details for private channel
@@ -204,7 +205,6 @@ def test_details_return_values_priv_h(register_user):
             }
         ]
     })
-
     assert resp1.status_code == 200
 
 # Check details for when someone is invited to the channel
