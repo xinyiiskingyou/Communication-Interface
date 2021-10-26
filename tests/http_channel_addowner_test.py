@@ -296,6 +296,41 @@ def test_no_perm_not_owner(register_user, create_channel, register_user1):
     })
     assert resp1.status_code == 403
 
+def test_addowner_invalid_global(register_user, register_user1):
+
+    token = register_user['token']
+
+    # user 2 (not global owner) creates a channel
+    token2 = register_user1['token']
+    ch1 = requests.post(config.url + "channels/create/v2", json = {
+        'token': token2,
+        'name': '1531_CAMEl',
+        'is_public': True
+    })
+    channel_id = json.loads(ch1.text)['channel_id']
+
+    id3 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'hellokitty@gmail.com',
+        'password': 'password',
+        'name_first': 'hello',
+        'name_last': 'kitty'
+    })
+    u_id = json.loads(id3.text)['auth_user_id']
+
+    requests.post(config.url + 'channel/invite/v2', json ={
+        'token': token2,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+
+    # token1 cannot add id3 to be an owner 
+    # since token1 is not in the channel
+    resp1 = requests.post(config.url + "channel/addowner/v1", json = {
+        'token': token,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+    assert resp1.status_code == 403
 
 ##### Implementation ######
 # valid case
@@ -323,7 +358,8 @@ def test_valid_addowner(register_user, register_user1, create_channel):
 def test_addowner_valid_global(register_user, register_user1):
 
     token = register_user['token']
-
+    global_id = register_user['auth_user_id']
+    
     # user 2 (not global owner) creates a channel
     token2 = register_user1['token']
     ch1 = requests.post(config.url + "channels/create/v2", json = {
@@ -347,6 +383,54 @@ def test_addowner_valid_global(register_user, register_user1):
         'u_id': u_id
     })
 
+    requests.post(config.url + 'channel/invite/v2', json ={
+        'token': token2,
+        'channel_id': channel_id,
+        'u_id': global_id
+    })
+
+    # token1 can add id3 to be an owner since token1 is a global owner
+    resp1 = requests.post(config.url + "channel/addowner/v1", json = {
+        'token': token,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+    assert resp1.status_code == 200
+
+def test_addowner_valid_global_private(register_user, register_user1):
+
+    token = register_user['token']
+    global_id = register_user['auth_user_id']
+
+    # user 2 (not global owner) creates a channel
+    token2 = register_user1['token']
+    ch1 = requests.post(config.url + "channels/create/v2", json = {
+        'token': token2,
+        'name': '1531_CAMEl',
+        'is_public': False
+    })
+    channel_id = json.loads(ch1.text)['channel_id']
+
+    id3 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'hellokitty@gmail.com',
+        'password': 'password',
+        'name_first': 'hello',
+        'name_last': 'kitty'
+    })
+    u_id = json.loads(id3.text)['auth_user_id']
+
+    requests.post(config.url + 'channel/invite/v2', json ={
+        'token': token2,
+        'channel_id': channel_id,
+        'u_id': u_id
+    })
+
+    requests.post(config.url + 'channel/invite/v2', json ={
+        'token': token2,
+        'channel_id': channel_id,
+        'u_id': global_id
+    })
+    
     # token1 can add id3 to be an owner since token1 is a global owner
     resp1 = requests.post(config.url + "channel/addowner/v1", json = {
         'token': token,
