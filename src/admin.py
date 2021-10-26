@@ -1,7 +1,6 @@
 '''
 Admin implementation
 '''
-
 from src.error import InputError, AccessError
 from src.helper import check_permision_id, channels_create_check_valid_user, check_number_of_owners, check_permission
 from src.helper import get_user_details, get_channel_message
@@ -26,19 +25,20 @@ def admin_user_remove_v1(token, u_id):
         N/A
     '''
 
+    # Access Error when token is invalid
     if not valid_user(token):
         raise AccessError(description='User is not valid')
-
     auth_user_id = decode_token(token)
-    # the authorised user is not a global owner
+
+    # Access error when the authorised user is not a global owner
     if not check_permision_id(auth_user_id):
         raise AccessError(description='The authorised user is not a global owner')
 
-    # u_id does not refer to a valid user
+    # Input error when u_id does not refer to a valid user
     if not channels_create_check_valid_user(u_id):
         raise InputError(description='The u_id does not refer to a valid user')
 
-    # u_id refers to a user who is the only global owner
+    # Input error when u_id refers to a user who is the only global owner
     user = check_number_of_owners(u_id)
     if user == 0:
         raise InputError(description='The u_id refers to a user who is the only global owner')
@@ -51,6 +51,7 @@ def admin_user_remove_v1(token, u_id):
         for owner in channel['owner_members']:
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
+        # replace the message they sent in the channel to be 'Removed user'
         message = get_channel_message(u_id, channel)
         message['message'] = 'Removed user'
         save()
@@ -63,12 +64,13 @@ def admin_user_remove_v1(token, u_id):
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == u_id:
                 dm['creator'].clear()
+        # replace the message they sent in dm to be 'Removed user'
         for message in dm['messages']:
             if message['u_id'] == u_id:
                 message['message'] = 'Removed user'
         save()
     
-    #  the contents of the messages they sent will be replaced by 'Removed user'
+    # the contents of the messages they sent will be replaced by 'Removed user'
     for message in get_data()['messages']:
         if message['u_id'] == u_id:
             message['message'] = 'Removed user'
@@ -88,7 +90,6 @@ def admin_user_remove_v1(token, u_id):
             # invalidate user's token
             user['session_list'].clear()
             save()
-
     save()
     return {}
 
@@ -97,7 +98,7 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
     Given a user by their user ID, set their permissions to new permissions described by permission_id.
 
     Arguments:
-        <token>         (<string>)    - an authorisation hash
+        <token>         (<string>)  - an authorisation hash
         <u_id>          (<int>)     - the unique id of the user
         <permission_id> (<int>)     - the id that refers to the user's permission
 
@@ -113,28 +114,31 @@ def admin_userpermission_change_v1(token, u_id, permission_id):
         N/A
     '''
 
+    # Access error when token is invalid
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
 
-    # the authorised user is not a global owner
+    # AccessError when the authorised user is not a global owner
     if not check_permision_id(auth_user_id):
         raise AccessError(description='The authorised user is not a global owner')
 
-    # u_id does not refer to a valid user
+    # InputError when u_id does not refer to a valid user
     if not isinstance(u_id, int) or not channels_create_check_valid_user(u_id):
         raise InputError(description='The u_id does not refer to a valid user')
     
-    # u_id refers to a user who is the only global owner and they are being demoted to a user
+    # InputError when u_id refers to a user who is the only global owner 
+    # and they are being demoted to a user
     owner = check_number_of_owners(u_id)
     if owner == 0 and not check_permission(u_id, permission_id):
         raise InputError(description='U_id refers to the only global owner and they are being demoted')
 
-    # permission_id is invalid
+    # Input error when permission_id is invalid
     if permission_id < 1 or permission_id > 2:
         raise InputError(description='The permission_id is invalid')
 
+    # update user's permission_id
     user = get_user_details(u_id)
     user['permission_id'] = permission_id
     save()

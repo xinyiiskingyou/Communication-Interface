@@ -1,15 +1,9 @@
 import jwt
-import time
 
 SESS_COUNTER = 0
 SECRET = "CAMEL"
 
 from src.data_store import get_data
-#################################################
-######### Helper functions for auth.py ##########
-#################################################
-
-valid_token = []
 
 # Generates session id 
 def generate_sess_id():
@@ -29,8 +23,6 @@ def generate_token(auth_user_id, session_id=None):
         'session_id': session_id
     }
     token = jwt.encode(payload, SECRET, algorithm='HS256')
-    # append the token in the list
-    # valid_token.append(token)
     return token
     
 # Decoding the token and returning the auth_user_id
