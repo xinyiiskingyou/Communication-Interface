@@ -150,7 +150,6 @@ def check_permision_id(auth_user_id):
 # Returns true if owner
 # Returns false otherwise
 def check_valid_owner(auth_user_id, channel_id):
-
     for channels in get_data()['channels']:
         if channels['channel_id'] == channel_id:
             for member in channels['owner_members']:
@@ -164,27 +163,35 @@ def check_valid_owner(auth_user_id, channel_id):
 # Returns true only one owner left
 # Returns false otherwise
 def check_only_owner(auth_user_id, channel_id):
-
+    
     for channels in get_data()['channels']:
         if channels['channel_id'] == channel_id:
             for member in channels['owner_members']:
                 if member['u_id'] == auth_user_id:
                     return channels
 
-
 # Helper function for channel_addowner, channel_removeowner
-# Checks if auth_user_id is a global owner
-# Returns true if global owner
+# Checks if auth_user_id has owner permission
+# Returns true if they are global owners
 # Returns false otherwise
-def check_global_owner(auth_user_id):
+def check_channel_owner_permission(auth_user_id, channel_id):
+    found_permission = 0
+    for channel in get_data()['channels']:
+        if channel['channel_id'] == channel_id:
+            for owner in channel['owner_members']:
+                if owner['u_id'] == auth_user_id:
+                    found_permission = 1
 
-    for user in get_data()['users']:
-        if user['auth_user_id'] != auth_user_id:
-            continue
-        if user['permission_id'] == 1:
-            return True
+    for channel in get_data()['channels']:
+        if channel['channel_id'] == channel_id:
+            for member in channel['all_members']:
+                if member['u_id'] == auth_user_id:
+                    if check_permision_id(member['u_id']):
+                        found_permission = 1
+        
+    if found_permission == 1:
+        return True
     return False
-
 
 # Helper function for admin_user_remove
 # Gets messages of a user in channels

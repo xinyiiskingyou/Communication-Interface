@@ -22,6 +22,7 @@ def clear_v1():
     data['users'] = []
     data['channels'] = []
     data['dms'] = []
+    data['messages'] = []
     save()
 
     return {}
