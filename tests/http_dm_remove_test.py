@@ -173,12 +173,29 @@ def test_leave_dm(creator, register_user1):
     })
     assert resp1.status_code == 403
 
+def test_dm_remove_twice(creator, create_dm):
+
+    token = creator['token']
+    dm_id = create_dm['dm_id']
+
+    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': token,
+        'dm_id': dm_id
+    })
+    assert resp1.status_code == 200
+
+    resp2 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': token,
+        'dm_id': dm_id
+    })
+    assert resp2.status_code == 400
+
 # Valid case: able to remove dm
 def test_dm_remove_valid(creator, create_dm):
 
     token = creator['token']
     dm_id = create_dm['dm_id']
-    print(dm_id)
+
     resp1 = requests.delete(config.url + "dm/remove/v1", json = {
         'token': token,
         'dm_id': dm_id
