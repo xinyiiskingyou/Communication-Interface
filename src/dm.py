@@ -328,11 +328,20 @@ def message_senddm_v1(token, dm_id, message):
     # Current time message was created and sent
     time_created = int(time.time())
 
+    is_this_user_reacted = False
+    is_pinned = False
+    reacts_details = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': bool(is_this_user_reacted)
+    }
     dmsend_details_dm = {
         'message_id': dmsend_id,
         'u_id': auth_user_id, 
         'message': message,
-        'time_created': time_created
+        'time_created': time_created,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
     }
 
     # Append dictionary of message details into initial_objects['dm']['messages']
@@ -346,7 +355,9 @@ def message_senddm_v1(token, dm_id, message):
         'u_id': auth_user_id, 
         'message': message,
         'time_created': time_created, 
-        'dm_id': dm_id
+        'dm_id': dm_id,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
     }
 
     # Append dictionary of message details into intital_objects['messages']

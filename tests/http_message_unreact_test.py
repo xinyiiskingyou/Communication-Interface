@@ -40,6 +40,7 @@ def user1_channel_message_id(register_user1, user1_channel_id):
     return message1_id
 
 # user1 creates a dm
+@pytest.fixture
 def user1_dm(register_user1):
     create_dm1 = requests.post(config.url + "dm/create/v1", json = {
         'token': register_user1['token'],
@@ -50,6 +51,7 @@ def user1_dm(register_user1):
     return dm_id
 
 # user1 sends a message in dm
+@pytest.fixture
 def user1_send_dm(register_user1, user1_dm):
 
     send_dm1_message = requests.post(config.url + "message/senddm/v1", json = {
@@ -134,9 +136,9 @@ def test_react_invalid_message_id(register_user1):
         'react_id': 1
     })
     assert unreact.status_code == 403
-
-# Input error: react a message that has been removed
-def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
+'''
+# Input error: unreact a message that has been removed
+def test_unreact_invalid_message_id1(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
 
     remove_message = requests.delete(config.url + "message/remove/v1", json = {
@@ -151,7 +153,7 @@ def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
         'react_id': 1
     })
     assert unreact.status_code == 400
-
+'''
 # Input error: react_id is not a valid react ID in channel
 def test_unreact_invalid_react_id_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
@@ -271,8 +273,8 @@ def test_unreact_no_react_id_dm(register_user1, user1_send_dm):
 
     unreact = requests.post(config.url + "message/unreact/v1", json = {
         'token': user1_token,
-        'message_id': user1_channel_message_id,
-        'react_id': -1
+        'message_id': user1_send_dm,
+        'react_id': 1
     })
     assert unreact.status_code == 403
 
@@ -328,4 +330,4 @@ def test_unreact_valid_dm(register_user1, user1_dm, user1_send_dm):
         'start': 0 
     })
     reaction = json.loads(message.text)['messages'][0]['reacts'][0]['is_this_user_reacted']
-    assert reaction == True
+    assert reaction == False

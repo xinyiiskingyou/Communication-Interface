@@ -2,12 +2,13 @@
 Messages implementation
 '''
 
+import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_message_dict, check_valid_message
-from src.helper import check_valid_message_id, check_authorised_user_edit, check_valid_message_send_format
+from src.helper import check_valid_message_id, check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
+from src.helper import get_message, get_channel_reacts
 from src.server_helper import decode_token, valid_user
-import time
 
 def message_send_v1(token, channel_id, message):
     '''
@@ -52,11 +53,21 @@ def message_send_v1(token, channel_id, message):
     # Current time message was created and sent
     time_created = int(time.time())
 
+    is_this_user_reacted = False
+    is_pinned = False
+    reacts_details = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': bool(is_this_user_reacted)
+    }
+
     message_details_channels = {
         'message_id': message_id,
         'u_id': auth_user_id, 
         'message': message,
-        'time_created': time_created
+        'time_created': time_created,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
     }
 
     # Append dictionary of message details into initial_objects['channels']['messages']
@@ -70,7 +81,9 @@ def message_send_v1(token, channel_id, message):
         'u_id': auth_user_id, 
         'message': message,
         'time_created': time_created,
-        'channel_id': channel_id
+        'channel_id': channel_id,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
     }
 
     # Append dictionary of message details into intital_objects['messages']
@@ -157,7 +170,6 @@ def message_edit_v1(token, message_id, message):
     save()
     return {}
     
-
 def message_remove_v1(token, message_id):
     '''
     Given a message_id for a message, this message is removed from the channel/DM
@@ -208,5 +220,146 @@ def message_remove_v1(token, message_id):
                 dm['messages'].remove(message)
                 save()
 
+    save()
+    return {}
+
+def message_react_v1(token, message_id, react_id):
+    '''
+    Given a message within a channel or DM the authorised user is part of, 
+    add a "react" to that particular message.
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+        <react_id>     (<int>)      - the id of a react
+
+    Exceptions:
+        InputError      - Occurs when message_id is not a valid message within a channel or DM 
+                        that the authorised user has joined
+                        - Occurs when react_id is not a valid react ID
+                        - Occurs when the message already contains a react with ID react_id from the authorised user
+
+        AccessError     - Occurs when token is invalid
+    
+    Return Value:
+        N/A
+    '''
+    
+    # invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
+    auth_user_id = decode_token(token)
+    react_id = int(react_id)
+    message_id = int(message_id)
+
+    # message_id is not valid
+    if not check_valid_message_id(auth_user_id, message_id):
+        raise InputError(description="The message_id is invalid.")
+
+    # react id is not valid
+    if react_id != 1:
+        raise InputError(description="The react_id is invalid.")
+    
+    react = get_channel_reacts(message_id, react_id)
+    # the message already contains a react with ID react_id
+    if auth_user_id in react['u_ids']:
+        raise InputError(description= "Message already contains a react with ID react_id")
+
+    react['u_ids'].append(int(auth_user_id))
+    react['is_this_user_reacted'] = True
+    save()
+    return {}
+    
+def message_unreact_v1(token, message_id, react_id):
+    '''
+    Given a message within a channel or DM the authorised user is part of, remove a "react" to that particular message.
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+        <react_id>     (<int>)      - the id of a react
+
+    Exceptions:
+        InputError      - Occurs when message_id is not a valid message within a channel or DM 
+                        that the authorised user has joined
+                        - Occurs when react_id is not a valid react ID
+                        - Occurs when the message does not contain a react with ID react_id from the authorised user
+
+        AccessError     - Occurs when token is invalid
+    
+    Return Value:
+        N/A
+    '''
+
+    # invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
+    auth_user_id = decode_token(token)
+    react_id = int(react_id)
+    message_id = int(message_id)
+
+    # message_id is not valid
+    if not check_valid_message_id(auth_user_id, message_id):
+        raise InputError(description="The message_id is invalid.")
+
+    # react id is not valid
+    if react_id != 1:
+        raise InputError(description="The react_id is invalid.")
+    
+    # the message does not contain a react with ID react_id
+    react = get_channel_reacts(message_id, react_id)
+    if auth_user_id not in react['u_ids']:
+        raise InputError(description= "Message already contains a react with ID react_id")
+
+    react['u_ids'].remove(int(auth_user_id))
+    react['is_this_user_reacted'] = False
+    save()
+    return {}
+
+def message_pin_v1(token, message_id):
+    '''
+    Given a message within a channel or DM, mark it as "pinned".
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+
+    Exceptions:
+        InputError      - Occurs when message_id is not a valid message within a channel or DM 
+                        that the authorised user has joined
+                        - Occurs when the message is already pinned
+
+        AccessError     - Occurs when token is invalid
+                        - Occurs when message_id refers to a valid message in a joined channel/DM and 
+                        the authorised user does not have owner permissions in the channel/DM
+    
+    Return Value:
+        N/A
+    '''
+
+    # invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
+    auth_user_id = decode_token(token)
+    message_id = int(message_id)
+
+    # message_id refers to a valid message in a joined channel/DM and 
+    # the authorised user does not have owner permissions in the channel/DM
+    if not check_authorised_user_pin(message_id, auth_user_id):
+        raise AccessError(description="The user is unauthorised to pin the message.")
+    
+    # message_id is not valid
+    if not check_valid_message_id(auth_user_id, message_id):
+        raise InputError(description="The message_id is invalid.")
+    
+    # message is already pinned
+    message = get_message(message_id)
+    if message['is_pinned'] == True:
+        raise InputError(description="The message is already pinned.")
+
+    message['is_pinned'] = True
     save()
     return {}

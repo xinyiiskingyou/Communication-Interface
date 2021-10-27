@@ -353,6 +353,28 @@ def check_authorised_user_edit(auth_user_id, message_id):
     else:
         return False
 
+# Helper function for message_pin
+# Returns true if the user has owner permission
+def check_authorised_user_pin(message_id, auth_user_id):
+    found = 0
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for owner in channel['owner_members']:
+                if owner['u_id'] == auth_user_id:
+                    found = 1
+            for member in channel['all_members']:         
+                if member['u_id'] ==  auth_user_id:
+                    if check_permision_id(member['u_id']):
+                        found = 1
+                                
+    if message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            if len(dm['creator']) > 0:
+                if dm['creator']['u_id'] == auth_user_id:
+                    found = 1
+    if found == 1:
+        return True
+    return False
 
 # Helper function for message_edit
 # Returns a dictionary of dm with given dm_id
@@ -374,7 +396,38 @@ def check_valid_message_send_format(message):
     else:
         return True 
 
+# Helper function for message/react and message/unreact
+# Returns a dict of react in the channel/dm
+def get_channel_reacts(message_id, react_id):
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for message in channel['messages']:
+                if message['message_id'] == int(message_id):
+                    for react in message['reacts']:
+                        if react['react_id'] == react_id:
+                            return react
+    elif message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    for react in message['reacts']:
+                        if react['react_id'] == react_id:
+                            return react
 
+# Helper function for message/pin
+# Returns a dict of message in the channel/dm
+def get_message(message_id):
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for message in channel['messages']:
+                if message['message_id'] == int(message_id):
+                    return message
+    elif message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    return message
+    
 #################################################
 ######## Helper functions for dm.py      ########
 #################################################

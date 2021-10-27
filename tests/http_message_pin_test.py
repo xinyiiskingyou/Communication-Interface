@@ -49,6 +49,7 @@ def user1_channel_message_id(register_user1, user1_channel_id):
     return message1_id
 
 # user1 creates a dm with user2 
+@pytest.fixture
 def user1_dm(register_user1, register_user2):
     create_dm1 = requests.post(config.url + "dm/create/v1", json = {
         'token': register_user1['token'],
@@ -59,6 +60,7 @@ def user1_dm(register_user1, register_user2):
     return dm_id
 
 # user1 sends a message in dm
+@pytest.fixture
 def user1_send_dm(register_user1, user1_dm):
     send_dm1_message = requests.post(config.url + "message/senddm/v1", json = {
         'token': register_user1['token'],
@@ -113,12 +115,6 @@ def test_pin_invalid_message_id(register_user1, register_user2, user1_channel_id
     })
     assert pin.status_code == 400
 
-    pin = requests.post(config.url + "message/pin/v1", json = {
-        'token': user1_token,
-        'message_id': 256,
-    })
-    assert pin.status_code == 400
-
     # Access Error: invalid message_id and no owner permission
     user2_token = register_user2['token']
     user2_id = register_user2['auth_user_id']
@@ -144,7 +140,7 @@ def test_pin_invalid_message_id(register_user1, register_user2, user1_channel_id
         'message_id': 256,
     })
     assert pin.status_code == 403
-
+'''
 # Input error: pin a message that has been removed
 # the message id is now invalid
 def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
@@ -161,7 +157,7 @@ def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
         'message_id': -1,
     })
     assert pin.status_code == 400
-
+'''
 # Input error: the message in channel is already pinned
 def test_pin_already_pinned_channel(register_user1, user1_channel_message_id, user1_channel_id, register_user2):
     user1_token = register_user1['token']
@@ -182,7 +178,7 @@ def test_pin_already_pinned_channel(register_user1, user1_channel_message_id, us
     user2_token = register_user2['token']
     user2_id = register_user2['auth_user_id']
     invite = requests.post(config.url + "channel/invite/v2", json ={
-        'token': user2_token,
+        'token': user1_token,
         'channel_id': user1_channel_id,
         'u_id': user2_id
     })
@@ -247,7 +243,7 @@ def test_pin_global_owner_no_owner_permission_channel(register_user1, register_u
 
     # user2 sends a message
     send_message1 = requests.post(config.url + "message/send/v1", json = {
-        'token': register_user1['token'],
+        'token': register_user2['token'],
         'channel_id': channel_id,
         'message': 'hello'
     })
@@ -308,9 +304,9 @@ def test_pin_global_owner_no_owner_permission_dm(register_user1, register_user2)
     assert create_dm1.status_code == 200
     dm_id = json.loads(create_dm1.text)['dm_id']
 
-    # user1 sends a message in dm
+    # user2 sends a message in dm
     send_dm1_message = requests.post(config.url + "message/senddm/v1", json = {
-        'token': user1_token,
+        'token': user2_token,
         'dm_id': dm_id,
         'message': 'hello'
     })
