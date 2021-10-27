@@ -104,7 +104,7 @@ def test_pin_invalid_token_dm(register_user1, user1_send_dm):
 
 # Input error: message_id is not a valid message within a 
 # channel or DM that the authorised user has joined
-def test_pin_invalid_message_id(register_user1):
+def test_pin_invalid_message_id(register_user1, register_user2, user1_channel_id):
     user1_token = register_user1['token']
 
     pin = requests.post(config.url + "message/pin/v1", json = {
@@ -119,11 +119,26 @@ def test_pin_invalid_message_id(register_user1):
     })
     assert pin.status_code == 400
 
+    # Access Error: invalid message_id and no owner permission
+    user2_token = register_user2['token']
+    user2_id = register_user2['auth_user_id']
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': user1_token,
+        'channel_id': user1_channel_id,
+        'u_id': user2_id
+    })
+    assert invite.status_code == 200
+
+    pin = requests.post(config.url + "message/pin/v1", json = {
+        'token': user2_token,
+        'message_id': -1,
+    })
+    assert pin.status_code == 403
+
     # Access Error: invalid token and invalid message_id
     requests.post(config.url + "auth/logout/v1", json = {
         'token': user1_token
     })
-
     pin = requests.post(config.url + "message/pin/v1", json = {
         'token': user1_token,
         'message_id': 256,
@@ -139,7 +154,7 @@ def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
         'token': user1_token,
         'message_id': user1_channel_message_id,
     })
-    assert remove_message.status_code == 400
+    assert remove_message.status_code == 200
 
     pin = requests.post(config.url + "message/pin/v1", json = {
         'token': user1_token,
@@ -148,7 +163,7 @@ def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
     assert pin.status_code == 400
 
 # Input error: the message in channel is already pinned
-def test_pin_already_pinned_channel(register_user1, user1_channel_message_id):
+def test_pin_already_pinned_channel(register_user1, user1_channel_message_id, user1_channel_id, register_user2):
     user1_token = register_user1['token']
 
     pin = requests.post(config.url + "message/pin/v1", json = {
@@ -162,6 +177,22 @@ def test_pin_already_pinned_channel(register_user1, user1_channel_message_id):
         'message_id': user1_channel_message_id,
     })
     assert pin.status_code == 400
+
+    # Access Error: message is already pinned and no owner permission
+    user2_token = register_user2['token']
+    user2_id = register_user2['auth_user_id']
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': user2_token,
+        'channel_id': user1_channel_id,
+        'u_id': user2_id
+    })
+    assert invite.status_code == 200
+
+    pin = requests.post(config.url + "message/pin/v1", json = {
+        'token': user2_token,
+        'message_id': user1_channel_message_id,
+    })
+    assert pin.status_code == 403
 
     # Access Error: invalid token and message is already pinned
     requests.post(config.url + "auth/logout/v1", json = {
