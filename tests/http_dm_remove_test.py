@@ -2,6 +2,7 @@ import pytest
 import requests
 import json
 from src import config 
+from src.dm import dm_remove_v1, dm_list_v1
 
 @pytest.fixture
 def creator():
@@ -158,27 +159,38 @@ def test_leave_dm(creator, register_user1):
     })
     assert resp1.status_code == 403
 
-# Valid case: able to remove dm
-def test_dm_remove_valid(creator, create_dm):
+def test_dm_remove_twice(creator, create_dm):
 
     token = creator['token']
     dm_id = create_dm['dm_id']
 
-    resp2 = requests.delete(config.url + "dm/remove/v1", json = {
+    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
         'token': token,
         'dm_id': dm_id
     })
-    assert resp2.status_code == 200
-
-    resp1 = requests.get(config.url + "dm/list/v1", params = {
-        'token': token,
-    })
     assert resp1.status_code == 200
-    assert json.loads(resp1.text) == {'dms': []}
 
     resp2 = requests.delete(config.url + "dm/remove/v1", json = {
         'token': token,
         'dm_id': dm_id
     })
     assert resp2.status_code == 400
-   
+
+# Valid case: able to remove dm
+def test_dm_remove_valid(creator, create_dm):
+
+    token = creator['token']
+    dm_id = create_dm['dm_id']
+
+    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': token,
+        'dm_id': dm_id
+    })
+    assert resp1.status_code == 200
+    assert resp1.json() == {}
+    
+    resp2 = requests.get(config.url + "dm/list/v1", params = {
+        'token': token
+    })
+    assert resp2.status_code == 200
+    assert resp2.json() == {'dms': []}

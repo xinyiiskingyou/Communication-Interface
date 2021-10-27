@@ -308,7 +308,7 @@ def channel_addowner_v1(token, channel_id, u_id):
     # invalid channel_id
     if not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel id is not valid')
-        
+
     # No owner permission
     if not check_channel_owner_permission(auth_user_id, channel_id):
         raise AccessError(description ='No owner permission in the channel')
