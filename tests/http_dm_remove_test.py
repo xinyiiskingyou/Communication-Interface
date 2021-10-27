@@ -108,7 +108,7 @@ def test_dm_remove_invalid_dm_id(creator):
     })
     assert resp1.status_code == 403
 
-# Input Error: dm_id is valid and the authorised user is not the original DM creator
+# Access Error: dm_id is valid and the authorised user is not the original DM creator
 def test_dm_remove_not_dm_creator(create_dm):
 
     dm_id = create_dm['dm_id']
@@ -125,20 +125,6 @@ def test_dm_remove_not_dm_creator(create_dm):
         'dm_id': dm_id
     })
     assert resp2.status_code == 403
-
-# Access Error: when invalid dm_id and the token is not the original owner
-def test_dm_remove_invalid_id_not_dm_creator(create_dm, register_user3):
-
-    dm_id = create_dm['dm_id']
-    assert dm_id != None
-
-    token2 = register_user3['token']
-
-    resp1 = requests.delete(config.url + "dm/remove/v1", json = {
-        'token': token2,
-        'dm_id': -1
-    })
-    assert resp1.status_code == 400
 
 # Input Error: test after the creator left the dm and member cannot remove the dm
 def test_leave_dm(creator, register_user1):
