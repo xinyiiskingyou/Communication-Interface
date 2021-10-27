@@ -137,7 +137,7 @@ def test_react_invalid_message_id(register_user1):
         'react_id': 1
     })
     assert react.status_code == 403
-'''
+
 # Input error: react a message that has been removed
 def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
@@ -154,7 +154,7 @@ def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
         'react_id': 1
     })
     assert react.status_code == 400
-'''
+
 # Input error: react_id is not a valid react ID in channel
 def test_react_invalid_react_id_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
@@ -311,6 +311,52 @@ def test_react_valid_channel(register_user1, user1_channel_message_id, user1_cha
     })
     reaction = json.loads(messages.text)['messages'][0]['reacts'][0]['is_this_user_reacted']
     assert reaction == True
+
+# Valid case: member in channel can also react
+def test_react_valid_channel_member(register_user1, user1_channel_id, user1_channel_message_id):
+
+    user1_token = register_user1['token']
+
+    # invite user2 to the channel
+    user2 = requests.post(config.url + "auth/register/v2", json ={
+        'email': 'abcertgh@gmail.com',
+        'password': 'password',
+        'name_first': 'hello',
+        'name_last': 'world'
+    })
+    user2_data = user2.json()
+    user2_id = user2_data['auth_user_id']
+    user2_token = user2_data['token']
+
+    invite = requests.post(config.url + "channel/invite/v2", json ={
+        'token': user1_token,
+        'channel_id': user1_channel_id,
+        'u_id': user2_id
+    })
+    assert invite.status_code == 200
+
+    react = requests.post(config.url + "message/react/v1", json = {
+        'token': user2_token,
+        'message_id': user1_channel_message_id,
+        'react_id': 1
+    })
+    assert react.status_code == 200
+
+    react = requests.post(config.url + "message/react/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+        'react_id': 1
+    })
+    assert react.status_code == 200
+
+    # there are 2 users react the same message
+    messages = requests.get(config.url + "channel/messages/v2", params = {
+        'token': user1_token,
+        'channel_id': user1_channel_id,
+        'start': 0
+    })
+    reaction = json.loads(messages.text)['messages'][0]['reacts'][0]['u_ids']
+    assert len(reaction) == 2
 
 # Valid case in dm
 def test_react_valid_dm(register_user1, user1_dm):

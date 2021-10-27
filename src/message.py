@@ -6,8 +6,8 @@ import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_message_dict, check_valid_message
-from src.helper import check_valid_message_id, check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
-from src.helper import get_message, get_channel_reacts
+from src.helper import check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
+from src.helper import get_message, get_channel_reacts, check_valid_channel_dm_message_ids
 from src.server_helper import decode_token, valid_user
 
 def message_send_v1(token, channel_id, message):
@@ -134,7 +134,7 @@ def message_edit_v1(token, message_id, message):
 
     # Checks if message_id does not refer to a valid message within a channel/DM 
     # that the authorised user has joined
-    if not check_valid_message_id(auth_user_id, message_id):
+    if not check_valid_channel_dm_message_ids(message_id):
         raise InputError(description="The message_id is invalid.")
 
     # Checks if the message was sent by the authorised user making this request
@@ -198,7 +198,7 @@ def message_remove_v1(token, message_id):
 
     # Checks if message_id does not refer to a valid message within a channel/DM 
     # that the authorised user has joined
-    if not check_valid_message_id(auth_user_id, message_id):
+    if not check_valid_channel_dm_message_ids(message_id):
         raise InputError(description="The message_id is invalid.")
     
     # Checks if the message was sent by the authorised user making this request
@@ -220,7 +220,6 @@ def message_remove_v1(token, message_id):
                 dm['messages'].remove(message)
                 save()
 
-    save()
     return {}
 
 def message_react_v1(token, message_id, react_id):
@@ -254,7 +253,7 @@ def message_react_v1(token, message_id, react_id):
     message_id = int(message_id)
 
     # message_id is not valid
-    if not check_valid_message_id(auth_user_id, message_id):
+    if not check_valid_channel_dm_message_ids(message_id):
         raise InputError(description="The message_id is invalid.")
 
     # react id is not valid
@@ -269,6 +268,7 @@ def message_react_v1(token, message_id, react_id):
     react['u_ids'].append(int(auth_user_id))
     react['is_this_user_reacted'] = True
     save()
+    
     return {}
     
 def message_unreact_v1(token, message_id, react_id):
@@ -301,7 +301,7 @@ def message_unreact_v1(token, message_id, react_id):
     message_id = int(message_id)
 
     # message_id is not valid
-    if not check_valid_message_id(auth_user_id, message_id):
+    if not check_valid_channel_dm_message_ids(message_id):
         raise InputError(description="The message_id is invalid.")
 
     # react id is not valid
@@ -352,7 +352,7 @@ def message_pin_v1(token, message_id):
         raise AccessError(description="The user is unauthorised to pin the message.")
     
     # message_id is not valid
-    if not check_valid_message_id(auth_user_id, message_id):
+    if not check_valid_channel_dm_message_ids(message_id):
         raise InputError(description="The message_id is invalid.")
     
     # message is already pinned

@@ -176,11 +176,6 @@ def check_only_owner(auth_user_id, channel_id):
 # Returns false otherwise
 def check_channel_owner_permission(auth_user_id, channel_id):
     found_permission = 0
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            for owner in channel['owner_members']:
-                if owner['u_id'] == auth_user_id:
-                    found_permission = 1
 
     for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
@@ -188,20 +183,13 @@ def check_channel_owner_permission(auth_user_id, channel_id):
                 if member['u_id'] == auth_user_id:
                     if check_permision_id(member['u_id']):
                         found_permission = 1
-        
+            for owner in channel['owner_members']:
+                if owner['u_id'] == auth_user_id:
+                    found_permission = 1
+
     if found_permission == 1:
         return True
     return False
-
-# Helper function for admin_user_remove
-# Gets messages of a user in channels
-# Returns message if found
-# Returns empty dict otherwise
-def get_channel_message(u_id, channel):
-    for message in channel['messages']:
-        if message['u_id'] == u_id:
-            return message
-    return {}
 
 # Helper function for user_profile_setemail
 # Checks valid email
@@ -245,56 +233,6 @@ def check_permission(u_id, permission_id):
 #################################################
 ######## Helper functions for message.py ########
 #################################################
-
-# Helper function for message_edit_v1
-# Checks if message_id refers to a valid message within a channel/DM
-# that the authorised user has joined
-# Returns true if valid message_id
-# Returns false otherwise
-def check_valid_message_id(auth_user_id, message_id):
-    found_message_id = 0
-    channel_dm_id = 0
-    for message in get_data()['messages']:
-        if message['message_id'] == message_id:
-            if message_id % 2 == 1:
-                # Odd message_id means it is a message in a channel
-                channel_dm_id = message['channel_id']
-            elif message_id % 2 == 0:
-                # Even message_id means it is a message in a DM
-                channel_dm_id = message['dm_id']
-            found_message_id = 1
-    
-    if found_message_id == 0:
-        return False
-
-    # If message_id is odd, message is from channel
-    # Go through channels to determine if user is part of channel of that message_id
-    found_user = 0
-    if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            if channel['channel_id'] == channel_dm_id:
-                for member in channel['all_members']:
-                    if member['u_id'] == auth_user_id:
-                        found_user = 1
-
-    # If message_id is odd, message is from DM
-    # Go through DMs to determine if user is part of DM of that message_id
-    elif message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id:
-                    found_user = 1
-
-    # In the case where message being edited is part of a channel, 
-    # check if auth_user_id is global owner of Streams
-    if message_id % 2 == 1:
-        if check_permision_id(auth_user_id):
-            found_user = 1
-
-    if found_user == 1 and found_message_id == 1:
-        return True
-    else:
-        return False
 
 # Helper function for message_edit_v1
 # Checks if user is authorised to edit message
@@ -396,6 +334,26 @@ def check_valid_message_send_format(message):
     else:
         return True 
 
+# Helper function for message/react, message/unreact, message/pin
+# Returns true if message_id is valid in channel/dm
+# Returns false otherwise
+def check_valid_channel_dm_message_ids(message_id):
+    
+    found = 0
+    for channel in get_data()['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                found = 1
+
+    for dm in get_data()['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                found = 1
+
+    if found == 1:
+        return True
+    return False
+
 # Helper function for message/react and message/unreact
 # Returns a dict of react in the channel/dm
 def get_channel_reacts(message_id, react_id):
@@ -422,16 +380,15 @@ def get_message(message_id):
             for message in channel['messages']:
                 if message['message_id'] == int(message_id):
                     return message
-    elif message_id % 2 == 0:
+    if message_id % 2 == 0:
         for dm in get_data()['dms']:
             for message in dm['messages']:
                 if message['message_id'] == message_id:
                     return message
-    
+
 #################################################
 ######## Helper functions for dm.py      ########
 #################################################
-
 
 # Helper function for dm_details, dm_leave, dm_messages, messages_senddm
 # Returns true if valid memeber in dm
@@ -446,7 +403,6 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
                 if member['u_id'] == auth_user_id:
                     return True
     return False
-
 
 # Helper function for message_senddm
 # Returns true if valid message length

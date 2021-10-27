@@ -102,10 +102,23 @@ def test_message_remove_invalid_message_id_nonexistant(register_user1):
     })
     assert remove_message.status_code == 400
 
-# Input error when message_id does not refer to a valid message 
-# within a channel/DM that the authorised user has joined
-    # 3.a) message_id exists but does not belong to channel that user is part of
-    # User has global permission of "Member"
+# Input error when trying to remove a removed message
+def test_cannot_remove_deleted_message(register_user1, channel_message_id):
+    token = register_user1['token']
+
+    remove_message = requests.delete(config.url + "message/remove/v1", json = {
+        'token': token,
+        'message_id': channel_message_id,
+    })
+    assert remove_message.status_code == 200
+
+    remove_message = requests.delete(config.url + "message/remove/v1", json = {
+        'token': token,
+        'message_id': channel_message_id,
+    })
+    assert remove_message.status_code == 400
+
+# Access error when message_id is valid, but the user does not belong to channel
 def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(register_user1, register_user2, channel_message_id):
 
     user1_token = register_user1['token']
@@ -118,14 +131,9 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_channel(regist
         'token': user2_token,
         'message_id': message1_id,
     })
-    assert remove_message.status_code == 400
+    assert remove_message.status_code == 403
 
-# Input error when message_id does not refer to a valid message 
-# within a channel/DM that the authorised user has joined
-    # 3.b) message_id exists but does not belong to DM that user is part of
-    # User has global permission as "Owner"
-    # Streams owners do not have owner permissions in DMs. 
-    # The only users with owner permissions in DMs are the original creators of each DM.
+# Access error when message_id exists but does not belong to DM that user is part of
 def test_message_remove_invalid_message_id_not_belong_in_relevant_DM_global_owner(register_user1, register_user2):
 
     user1_token = register_user1['token']
@@ -159,7 +167,7 @@ def test_message_remove_invalid_message_id_not_belong_in_relevant_DM_global_owne
         'token': user1_token,
         'message_id': message_id1,
     })
-    assert remove_message.status_code == 400
+    assert remove_message.status_code == 403
 
 # Access error when:
     # the message was sent by an unauthorised user making this request
@@ -471,7 +479,6 @@ def test_message_edit_DM_global_owner_any_channel(register_user1, register_user2
         'message_id': message2_id,
     })
     assert remove_message2.status_code == 200
-
 
     # Checks that messages from user2 were edited by global owner of streams
     request_messages3 = requests.get(config.url + "channel/messages/v2", params = {

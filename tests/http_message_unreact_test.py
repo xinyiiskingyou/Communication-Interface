@@ -136,7 +136,7 @@ def test_react_invalid_message_id(register_user1):
         'react_id': 1
     })
     assert unreact.status_code == 403
-'''
+
 # Input error: unreact a message that has been removed
 def test_unreact_invalid_message_id1(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
@@ -153,7 +153,7 @@ def test_unreact_invalid_message_id1(register_user1, user1_channel_message_id):
         'react_id': 1
     })
     assert unreact.status_code == 400
-'''
+
 # Input error: react_id is not a valid react ID in channel
 def test_unreact_invalid_react_id_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']

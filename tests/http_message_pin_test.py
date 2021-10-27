@@ -140,7 +140,7 @@ def test_pin_invalid_message_id(register_user1, register_user2, user1_channel_id
         'message_id': 256,
     })
     assert pin.status_code == 403
-'''
+
 # Input error: pin a message that has been removed
 # the message id is now invalid
 def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
@@ -157,7 +157,7 @@ def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
         'message_id': -1,
     })
     assert pin.status_code == 400
-'''
+
 # Input error: the message in channel is already pinned
 def test_pin_already_pinned_channel(register_user1, user1_channel_message_id, user1_channel_id, register_user2):
     user1_token = register_user1['token']
