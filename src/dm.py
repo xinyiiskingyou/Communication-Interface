@@ -140,7 +140,6 @@ def dm_remove_v1(token, dm_id):
         if dm['dm_id'] == dm_id:
             dms.remove(dm)
             save()
-
     return {}
 
 def dm_details_v1(token, dm_id): 
@@ -201,7 +200,6 @@ def dm_leave_v1(token, dm_id):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    newuser = user_info(auth_user_id)
     
     # dm_id does not refer to a valid DM
     if not isinstance(dm_id, int):
@@ -217,7 +215,7 @@ def dm_leave_v1(token, dm_id):
         if dm['dm_id'] == dm_id:
             for member in dm['members']:
                 if member['u_id'] == auth_user_id: 
-                    dm['members'].remove(newuser)
+                    dm['members'].remove(member)
             #clearing the creator if the creator leaves 
             if len(dm['creator']) > 0:
                 if dm['creator']['u_id'] == auth_user_id:
