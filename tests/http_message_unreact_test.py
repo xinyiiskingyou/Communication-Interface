@@ -65,7 +65,7 @@ def user1_send_dm(register_user1, user1_dm):
 ######## message/unreact/v1 tests ########
 ##########################################
 
-# invalid token 
+# Access error: invalid token in channel
 def test_unreact_invalid_token_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
     message1_id = user1_channel_message_id
@@ -81,6 +81,7 @@ def test_unreact_invalid_token_channel(register_user1, user1_channel_message_id)
     })
     assert unreact.status_code == 403
 
+# Access error: invalid token in dm
 def test_unreact_invalid_token_dm(register_user1, user1_send_dm):
     user1_token = register_user1['token']
 
@@ -95,7 +96,7 @@ def test_unreact_invalid_token_dm(register_user1, user1_send_dm):
     })
     assert unreact.status_code == 403
 
-# message_id is not a valid message within a channel or DM that the authorised user has joined
+# Input error: message_id is not valid 
 def test_react_invalid_message_id(register_user1):
     user1_token = register_user1['token']
 
@@ -134,7 +135,24 @@ def test_react_invalid_message_id(register_user1):
     })
     assert unreact.status_code == 403
 
-# react_id is not a valid react ID
+# Input error: react a message that has been removed
+def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
+    user1_token = register_user1['token']
+
+    remove_message = requests.delete(config.url + "message/remove/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+    })
+    assert remove_message.status_code == 200
+
+    unreact = requests.post(config.url + "message/unreact/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+        'react_id': 1
+    })
+    assert unreact.status_code == 400
+
+# Input error: react_id is not a valid react ID in channel
 def test_unreact_invalid_react_id_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
 
@@ -172,6 +190,7 @@ def test_unreact_invalid_react_id_channel(register_user1, user1_channel_message_
     })
     assert unreact.status_code == 403
 
+# Input error: react_id is not a valid react ID in dm
 def test_unreact_invalid_react_id_dm(register_user1, user1_send_dm):
     user1_token = register_user1['token']
 
@@ -209,7 +228,8 @@ def test_unreact_invalid_react_id_dm(register_user1, user1_send_dm):
     })
     assert unreact.status_code == 403
 
-# the message does not contain a react with ID react_id from the authorised user
+# Input error: the message does not contain a react with ID react_id 
+# from the authorised user in channel
 def test_unreact_no_react_id_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
 
@@ -220,6 +240,20 @@ def test_unreact_no_react_id_channel(register_user1, user1_channel_message_id):
     })
     assert unreact.status_code == 400
 
+    # Access Error: invalid token and the message is not reacted
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    unreact = requests.post(config.url + "message/unreact/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+        'react_id': -1
+    })
+    assert unreact.status_code == 403
+
+# Input error: the message does not contain a react with ID react_id 
+# from the authorised user in dm
 def test_unreact_no_react_id_dm(register_user1, user1_send_dm):
     user1_token = register_user1['token']
 
@@ -230,9 +264,21 @@ def test_unreact_no_react_id_dm(register_user1, user1_send_dm):
     })
     assert unreact.status_code == 400
 
+    # Access Error: invalid token and the message is not reacted
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    unreact = requests.post(config.url + "message/unreact/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+        'react_id': -1
+    })
+    assert unreact.status_code == 403
+
 ##### Implementation #####
 
-# valid case
+# valid case in channel
 def test_unreact_valid_channel(register_user1, user1_channel_message_id, user1_channel_id):
     user1_token = register_user1['token']
 
@@ -258,6 +304,7 @@ def test_unreact_valid_channel(register_user1, user1_channel_message_id, user1_c
     reaction = json.loads(messages.text)['messages'][0]['reacts'][0]['is_this_user_reacted']
     assert reaction == False
 
+# valid case in dm
 def test_unreact_valid_dm(register_user1, user1_dm, user1_send_dm):
     user1_token = register_user1['token']
 

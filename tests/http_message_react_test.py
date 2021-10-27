@@ -61,19 +61,12 @@ def user1_send_dm(register_user1, user1_dm):
     dm_message_id = json.loads(send_dm1_message.text)['message_id']
     return dm_message_id
 
-@pytest.fixture
-def register_user2():
-    user2 = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'sallly@gmail.com',
-        'password': 'password',
-        'name_first': 'sally',
-        'name_last': 'li'
-    })
-    user2_data = user2.json()
-    return user2_data
+##########################################
+######### message/react/v1 tests #########
+##########################################
 
-# invalid token
-def test_react_invalid_token(register_user1, user1_channel_message_id):
+# Access Error: invalid token
+def test_react_invalid_token_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
     message1_id = user1_channel_message_id
 
@@ -88,7 +81,23 @@ def test_react_invalid_token(register_user1, user1_channel_message_id):
     })
     assert react.status_code == 403
 
-# message_id is not a valid message within a channel or DM that the authorised user has joined
+# Access Error: invalid token
+def test_react_invalid_token_dm(register_user1, user1_send_dm):
+    user1_token = register_user1['token']
+    message1_id = user1_send_dm
+
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    react = requests.post(config.url + "message/react/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+        'react_id': 1
+    })
+    assert react.status_code == 403
+
+# Input error: message_id is not valid 
 def test_react_invalid_message_id(register_user1):
     user1_token = register_user1['token']
 
@@ -127,8 +136,24 @@ def test_react_invalid_message_id(register_user1):
     })
     assert react.status_code == 403
 
-# react_id is not a valid react ID - currently
-# the only valid react ID the frontend has is 1
+# Input error: react a message that has been removed
+def test_react_invalid_message_id1(register_user1, user1_channel_message_id):
+    user1_token = register_user1['token']
+
+    remove_message = requests.delete(config.url + "message/remove/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+    })
+    assert remove_message.status_code == 200
+
+    react = requests.post(config.url + "message/react/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+        'react_id': 1
+    })
+    assert react.status_code == 400
+
+# Input error: react_id is not a valid react ID in channel
 def test_react_invalid_react_id_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
 
@@ -166,6 +191,7 @@ def test_react_invalid_react_id_channel(register_user1, user1_channel_message_id
     })
     assert react.status_code == 403
 
+# Input error: react_id is not a valid react ID in dm
 def test_react_invalid_react_id_dm(register_user1, user1_send_dm):
     user1_token = register_user1['token']
 
@@ -203,7 +229,7 @@ def test_react_invalid_react_id_dm(register_user1, user1_send_dm):
     })
     assert react.status_code == 403
 
-# the message already contains a react with ID react_id from the authorised user
+# Input error: the message already contains a react with ID react_id from in chanenl
 def test_react_already_contain_react_id_channel(register_user1, user1_channel_message_id):
     user1_token = register_user1['token']
 
@@ -221,6 +247,19 @@ def test_react_already_contain_react_id_channel(register_user1, user1_channel_me
     })
     assert react.status_code == 400
 
+    # Access Error: invalid token and message is already reacted
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    react = requests.post(config.url + "message/react/v1", json = {
+        'token': user1_token,
+        'message_id': user1_channel_message_id,
+        'react_id': 1
+    })
+    assert react.status_code == 403
+
+# Input error: the message already contains a react with ID react_id in dm
 def test_react_already_contain_react_id_dm(register_user1, user1_send_dm):
     user1_token = register_user1['token']
 
@@ -233,14 +272,26 @@ def test_react_already_contain_react_id_dm(register_user1, user1_send_dm):
 
     react = requests.post(config.url + "message/react/v1", json = {
         'token': user1_token,
-        'message_id': user1_channel_message_id,
+        'message_id': user1_send_dm,
         'react_id': 1
     })
     assert react.status_code == 400
 
+    # Access Error: invalid token and message is already reacted
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    react = requests.post(config.url + "message/react/v1", json = {
+        'token': user1_token,
+        'message_id': user1_send_dm,
+        'react_id': 1
+    })
+    assert react.status_code == 403
+
 ##### Implementation #####
 
-# valid case
+# Valid case in channel
 def test_react_valid_channel(register_user1, user1_channel_message_id, user1_channel_id):
     user1_token = register_user1['token']
 
@@ -259,6 +310,7 @@ def test_react_valid_channel(register_user1, user1_channel_message_id, user1_cha
     reaction = json.loads(messages.text)['messages'][0]['reacts'][0]['is_this_user_reacted']
     assert reaction == True
 
+# Valid case in dm
 def test_react_valid_dm(register_user1, user1_dm, user1_send_dm):
     user1_token = register_user1['token']
 
