@@ -248,6 +248,33 @@ def check_valid_message_id(auth_user_id, message_id):
     found_message_id = 0
     channel_dm_id = 0
 
+    # Finds whether or not the message_id exists as a valid message
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for message in channel['messages']:
+                if message['message_id'] == message_id:
+                    found_message_id = 1
+
+    if message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    found_message_id = 1
+
+    if found_message_id == 0:
+        return False
+
+    # Finds the channel_id or dm_id that message is part of 
+    for message in get_data()['messages']:
+        if message['message_id'] == message_id:
+            if message_id % 2 == 1:
+                # Odd message_id means it is a message in a channel
+                channel_dm_id = message['channel_id']
+            elif message_id % 2 == 0:
+                # Even message_id means it is a message in a DM
+                channel_dm_id = message['dm_id']
+            found_message_id = 1
+
     # If message_id is odd, message is from channel
     # Go through channels to determine if user is part of channel of that message_id
     found_user = 0
@@ -333,10 +360,6 @@ def check_authorised_user_edit(auth_user_id, message_id):
         return True
     else:
         return False
-
-# Helper function which removes message in initial_object['channels']['messages'] or 
-# initial_object['dms']['messages']
-# def remove_message_in_channel_or_dm(message_id):
 
 
 # Helper function for message_edit

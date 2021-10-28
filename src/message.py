@@ -130,12 +130,6 @@ def message_edit_v1(token, message_id, message):
     if not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError(description="The user is unauthorised to edit the message.")
 
-    if message == '':
-        messages = get_data()['messages']
-        message_dict_remove = get_message_dict(message_id)
-        messages.remove(message_dict_remove)
-        save()
-
     for channel in get_data()['channels']:
         for iterate_message in channel['messages']:
             if iterate_message['message_id'] == message_id:
