@@ -332,7 +332,6 @@ user1_channel_id, user1_channel_message_id):
 
     user1_token = register_user1['token']
     user2_token = register_user2['token']
-    user3_token = register_user3['token']
 
     u_id2 = register_user2['auth_user_id']
     u_id3 = register_user3['auth_user_id']
