@@ -326,6 +326,62 @@ def test_message_edit_unauthorised_user_DM_not_send_message_and_not_owner(regist
     assert edit_message.status_code == 403
 
 
+# Removing message by editing message to be empty twice
+def test_message_edit_remove_twice(register_user1, register_user2, register_user3, 
+user1_channel_id, user1_channel_message_id):
+
+    user1_token = register_user1['token']
+    user2_token = register_user2['token']
+
+    u_id2 = register_user2['auth_user_id']
+    u_id3 = register_user3['auth_user_id']
+
+    message1_id = user1_channel_message_id
+
+    # Testing with message in channel
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+        'message': ''
+    })
+
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+        'message': ''
+    })
+    assert edit_message.status_code == 400
+
+    # Testing with message in DM
+    create_dm1 = requests.post(config.url + "dm/create/v1", json = {
+        'token': user1_token,
+        'u_ids': [u_id2, u_id3]
+    })
+    dm1_id = json.loads(create_dm1.text)['dm_id']
+
+    send_dm1_message = requests.post(config.url + "message/senddm/v1", json = {
+        'token': user2_token,
+        'dm_id': dm1_id,
+        'message': 'hello there from dm1'
+    })
+    assert send_dm1_message.status_code == 200
+    message_id2 = json.loads(send_dm1_message.text)['message_id']
+
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user2_token,
+        'message_id': message_id2,
+        'message': ''
+    })
+    assert edit_message.status_code == 200
+
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user2_token,
+        'message_id': message_id2,
+        'message': ''
+    })
+    assert edit_message.status_code == 400
+
+
 ##### Implementation #####
 
 # Base valid case
@@ -639,7 +695,7 @@ def test_message_edit_dm_empty(register_user1, register_user2):
     assert len(json.loads(messages.text)['messages']) == 0
     assert edit_message.status_code == 200
 
-## Removing message in a dm with 2 or more messages
+# Removing message in a dm with 2 or more messages
 def test_message_remove_dm_id_two_messages(register_user1, register_user2):
     # Registered users
     user1_token = register_user1['token']
