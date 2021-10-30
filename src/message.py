@@ -363,3 +363,49 @@ def message_pin_v1(token, message_id):
     message['is_pinned'] = True
     save()
     return {}
+
+def message_unpin_v1(token, message_id):
+    '''
+    Given a message within a channel or DM, remove its mark as "pinned".
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <message_id>   (<int>)      - unique id of a message
+
+    Exceptions:
+        InputError      - Occurs when message_id is not a valid message within a channel or DM 
+                          that the authorised user has joined
+                        - Occurs when the message is not already pinned
+
+        AccessError     - Occurs when token is invalid
+                        - Occurs when message_id refers to a valid message in a joined channel/DM and 
+                          the authorised user does not have owner permissions in the channel/DM
+    
+    Return Value:
+        N/A
+    '''
+
+    # invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
+    auth_user_id = decode_token(token)
+    message_id = int(message_id)
+
+    # message_id is not valid
+    if not check_valid_channel_dm_message_ids(message_id):
+        raise InputError(description="The message_id is invalid.")
+        
+    # message_id refers to a valid message in a joined channel/DM and 
+    # the authorised user does not have owner permissions in the channel/DM
+    if not check_authorised_user_pin(message_id, auth_user_id):
+        raise AccessError(description="The user is unauthorised to unpin the message.")
+        
+    # message is not already pinned
+    message = get_message(message_id)
+    if message['is_pinned'] == False:
+        raise InputError(description="The message is not already pinned.")
+
+    message['is_pinned'] = False
+    save()
+    return {}

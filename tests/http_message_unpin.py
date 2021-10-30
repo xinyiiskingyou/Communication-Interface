@@ -114,7 +114,7 @@ def test_unpin_invalid_message_id_channel(register_user1, register_user2, user1_
     })
     assert pin.status_code == 400
 
-    # Access Error: invalid message_id and no owner permission
+    # Input Error: invalid message_id and no owner permission
     user2_token = register_user2['token']
     user2_id = register_user2['auth_user_id']
 
@@ -130,7 +130,7 @@ def test_unpin_invalid_message_id_channel(register_user1, register_user2, user1_
         'token': user2_token,
         'message_id': -1,
     })
-    assert pin.status_code == 403
+    assert pin.status_code == 400
 
     # Access Error: invalid token and invalid message_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -151,7 +151,7 @@ def test_unpin_invalid_message_id_dm(register_user1, register_user2, user1_dm):
     })
     assert pin.status_code == 400
 
-    # Access Error: invalid message_id and no owner permission
+    # Input Error: invalid message_id and no owner permission
     # user2 is a member in dm
     user2_token = register_user2['token']
 
@@ -159,7 +159,7 @@ def test_unpin_invalid_message_id_dm(register_user1, register_user2, user1_dm):
         'token': user2_token,
         'message_id': -1,
     })
-    assert pin.status_code == 403
+    assert pin.status_code == 400
 
     # Access Error: invalid token and invalid message_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -172,7 +172,7 @@ def test_unpin_invalid_message_id_dm(register_user1, register_user2, user1_dm):
     assert pin.status_code == 403
 
 # Input error: unpin a message that has been removed in channel
-def test_unpin_removed_message_id1_channel(register_user1, user1_channel_message_id):
+def test_unpin_removed_message_id1_channel(register_user1, user1_channel_message_id, register_user2):
     user1_token = register_user1['token']
 
     remove_message = requests.delete(config.url + "message/remove/v1", json = {
@@ -181,6 +181,7 @@ def test_unpin_removed_message_id1_channel(register_user1, user1_channel_message
     })
     assert remove_message.status_code == 200
 
+    '''
     pin = requests.post(config.url + "message/unpin/v1", json = {
         'token': user1_token,
         'message_id': user1_channel_message_id,
@@ -188,7 +189,7 @@ def test_unpin_removed_message_id1_channel(register_user1, user1_channel_message
     assert pin.status_code == 400
 
     # Access Error: invalid message_id and no owner permission
-    user2_token = register_user2['token']
+    
     user2_id = register_user2['auth_user_id']
 
     # user2 is invited as a member to the channel
@@ -198,12 +199,13 @@ def test_unpin_removed_message_id1_channel(register_user1, user1_channel_message
         'u_id': user2_id
     })
     assert invite.status_code == 200
-
+    '''
+    user2_token = register_user2['token']
     pin = requests.post(config.url + "message/unpin/v1", json = {
         'token': user2_token,
         'message_id': user1_channel_message_id,
     })
-    assert pin.status_code == 403
+    assert pin.status_code == 400
 
     # Access Error: invalid token and invalid message_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -216,7 +218,7 @@ def test_unpin_removed_message_id1_channel(register_user1, user1_channel_message
     assert pin.status_code == 403
 
 # Input error: unpin a message that has been removed
-def test_unpin_removed_message_id1_dm(register_user1, user1_send_dm):
+def test_unpin_removed_message_id1_dm(register_user1, user1_send_dm, register_user2):
     user1_token = register_user1['token']
 
     remove_message = requests.delete(config.url + "message/remove/v1", json = {
@@ -238,7 +240,7 @@ def test_unpin_removed_message_id1_dm(register_user1, user1_send_dm):
         'token': user2_token,
         'message_id': user1_send_dm,
     })
-    assert pin.status_code == 403
+    assert pin.status_code == 400
 
     # Access Error: invalid token and invalid message_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -288,7 +290,7 @@ def test_unpin_not_pinned_channel(register_user1, user1_channel_message_id, user
     assert unpin3.status_code == 403
 
 # The message in dm is not pinned
-def test_unpin_not_pinned_dm(register_user1, user1_send_dm):
+def test_unpin_not_pinned_dm(register_user1, user1_send_dm, register_user2):
     user1_token = register_user1['token']
 
     # Input error: the message in dm is not pinned
