@@ -251,3 +251,23 @@ def test_logout():
         'token': token2
     })
     assert logout3.status_code == 200
+
+
+##########################################
+#### auth_passwordreset_request tests ####
+##########################################
+
+def test_auth_passwordreset_request_valid():
+    requests.delete(config.url + "clear/v1")
+    register = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    pass_request = requests.post(config.url + 'auth/passwordreset/request', json = {
+        'email': 'abc@gmail.com'
+    })
+
+    assert pass_request.status_code == 200
