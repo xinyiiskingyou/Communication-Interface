@@ -197,4 +197,40 @@ def auth_passwordreset_request_v1(email):
             user['session_list'].clear
             save()
     
+    # Send email
+    
+    return {}
+
+def auth_passwordreset_reset_v1(reset_code, new_password):
+    '''
+    Given a reset code for a user, set that user's new password to the password provided
+
+    Arguments:
+        <reset_code>      (<string>)    - random length of string 20 consisting of uppercase
+                                        and lowercase letters
+
+    Exceptions:
+        InputError  - Occurs when reset_code entered is not valid
+                    - Occurs when new_password entered is < 6 characters in length 
+
+    Return Value:
+        Returns <{}> when user successfully changes password
+    '''
+    # Invalid reset code
+    for user in get_data()['users']:
+        if user['reset_code'] != reset_code:
+            raise InputError(description='Invalid reset_code')
+
+    # Invalid password length
+    if len(new_password) in range(6):
+        raise InputError(description='Password entered is less then  6 characers in length')
+
+    # Get valid user
+    for user in get_data()['users']:
+        if user['reset_code'] == reset_code:
+            new_password = hashlib.sha256(new_password.encode()).hexdigest() 
+            user['password'] = new_password
+            user['reset_code'] = ''
+            save()
+    
     return {}

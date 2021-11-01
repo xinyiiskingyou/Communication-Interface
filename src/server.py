@@ -7,7 +7,7 @@ from src import config
 from src.data_store import save, get_data
 
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
-from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1
+from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
@@ -95,6 +95,12 @@ def pass_request():
     resp = auth_passwordreset_request_v1(json['email'])
     return dumps(resp)
 
+# Uses code from passwordreset_request to change password
+@APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
+def pass_reset():
+    json = request.get_json()
+    resp = auth_passwordreset_reset_v1(json['new_code'], json['new_password'])
+    return dumps(resp)
 
 ############ CHANNELS #################
 
