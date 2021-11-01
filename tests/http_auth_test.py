@@ -271,3 +271,171 @@ def test_auth_passwordreset_request_valid():
     })
 
     assert pass_request.status_code == 200
+
+##########################################
+##### auth_passwordreset_reset tests #####
+##########################################
+
+# Input Error: invalid code was given
+def test_auth_passwordrequest_reset_invalid_code():
+    requests.delete(config.url + "clear/v1")
+    register = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'email': 'abc@gmail.com'
+    })
+    assert json.loads(register.text)['session_list'] == []
+
+    # Check invalid reset code
+    pass_reset = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'reset_code': '',
+        'new_password': 'new_password'
+    })
+
+    assert pass_reset.status_code == 400
+
+# Input Error: password length is < 6 characters long
+def test_auth_passwordrequest_reset_invalid_password_length():
+    requests.delete(config.url + "clear/v1")
+    register = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'email': 'abc@gmail.com'
+    })
+    assert json.loads(register.text)['session_list'] == []
+
+    # Get reset code
+    reset_code = json.loads(register.text)['reset_code']
+
+    # Check invalid password length
+    pass_reset = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'reset_code': reset_code,
+        'new_password': '12345'
+    })
+
+    assert pass_reset.status_code == 400
+
+##### Implementation #####
+
+# Check that they are not able to log in with old password
+def test_auth_passwordreset_reset_old():
+    requests.delete(config.url + "clear/v1")
+    register = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'email': 'abc@gmail.com'
+    })
+
+    # Get reset code
+    reset_code = json.loads(register.text)['reset_code']
+
+    # Send in the code to the passwordrequest_reset function
+    pass_reset = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'reset_code': reset_code,
+        'new_password': 'new_password'
+    })
+
+    # Check they are logged out of all sessions
+    assert pass_reset == 200
+    assert json.loads(register.text)['session_list'] == []
+    
+    # Check old password is invalid
+    login = requests.post(config.url + "auth/login/v2",json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+    })
+    assert login.status_code == 400
+
+
+# Check that they are able to log in with new password
+def test_auth_passwordreset_reset_new():
+    requests.delete(config.url + "clear/v1")
+    register = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'email': 'abc@gmail.com'
+    })
+
+    # Get reset code
+    reset_code = json.loads(register.text)['reset_code']
+
+    # Send in the code to the passwordrequest_reset function
+    pass_reset = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'reset_code': reset_code,
+        'new_password': 'new_password'
+    })
+
+    # Check they are logged out of all sessions
+    assert pass_reset == 200
+    assert json.loads(register.text)['session_list'] == []
+    
+    # Check new password is valid
+    login = requests.post(config.url + "auth/login/v2",json = {
+        'email': 'abc@gmail.com',
+        'password': 'new_password',
+    })
+    assert login.status_code == 200
+
+# Check that they are logged out of all sessions
+def test_auth_passwordreset_reset_sessions():
+    requests.delete(config.url + "clear/v1")
+    register = requests.post(config.url + "auth/register/v2", json = {
+        'email': 'abc@gmail.com',
+        'password': 'password',
+        'name_first': 'anna',
+        'name_last': 'park'
+    })
+
+    # Log user in several times
+    login1 = requests.post(config.url + "auth/login/v2",json = {
+        'email': 'abc@gmail.com',
+        'password': 'new_password',
+    })
+    login2 = requests.post(config.url + "auth/login/v2",json = {
+        'email': 'abc@gmail.com',
+        'password': 'new_password',
+    })
+    login3 = requests.post(config.url + "auth/login/v2",json = {
+        'email': 'abc@gmail.com',
+        'password': 'new_password',
+    })
+
+    assert len(json.loads(register.text)['session_list']) == 4
+
+    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'email': 'abc@gmail.com'
+    })
+
+    # Get reset code
+    reset_code = json.loads(register.text)['reset_code']
+
+    # Send in the code to the passwordrequest_reset function
+    pass_reset = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
+        'reset_code': reset_code,
+        'new_password': 'new_password'
+    })
+
+    # Check they are logged out of all sessions
+    assert pass_reset == 200
+    assert json.loads(register.text)['session_list'] == []
+    

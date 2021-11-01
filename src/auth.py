@@ -190,8 +190,11 @@ def auth_passwordreset_request_v1(email):
     # Get valid user
     for user in get_data()['users']:
         if user['email'] == email:
+            # Generate code
             reset_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_letters) for i in range(20)) 
             user['reset_code'] = reset_code
+            # Log them out of all sessions
+            user['session_list'].clear
             save()
     
     return {}
