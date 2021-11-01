@@ -2,6 +2,8 @@
 Auth implementation
 '''
 import re
+import string
+import random
 import hashlib
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
@@ -117,6 +119,7 @@ def auth_register_v2(email, password, name_first, name_last):
     token = generate_token(auth_user_id, session_id)
 
     password = hashlib.sha256(password.encode()).hexdigest() 
+    reset_code = ''
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -159,6 +162,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'handle_str' : handle,
         'permission_id' : permission_id,
         'is_removed': bool(is_removed),
+        'reset_code': reset_code
     })
     save()
 
@@ -166,3 +170,28 @@ def auth_register_v2(email, password, name_first, name_last):
         'token': token,
         'auth_user_id': auth_user_id
     }
+
+def auth_passwordreset_request_v1(email):
+    '''
+    Given a user's email address, if they are a registered user, sends an email containing a
+    reset code to passwordrequest_reset that when entered into the passwordrequest_reset function,
+    shows that the user trying to reset the password is the one who got sent the email
+
+    Arguments:
+        <email>      (<string>)    - correct format of an email of the user
+
+    Exceptions:
+        N/A
+
+    Return Value:
+        Returns <{}> when user successfully requests a password reset
+    '''
+
+    # Get valid user
+    for user in get_data()['users']:
+        if user['email'] == email:
+            reset_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_letters) for i in range(20)) 
+            user['reset_code'] = reset_code
+            save()
+    
+    return {}

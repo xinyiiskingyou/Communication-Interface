@@ -266,7 +266,7 @@ def test_auth_passwordreset_request_valid():
         'name_last': 'park'
     })
 
-    pass_request = requests.post(config.url + 'auth/passwordreset/request', json = {
+    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
         'email': 'abc@gmail.com'
     })
 
