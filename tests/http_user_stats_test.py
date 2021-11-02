@@ -158,7 +158,7 @@ def test_valid_user_send_message(global_owner, user1_send_dm, user1_channel_mess
     assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
     assert json.loads(stats.text)['user_stats']['involvement_rate'] != 0
 
-def test_valid_involvement_rate_greater_than_1(global_owner, user1_channel_message_id, create_channel):
+def test_valid_message_length(global_owner, user1_channel_message_id, create_channel):
     token = global_owner['token']
 
     # remove a message
@@ -190,3 +190,29 @@ def test_valid_involvement_rate_greater_than_1(global_owner, user1_channel_messa
     assert len(json.loads(messages.text)['messages']) == 1
 
     assert json.loads(stats.text)['user_stats']['involvement_rate'] == 1.0
+
+# Test the range of involvement rate is between 0 to 1
+def test_valid_involvement_rate_less_than_1(global_owner, register_user2, create_channel):
+    # user1 creates a channel
+    token = global_owner['token']
+    assert create_channel['channel_id'] != None
+
+    # user2 creates 2 channels
+    requests.post(config.url + "channels/create/v2", json ={
+        'token': register_user2['token'],
+        'name': 'anna',
+        'is_public': True
+    })
+
+    requests.post(config.url + "channels/create/v2", json ={
+        'token': register_user2['token'],
+        'name': 'anna1',
+        'is_public': True
+    })
+
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+    assert json.loads(stats.text)['user_stats']['involvement_rate'] < 1
+    assert json.loads(stats.text)['user_stats']['involvement_rate'] > 0
