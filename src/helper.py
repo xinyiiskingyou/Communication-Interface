@@ -235,8 +235,6 @@ def check_permission(u_id, permission_id):
 #################################################
 
 # Helper function for message_edit_v1
-<<<<<<< HEAD
-=======
 # Checks if message_id refers to a valid message within a channel/DM
 # that the authorised user has joined
 # Returns true if valid message_id
@@ -302,7 +300,6 @@ def check_valid_message_id(auth_user_id, message_id):
         return False
 
 # Helper function for message_edit_v1
->>>>>>> 57491dd47fd6a290ce83e9b4ff1633e6e1f3d77e
 # Checks if user is authorised to edit message
 # Returns true if authorised user
 # Returns false otherwise 
