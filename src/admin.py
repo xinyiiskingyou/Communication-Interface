@@ -91,7 +91,6 @@ def admin_user_remove_v1(token, u_id):
             # invalidate user's token
             user['session_list'].clear()
             save()
-    save()
     return {}
 
 def admin_userpermission_change_v1(token, u_id, permission_id):

@@ -61,7 +61,6 @@ def channel_invite_v2(token, channel_id, u_id):
             # append the new user details to all_member
             channel['all_members'].append(new_user)
             save()
-    save()
     return {}
 
 def channel_details_v2(token, channel_id):
@@ -273,7 +272,6 @@ def channel_leave_v1(token, channel_id):
         if owner['u_id'] == auth_user_id:
             channels['owner_members'].remove(owner)
             save()
-    save()
     return {}
 
 def channel_addowner_v1(token, channel_id, u_id):
@@ -330,7 +328,6 @@ def channel_addowner_v1(token, channel_id, u_id):
     for channels in get_data()['channels']:
         channels['owner_members'].append(user)
         save()
-    save()
     return {}
 
 def channel_removeowner_v1(token, channel_id, u_id):
@@ -387,5 +384,4 @@ def channel_removeowner_v1(token, channel_id, u_id):
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
                 save()
-    save()
     return {}

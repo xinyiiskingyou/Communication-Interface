@@ -219,7 +219,6 @@ def dm_leave_v1(token, dm_id):
                 if dm['creator']['u_id'] == auth_user_id:
                     dm['creator'].clear()
         save()
-    save()
     return{}
 
 def dm_messages_v1(token, dm_id, start): 
