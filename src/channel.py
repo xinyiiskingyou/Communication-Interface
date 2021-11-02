@@ -4,7 +4,7 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner, check_only_owner, check_channel_owner_permission
+from src.helper import channels_create_check_valid_user, check_valid_owner, check_channel_owner_permission
 from src.data_store import save, get_data
 from src.server_helper import decode_token, valid_user
 
@@ -328,6 +328,7 @@ def channel_addowner_v1(token, channel_id, u_id):
     for channels in get_data()['channels']:
         channels['owner_members'].append(user)
         save()
+
     return {}
 
 def channel_removeowner_v1(token, channel_id, u_id):
@@ -375,7 +376,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError(description = 'The u_id does not refer to a user who is not an owner of the channel')
 
     # u_id refers to a user who is currently the only owner of the channel
-    channel = check_only_owner(u_id, channel_id)
+    channel = get_channel_details(channel_id)
     if len(channel['owner_members']) == 1:
         raise InputError(description = 'The u_id refers to a user who is currently the only owner of the channel')
     

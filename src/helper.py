@@ -157,19 +157,6 @@ def check_valid_owner(auth_user_id, channel_id):
                     return True
     return False
 
-
-# Helper function for channel_removeowner
-# Check if there is only one owner left in channel
-# Returns true only one owner left
-# Returns false otherwise
-def check_only_owner(auth_user_id, channel_id):
-    
-    for channels in get_data()['channels']:
-        if channels['channel_id'] == channel_id:
-            for member in channels['owner_members']:
-                if member['u_id'] == auth_user_id:
-                    return channels
-
 # Helper function for channel_addowner, channel_removeowner
 # Checks if auth_user_id has owner permission
 # Returns true if they are global owners
@@ -228,7 +215,6 @@ def check_permission(u_id, permission_id):
         if permission_id == 1:
             return True
     return False
-
 
 #################################################
 ######## Helper functions for message.py ########
@@ -344,29 +330,6 @@ def check_authorised_user_edit(auth_user_id, message_id):
     else:
         return False
 
-# Helper function for message_pin
-# Returns true if the user has owner permission
-def check_authorised_user_pin(message_id, auth_user_id):
-    found = 0
-    if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            for owner in channel['owner_members']:
-                if owner['u_id'] == auth_user_id:
-                    found = 1
-            for member in channel['all_members']:         
-                if member['u_id'] ==  auth_user_id:
-                    if check_permision_id(member['u_id']):
-                        found = 1
-                                
-    if message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            if len(dm['creator']) > 0:
-                if dm['creator']['u_id'] == auth_user_id:
-                    found = 1
-    if found == 1:
-        return True
-    return False
-
 # Helper function for message_Edit
 # Returns true if valid message length
 # Returns false otherwise
@@ -397,9 +360,31 @@ def check_valid_channel_dm_message_ids(message_id):
         return True
     return False
 
+# Helper function for message_pin
+# Returns true if the user has owner permission
+def check_authorised_user_pin(message_id, auth_user_id):
+    found = 0
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for owner in channel['owner_members']:
+                if owner['u_id'] == auth_user_id:
+                    found = 1
+            for member in channel['all_members']:         
+                if member['u_id'] ==  auth_user_id:
+                    if check_permision_id(member['u_id']):
+                        found = 1
+    if message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            if len(dm['creator']) > 0:
+                if dm['creator']['u_id'] == auth_user_id:
+                    found = 1
+    if found == 1:
+        return True
+    return False
+
 # Helper function for message/react and message/unreact
 # Returns a dict of react in the channel/dm
-def get_channel_reacts(message_id, react_id):
+def get_reacts(message_id, react_id):
     if message_id % 2 == 1:
         for channel in get_data()['channels']:
             for message in channel['messages']:

@@ -7,7 +7,7 @@ from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, check_valid_message
 from src.helper import check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
-from src.helper import get_message, get_channel_reacts, check_valid_channel_dm_message_ids, check_valid_message_id
+from src.helper import get_message, get_reacts, check_valid_channel_dm_message_ids, check_valid_message_id
 from src.server_helper import decode_token, valid_user
 
 def message_send_v1(token, channel_id, message):
@@ -252,7 +252,7 @@ def message_react_v1(token, message_id, react_id):
     if react_id != 1:
         raise InputError(description="The react_id is invalid.")
     
-    react = get_channel_reacts(message_id, react_id)
+    react = get_reacts(message_id, react_id)
     # the message already contains a react with ID react_id
     if auth_user_id in react['u_ids']:
         raise InputError(description= "Message already contains a react with ID react_id")
@@ -301,7 +301,7 @@ def message_unreact_v1(token, message_id, react_id):
         raise InputError(description="The react_id is invalid.")
     
     # the message does not contain a react with ID react_id
-    react = get_channel_reacts(message_id, react_id)
+    react = get_reacts(message_id, react_id)
     if auth_user_id not in react['u_ids']:
         raise InputError(description= "Message already contains a react with ID react_id")
 
