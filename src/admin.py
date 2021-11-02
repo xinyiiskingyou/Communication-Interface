@@ -3,7 +3,7 @@ Admin implementation
 '''
 from src.error import InputError, AccessError
 from src.helper import check_permision_id, channels_create_check_valid_user, check_number_of_owners, check_permission
-from src.helper import get_user_details, get_channel_message
+from src.helper import get_user_details
 from src.data_store import get_data, save
 from src.server_helper import decode_token, valid_user
 
@@ -52,8 +52,9 @@ def admin_user_remove_v1(token, u_id):
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
         # replace the message they sent in the channel to be 'Removed user'
-        message = get_channel_message(u_id, channel)
-        message['message'] = 'Removed user'
+        for message in channel['messages']:
+            if message['u_id'] == u_id:
+                message['message'] = 'Removed user'
         save()
 
     # remove users from dm
@@ -90,7 +91,6 @@ def admin_user_remove_v1(token, u_id):
             # invalidate user's token
             user['session_list'].clear()
             save()
-    save()
     return {}
 
 def admin_userpermission_change_v1(token, u_id, permission_id):

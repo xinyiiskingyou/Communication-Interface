@@ -2,27 +2,17 @@ import pytest
 import requests
 import json
 from src import config
-
-@pytest.fixture
-def register_user():
-    requests.delete(config.url + "clear/v1")
-    user = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'cat@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-    user_data = user.json()
-    return user_data
+from tests.fixture import global_owner, register_user2, create_channel
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
 ######### channels_create tests ##########
 ##########################################
 
 # AccessError Invalid token
-def test_create_invalid_token(register_user):
+def test_create_invalid_token(global_owner):
     
-    token = register_user['token']
+    token = global_owner['token']
 
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
@@ -33,7 +23,7 @@ def test_create_invalid_token(register_user):
         'name': '1531_CAMEL',
         'is_public': True
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
     # Private
     resp3 = requests.post(config.url + "channels/create/v2", json ={
@@ -41,7 +31,7 @@ def test_create_invalid_token(register_user):
         'name': '1531_CAMEL',
         'is_public': False
     })
-    assert resp3.status_code == 403
+    assert resp3.status_code == ACCESSERROR
 
     # invalid token with invalid channel name
     resp3 = requests.post(config.url + "channels/create/v2", json ={
@@ -50,12 +40,12 @@ def test_create_invalid_token(register_user):
         'is_public': False
     })
 
-    assert resp3.status_code == 403
+    assert resp3.status_code == ACCESSERROR
 
 # InputError when length of name is less than 1 or more than 20 characters
-def test_create_invalid_name(register_user):
+def test_create_invalid_name(global_owner):
 
-    token1 = register_user['token']
+    token1 = global_owner['token']
     resp1 = requests.post(config.url + "channels/create/v2", json ={
         'token': token1,
         'name': '',
@@ -86,16 +76,16 @@ def test_create_invalid_name(register_user):
         'is_public': True
     })
 
-    assert resp1.status_code == 400
-    assert resp2.status_code == 400
-    assert resp3.status_code == 400
-    assert resp4.status_code == 400
-    assert resp5.status_code == 400
+    assert resp1.status_code == INPUTERROR
+    assert resp2.status_code == INPUTERROR
+    assert resp3.status_code == INPUTERROR
+    assert resp4.status_code == INPUTERROR
+    assert resp5.status_code == INPUTERROR
 
 # Assert channel_id can never be a negative number
-def test_create_negative_channel_id(register_user):
+def test_create_negative_channel_id(global_owner):
 
-    token1 = register_user['token']
+    token1 = global_owner['token']
     resp = requests.post(config.url + "channels/create/v2", json ={
         'token': token1,
         'name': '1531_CAMEL',
@@ -106,22 +96,22 @@ def test_create_negative_channel_id(register_user):
 
 ##### Implementation #####
 # Assert channel_id for one, two and three channels created by two different users
-def test_create_valid_channel_id(register_user):
+def test_create_valid_channel_id(global_owner):
 
-    auth_user_id1 = register_user['token']
+    auth_user_id1 = global_owner['token']
     resp1 = requests.post(config.url + "channels/create/v2", json ={
         'token': auth_user_id1,
         'name': '1531_CAMEL_1',
         'is_public': True
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
     resp2 = requests.post(config.url + "channels/create/v2", json ={
         'token': auth_user_id1,
         'name': '1531_CAMEL_2',
         'is_public': True
     })
-    assert resp2.status_code == 200
+    assert resp2.status_code == VALID
 
     id2 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'abc2@gmail.com',
@@ -136,7 +126,7 @@ def test_create_valid_channel_id(register_user):
         'name': '1531_CAMEL_3',
         'is_public': True
     })
-    assert resp3.status_code == 200
+    assert resp3.status_code == VALID
 
     id3 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'abc3@gmail.com',
@@ -151,16 +141,16 @@ def test_create_valid_channel_id(register_user):
         'name': '1531_CAMEL_3',
         'is_public': False
     })
-    assert resp4.status_code == 200
+    assert resp4.status_code == VALID
 
 ##########################################
 ######### channels_list tests ############
 ##########################################
 
 # Access Error: invalid token
-def test_channel_list_invalid_token(register_user):
+def test_channel_list_invalid_token(global_owner):
 
-    token = register_user['token']
+    token = global_owner['token']
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -168,24 +158,24 @@ def test_channel_list_invalid_token(register_user):
     list1 = requests.get(config.url + 'channels/list/v2', params ={
         'token': token
     })
-    assert list1.status_code == 403
+    assert list1.status_code == ACCESSERROR
 
 ##### Implementation #####
 
 # test when an user does not create a channel
-def test_no_channel(register_user):
+def test_no_channel(global_owner):
 
-    token = register_user['token']
+    token = global_owner['token']
     list1 = requests.get(config.url + 'channels/list/v2', params ={
         'token': token
     })
     assert json.loads(list1.text) == {'channels': []}
-    assert list1.status_code == 200
+    assert list1.status_code == VALID
 
 # test one user creates a channel and can be appended in the list
-def test_channel_list(register_user):
+def test_channel_list(global_owner):
 
-    token = register_user['token']
+    token = global_owner['token']
 
     channel = requests.post(config.url + "channels/create/v2", 
         json = {
@@ -208,11 +198,11 @@ def test_channel_list(register_user):
             }
         ],
     })
-    assert list1.status_code == 200
+    assert list1.status_code == VALID
 
 # When user is not part of the channel
-def test_channel_list_not_member_of_channel(register_user):
-    id1_token = register_user['token']
+def test_channel_list_not_member_of_channel(global_owner):
+    id1_token = global_owner['token']
     id2 = requests.post(config.url + "auth/register/v2", json ={
         'email': 'abc2@gmail.com',
         'password': 'password',
@@ -226,7 +216,7 @@ def test_channel_list_not_member_of_channel(register_user):
         'name': '1531_CAMEL_2',
         'is_public': True
     })
-    assert resp2.status_code == 200
+    assert resp2.status_code == VALID
 
     list1 = requests.get(config.url + 'channels/list/v2', params ={
         'token': id1_token
@@ -235,38 +225,37 @@ def test_channel_list_not_member_of_channel(register_user):
         {
         'channels':[],
     })
-    assert list1.status_code == 200
-
+    assert list1.status_code == VALID
 
 ##########################################
 ######### channels_listall tests #########
 ##########################################
 
 # Access Error: invalid token
-def test_channel_listall_invalid_token(register_user):
+def test_channel_listall_invalid_token(global_owner):
 
-    token = register_user['token']
+    token = global_owner['token']
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
     listall = requests.get(config.url + 'channels/listall/v2', params ={
         'token': token
     })
-    assert listall.status_code == 403
+    assert listall.status_code == ACCESSERROR
 
 #empty 
-def test_listall_no_channel(register_user): 
+def test_listall_no_channel(global_owner): 
 
-    token = register_user['token']
+    token = global_owner['token']
     listall = requests.get(config.url + 'channels/listall/v2', params ={
         'token': token
     })
     assert json.loads(listall.text) == {'channels': []}
-    assert listall.status_code == 200
+    assert listall.status_code == VALID
 
-def test_listall(register_user): 
+def test_listall(global_owner): 
 
-    token1 = register_user['token']
+    token1 = global_owner['token']
     
     channel1 = requests.post(config.url + "channels/create/v2", 
         json = {
@@ -291,10 +280,11 @@ def test_listall(register_user):
             }
         ],
     })
-    assert listall1.status_code == 200
+    assert listall1.status_code == VALID
+
 #test to fix coverage  
-def test_list_coverage(register_user):
-    token1 = register_user['token']
+def test_list_coverage(global_owner):
+    token1 = global_owner['token']
 
     list1 = requests.get(config.url + "channels/list/v2", params ={ 
             'token': token1
@@ -312,7 +302,7 @@ def test_list_coverage(register_user):
         'name': 'channel1',
         'is_public': True
     })
-    assert channel1.status_code == 200
+    assert channel1.status_code == VALID
 
     channel2 = requests.post(config.url + "channels/create/v2", 
         json = {
@@ -320,7 +310,7 @@ def test_list_coverage(register_user):
         'name': 'channel2',
         'is_public': False
     })
-    assert channel2.status_code == 200
+    assert channel2.status_code == VALID
 
     list1 = requests.get(config.url + "channels/list/v2", params ={ 
             'token': token1

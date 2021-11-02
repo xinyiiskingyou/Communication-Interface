@@ -157,30 +157,12 @@ def check_valid_owner(auth_user_id, channel_id):
                     return True
     return False
 
-
-# Helper function for channel_removeowner
-# Check if there is only one owner left in channel
-# Returns true only one owner left
-# Returns false otherwise
-def check_only_owner(auth_user_id, channel_id):
-    
-    for channels in get_data()['channels']:
-        if channels['channel_id'] == channel_id:
-            for member in channels['owner_members']:
-                if member['u_id'] == auth_user_id:
-                    return channels
-
 # Helper function for channel_addowner, channel_removeowner
 # Checks if auth_user_id has owner permission
 # Returns true if they are global owners
 # Returns false otherwise
 def check_channel_owner_permission(auth_user_id, channel_id):
     found_permission = 0
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            for owner in channel['owner_members']:
-                if owner['u_id'] == auth_user_id:
-                    found_permission = 1
 
     for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
@@ -188,20 +170,13 @@ def check_channel_owner_permission(auth_user_id, channel_id):
                 if member['u_id'] == auth_user_id:
                     if check_permision_id(member['u_id']):
                         found_permission = 1
-        
+            for owner in channel['owner_members']:
+                if owner['u_id'] == auth_user_id:
+                    found_permission = 1
+
     if found_permission == 1:
         return True
     return False
-
-# Helper function for admin_user_remove
-# Gets messages of a user in channels
-# Returns message if found
-# Returns empty dict otherwise
-def get_channel_message(u_id, channel):
-    for message in channel['messages']:
-        if message['u_id'] == u_id:
-            return message
-    return {}
 
 # Helper function for user_profile_setemail
 # Checks valid email
@@ -241,7 +216,6 @@ def check_permission(u_id, permission_id):
             return True
     return False
 
-
 #################################################
 ######## Helper functions for message.py ########
 #################################################
@@ -256,19 +230,7 @@ def check_valid_message_id(auth_user_id, message_id):
     channel_dm_id = 0
 
     # Finds whether or not the message_id exists as a valid message
-    if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            for message in channel['messages']:
-                if message['message_id'] == message_id:
-                    found_message_id = 1
-
-    if message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            for message in dm['messages']:
-                if message['message_id'] == message_id:
-                    found_message_id = 1
-
-    if found_message_id == 0:
+    if not check_valid_channel_dm_message_ids(message_id):
         return False
 
     # Finds the channel_id or dm_id that message is part of 
@@ -368,17 +330,6 @@ def check_authorised_user_edit(auth_user_id, message_id):
     else:
         return False
 
-
-# Helper function for message_edit
-# Returns a dictionary of dm with given dm_id
-def get_message_dict(message_id):
-    '''
-    return type: dictionary
-    '''
-    for message in get_data()['messages']:
-        if message['message_id'] == message_id:
-            return message
-
 # Helper function for message_Edit
 # Returns true if valid message length
 # Returns false otherwise
@@ -389,11 +340,81 @@ def check_valid_message_send_format(message):
     else:
         return True 
 
+# Helper function for message/react, message/unreact, message/pin
+# Returns true if message_id is valid in channel/dm
+# Returns false otherwise
+def check_valid_channel_dm_message_ids(message_id):
+    
+    found = 0
+    for channel in get_data()['channels']:
+        for message in channel['messages']:
+            if message_id == message['message_id']:
+                found = 1
+
+    for dm in get_data()['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                found = 1
+
+    if found == 1:
+        return True
+    return False
+
+# Helper function for message_pin
+# Returns true if the user has owner permission
+def check_authorised_user_pin(message_id, auth_user_id):
+    found = 0
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for owner in channel['owner_members']:
+                if owner['u_id'] == auth_user_id:
+                    found = 1
+            for member in channel['all_members']:         
+                if member['u_id'] ==  auth_user_id:
+                    if check_permision_id(member['u_id']):
+                        found = 1
+    if message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            if len(dm['creator']) > 0:
+                if dm['creator']['u_id'] == auth_user_id:
+                    found = 1
+    if found == 1:
+        return True
+    return False
+
+# Helper function for message/react and message/unreact
+# Returns a dict of react in the channel/dm
+def get_reacts(message_id, react_id):
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for message in channel['messages']:
+                if message['message_id'] == int(message_id):
+                    for react in message['reacts']:
+                        if react['react_id'] == react_id:
+                            return react
+    for dm in get_data()['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                for react in message['reacts']:
+                    if react['react_id'] == react_id:
+                        return react
+
+# Helper function for message/pin
+# Returns a dict of message in the channel/dm
+def get_message(message_id):
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for message in channel['messages']:
+                if message['message_id'] == int(message_id):
+                    return message
+    for dm in get_data()['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                return message
 
 #################################################
 ######## Helper functions for dm.py      ########
 #################################################
-
 
 # Helper function for dm_details, dm_leave, dm_messages, messages_senddm
 # Returns true if valid memeber in dm
@@ -408,7 +429,6 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
                 if member['u_id'] == auth_user_id:
                     return True
     return False
-
 
 # Helper function for message_senddm
 # Returns true if valid message length

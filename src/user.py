@@ -128,7 +128,6 @@ def user_profile_setname_v1(token, name_first, name_last):
                 dm['creator']['name_last'] = name_last  
         save()
 
-    save()
     return {}
 
 def user_profile_setemail_v1(token, email):
@@ -172,24 +171,21 @@ def user_profile_setemail_v1(token, email):
         for member in channel['all_members']:
             if member['u_id'] == auth_user_id:
                 member['email'] = email
-                save()
         for owner in channel['owner_members']:
             if owner['u_id'] == auth_user_id:
                 owner['email'] = email
-                save()
+        save()
 
     # change user's first name and last name in dm
     for dm in get_data()['dms']:
         for member in dm['members']:
             if member['u_id'] == auth_user_id:
                 member['email'] = email  
-                save()
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator']['email'] = email
-                save()
+        save()
 
-    save()
     return {}
 
 def user_profile_sethandle_v1(token, handle_str):
@@ -239,21 +235,18 @@ def user_profile_sethandle_v1(token, handle_str):
         for member in channel['all_members']:
             if member['u_id'] == auth_user_id:
                 member['handle_str'] = handle_str
-                save()
         for owner in channel['owner_members']:
             if owner['u_id'] == auth_user_id:
                 owner['handle_str'] = handle_str
-                save()
+        save()
     
     # change user's first name and last name in dm
     for dm in get_data()['dms']:
         for member in dm['members']:
             if member['u_id'] == auth_user_id:
                 member['handle_str'] = handle_str
-                save()
         if len(dm['creator']) > 0:
             if dm['creator']['u_id'] == auth_user_id:
                 dm['creator']['handle_str'] = handle_str
-                save()
-    save()
+        save()
     return {}
