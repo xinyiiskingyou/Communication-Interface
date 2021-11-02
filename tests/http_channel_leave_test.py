@@ -1,52 +1,18 @@
 import pytest 
 import requests
 import json
-from requests.api import request 
 from src import config
-
-@pytest.fixture
-def register_user():
-
-    requests.delete(config.url + "clear/v1")
-    user = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'abcdef@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-    user_data = user.json()
-    return user_data
-
-@pytest.fixture
-def register_user1():
-    user1 = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'abcd@gmail.com',
-        'password': 'password',
-        'name_first': 'sally',
-        'name_last': 'li'
-    })
-    user1_data = user1.json()
-    return user1_data
-
-@pytest.fixture
-def create_channel(register_user):
-
-    channel = requests.post(config.url + "channels/create/v2", json ={
-        'token': register_user['token'],
-        'name': 'anna',
-        'is_public': True
-    })
-    channel_data = channel.json()
-    return channel_data
+from tests.fixture import global_owner, register_user2, create_channel
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
 ########## channel_leave tests ###########
 ##########################################
 
 # Access error: invalid token
-def test_leave_invalid_token(register_user, create_channel):
+def test_leave_invalid_token(global_owner, create_channel):
 
-    token = register_user['token']
+    token = global_owner['token']
     channel_id = create_channel['channel_id']
 
     requests.post(config.url + "auth/logout/v1", json = {
@@ -57,25 +23,25 @@ def test_leave_invalid_token(register_user, create_channel):
         'token': token, 
         'channel_id': channel_id
     }) 
-    assert leave.status_code == 403
+    assert leave.status_code == ACCESSERROR
 
 # Invalid channel_id 
-def test_invalid_leave_channel_id(register_user):
+def test_invalid_leave_channel_id(global_owner):
 
-    token = register_user['token']
+    token = global_owner['token']
 
     # Input error: invalid channel_id
     leave = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token, 
         'channel_id': -1
     }) 
-    assert leave.status_code == 400
+    assert leave.status_code == INPUTERROR
 
     leave = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token, 
         'channel_id': ''
     }) 
-    assert leave.status_code == 400
+    assert leave.status_code == INPUTERROR
 
     # Access error: invalid token and invalid channel_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -85,20 +51,20 @@ def test_invalid_leave_channel_id(register_user):
         'token': token, 
         'channel_id': -1
     }) 
-    assert leave1.status_code == 403
+    assert leave1.status_code == ACCESSERROR
 
 # Access error: valid channel_idd but the authorised user is not a member of the channel
-def test_invalid_leave_not_member(register_user1, create_channel):
+def test_invalid_leave_not_member(register_user2, create_channel):
 
     # token doesn't not refer to any member in this channel
-    token = register_user1['token']
+    token = register_user2['token']
     channel_id1 = create_channel['channel_id']
 
     leave = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token, 
         'channel_id': channel_id1
     }) 
-    assert leave.status_code == 403
+    assert leave.status_code == ACCESSERROR
 
     user1 = requests.post(config.url + "auth/register/v2", json = {
         'email': 'anna@gmail.com',
@@ -111,15 +77,15 @@ def test_invalid_leave_not_member(register_user1, create_channel):
         'token': user1_token, 
         'channel_id': channel_id1
     }) 
-    assert leave.status_code == 403
+    assert leave.status_code == ACCESSERROR
 
 ###### Implementation ######
 
 # Valid case: remove the member of the channel
-def test_channel_leave_valid(register_user, register_user1, create_channel): 
+def test_channel_leave_valid(global_owner, register_user2, create_channel): 
 
-    token1 = register_user['token']
-    token2 = register_user1['token']
+    token1 = global_owner['token']
+    token2 = register_user2['token']
     assert token1 != token2
     channel_id1 = create_channel['channel_id']
 
@@ -128,20 +94,20 @@ def test_channel_leave_valid(register_user, register_user1, create_channel):
         'token': token2, 
         'channel_id': channel_id1
     })   
-    assert join.status_code == 200
+    assert join.status_code == VALID
 
     # token2 as a member leaves the channel
     respo = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token2, 
         'channel_id': channel_id1
     })  
-    assert respo.status_code == 200
+    assert respo.status_code == VALID
 
 # Valid case: remove the only owner of the channel and the channel will remain
-def test_channel_leave_valid1(register_user, register_user1, create_channel): 
+def test_channel_leave_valid1(global_owner, register_user2, create_channel): 
 
-    token1 = register_user['token']
-    token2 = register_user1['token']
+    token1 = global_owner['token']
+    token2 = register_user2['token']
 
     channel_id1 = create_channel['channel_id']
 
@@ -150,19 +116,19 @@ def test_channel_leave_valid1(register_user, register_user1, create_channel):
         'token': token2, 
         'channel_id': channel_id1
     })   
-    assert respo1.status_code == 200
+    assert respo1.status_code == VALID
 
     # the only owner leaves the channel
     respo = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token1, 
         'channel_id': channel_id1
     })  
-    assert respo.status_code == 200
+    assert respo.status_code == VALID
 
 # Valid case: The only channel owner leaves and rejoins the channel as a member
-def test_owner_leave_add(register_user, register_user1, create_channel): 
-    token1 = register_user['token']
-    token2 = register_user1['token']
+def test_owner_leave_add(global_owner, register_user2, create_channel): 
+    token1 = global_owner['token']
+    token2 = register_user2['token']
 
     channel_id1 = create_channel['channel_id']
 
@@ -171,14 +137,14 @@ def test_owner_leave_add(register_user, register_user1, create_channel):
         'token': token2, 
         'channel_id': channel_id1
     })   
-    assert respo1.status_code == 200
+    assert respo1.status_code == VALID
 
     # the only owner token1 leaves the channel
     leave = requests.post(config.url + "channel/leave/v1",json = { 
         'token': token1, 
         'channel_id': channel_id1
     })  
-    assert leave.status_code == 200
+    assert leave.status_code == VALID
 
     # token1 rejoins the channel and is the member of channel
     # token1 is not a owner of the channel
@@ -186,7 +152,7 @@ def test_owner_leave_add(register_user, register_user1, create_channel):
         'token': token1, 
         'channel_id': channel_id1
     })
-    assert join.status_code == 200 
+    assert join.status_code == VALID 
 
     details = requests.get(config.url + "channel/details/v2", params = { 
         'token': token1, 

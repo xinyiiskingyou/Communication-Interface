@@ -2,6 +2,7 @@ import pytest
 import requests
 import json
 from src import config
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
 ########### auth_register tests ##########
@@ -22,8 +23,8 @@ def test_reg_invalid_email_h():
         'name_first': 'anna',
         'name_last': 'park'
     })
-    assert resp1.status_code == 400
-    assert resp2.status_code == 400
+    assert resp1.status_code == INPUTERROR
+    assert resp2.status_code == INPUTERROR
 
 # Input error for duplicate email
 def test_reg_duplicate_email_h():
@@ -34,7 +35,7 @@ def test_reg_duplicate_email_h():
         'name_first': 'anna',
         'name_last': 'park'
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
     resp2 = requests.post(config.url + "auth/register/v2", json = {
         'email': 'abc@gmail.com',
@@ -42,7 +43,7 @@ def test_reg_duplicate_email_h():
         'name_first': 'john',
         'name_last': 'doe'
     }) 
-    assert resp2.status_code == 400
+    assert resp2.status_code == INPUTERROR
 
 # Input error for invalid password
 def test_reg_invalid_password_h():
@@ -53,7 +54,7 @@ def test_reg_invalid_password_h():
         'name_first': 'anna',
         'name_last': 'park'
     }) 
-    assert resp1.status_code == 400 
+    assert resp1.status_code == INPUTERROR 
 
 # Input error for the name is not between 1 and 50 characters
 def test_reg_invalid_name_h():
@@ -70,8 +71,8 @@ def test_reg_invalid_name_h():
         'name_first': 'anna',
         'name_last': 'a' * 53
     }) 
-    assert resp1.status_code == 400 
-    assert resp2.status_code == 400 
+    assert resp1.status_code == INPUTERROR 
+    assert resp2.status_code == INPUTERROR 
 
 ##### Implementation #####
 
@@ -100,8 +101,8 @@ def test_reg_return_values_h():
     assert json.loads(resp1.text) == {'token': token1, 'auth_user_id': id1}
     assert json.loads(resp2.text) == {'token': token2, 'auth_user_id': id2}
     assert id1 != id2
-    assert resp1.status_code == 200
-    assert resp2.status_code == 200
+    assert resp1.status_code == VALID
+    assert resp2.status_code == VALID
 
 # test valid handle generation
 def test_reg_handle_h():
@@ -136,8 +137,6 @@ def test_reg_handle_h():
     handle2 = json.loads(profile2.text)['users'][1]['handle_str']
     assert handle2 == 'annabelleparkerparke'
 
-
-
 ##########################################
 ############ auth_login tests ############
 ##########################################
@@ -155,7 +154,7 @@ def test_login_email_not_belong_to_user():
         'email': 'def@gmail.dom',
         'password': 'password',
     })
-    assert resp2.status_code == 400
+    assert resp2.status_code == INPUTERROR
 
 # Input error when password is not correct
 def test_login_incorrect_password():
@@ -170,7 +169,7 @@ def test_login_incorrect_password():
         'email': 'abc@gmail.com',
         'password': 'wrong password',
     })
-    assert resp2.status_code == 400
+    assert resp2.status_code == INPUTERROR
 
 # valid case
 def test_login_valid():
@@ -187,7 +186,7 @@ def test_login_valid():
         'email': 'abc@gmail.com',
         'password': 'password',
     })
-    assert login.status_code == 200
+    assert login.status_code == VALID
 
 ##########################################
 ############ auth_logout tests ###########
@@ -207,12 +206,12 @@ def test_logout_invalid_token():
     logout = requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
-    assert logout.status_code == 200
+    assert logout.status_code == VALID
 
     logout1 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
-    assert logout1.status_code == 403
+    assert logout1.status_code == ACCESSERROR
 
 # valid case
 def test_logout():
@@ -240,14 +239,14 @@ def test_logout():
     logout1 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token1
     })
-    assert logout1.status_code == 200
+    assert logout1.status_code == VALID
 
     logout2 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token3
     })
-    assert logout2.status_code == 200
+    assert logout2.status_code == VALID
 
     logout3 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token2
     })
-    assert logout3.status_code == 200
+    assert logout3.status_code == VALID

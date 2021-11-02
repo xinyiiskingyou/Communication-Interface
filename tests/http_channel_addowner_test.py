@@ -2,50 +2,16 @@ import pytest
 import requests
 import json
 from src import config 
-
-@pytest.fixture
-def register_user1():
-
-    requests.delete(config.url + "clear/v1")
-    user = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'afirst',
-        'name_last': 'alast'
-    })
-    user_data = user.json()
-    return user_data
-
-@pytest.fixture
-def register_user2():
-    user1 = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'abcertgh@gmail.com',
-        'password': 'password',
-        'name_first': 'hello',
-        'name_last': 'world'
-    })
-    user1_data = user1.json()
-    return user1_data
-
-# user 1 creates a channel
-@pytest.fixture
-def create_channel(register_user1):
-
-    channel = requests.post(config.url + "channels/create/v2", json ={
-        'token': register_user1['token'],
-        'name': 'anna',
-        'is_public': True
-    })
-    channel_data = channel.json()
-    return channel_data
+from tests.fixture import global_owner, register_user2, create_channel
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
 ######### channel_addowner tests #########
 ##########################################
 
 # Access error: invalid token
-def test_addowner_invalid_token(register_user1, register_user2, create_channel):
-    token = register_user1['token']
+def test_addowner_invalid_token(global_owner, register_user2, create_channel):
+    token = global_owner['token']
     channel_id = create_channel['channel_id']
     u_id = register_user2['auth_user_id']
     requests.post(config.url + "auth/logout/v1", json = {
@@ -56,12 +22,12 @@ def test_addowner_invalid_token(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': u_id
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
 # Input error: invalid channel_id
-def test_invalid_channel_id(register_user1, register_user2):
+def test_invalid_channel_id(global_owner, register_user2):
 
-    token = register_user1['token']
+    token = global_owner['token']
     u_id = register_user2['auth_user_id']
 
     resp1 = requests.post(config.url + "channel/addowner/v1", json ={
@@ -75,8 +41,8 @@ def test_invalid_channel_id(register_user1, register_user2):
         'channel_id': 'abc',
         'u_id': u_id
     })
-    assert resp1.status_code == 400
-    assert resp2.status_code == 400
+    assert resp1.status_code == INPUTERROR
+    assert resp2.status_code == INPUTERROR
 
     # Access error: invalid token and invalid channel_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -87,12 +53,12 @@ def test_invalid_channel_id(register_user1, register_user2):
         'channel_id': 123,
         'u_id': u_id
     })
-    assert resp3.status_code == 403
+    assert resp3.status_code == ACCESSERROR
 
  # Input error: invalid u_id
-def test_invalid_u_id(register_user1, register_user2, create_channel):
+def test_invalid_u_id(global_owner, register_user2, create_channel):
 
-    token = register_user1['token']
+    token = global_owner['token']
     channel_id = create_channel['channel_id']
 
     resp1 = requests.post(config.url + "channel/addowner/v1", json = {
@@ -100,7 +66,7 @@ def test_invalid_u_id(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': -1
     })
-    assert resp1.status_code == 400
+    assert resp1.status_code == INPUTERROR
 
     # Access error: invalid u_id and token has no owner permission
     token2 = register_user2['token']
@@ -124,8 +90,8 @@ def test_invalid_u_id(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': 123
     })
-    assert resp1.status_code == 403
-    assert resp2.status_code == 403
+    assert resp1.status_code == ACCESSERROR
+    assert resp2.status_code == ACCESSERROR
 
     # Access error: invalid token and invalid u_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -136,13 +102,13 @@ def test_invalid_u_id(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': -1
     })
-    assert resp3.status_code == 403
+    assert resp3.status_code == ACCESSERROR
 
 # Input error: u_id not a member of the channel
-def test_not_member_u_id(register_user1, register_user2, create_channel):
+def test_not_member_u_id(global_owner, register_user2, create_channel):
 
     # user1 creates a channel
-    user1_token = register_user1['token']
+    user1_token = global_owner['token']
     channel_id = create_channel['channel_id']
 
     # register user2 to not be a member of the channel
@@ -154,7 +120,7 @@ def test_not_member_u_id(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert resp1.status_code == 400
+    assert resp1.status_code == INPUTERROR
 
     # Access error: token has no owner permission and u_id is not a member
     resp2 = requests.post(config.url + "channel/addowner/v1", json = {
@@ -162,7 +128,7 @@ def test_not_member_u_id(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert resp2.status_code == 403 
+    assert resp2.status_code == ACCESSERROR 
 
     # Access error: invalid token and u_id is not a member of the channel
     requests.post(config.url + "auth/logout/v1", json = {
@@ -173,14 +139,14 @@ def test_not_member_u_id(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert resp3.status_code == 403
+    assert resp3.status_code == ACCESSERROR
 
 # Input error: u_id refers to the user who is already owner of the channel
-def test_already_owner(register_user1, register_user2, create_channel):
+def test_already_owner(global_owner, register_user2, create_channel):
 
     # user1 creates a channel
-    user1_token = register_user1['token']
-    user1_id = register_user1['auth_user_id']
+    user1_token = global_owner['token']
+    user1_id = global_owner['auth_user_id']
     channel_id = create_channel['channel_id']
 
     # raise error as user1 is already the owner
@@ -189,7 +155,7 @@ def test_already_owner(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user1_id
     })
-    assert resp1.status_code == 400
+    assert resp1.status_code == INPUTERROR
 
     # add user2 to be the owner of the channel
     user2_id = register_user2['auth_user_id']
@@ -198,14 +164,14 @@ def test_already_owner(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert invite.status_code == 200
+    assert invite.status_code == VALID
 
     resp2 = requests.post(config.url + "channel/addowner/v1", json = {
         'token': user1_token,
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert resp2.status_code == 200
+    assert resp2.status_code == VALID
 
     # raise error since user2 is already the owner of the channel
     resp3 = requests.post(config.url + "channel/addowner/v1", json = {
@@ -213,7 +179,7 @@ def test_already_owner(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert resp3.status_code == 400
+    assert resp3.status_code == INPUTERROR
 
     # invite id3 to the channel
     id3 = requests.post(config.url + "auth/register/v2", json ={
@@ -236,14 +202,14 @@ def test_already_owner(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert resp4.status_code == 403
+    assert resp4.status_code == ACCESSERROR
 
 # Access error: channel_id is valid and the authorised user does not 
 # have owner permissions in the channel
-def test_no_perm_not_member(register_user1, register_user2, create_channel):
+def test_no_perm_not_member(global_owner, register_user2, create_channel):
 
     # user 1 creates a channel
-    user1_token = register_user1['token']
+    user1_token = global_owner['token']
     channel_id = create_channel['channel_id']
 
     # invite user2 to the channel
@@ -270,13 +236,13 @@ def test_no_perm_not_member(register_user1, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
 # more test for access error
-def test_no_perm_not_owner(register_user1, create_channel, register_user2):
+def test_no_perm_not_owner(global_owner, create_channel, register_user2):
 
     # user1 creates a channel
-    user1_token = register_user1['token']
+    user1_token = global_owner['token']
     channel_id = create_channel['channel_id']
 
     user2_token = register_user2['token']
@@ -309,10 +275,10 @@ def test_no_perm_not_owner(register_user1, create_channel, register_user2):
         'channel_id': channel_id,
         'u_id': user3_id
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
-def test_global_owner_non_member_cant_addowner_private(register_user1, register_user2):
-    global_owner_token = register_user1['token']
+def test_global_owner_non_member_cant_addowner_private(global_owner, register_user2):
+    global_owner_token = global_owner['token']
 
     channel_owner_token = register_user2['token']
     channel = requests.post(config.url + "channels/create/v2", json ={
@@ -340,11 +306,11 @@ def test_global_owner_non_member_cant_addowner_private(register_user1, register_
         'channel_id': channel_id,
         'u_id': user3_id
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
-def test_addowner_invalid_global(register_user1, register_user2):
+def test_addowner_invalid_global(global_owner, register_user2):
 
-    token = register_user1['token']
+    token = global_owner['token']
 
     # user 2 (not global owner) creates a channel
     token2 = register_user2['token']
@@ -376,15 +342,15 @@ def test_addowner_invalid_global(register_user1, register_user2):
         'channel_id': channel_id,
         'u_id': u_id
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
 ##### Implementation ######
 
 # valid case
-def test_valid_addowner(register_user1, register_user2, create_channel):
+def test_valid_addowner(global_owner, register_user2, create_channel):
 
     # user1 creates a channel
-    token = register_user1['token']
+    token = global_owner['token']
     channel_id = create_channel['channel_id']
 
     # register user2
@@ -402,13 +368,13 @@ def test_valid_addowner(register_user1, register_user2, create_channel):
         'u_id': user2_id
     })
 
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
 # test valid case when global owner can add owner in the channel
-def test_addowner_valid_global_private(register_user1, register_user2):
+def test_addowner_valid_global_private(global_owner, register_user2):
 
-    token = register_user1['token']
-    global_id = register_user1['auth_user_id']
+    token = global_owner['token']
+    global_id = global_owner['auth_user_id']
 
     # user 2 (not global owner) creates a channel
     token2 = register_user2['token']
@@ -445,4 +411,4 @@ def test_addowner_valid_global_private(register_user1, register_user2):
         'channel_id': channel_id,
         'u_id': u_id
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
