@@ -1,7 +1,6 @@
 '''
 Messages implementation
 '''
-
 import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
@@ -211,7 +210,6 @@ def message_remove_v1(token, message_id):
             if message['message_id'] == message_id:
                 dm['messages'].remove(message)
                 save()
-
     return {}
 
 def message_react_v1(token, message_id, react_id):
@@ -260,7 +258,6 @@ def message_react_v1(token, message_id, react_id):
     react['u_ids'].append(int(auth_user_id))
     react['is_this_user_reacted'] = True
     save()
-    
     return {}
     
 def message_unreact_v1(token, message_id, react_id):
