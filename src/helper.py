@@ -244,19 +244,7 @@ def check_valid_message_id(auth_user_id, message_id):
     channel_dm_id = 0
 
     # Finds whether or not the message_id exists as a valid message
-    if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            for message in channel['messages']:
-                if message['message_id'] == message_id:
-                    found_message_id = 1
-
-    if message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            for message in dm['messages']:
-                if message['message_id'] == message_id:
-                    found_message_id = 1
-
-    if found_message_id == 0:
+    if not check_valid_channel_dm_message_ids(message_id):
         return False
 
     # Finds the channel_id or dm_id that message is part of 
@@ -379,16 +367,6 @@ def check_authorised_user_pin(message_id, auth_user_id):
         return True
     return False
 
-# Helper function for message_edit
-# Returns a dictionary of dm with given dm_id
-def get_message_dict(message_id):
-    '''
-    return type: dictionary
-    '''
-    for message in get_data()['messages']:
-        if message['message_id'] == message_id:
-            return message
-
 # Helper function for message_Edit
 # Returns true if valid message length
 # Returns false otherwise
@@ -429,13 +407,12 @@ def get_channel_reacts(message_id, react_id):
                     for react in message['reacts']:
                         if react['react_id'] == react_id:
                             return react
-    elif message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            for message in dm['messages']:
-                if message['message_id'] == message_id:
-                    for react in message['reacts']:
-                        if react['react_id'] == react_id:
-                            return react
+    for dm in get_data()['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                for react in message['reacts']:
+                    if react['react_id'] == react_id:
+                        return react
 
 # Helper function for message/pin
 # Returns a dict of message in the channel/dm
@@ -445,11 +422,10 @@ def get_message(message_id):
             for message in channel['messages']:
                 if message['message_id'] == int(message_id):
                     return message
-    if message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            for message in dm['messages']:
-                if message['message_id'] == message_id:
-                    return message
+    for dm in get_data()['dms']:
+        for message in dm['messages']:
+            if message['message_id'] == message_id:
+                return message
 
 #################################################
 ######## Helper functions for dm.py      ########

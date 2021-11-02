@@ -3,7 +3,7 @@ import requests
 import json
 from src import config
 from tests.fixture import global_owner, register_user2, register_user3
-from tests.fixture import user1_channel_message_id, create_channel
+from tests.fixture import user1_channel_message_id, create_channel, user1_send_dm, create_dm
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
@@ -238,7 +238,6 @@ def test_message_edit_unauthorised_user_channel_not_send_message_and_not_owner(g
     # the authorised user does NOT have owner permissions in the channel/DM
         # 2. User is member of DM but is not owner and did not send the message
         # that is being requested to edit
-
 def test_message_edit_unauthorised_user_DM_not_send_message_and_not_owner(global_owner, register_user2, register_user3):
 
     user1_token = global_owner['token']
@@ -269,7 +268,6 @@ def test_message_edit_unauthorised_user_DM_not_send_message_and_not_owner(global
         'message': 'hello there from dm1 [edited]'
     })
     assert edit_message.status_code == ACCESSERROR
-
 
 # Removing message by editing message to be empty twice
 def test_message_edit_remove_twice(global_owner, register_user2, register_user3, user1_channel_message_id):
@@ -325,6 +323,23 @@ def test_message_edit_remove_twice(global_owner, register_user2, register_user3,
     })
     assert edit_message.status_code == INPUTERROR
 
+# Access error: dm owner left the channel
+def test_pin_dm_valid1(global_owner, user1_send_dm, create_dm):
+
+    user1_token = global_owner['token']
+
+    leave = requests.post(config.url + "dm/leave/v1", json = { 
+        'token': user1_token, 
+        'dm_id': create_dm['dm_id']
+    })  
+    assert leave.status_code == VALID
+    
+    edit_message = requests.put(config.url + "message/edit/v1", json = {
+        'token': user1_token,
+        'message_id': user1_send_dm,
+        'message': 'byebyebye'
+    })
+    assert edit_message.status_code == INPUTERROR
 
 ##### Implementation #####
 

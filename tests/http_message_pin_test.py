@@ -224,6 +224,23 @@ def test_pin_member_no_owner_permission_dm(global_owner, register_user2, user1_s
     })
     assert pin.status_code == ACCESSERROR
 
+# Access error: dm owner left the channel
+def test_pin_dm_valid1(global_owner, user1_send_dm, create_dm):
+
+    user1_token = global_owner['token']
+
+    leave = requests.post(config.url + "dm/leave/v1", json = { 
+        'token': user1_token, 
+        'dm_id': create_dm['dm_id']
+    })  
+    assert leave.status_code == VALID
+
+    pin = requests.post(config.url + "message/pin/v1", json = {
+        'token': user1_token,
+        'message_id': user1_send_dm,
+    })
+    assert pin.status_code == ACCESSERROR
+
 # Access Error: global owner is trying to pin the message in dm
 def test_pin_global_owner_no_owner_permission_dm(global_owner, register_user2):
     
