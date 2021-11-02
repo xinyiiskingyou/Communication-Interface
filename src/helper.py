@@ -382,25 +382,8 @@ def check_authorised_user_pin(message_id, auth_user_id):
         return True
     return False
 
-# Helper function for message/react and message/unreact
-# Returns a dict of react in the channel/dm
-def get_reacts(message_id, react_id):
-    if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            for message in channel['messages']:
-                if message['message_id'] == int(message_id):
-                    for react in message['reacts']:
-                        if react['react_id'] == react_id:
-                            return react
-    for dm in get_data()['dms']:
-        for message in dm['messages']:
-            if message['message_id'] == message_id:
-                for react in message['reacts']:
-                    if react['react_id'] == react_id:
-                        return react
-
-# Helper function for message/pin
-# Returns a dict of message in the channel/dm
+# Helper function for message/pin, message/react and message/unreact
+# Returns a dict of message in the channel or dm 
 def get_message(message_id):
     if message_id % 2 == 1:
         for channel in get_data()['channels']:
@@ -411,6 +394,14 @@ def get_message(message_id):
         for message in dm['messages']:
             if message['message_id'] == message_id:
                 return message
+
+# Helper function for message/react and message/unreact
+# Returns a dict of react in the channel/dm
+def get_reacts(message_id, react_id):
+    message = get_message(message_id)
+    for react in message['reacts']:
+        if react['react_id'] == react_id:
+            return react
 
 #################################################
 ######## Helper functions for dm.py      ########
