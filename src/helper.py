@@ -235,6 +235,74 @@ def check_permission(u_id, permission_id):
 #################################################
 
 # Helper function for message_edit_v1
+<<<<<<< HEAD
+=======
+# Checks if message_id refers to a valid message within a channel/DM
+# that the authorised user has joined
+# Returns true if valid message_id
+# Returns false otherwise
+def check_valid_message_id(auth_user_id, message_id):
+    found_message_id = 0
+    channel_dm_id = 0
+
+    # Finds whether or not the message_id exists as a valid message
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for message in channel['messages']:
+                if message['message_id'] == message_id:
+                    found_message_id = 1
+
+    if message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    found_message_id = 1
+
+    if found_message_id == 0:
+        return False
+
+    # Finds the channel_id or dm_id that message is part of 
+    for message in get_data()['messages']:
+        if message['message_id'] == message_id:
+            if message_id % 2 == 1:
+                # Odd message_id means it is a message in a channel
+                channel_dm_id = message['channel_id']
+            elif message_id % 2 == 0:
+                # Even message_id means it is a message in a DM
+                channel_dm_id = message['dm_id']
+            found_message_id = 1
+
+    # If message_id is odd, message is from channel
+    # Go through channels to determine if user is part of channel of that message_id
+    found_user = 0
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            if channel['channel_id'] == channel_dm_id:
+                for member in channel['all_members']:
+                    if member['u_id'] == auth_user_id:
+                        found_user = 1
+
+    # If message_id is odd, message is from DM
+    # Go through DMs to determine if user is part of DM of that message_id
+    elif message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            for member in dm['members']:
+                if member['u_id'] == auth_user_id:
+                    found_user = 1
+
+    # In the case where message being edited is part of a channel, 
+    # check if auth_user_id is global owner of Streams
+    if message_id % 2 == 1:
+        if check_permision_id(auth_user_id):
+            found_user = 1
+
+    if found_user == 1 and found_message_id == 1:
+        return True
+    else:
+        return False
+
+# Helper function for message_edit_v1
+>>>>>>> 57491dd47fd6a290ce83e9b4ff1633e6e1f3d77e
 # Checks if user is authorised to edit message
 # Returns true if authorised user
 # Returns false otherwise 
