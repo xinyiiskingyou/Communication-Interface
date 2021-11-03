@@ -254,6 +254,16 @@ def message_pin():
     resp = message_pin_v1(json['token'], json['message_id'])
     return dumps(resp)
 
+'''
+# Message is shared to another channel/DM. An optional message can be added 
+# onto the shared message
+@APP.route("message/share/v1", methods=['POST'])
+def message_share():
+    json = request.get_json()
+    resp = message_share_v1(json['token'], json['og_message_id'], json['message'], json['channel_id'], json['dm_id'])
+    return dumps(resp)
+'''
+
 ############ DM #################
 
 # Return basic details about the DM
