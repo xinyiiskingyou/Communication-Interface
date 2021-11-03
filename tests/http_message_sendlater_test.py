@@ -121,6 +121,25 @@ def test_sendlater_invalid_token(register_user1, user1_channel_id):
     })
     assert send.status_code == 403
 
+# Access error: Global owner is not the member of the channel
+def test_sendlater_global_owner(register_user1, register_user2):
+    token = register_user1['token']
+
+    # User 2 creates channel 2
+    channel = requests.post(config.url + "channels/create/v2", json = {
+        'token': register_user2['token'],
+        'name': 'sally_channel',
+        'is_public': True
+    })
+    channel_id = json.loads(channel.text)['channel_id']
+    send = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': token,
+        'channel_id': channel1_id,
+        'message': 'Hello world!',
+        'time_sent': TIME_SENT
+    })
+    assert send.status_code == 403
+
 ##### Implementation #####
 def test_sendlater_valid_owner(register_user1, user1_channel_id):
     token = register_user1['token']
@@ -147,6 +166,31 @@ def test_sendlater_valid_invite_user(register_user1, register_user2, user1_chann
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token2,
         'channel_id': user1_channel_id,
+        'message': 'Hello world!',
+        'time_sent': TIME_SENT
+    })
+    assert send.status_code == 200
+
+def test_sendlater_valid_join_user(register_user1, register_user2):
+    token = register_user1['token']
+
+    # User 2 creates channel 2
+    channel = requests.post(config.url + "channels/create/v2", json = {
+        'token': register_user2['token'],
+        'name': 'sally_channel',
+        'is_public': True
+    })
+    channel_id = json.loads(channel.text)['channel_id']
+
+    join = requests.post(config.url + "channel/join/v2", json ={
+        'token': token,
+        'channel_id': channel_id
+    })
+    assert join.status_code == 200
+
+    send = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': token,
+        'channel_id': channel_id,
         'message': 'Hello world!',
         'time_sent': TIME_SENT
     })
