@@ -111,7 +111,7 @@ def test_sendlater_past_time(register_user1, register_user2, user1_channel_id):
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token1,
         'channel_id': user1_channel_id,
-        'message': 'H' * 1001,
+        'message': 'Hello world!',
         'time_sent': time_sent
     })
     assert send.status_code == 400
