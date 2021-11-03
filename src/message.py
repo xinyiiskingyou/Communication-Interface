@@ -450,3 +450,58 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     
     if int(time.time()) > int(time_sent):
         raise InputError(description='Time_sent is a time in the past')
+
+    # generate a message_id as soon as message_sendlater is called
+    message_id = (len(get_data()['messages']) * 2) + 1
+
+    # wait for [time_wait] amount of time
+    time_wait = time_sent - int(time.time())
+    time.sleep(time_wait)
+
+    is_this_user_reacted = False
+    is_pinned = False
+    reacts_details = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': bool(is_this_user_reacted)
+    }
+
+    message_details_channels = {
+        'message_id': message_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_sent,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
+    }
+
+    # Append dictionary of message details into initial_objects['channels']['messages']
+    for channel in get_data()['channels']:
+        if channel['channel_id'] == channel_id:
+            channel['messages'].insert(0, message_details_channels)
+            save()
+
+    message_details_messages = {
+        'message_id': message_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_sent,
+        'channel_id': channel_id,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
+    }
+
+    # Append dictionary of message details into intital_objects['messages']
+    get_data()['messages'].insert(0, message_details_messages)
+    save()
+
+    return {
+        'message_id': message_id
+    }
+
+'''
+print(int(time.time()))
+print(time.time())
+print(time.asctime(time.localtime(time.time())))
+print(time.asctime(time.localtime(time.time() + 600)))
+'''

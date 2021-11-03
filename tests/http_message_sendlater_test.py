@@ -1,8 +1,11 @@
 import pytest
 import requests
 import json
+import time
 from src import config
-TIME_SENT = 60
+
+# 10 minute
+TIME_WAIT = 3
 @pytest.fixture
 def register_user1():
     requests.delete(config.url + "clear/v1")
@@ -41,11 +44,12 @@ def user1_channel_id(register_user1):
 def test_sendlater_channel_neg(register_user1):
     token = register_user1['token']
 
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token,
         'channel_id': -1,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 400
 
@@ -53,11 +57,12 @@ def test_sendlater_channel_neg(register_user1):
 def test_sendlater_channel_non_exist(register_user1):
     token = register_user1['token']
 
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token,
         'channel_id': 256,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 400
 
@@ -66,11 +71,12 @@ def test_sendlater_long_msg(register_user1, register_user2, user1_channel_id):
     token1 = register_user1['token']
 
     # Input error: long message
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token1,
         'channel_id': user1_channel_id,
-        'message': 'Hello world!' * 1000,
-        'time_sent': TIME_SENT
+        'message': 'H' * 1001,
+        'time_sent': time_sent
     })
     assert send.status_code == 400
 
@@ -82,7 +88,7 @@ def test_sendlater_long_msg(register_user1, register_user2, user1_channel_id):
         'token': token1,
         'channel_id': user1_channel_id,
         'message': 'Hello world!' * 1000,
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send1.status_code == 403
 
@@ -92,18 +98,56 @@ def test_sendlater_long_msg(register_user1, register_user2, user1_channel_id):
         'token': token2,
         'channel_id': user1_channel_id,
         'message': 'Hello world!' * 1000,
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
+    })
+    assert send2.status_code == 403
+
+# Time_sent is in the past
+def test_sendlater_past_time(register_user1, register_user2, user1_channel_id):
+    token1 = register_user1['token']
+
+    # Input error: time_sent in the past
+    time_sent = int(time.time()) - TIME_WAIT
+    send = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': token1,
+        'channel_id': user1_channel_id,
+        'message': 'H' * 1001,
+        'time_sent': time_sent
+    })
+    assert send.status_code == 400
+
+    # Access error: Invalid token + time_sent in the past
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token1
+    })
+    send1 = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': token1,
+        'channel_id': user1_channel_id,
+        'message': 'Hello world!',
+        'time_sent': time_sent
+    })
+    assert send1.status_code == 403
+
+    # Aceess error: User not in channel + time_sent in the past
+    token2 = register_user2['token']
+    send2 = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': token2,
+        'channel_id': user1_channel_id,
+        'message': 'Hello world!',
+        'time_sent': time_sent
     })
     assert send2.status_code == 403
 
 # Acess error: auth_user not in the channel
-def test_sendlater_user_not_channel(register_user2, user1_channel_id):
-    token = register_user2['token']
+def test_sendlater_user_not_channel(register_user1,register_user2, user1_channel_id):
+    register_user1
+    token2 = register_user2['token']
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
-        'token': token,
+        'token': token2,
         'channel_id': user1_channel_id,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 403
 
@@ -113,11 +157,12 @@ def test_sendlater_invalid_token(register_user1, user1_channel_id):
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token,
         'channel_id': user1_channel_id,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 403
 
@@ -132,23 +177,24 @@ def test_sendlater_global_owner(register_user1, register_user2):
         'is_public': True
     })
     channel_id = json.loads(channel.text)['channel_id']
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token,
-        'channel_id': channel1_id,
+        'channel_id': channel_id,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 403
 
 ##### Implementation #####
 def test_sendlater_valid_owner(register_user1, user1_channel_id):
     token = register_user1['token']
-
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token,
         'channel_id': user1_channel_id,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 200
 
@@ -163,11 +209,12 @@ def test_sendlater_valid_invite_user(register_user1, register_user2, user1_chann
     })
     assert invite.status_code == 200
 
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token2,
         'channel_id': user1_channel_id,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 200
 
@@ -188,10 +235,11 @@ def test_sendlater_valid_join_user(register_user1, register_user2):
     })
     assert join.status_code == 200
 
+    time_sent = TIME_WAIT + int(time.time())
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token,
         'channel_id': channel_id,
         'message': 'Hello world!',
-        'time_sent': TIME_SENT
+        'time_sent': time_sent
     })
     assert send.status_code == 200

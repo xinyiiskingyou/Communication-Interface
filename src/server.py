@@ -265,7 +265,7 @@ def message_unpin():
 @APP.route("/message/sendlater/v1", methods=['POST'])
 def message_sendlater():
     json = request.get_json()
-    resp = message_sendlater_v1(json['token'], json['message_id'], json['message'], json['time_sent'])
+    resp = message_sendlater_v1(json['token'], json['channel_id'], json['message'], json['time_sent'])
     return dumps(resp)
 ############ DM #################
 
