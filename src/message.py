@@ -409,3 +409,44 @@ def message_unpin_v1(token, message_id):
     message['is_pinned'] = False
     save()
     return {}
+
+def message_sendlater_v1(token, channel_id, message, time_sent):
+    '''
+    Send a message from the auth_user to channel specified by channel_id
+    automatically at a specified time in the future
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <channel_id>   (<int>)      - unique id of a message
+        <message>      (<string>)   - an authorisation hash
+        <time_sent>    (<int>)      - unique id of a message
+
+    Exceptions:
+        InputError      - Occurs when channel_id is not valid
+                        - Occurs when length of message is over 1000 characters
+                        - Occurs when the time_sent is a time in the past
+
+        AccessError     - Occurs when token is invalid
+                        - Occurs when channel_id is valid and the auth_user is not a member of 
+                          the channel they are trying to post to
+    
+    Return Value:
+        <message_id>  (<int>)     - a valid message
+    '''
+    # invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
+    auth_user_id = decode_token(token)
+
+    if not check_valid_channel_id(channel_id):
+        raise InputError(description='Channel id does not refer to a valid channel')
+    
+    if not check_valid_member_in_channel(channel_id, auth_user_id):
+        raise AccessError(description='authorised user is not a member of the channel they are trying to post to')
+    
+    if len(message) > 1000:
+        raise InputError(description='The length of message is over 1000 characters')
+    
+    if int(time.time()) > int(time_sent):
+        raise InputError(description='Time_sent is a time in the past')
