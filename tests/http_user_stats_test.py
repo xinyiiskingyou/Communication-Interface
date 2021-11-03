@@ -22,6 +22,7 @@ def test_user_stats_invalid_token(global_owner):
     })
     assert stats.status_code == ACCESSERROR
 
+# Test when the user did not join any channel or dm
 def test_valid_user_no_channel_no_dm(global_owner):
     token = global_owner['token']
 
@@ -30,15 +31,12 @@ def test_valid_user_no_channel_no_dm(global_owner):
     })
     assert stats.status_code == VALID
 
-    assert (json.loads(stats.text) == 
-        {
-            'user_stats': {
-                'channels_joined': [{'num_channels_joined': 0, 'time_stamp': 0}], 
-                'dms_joined': [{'num_dms_joined': 0, 'time_stamp': 0}], 
-                'messages_sent': [{'num_messages_sent': 0, 'time_stamp': 0}],
-                'involvement_rate': 0.0, 
-            }
-        })
+    assert json.loads(stats.text)['user_stats']['channels_joined'][0]['num_channels_joined'] == 0
+    # test the timestamp is not equal to 0
+    assert json.loads(stats.text)['user_stats']['channels_joined'][0]['time_stamp'] != 0
+    assert json.loads(stats.text)['user_stats']['dms_joined'][0]['num_dms_joined'] == 0
+    assert json.loads(stats.text)['user_stats']['messages_sent'][0]['num_messages_sent'] == 0
+    assert json.loads(stats.text)['user_stats']['involvement_rate'] == 0.0
 
 # Tests when the user only join the channel
 def test_valid_user_only_join_channel(global_owner, create_channel):
@@ -158,8 +156,17 @@ def test_valid_user_send_message(global_owner, user1_send_dm, user1_channel_mess
     assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
     assert json.loads(stats.text)['user_stats']['involvement_rate'] != 0
 
+# Test the number of the message the user sent will not decrease
 def test_valid_message_length(global_owner, user1_channel_message_id, create_channel):
+
     token = global_owner['token']
+    # user sent a message
+    assert user1_channel_message_id != None
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
 
     # remove a message
     remove_message1 = requests.delete(config.url + "message/remove/v1", json = {
@@ -167,6 +174,13 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
         'message_id': user1_channel_message_id,
     })
     assert remove_message1.status_code == VALID
+
+    # test the number will not decrease 
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
 
     # user1 sends a message again
     send_message = requests.post(config.url + "message/send/v1", json = {
@@ -182,6 +196,7 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
     assert stats.status_code == VALID
     assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
+    # but the total number of message will decreased
     messages = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
