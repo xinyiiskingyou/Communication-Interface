@@ -2,53 +2,18 @@ import pytest
 import requests
 import json
 from src import config
-
-@pytest.fixture
-def register_user():
-
-    requests.delete(config.url + "clear/v1")
-    user = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'abcdef@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-    user_data = user.json()
-    return user_data
-
-@pytest.fixture
-def register_user1():
-
-    user1 = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'abcd@gmail.com',
-        'password': 'password',
-        'name_first': 'sally',
-        'name_last': 'li'
-    })
-    user1_data = user1.json()
-    return user1_data
-
-# user 1 creates a channel
-@pytest.fixture
-def create_public_channel(register_user):
-
-    channel = requests.post(config.url + "channels/create/v2", json ={
-        'token': register_user['token'],
-        'name': 'channel1',
-        'is_public': True
-    })
-    channel_data = channel.json()
-    return channel_data
+from tests.fixture import global_owner, register_user2, create_channel
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
 ########## channel_details tests #########
 ##########################################
 
 # Access error when token is not valid
-def test_details_invalid_token(register_user, create_public_channel):
+def test_details_invalid_token(global_owner, create_channel):
 
-    token = register_user['token']
-    channel = create_public_channel['channel_id']
+    token = global_owner['token']
+    channel = create_channel['channel_id']
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -57,12 +22,12 @@ def test_details_invalid_token(register_user, create_public_channel):
         'token': token,
         'channel_id': channel
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
 # Input error when channel_id is not valid
-def test_details_invalid_channel_id_h(register_user):
+def test_details_invalid_channel_id_h(global_owner):
 
-    token1 = register_user['token']
+    token1 = global_owner['token']
 
     # Test invalid channel_id
     resp1 = requests.get(config.url + "channel/details/v2", params = {
@@ -80,9 +45,9 @@ def test_details_invalid_channel_id_h(register_user):
         'channel_id': 256
     })
 
-    assert resp1.status_code == 400
-    assert resp2.status_code == 400
-    assert resp3.status_code == 400
+    assert resp1.status_code == INPUTERROR
+    assert resp2.status_code == INPUTERROR
+    assert resp3.status_code == INPUTERROR
 
     # access error: invalid token and invalid channel_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -92,30 +57,43 @@ def test_details_invalid_channel_id_h(register_user):
         'token': token1,
         'channel_id': 256
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
 
 # Access error when the person is not a member of the channel they want details from 
-def test_deatils_not_member_h(register_user1, create_public_channel):
+def test_deatils_not_member_h(register_user2, create_channel):
 
-    channel_id = create_public_channel['channel_id']
-
+    channel_id = create_channel['channel_id']
     # register user2 to not be a member of the channel
-    token2 = register_user1['token']
+    token2 = register_user2['token']
 
     resp1 = requests.get(config.url + "channel/details/v2", params = {
         'token': token2,
         'channel_id': channel_id
     })
-    assert resp1.status_code == 403
+    assert resp1.status_code == ACCESSERROR
+
+    user3 = requests.post(config.url + "auth/register/v2", json = {
+        'email': '1531camel@gmail.com',
+        'password': 'password',
+        'name_first': 'alan',
+        'name_last': 'wood'
+    })
+    user3_data = user3.json()['token']
+
+    resp1 = requests.get(config.url + "channel/details/v2", params = {
+        'token': user3_data,
+        'channel_id': channel_id
+    })
+    assert resp1.status_code == ACCESSERROR
 
 ##### Implementation #####
 
 # Check details for public channel
-def test_details_return_values_pub_h(register_user, create_public_channel):
+def test_details_return_values_pub_h(global_owner, create_channel):
 
-    token1 = register_user['token']
-    u_id = register_user['auth_user_id']
-    channel_id1 = create_public_channel['channel_id']
+    token1 = global_owner['token']
+    u_id = global_owner['auth_user_id']
+    channel_id1 = create_channel['channel_id']
     assert channel_id1 > 0
 
     # Get details of channel
@@ -126,12 +104,12 @@ def test_details_return_values_pub_h(register_user, create_public_channel):
 
     assert (json.loads(resp1.text) == 
         {
-        'name': 'channel1',
+        'name': 'anna',
         'is_public': True,
         'owner_members':[
             {
                 'u_id': int(u_id),
-                'email': 'abcdef@gmail.com',
+                'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee'
@@ -140,20 +118,20 @@ def test_details_return_values_pub_h(register_user, create_public_channel):
         'all_members': [
             {
                 'u_id': int(u_id),
-                'email': 'abcdef@gmail.com',
+                'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee'
             }
         ]
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
 # Check details for private channel
-def test_details_return_values_priv_h(register_user):
+def test_details_return_values_priv_h(global_owner):
 
-    token1 = register_user['token']
-    u_id = register_user['auth_user_id']
+    token1 = global_owner['token']
+    u_id = global_owner['auth_user_id']
     channel1 = requests.post(config.url + "channels/create/v2", json ={
         'token': token1,
         'name': 'channel1',
@@ -176,7 +154,7 @@ def test_details_return_values_priv_h(register_user):
         'owner_members':[
             {
                 'u_id': int(u_id),
-                'email': 'abcdef@gmail.com',
+                'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee'
@@ -185,40 +163,40 @@ def test_details_return_values_priv_h(register_user):
         'all_members': [
             {
                 'u_id': int(u_id),
-                'email': 'abcdef@gmail.com',
+                'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee'
             }
         ]
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
 # Check details for when someone is invited to the channel
-def test_details_return_values_invite_h(register_user, register_user1, create_public_channel):
+def test_details_return_values_invite_h(global_owner, register_user2, create_channel):
 
     # User 1 creates a channel
-    token1 = register_user['token']
+    token1 = global_owner['token']
     
     # create an user 2
-    u_id = register_user1['auth_user_id']
+    u_id = register_user2['auth_user_id']
 
     # User 1 invites user 2 to the channel they created
-    channel_id1 = create_public_channel['channel_id']
+    channel_id1 = create_channel['channel_id']
     invite2 = requests.post(config.url + "channel/invite/v2", json ={
         'token': token1,
         'channel_id': channel_id1,
         'u_id': u_id
     })
 
-    assert invite2.status_code == 200
+    assert invite2.status_code == VALID
 
     # Get details of channel
     resp1 = requests.get(config.url + "channel/details/v2", params ={
         'token': token1,
         'channel_id': channel_id1
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
     # Check length of members list 
     members = json.loads(resp1.text)['owner_members']

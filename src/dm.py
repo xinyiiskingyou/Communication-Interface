@@ -70,6 +70,7 @@ def dm_create_v1(token, u_ids):
         'members': member_list,
         'messages': [],
     })
+
     save()
     return {
         'dm_id': dm_id
@@ -118,7 +119,7 @@ def dm_remove_v1(token, dm_id):
     Return Value:
         Returns N/A
     '''
-    #not valid 
+    # not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -133,11 +134,10 @@ def dm_remove_v1(token, dm_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
     dms = get_data()['dms']
-    dm = get_dm_dict(dm_id)
-    dms.remove(dm)
-
-    save()
-
+    for dm in dms:
+        if dm['dm_id'] == dm_id:
+            dms.remove(dm)
+            save()
     return {}
 
 def dm_details_v1(token, dm_id): 
@@ -198,7 +198,6 @@ def dm_leave_v1(token, dm_id):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    newuser = user_info(auth_user_id)
     
     # dm_id does not refer to a valid DM
     if not isinstance(dm_id, int):
@@ -210,17 +209,16 @@ def dm_leave_v1(token, dm_id):
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError(description="The user is not an authorised member of the DM")
 
-    for dm in get_data()['dms']: 
-        if dm['dm_id'] == dm_id:
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id: 
-                    dm['members'].remove(newuser)
-            #clearing the creator if the creator leaves 
-            if len(dm['creator']) > 0:
-                if dm['creator']['u_id'] == auth_user_id:
-                    dm['creator'].clear()
-        save()
-    save()
+    dm = get_dm_dict(dm_id)
+    for member in dm['members']:
+        if member['u_id'] == auth_user_id: 
+            dm['members'].remove(member)
+            save()
+    # clearing the creator if the creator leaves 
+    if len(dm['creator']) > 0:
+        if dm['creator']['u_id'] == auth_user_id:
+            dm['creator'].clear()
+            save()
     return{}
 
 def dm_messages_v1(token, dm_id, start): 
@@ -325,11 +323,20 @@ def message_senddm_v1(token, dm_id, message):
     # Current time message was created and sent
     time_created = int(time.time())
 
+    is_this_user_reacted = False
+    is_pinned = False
+    reacts_details = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': bool(is_this_user_reacted)
+    }
     dmsend_details_dm = {
         'message_id': dmsend_id,
         'u_id': auth_user_id, 
         'message': message,
-        'time_created': time_created
+        'time_created': time_created,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
     }
 
     # Append dictionary of message details into initial_objects['dm']['messages']
@@ -343,7 +350,9 @@ def message_senddm_v1(token, dm_id, message):
         'u_id': auth_user_id, 
         'message': message,
         'time_created': time_created, 
-        'dm_id': dm_id
+        'dm_id': dm_id,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
     }
 
     # Append dictionary of message details into intital_objects['messages']

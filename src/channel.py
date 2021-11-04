@@ -4,8 +4,8 @@ Channel implementation
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
 from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner, check_only_owner, check_global_owner
-from src.data_store import DATASTORE, save, get_data
+from src.helper import channels_create_check_valid_user, check_valid_owner, check_channel_owner_permission
+from src.data_store import save, get_data
 from src.server_helper import decode_token, valid_user
 
 def channel_invite_v2(token, channel_id, u_id):
@@ -61,7 +61,6 @@ def channel_invite_v2(token, channel_id, u_id):
             # append the new user details to all_member
             channel['all_members'].append(new_user)
             save()
-    save()
     return {}
 
 def channel_details_v2(token, channel_id):
@@ -273,7 +272,6 @@ def channel_leave_v1(token, channel_id):
         if owner['u_id'] == auth_user_id:
             channels['owner_members'].remove(owner)
             save()
-    save()
     return {}
 
 def channel_addowner_v1(token, channel_id, u_id):
@@ -308,11 +306,10 @@ def channel_addowner_v1(token, channel_id, u_id):
     # invalid channel_id
     if not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel id is not valid')
-        
+
     # No owner permission
-    if not check_valid_owner(auth_user_id, channel_id):
-        if not check_global_owner(auth_user_id):
-            raise AccessError(description ='No owner permission in the channel')
+    if not check_channel_owner_permission(auth_user_id, channel_id):
+        raise AccessError(description ='No owner permission in the channel')
     
     # invalid u_id
     if not channels_create_check_valid_user(u_id):
@@ -331,7 +328,7 @@ def channel_addowner_v1(token, channel_id, u_id):
     for channels in get_data()['channels']:
         channels['owner_members'].append(user)
         save()
-    save()
+
     return {}
 
 def channel_removeowner_v1(token, channel_id, u_id):
@@ -357,7 +354,6 @@ def channel_removeowner_v1(token, channel_id, u_id):
     Return Value:
         N/A
     '''
-
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -368,10 +364,9 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError(description = 'The channel_id does not refer to a valid channel')
 
     # channel_id is valid and the authorised user does not have owner permissions in the channel
-    if not check_valid_owner(auth_user_id, channel_id):
-        if not check_global_owner(auth_user_id):
-            raise AccessError(description ='No owner permission in the channel')
-
+    if not check_channel_owner_permission(auth_user_id, channel_id):
+        raise AccessError(description = 'No owner permission in the channel')
+    
     # u_id does not refer to a valid user
     if not channels_create_check_valid_user(u_id):
         raise InputError(description = 'The u_id does not refer to a valid user')
@@ -381,7 +376,7 @@ def channel_removeowner_v1(token, channel_id, u_id):
         raise InputError(description = 'The u_id does not refer to a user who is not an owner of the channel')
 
     # u_id refers to a user who is currently the only owner of the channel
-    channel = check_only_owner(u_id, channel_id)
+    channel = get_channel_details(channel_id)
     if len(channel['owner_members']) == 1:
         raise InputError(description = 'The u_id refers to a user who is currently the only owner of the channel')
     
@@ -390,5 +385,4 @@ def channel_removeowner_v1(token, channel_id, u_id):
             if owner['u_id'] == u_id:
                 channel['owner_members'].remove(owner)
                 save()
-    save()
     return {}
