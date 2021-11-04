@@ -119,7 +119,7 @@ def dm_remove_v1(token, dm_id):
     Return Value:
         Returns N/A
     '''
-    #not valid 
+    # not valid 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -134,8 +134,6 @@ def dm_remove_v1(token, dm_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
     dms = get_data()['dms']
-    #dm = get_dm_dict(dm_id)
-    
     for dm in dms:
         if dm['dm_id'] == dm_id:
             dms.remove(dm)
@@ -211,17 +209,16 @@ def dm_leave_v1(token, dm_id):
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError(description="The user is not an authorised member of the DM")
 
-    for dm in get_data()['dms']: 
-        if dm['dm_id'] == dm_id:
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id: 
-                    dm['members'].remove(member)
-            #clearing the creator if the creator leaves 
-            if len(dm['creator']) > 0:
-                if dm['creator']['u_id'] == auth_user_id:
-                    dm['creator'].clear()
-        save()
-    save()
+    dm = get_dm_dict(dm_id)
+    for member in dm['members']:
+        if member['u_id'] == auth_user_id: 
+            dm['members'].remove(member)
+            save()
+    # clearing the creator if the creator leaves 
+    if len(dm['creator']) > 0:
+        if dm['creator']['u_id'] == auth_user_id:
+            dm['creator'].clear()
+            save()
     return{}
 
 def dm_messages_v1(token, dm_id, start): 

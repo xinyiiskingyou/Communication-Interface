@@ -1,7 +1,7 @@
 '''
 Channels implementation
 '''
-from src.data_store import DATASTORE, get_data, save
+from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import user_info, get_channel_member
 from src.server_helper import decode_token, valid_user
