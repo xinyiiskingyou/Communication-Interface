@@ -574,7 +574,7 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
     # Append dictionary of message details into initial_objects['dms']['messages']
     for dm in get_data()['dms']:
         if dm['dm_id'] == dm_id:
-            channeldm['messages'].insert(0, message_details_dm)
+            dm['messages'].insert(0, message_details_dm)
             save()
 
     message_details_messages = {

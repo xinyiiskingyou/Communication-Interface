@@ -80,6 +80,24 @@ def test_sendlater_long_msg(register_user1, register_user2, user1_dm):
     })
     assert send.status_code == 400
 
+    # Aceess error: User not in dm + long message
+    # User 1 creates dm
+    dm = requests.post(config.url + "dm/create/v1", json = {
+        'token': token1,
+        'u_ids': []
+    })
+    assert dm.status_code == 200
+
+    dm_id = json.loads(dm.text)['dm_id']
+    token2 = register_user2['token']
+    send2 = requests.post(config.url + "message/sendlaterdm/v1", json = {
+        'token': token2,
+        'dm_id': dm_id,
+        'message': 'H' * 1001,
+        'time_sent': time_sent
+    })
+    assert send2.status_code == 403
+
     # Access error: Invalid token + long message
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token1
@@ -92,15 +110,6 @@ def test_sendlater_long_msg(register_user1, register_user2, user1_dm):
     })
     assert send1.status_code == 403
 
-    # Aceess error: User not in channel + long message
-    token2 = register_user2['token']
-    send2 = requests.post(config.url + "message/sendlaterdm/v1", json = {
-        'token': token2,
-        'dm_id': user1_dm,
-        'message': 'H' * 1001,
-        'time_sent': time_sent
-    })
-    assert send2.status_code == 403
 
 # Time_sent is in the past
 def test_sendlater_past_time(register_user1, register_user2, user1_dm):
@@ -116,6 +125,24 @@ def test_sendlater_past_time(register_user1, register_user2, user1_dm):
     })
     assert send.status_code == 400
 
+    # Aceess error: User not in channel + time_sent in the past
+    # User 1 creates dm
+    dm = requests.post(config.url + "dm/create/v1", json = {
+        'token': token1,
+        'u_ids': []
+    })
+    assert dm.status_code == 200
+
+    dm_id = json.loads(dm.text)['dm_id']
+    token2 = register_user2['token']
+    send2 = requests.post(config.url + "message/sendlaterdm/v1", json = {
+        'token': token2,
+        'dm_id': dm_id,
+        'message': 'Hello, World!',
+        'time_sent': time_sent
+    })
+    assert send2.status_code == 403
+
     # Access error: Invalid token + time_sent in the past
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token1
@@ -128,24 +155,22 @@ def test_sendlater_past_time(register_user1, register_user2, user1_dm):
     })
     assert send1.status_code == 403
 
-    # Aceess error: User not in channel + time_sent in the past
-    token2 = register_user2['token']
-    send2 = requests.post(config.url + "message/sendlaterdm/v1", json = {
-        'token': token2,
-        'dm_id': user1_dm,
-        'message': 'Hello world!',
-        'time_sent': time_sent
-    })
-    assert send2.status_code == 403
-
 # Acess error: auth_user not in the channel
-def test_sendlater_user_not_channel(register_user1,register_user2, user1_dm):
-    register_user1
+def test_sendlater_user_not_channel(register_user1,register_user2):
+    token1 = register_user1['token']
     token2 = register_user2['token']
     time_sent = TIME_WAIT + int(time.time())
+
+    dm = requests.post(config.url + "dm/create/v1", json = {
+        'token': token1,
+        'u_ids': []
+    })
+    assert dm.status_code == 200
+
+    dm_id = json.loads(dm.text)['dm_id']
     send = requests.post(config.url + "message/sendlaterdm/v1", json = {
         'token': token2,
-        'dm_id': user1_dm,
+        'dm_id': dm_id,
         'message': 'Hello world!',
         'time_sent': time_sent
     })
