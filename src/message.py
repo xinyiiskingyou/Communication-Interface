@@ -217,6 +217,30 @@ def message_remove_v1(token, message_id):
     return {}
 
 def message_share_v1(token, og_message_id, message, channel_id, dm_id):
+    '''
+    Share an existing message to a channel/DM. An optional additional message in addition to the 
+    shared message may be made. 
+
+    Arguments:
+        <token>           (<string>)   - an authorisation hash
+        <og_message_id>   (<int>)      - unique id of a message
+        <message>         (<string>)   - the content of the additional optional message
+        <channel_id>      (<int>)      - unique id of a channel
+        <dm_id>           (<int>)      - unique id of a DM
+
+    Exceptions:
+        InputError      - Occurs when both channel_id and dm_id are invalid
+                        - Occurs when neither channel_id nor dm_id are -1
+                        - Occurs when og_message_id does not refer to a valid message within a 
+                        channel/DM that the authorised user has joined
+                        - Occurs when length of message is more than 1000 characters
+
+        AccessError     - Occurs when the pair of channel_id and dm_id are valid 
+                        (i.e. one is -1, the other is valid) and the authorised user has not 
+                        joined the channel or DM they are trying to share the message to
+    Return Value:
+        Returns <message_id> of the valid shared message
+    '''
 
     # Checks for invalid token
     if not valid_user(token):

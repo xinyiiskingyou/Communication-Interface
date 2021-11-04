@@ -14,6 +14,7 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, messag
 from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
 from src.message import message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
+from src.notifications import notifications_get_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -327,6 +328,14 @@ def admin_userpermission():
     json = request.get_json()
     resp = admin_userpermission_change_v1(json['token'], json['u_id'], json['permission_id'])
     return dumps(resp)
+
+############ NOTIFICATIONS #################
+
+# Return the user's most recent 20 notifications, ordered from most recent to least recent.
+@APP.route("/notifications/get/v1", methods=['GET'])
+def notifications_get():
+    token = (request.args.get('token'))
+    return dumps(notifications_get_v1(token))
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
