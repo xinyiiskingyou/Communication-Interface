@@ -15,7 +15,7 @@ from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 def test_message_share_channel_and_dm_invalid(global_owner, create_channel, user1_channel_message_id):
 
     user1_token = global_owner['token']
-    user1_channel1 = create_channel['channel_id']
+    create_channel['channel_id']
     message1_id = user1_channel_message_id
 
     channel2 = requests.post(config.url + "channels/create/v2", json ={
@@ -23,7 +23,7 @@ def test_message_share_channel_and_dm_invalid(global_owner, create_channel, user
         'name': 'barry',
         'is_public': True
     })
-    channel2_id = channel2.json()['channel_id']
+    channel2.json()['channel_id']
 
     # channel_id is of valid type but is non-existant
     share_message1 = requests.post(config.url + "message/share/v1", json ={
@@ -60,7 +60,7 @@ def test_message_share_channel_and_dm_minus_1(global_owner, create_channel,
 user1_channel_message_id, create_dm):
 
     user1_token = global_owner['token']
-    user1_channel1 = create_channel['channel_id']
+    create_channel['channel_id']
     message1_id = user1_channel_message_id
     dm_id = create_dm['dm_id']
 
@@ -87,9 +87,9 @@ user1_channel_message_id, create_dm):
 def test_message_share_user_not_member_of_channel(global_owner, register_user2, create_channel, 
 user1_channel_message_id):
 
-    user1_token = global_owner['token']
+    global_owner['token']
     user2_token = register_user2['token']
-    user1_channel = create_channel['channel_id']
+    create_channel['channel_id']
 
     message1_id = user1_channel_message_id
 
@@ -115,14 +115,14 @@ user1_channel_message_id):
     # 2. Not member of DM that og_message is in
 def test_message_share_user_not_member_of_DM(global_owner, register_user2, register_user3, user1_send_dm):
 
-    user1_token = global_owner['token']
+    global_owner['token']
     user1_id = global_owner['auth_user_id']
 
     user2_token = register_user2['token']
-    user2_id = register_user2['auth_user_id']
+    register_user2['auth_user_id']
 
     user3_token = register_user3['token']
-    user3_id = register_user3['auth_user_id']
+    register_user3['auth_user_id']
 
     # User 2 creates a DM with User 1
     dm1 = requests.post(config.url + "dm/create/v1", json = {
@@ -160,7 +160,7 @@ def test_message_share_user_not_member_of_DM(global_owner, register_user2, regis
 def test_message_share_message_gt_1000_char(global_owner, create_channel, user1_channel_message_id):
 
     user1_token = global_owner['token']
-    user1_channel1 = create_channel['channel_id']
+    create_channel['channel_id']
     message1_id = user1_channel_message_id
 
     channel2 = requests.post(config.url + "channels/create/v2", json ={
@@ -188,7 +188,7 @@ def test_message_share_message_gt_1000_char(global_owner, create_channel, user1_
     # 1. Not member of channel that message is being shared to
 def test_message_share_message_not_member_of_channel_sharing_to(global_owner, register_user2, create_channel):
 
-    user1_token = global_owner['token']
+    global_owner['token']
     user2_token = register_user2['token']
 
     # User 1 (global owner) creates a channel
@@ -223,14 +223,14 @@ def test_message_share_message_not_member_of_channel_sharing_to(global_owner, re
     # 2. Not member of DM that message is being shared to
 def test_message_share_message_not_member_of_DM_sharing_to(global_owner, register_user2, register_user3):
 
-    user1_token = global_owner['token']
+    global_owner['token']
     user1_id = global_owner['auth_user_id']
 
     user2_token = register_user2['token']
-    user2_id = register_user2['auth_user_id']
+    register_user2['auth_user_id']
 
     user3_token = register_user3['token']
-    user3_id = register_user3['auth_user_id']
+    register_user3['auth_user_id']
 
     # User 2 creates a DM with User 1
     dm1 = requests.post(config.url + "dm/create/v1", json = {
@@ -273,7 +273,7 @@ def test_message_share_message_not_member_of_DM_sharing_to(global_owner, registe
 def test_message_share_channel_to_channel(global_owner, create_channel, user1_channel_message_id):
 
     user1_token = global_owner['token']
-    user1_channel1 = create_channel['channel_id']
+    create_channel['channel_id']
     message1_id = user1_channel_message_id
 
     channel2 = requests.post(config.url + "channels/create/v2", json ={
@@ -292,6 +292,7 @@ def test_message_share_channel_to_channel(global_owner, create_channel, user1_ch
         'dm_id': -1
     })
     message_share_id = share_message1.json()['shared_message_id']
+
     assert share_message1.status_code == VALID
     assert message1_id != message_share_id
 
@@ -299,12 +300,12 @@ def test_message_share_channel_to_channel(global_owner, create_channel, user1_ch
 def test_message_share_DM_to_DM(global_owner, register_user2, register_user3):
 
     user1_token = global_owner['token']
-    user1_id = global_owner['auth_user_id']
+    global_owner['auth_user_id']
 
-    user2_token = register_user2['token']
+    register_user2['token']
     user2_id = register_user2['auth_user_id']
 
-    user3_token = register_user3['token']
+    register_user3['token']
     user3_id = register_user3['auth_user_id']
 
     create_dm1 = requests.post(config.url + "dm/create/v1", json = {
@@ -341,10 +342,10 @@ def test_message_share_DM_to_channel(global_owner, register_user2, create_channe
 create_dm, user1_send_dm):
 
     user1_token = global_owner['token']
-    user2_token = register_user2['token']
+    register_user2['token']
 
     channel1_id = create_channel['channel_id']
-    dm1_id = create_dm['dm_id']
+    create_dm['dm_id']
 
     message1_id = user1_send_dm
 
@@ -361,7 +362,7 @@ create_dm, user1_send_dm):
 def test_message_share_additional_message(global_owner, create_channel, user1_channel_message_id):
 
     user1_token = global_owner['token']
-    user1_channel1 = create_channel['channel_id']
+    create_channel['channel_id']
     message1_id = user1_channel_message_id
 
     channel2 = requests.post(config.url + "channels/create/v2", json ={
@@ -380,4 +381,3 @@ def test_message_share_additional_message(global_owner, create_channel, user1_ch
         'dm_id': -1
     })
     assert share_message1.status_code == VALID
-

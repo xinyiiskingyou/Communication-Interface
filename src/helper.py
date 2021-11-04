@@ -220,7 +220,7 @@ def check_permission(u_id, permission_id):
 ######## Helper functions for message.py ########
 #################################################
 
-# Helper function for message_edit_v1
+# Helper function for message_edit_v1, message_share_v1
 # Checks if message_id refers to a valid message within a channel/DM
 # that the authorised user has joined
 # Returns true if valid message_id
@@ -258,9 +258,10 @@ def check_valid_message_id(auth_user_id, message_id):
     # Go through DMs to determine if user is part of DM of that message_id
     elif message_id % 2 == 0:
         for dm in get_data()['dms']:
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id:
-                    found_user = 1
+            if dm['dm_id'] == channel_dm_id:
+                for member in dm['members']:
+                    if member['u_id'] == auth_user_id:
+                        found_user = 1
 
     # In the case where message being edited is part of a channel, 
     # check if auth_user_id is global owner of Streams
@@ -411,6 +412,48 @@ def get_message(message_id):
         for message in dm['messages']:
             if message['message_id'] == message_id:
                 return message
+
+# Helper function for message_share
+# Checks both channel_id and dm_id are valid 
+# Return true if both are valid and false otherwise
+def check_valid_channel_id_and_dm_id_format(channel_id, dm_id):
+    found_channel = 0
+    found_dm = 0
+
+    for channel in get_data()['channels']:
+        if channel['channel_id'] == channel_id:
+            found_channel = 1
+
+    for dm in get_data()['dms']:
+        if dm['dm_id'] == dm_id:
+            found_dm = 1
+
+    if ((found_channel == 1 and dm_id == -1) or 
+    (channel_id == -1 and found_dm == 1)):
+        return True
+    else:
+        return False
+    
+# Helper function for message_share
+# Checks that authorised user is member of channel/DM they are 
+# trying to share the message to
+def check_share_message_authorised_user(auth_user_id, channel_id, dm_id):
+    if channel_id != -1:
+        for channel in get_data()['channels']:
+            if channel['channel_id'] == channel_id:
+                for member in channel['all_members']:
+                    if member['u_id'] == auth_user_id:
+                        return True
+
+    if dm_id != -1:
+        for dm in get_data()['dms']:
+            if dm['dm_id'] == dm_id:
+                for member in dm['members']:
+                    if member['u_id'] == auth_user_id:
+                        return True
+    
+    return False
+
 
 #################################################
 ######## Helper functions for dm.py      ########

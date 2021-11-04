@@ -8,7 +8,9 @@ from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, check_valid_message
 from src.helper import check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
 from src.helper import get_message, get_reacts, check_valid_channel_dm_message_ids, check_valid_message_id
+from src.helper import check_valid_channel_id_and_dm_id_format, check_share_message_authorised_user
 from src.server_helper import decode_token, valid_user
+from src.dm import message_senddm_v1
 
 def message_send_v1(token, channel_id, message):
     '''
@@ -213,6 +215,48 @@ def message_remove_v1(token, message_id):
                 save()
 
     return {}
+
+def message_share_v1(token, og_message_id, message, channel_id, dm_id):
+
+    # Checks for invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
+        
+    # Checks that the both channel_id and dm_id are valid
+    if not check_valid_channel_id_and_dm_id_format(channel_id, dm_id):
+        raise InputError(description="Both channel_id and dm_id are invalid.")
+
+    # Given that pair of channel_id and dm_id are valid
+    # checks that authorised user has joined the channel or DM they are trying to share the message to
+    if not check_share_message_authorised_user(auth_user_id, channel_id, dm_id):
+        raise AccessError(description="Authorised user has not joined channel or DM they are trying to share message to.")
+    
+    # Checks if og_message_id does not refer to a valid message within a channel/DM 
+    # that the authorised user has joined
+    if not check_valid_message_id(auth_user_id, og_message_id):
+        raise InputError(description="The og_message_id is invalid.")
+
+    # Checks that length of message is valid 
+    if not check_valid_message_send_format(message):
+        raise InputError(description="Length of message is more than 1000 characters.")
+
+    og_message = get_message(og_message_id)['message']
+    shared_message = f"'''\n{og_message}\n'''"
+    
+    if message != '':
+        shared_message = f"{message}\n\n{shared_message}"
+
+    if channel_id != -1:
+        shared_message_id = message_send_v1(token, channel_id, shared_message)['message_id']
+    elif dm_id != -1:
+        shared_message_id = message_senddm_v1(token, dm_id, shared_message)['message_id']
+
+    return {
+        'shared_message_id': shared_message_id
+    }
+
 
 def message_react_v1(token, message_id, react_id):
     '''
