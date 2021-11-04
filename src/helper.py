@@ -437,7 +437,7 @@ def check_creator(auth_user_id):
                 return True
     return False
 
-# Helper function for dm_remove, dm_details, dm_leave, dm_messages, message_senddm
+# Helper function for dm_remove, dm_details, dm_leave, dm_messages, message_senddm, message_sendlaterdm
 # Returns true if dm exists
 # Returns false otherwise
 def check_valid_dm(dm_id):

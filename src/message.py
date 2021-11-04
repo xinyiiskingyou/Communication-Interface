@@ -8,6 +8,7 @@ from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_message_dict, check_valid_message
 from src.helper import check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
 from src.helper import get_message, get_channel_reacts, check_valid_channel_dm_message_ids
+from src.helper import check_valid_dm, check_valid_member_in_dm
 from src.server_helper import decode_token, valid_user
 
 def message_send_v1(token, channel_id, message):
@@ -505,3 +506,91 @@ print(time.time())
 print(time.asctime(time.localtime(time.time())))
 print(time.asctime(time.localtime(time.time() + 600)))
 '''
+def message_sendlaterdm_v1(token, dm_id, message, time_sent):
+    '''
+    Send a message from the auth_user to dm specified by dm_id
+    automatically at a specified time in the future
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+        <dm_id>        (<int>)      - unique id of a message
+        <message>      (<string>)   - an authorisation hash
+        <time_sent>    (<int>)      - unique id of a message
+
+    Exceptions:
+        InputError      - Occurs when dm_id is not valid
+                        - Occurs when length of message is over 1000 characters
+                        - Occurs when the time_sent is a time in the past
+
+        AccessError     - Occurs when token is invalid
+                        - Occurs when dm_id is valid and the auth_user is not a member of 
+                          the channel they are trying to post to
+    
+    Return Value:
+        <message_id>  (<int>)     - a valid message
+    '''
+    # invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+    
+    auth_user_id = decode_token(token)
+
+    if not check_valid_dm(dm_id):
+        raise InputError(description='Dm id does not refer to a valid channel')
+    
+    if not check_valid_member_in_dm(dm_id, auth_user_id):
+        raise AccessError(description='authorised user is not a member of the dm they are trying to post to')
+    
+    if len(message) > 1000:
+        raise InputError(description='The length of message is over 1000 characters')
+    
+    if int(time.time()) > int(time_sent):
+        raise InputError(description='Time_sent is a time in the past')
+
+    # generate a message_id as soon as message_sendlater is called
+    message_id = (len(get_data()['messages']) * 2)
+
+    # wait for [time_wait] amount of time
+    time_wait = time_sent - int(time.time())
+    time.sleep(time_wait)
+
+    is_this_user_reacted = False
+    is_pinned = False
+    reacts_details = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': bool(is_this_user_reacted)
+    }
+
+    message_details_dm = {
+        'message_id': message_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_sent,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
+    }
+
+    # Append dictionary of message details into initial_objects['dms']['messages']
+    for dm in get_data()['dms']:
+        if dm['dm_id'] == dm_id:
+            channeldm['messages'].insert(0, message_details_dm)
+            save()
+
+    message_details_messages = {
+        'message_id': message_id,
+        'u_id': auth_user_id, 
+        'message': message,
+        'time_created': time_sent,
+        'dm_id': dm_id,
+        'reacts':[reacts_details],
+        'is_pinned': bool(is_pinned)
+    }
+
+    # Append dictionary of message details into intital_objects['messages']
+    get_data()['messages'].insert(0, message_details_messages)
+    save()
+
+    return {
+        'message_id': message_id
+    }
