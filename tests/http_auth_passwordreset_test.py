@@ -45,6 +45,8 @@ def test_auth_passwordrequest_reset_invalid_code():
         'email': 'camel5363885.2@gmail.com'
     })
 
+    assert pass_request.status_code == 200
+    
     # Check invalid reset code
     pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
         'reset_code': '',
@@ -63,10 +65,11 @@ def test_auth_passwordrequest_reset_invalid_password_length():
         'name_last': 'park'
     })
     assert register.status_code == 200
-    
+
     pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
         'email': 'abc@gmail.com'
     })
+    assert pass_request.status_code == 200
 
     # Check invalid password length
     pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
