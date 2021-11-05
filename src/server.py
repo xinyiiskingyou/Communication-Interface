@@ -89,7 +89,6 @@ def logout():
     resp = auth_logout_v1(json['token'])
     return dumps(resp)
 
-
 ############ CHANNELS #################
 
 # Creates a new channel with the given name that is either a public or private channel. 
@@ -112,7 +111,6 @@ def channels_list():
 @APP.route ("/channels/listall/v2", methods= ['GET'])
 def listall():
     return dumps(channels_listall_v2(request.args.get('token')))
-
 
 ############ CHANNEL #################
 
@@ -168,14 +166,15 @@ def channel_messages():
     start = int(request.args.get('start'))
     return dumps(channel_messages_v2(token, channel_id, start))
 
-
-############ USER #################
+############ USERS #################
 
 # Returns information about all users
 @APP.route("/users/all/v1", methods=['GET'])
 def user_all(): 
     token = (request.args.get('token'))
     return dumps(users_all_v1(token))
+
+############## USER #################
 
 # Returns information about 1 user
 @APP.route("/user/profile/v1", methods=['GET'])
@@ -282,6 +281,7 @@ def message_sendlaterdm():
     json = request.get_json()
     resp = message_sendlaterdm_v1(json['token'], json['dm_id'], json['message'], json['time_sent'])
     return dumps(resp)
+
 # Message is shared to another channel/DM. An optional message can be added 
 # onto the shared message
 @APP.route("/message/share/v1", methods=['POST'])
@@ -289,7 +289,6 @@ def message_share():
     json = request.get_json()
     resp = message_share_v1(json['token'], json['og_message_id'], json['message'], json['channel_id'], json['dm_id'])
     return dumps(resp)
-
 
 ############ DM #################
 
@@ -336,7 +335,6 @@ def dm_leave():
     json = request.get_json()
     resp = dm_leave_v1(json['token'], json['dm_id'])
     return dumps(resp)
-
 
 ############ ADMIN #################
 
