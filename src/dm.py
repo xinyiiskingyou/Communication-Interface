@@ -64,12 +64,14 @@ def dm_create_v1(token, u_ids):
     separation = ", "
     name = separation.join(handle_list)
 
+    time_created = int(time.time())
     get_data()['dms'].append({
         'dm_id': dm_id,
         'name': name,
         'creator': creator_info,
         'members': member_list,
         'messages': [],
+        'time_stamp': time_created
     })
 
     save()
