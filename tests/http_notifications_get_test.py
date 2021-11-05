@@ -30,7 +30,7 @@ register_user2, user2_handle_str, create_channel, channel1_name):
 
     message = f'@{user2_handle_str} hello'
 
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id,
         'message': message
@@ -91,7 +91,7 @@ register_user2, user2_handle_str, create_channel, channel1_name):
         'channel_id': channel1_id,
         'message': message
     })
-    message1_id = json.loads(send_message1.text)['message_id']
+    json.loads(send_message1.text)['message_id']
 
     get_notifications = requests.get(config.url + "notifications/get/v1", params = {
         'token': user2_token
@@ -133,7 +133,7 @@ register_user2, user2_handle_str, register_user3, user3_handle_str, create_chann
         'channel_id': channel1_id,
         'message': message
     })
-    message1_id = json.loads(send_message1.text)['message_id']
+    json.loads(send_message1.text)['message_id']
 
     get_notifications1 = requests.get(config.url + "notifications/get/v1", params = {
         'token': user2_token
@@ -178,7 +178,7 @@ user2_handle_str, create_channel):
         'channel_id': channel1_id,
         'message': message
     })
-    message1_id = json.loads(send_message1.text)['message_id']
+    json.loads(send_message1.text)['message_id']
 
     get_notifications = requests.get(config.url + "notifications/get/v1", params = {
         'token': user2_token
@@ -204,7 +204,7 @@ register_user2, user2_handle_str, create_channel, channel1_name):
 
     message = f'@{user2_handle_str}!@#$'
 
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id,
         'message': message
@@ -239,7 +239,7 @@ register_user2, user2_handle_str, create_channel, channel1_name):
 
     message = f'@{user2_handle_str}' + (' hello' * 10)
 
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id,
         'message': message
@@ -482,7 +482,7 @@ user2_handle_str, create_channel, channel1_name):
         'channel_id': channel1_id,
         'message': message
     })
-    message1_id = json.loads(send_message1.text)['message_id']
+    json.loads(send_message1.text)['message_id']
 
     # User 2 sends a message
     send_message2 = requests.post(config.url + "message/send/v1", json = {
