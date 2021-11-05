@@ -100,7 +100,7 @@ def channels_create_v2(token, name, is_public):
 
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
-
+    standups = {'standup_active': False, 'time_finished': None, "message":"", 'u_id_start': 0, 'message_sent': True}
     user = user_info(auth_user_id)
     get_data()['channels'].append({
         'channel_id': channel_id,
@@ -108,7 +108,8 @@ def channels_create_v2(token, name, is_public):
         'is_public': bool(is_public),
         'owner_members': [user],
         'all_members': [user],
-        'messages': []
+        'messages': [],
+        'standup': standups
     })
 
     save()
