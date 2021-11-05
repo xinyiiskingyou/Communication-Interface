@@ -88,6 +88,7 @@ def user1_send_dm(global_owner, create_dm):
     dm_message_id = json.loads(send_dm1_message.text)['message_id']
     return dm_message_id
 
+###### notifications ######
 # gets the handle_str of user 1 (global owner)
 @pytest.fixture
 def user1_handle_str(global_owner):
@@ -107,6 +108,16 @@ def user2_handle_str(register_user2):
     })
     user2_handle_str = json.loads(use2_profile.text)['user']['handle_str']
     return user2_handle_str
+    
+# gets the handle_str of user 3
+@pytest.fixture
+def user3_handle_str(register_user3):
+    use3_profile = requests.get(config.url + "user/profile/v1", params = {
+        'token': register_user3['token'], 
+        'u_id': register_user3['auth_user_id'], 
+    })
+    user3_handle_str = json.loads(use3_profile.text)['user']['handle_str']
+    return user3_handle_str
 
 # get channel name of global_owner's channel
 @pytest.fixture

@@ -527,3 +527,92 @@ def get_dm_dict(dm_id):
     for dm in get_data()['dms']:
         if dm['dm_id'] == dm_id:
             return dm
+
+
+######################################################
+####### Helper functions for notifications.py ########
+######################################################
+
+
+# Helper function in message_send_v1 
+# Checks if a member of channel has been tagged
+# Return a list of all the handle strings tagged 
+# and an empty string if no users are tagged in message
+def check_message_channel_tag(message, channel_id):
+    handle_str_list = []
+    alpha_numeric_str = re.sub("[^0-9a-zA-Z@]+", " ", message)
+    for word in alpha_numeric_str.split():
+        if '@' in word:
+            handle_str = word[1:]
+            # print(handle_str)
+            for channel in get_data()['channels']:
+                if channel['channel_id'] == channel_id:
+                    for member in channel['all_members']:
+                        # print(f"member = {member}")
+                        if member['handle_str'] == handle_str:
+                            handle_str_list.append(handle_str)
+    # print(f"handle_str_list before {handle_str_list}")                     
+    # print(f"handle_str_list after {list(set(handle_str_list))}")
+    return list(set(handle_str_list))
+
+# Helper function in message_senddm_v1
+# Checks if a member of DM has been tagged
+# Return true if valid member has been tagged, false otherwise
+def check_message_dm_tag(message, dm_id):
+    handle_str_list = []
+    alpha_numeric_str = re.sub("[^0-9a-zA-Z@]+", " ", message)
+    for word in alpha_numeric_str.split():
+        if '@' in word:
+            handle_str = word[1:]
+            print(handle_str)
+            for dm in get_data()['dms']:
+                if dm['dm_id'] == dm_id:
+                    for member in dm['members']:
+                        # print(f"member = {member}")
+                        if member['handle_str'] == handle_str:
+                            handle_str_list.append(handle_str)
+    # print(f"handle_str_list before {handle_str_list}")                     
+    # print(f"handle_str_list after {list(set(handle_str_list))}")
+    return list(set(handle_str_list))
+
+# Helper function in message_react_v1
+# Returns the channel_id of message and u_id of user that sent message as a dict
+def channel_dm_of_message_id(message_id):
+    if message_id % 2 == 1:
+        for channel in get_data()['channels']:
+            for message in channel['messages']:
+                if message['message_id'] == message_id:
+                    return {
+                        'channel_dm_id': channel['channel_id'],
+                        'u_id': message['u_id'], 
+                    }
+
+    elif message_id % 2 == 0:
+        for dm in get_data()['dms']:
+            for message in dm['messages']:
+                if message['message_id'] == message_id:
+                    return {
+                        'channel_dm_id': dm['dm_id'],
+                        'u_id': message['u_id'],
+                    }
+
+# Helper function for activate_notification_react
+# Finds the handle_str of a user from their u_id
+def u_id_to_handle_str(u_id):
+    for user in get_data()['users']:
+        if user['auth_user_id'] == u_id:
+            return user['handle_str']
+
+# Helper function for activate_notification_tag_channel
+# Finds the name of the channel from channel_id
+def channel_id_to_channel_name(channel_id):
+    for channel in get_data()['channels']:
+        if channel['channel_id'] == channel_id:
+            return channel['name']
+
+# Helper function for activate_notification_tag_dm
+# Finds the name of the DM from dm_id
+def dm_id_to_dm_name(dm_id):
+    for dm in get_data()['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm['name']

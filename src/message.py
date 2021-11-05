@@ -9,7 +9,9 @@ from src.helper import check_valid_channel_id, check_valid_member_in_channel, ch
 from src.helper import check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
 from src.helper import get_message, get_reacts, check_valid_channel_dm_message_ids, check_valid_message_id
 from src.helper import check_valid_channel_id_and_dm_id_format, check_share_message_authorised_user
+from src.helper import check_message_channel_tag
 from src.server_helper import decode_token, valid_user
+from src.notifications import activate_notification_tag_channel, activate_notification_react
 from src.dm import message_senddm_v1
 
 def message_send_v1(token, channel_id, message):
@@ -49,6 +51,11 @@ def message_send_v1(token, channel_id, message):
     if not check_valid_message(message):
         raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
 
+    # Checks if message contains a tag to an authorised user
+    tagged_user_list = check_message_channel_tag(message, channel_id)
+    if tagged_user_list != []:
+        activate_notification_tag_channel(auth_user_id, tagged_user_list, channel_id, message)
+    
     # Creating unique message_id 
     message_id = (len(get_data()['messages']) * 2) + 1
 
@@ -328,6 +335,9 @@ def message_react_v1(token, message_id, react_id):
     react['u_ids'].append(int(auth_user_id))
     react['is_this_user_reacted'] = True
     save()
+
+    # Activate notification for react
+    activate_notification_react(auth_user_id, message_id)
     
     return {}
     
