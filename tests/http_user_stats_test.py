@@ -121,7 +121,7 @@ def test_valid_user_remove_dm(global_owner, create_dm):
     assert len(json.loads(stats.text)['user_stats']['dms_joined']) == 1
 
 # Test the length when the user leave dm
-def test_valid_user_remove_dm(global_owner, create_dm):
+def test_valid_user_leave_dm(global_owner, create_dm):
 
     token = global_owner['token']
     resp1 = requests.post(config.url + "dm/leave/v1", json = { 
