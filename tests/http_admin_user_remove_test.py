@@ -2,39 +2,8 @@ import pytest
 import requests
 import json
 from src import config
-
-@pytest.fixture
-def global_owner():
-    requests.delete(config.url + "clear/v1")
-    user = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'cat@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'lee'
-    })
-    user_data = user.json()
-    return user_data
-
-@pytest.fixture
-def register_user2():
-    user2 = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'elephant@gmail.com',
-        'password': 'password',
-        'name_first': 'sally',
-        'name_last': 'li'
-    })
-    user2_data = user2.json()
-    return user2_data
-
-@pytest.fixture
-def create_channel(global_owner):
-    channel = requests.post(config.url + "channels/create/v2", json ={
-        'token': global_owner['token'],
-        'name': 'anna',
-        'is_public': True
-    })
-    channel_data = channel.json()
-    return channel_data
+from tests.fixture import global_owner, register_user2, create_channel
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
 ######## admin_user_remove tests #########
@@ -53,7 +22,7 @@ def test_admin_invalid_token(global_owner, register_user2):
         'token': token,
         'u_id': u_id
     })
-    assert remove.status_code == 403
+    assert remove.status_code == ACCESSERROR
 
 # Input error: u_id does not refer to a valid user
 def test_admin_remove_invalid_u_id(global_owner, register_user2):
@@ -67,8 +36,8 @@ def test_admin_remove_invalid_u_id(global_owner, register_user2):
         'token': token,
         'u_id': ''
     })
-    assert remove.status_code == 400
-    assert remove1.status_code == 400
+    assert remove.status_code == INPUTERROR
+    assert remove1.status_code == INPUTERROR
 
     # access error: u_id is invalid and authorised user is not a global owner
     token2 = register_user2['token']
@@ -76,7 +45,7 @@ def test_admin_remove_invalid_u_id(global_owner, register_user2):
         'token': token2,
         'u_id': -1
     })
-    assert remove2.status_code == 403
+    assert remove2.status_code == ACCESSERROR
 
     # access error: invalid token and invalid u_id
     requests.post(config.url + "auth/logout/v1", json = {
@@ -86,7 +55,7 @@ def test_admin_remove_invalid_u_id(global_owner, register_user2):
         'token': token,
         'u_id': -1
     })
-    assert remove3.status_code == 403
+    assert remove3.status_code == ACCESSERROR
 
 # Input error: u_id refers to a user who is the only global owner
 def test_admin_global_owner(global_owner):
@@ -98,7 +67,7 @@ def test_admin_global_owner(global_owner):
         'token': token,
         'u_id': u_id
     })
-    assert remove.status_code == 400
+    assert remove.status_code == INPUTERROR
 
     # access error: invalid token and u_id is the only global owner
     requests.post(config.url + "auth/logout/v1", json = {
@@ -108,7 +77,7 @@ def test_admin_global_owner(global_owner):
         'token': token,
         'u_id': u_id
     })
-    assert remove3.status_code == 403
+    assert remove3.status_code == ACCESSERROR
 
 # Access error: the authorised user is not a global owner
 def test_admin_remove_not_global_owner(global_owner, register_user2):
@@ -120,7 +89,7 @@ def test_admin_remove_not_global_owner(global_owner, register_user2):
         'token': user2_token,
         'u_id': user1_id
     })
-    assert remove.status_code == 403
+    assert remove.status_code == ACCESSERROR
 
 ##### Implementation #####
 # remove stream member
@@ -139,7 +108,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert invite.status_code == 200
+    assert invite.status_code == VALID
 
     # user 1 creates a dm 
     dm = requests.post(config.url + "dm/create/v1", json ={ 
@@ -149,7 +118,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     dm_data = dm.json()
     dm_id = dm_data['dm_id']
 
-    assert dm.status_code == 200
+    assert dm.status_code == VALID
 
     # user2 sends a message in the channel
     message = requests.post(config.url + "message/send/v1", json ={
@@ -157,7 +126,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'channel_id': channel_id,
         'message': 'hello there'
     })
-    assert message.status_code == 200
+    assert message.status_code == VALID
 
     # user2 sends a message in dm
     send_dm = requests.post(config.url + "message/senddm/v1",json = {
@@ -165,14 +134,14 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'dm_id': dm_id,
         'message': 'hi'
     })
-    assert send_dm.status_code == 200
+    assert send_dm.status_code == VALID
 
     # now remove user2
     remove = requests.delete(config.url + "admin/user/remove/v1", json ={
         'token': user1_token,
         'u_id': user2_id
     })
-    assert remove.status_code == 200
+    assert remove.status_code == VALID
 
     # id2 is removed from id1's channel
     channel_detail = requests.get(config.url + "channel/details/v2", params = {
@@ -220,7 +189,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
     })  
 
     # name_first should be 'Removed' and name_last should be 'user'.
-    assert profile.status_code == 200
+    assert profile.status_code == VALID
     assert json.loads(profile.text)['user']['name_first'] == 'Removed'
     assert json.loads(profile.text)['user']['name_last'] == 'user'
     
@@ -231,7 +200,7 @@ def test_admin_remove_valid(global_owner, register_user2, create_channel):
         'name_first': 'sally',
         'name_last': 'li'
     })
-    assert user3.status_code == 200
+    assert user3.status_code == VALID
 
 # Streams owners can remove other Streams owners (including the original first owner)
 def test_admin_remove_valid1(global_owner, create_channel, register_user2):
@@ -264,7 +233,7 @@ def test_admin_remove_valid1(global_owner, create_channel, register_user2):
         'u_id': u_id2,
         'permission_id': 1
     })
-    assert promote.status_code == 200
+    assert promote.status_code == VALID
 
     # promotes user2 to be a channel owner
     requests.post(config.url + 'channel/invite/v2', json ={
@@ -277,7 +246,7 @@ def test_admin_remove_valid1(global_owner, create_channel, register_user2):
         'channel_id': channel_id,
         'u_id': u_id2
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
     # there will be 2 oweers in the channel
     channel_detail = requests.get(config.url + "channel/details/v2", params = {
@@ -294,7 +263,7 @@ def test_admin_remove_valid1(global_owner, create_channel, register_user2):
         'token': token2,
         'u_id': u_id
     })
-    assert demote.status_code == 200
+    assert demote.status_code == VALID
 
     # only user2 left in the channel
     channel_detail = requests.get(config.url + "channel/details/v2", params = {
@@ -336,21 +305,21 @@ def test_admin_remove_valid_dm(global_owner, register_user2):
         'token': token, 
         'dm_id': dm_id,
     })  
-    assert creator_leave.status_code == 200
+    assert creator_leave.status_code == VALID
 
     # now remove user 2
     remove = requests.delete(config.url + "admin/user/remove/v1", json ={
         'token': token,
         'u_id': u_id2
     })
-    assert remove.status_code == 200
+    assert remove.status_code == VALID
 
     # no one can access the dm_detail
     dm_detail = requests.get(config.url + "dm/details/v1", params = { 
         'token': token2,
         'dm_id': dm_id
     })
-    assert dm_detail.status_code == 403
+    assert dm_detail.status_code == ACCESSERROR
 
 def test_admin_remove_dm_coverage(global_owner, register_user2):
 
@@ -368,7 +337,7 @@ def test_admin_remove_dm_coverage(global_owner, register_user2):
     dm_data = dm.json()
     dm_id = dm_data['dm_id']
 
-    assert dm.status_code == 200
+    assert dm.status_code == VALID
 
     # user2 sends a message in dm
     send_dm = requests.post(config.url + "message/senddm/v1",json = {
@@ -376,14 +345,14 @@ def test_admin_remove_dm_coverage(global_owner, register_user2):
         'dm_id': dm_id,
         'message': 'user2'
     })
-    assert send_dm.status_code == 200
+    assert send_dm.status_code == VALID
 
     send_dm2 = requests.post(config.url + "message/senddm/v1",json = {
         'token': user1_token,
         'dm_id': dm_id,
         'message': 'user1'
     })
-    assert send_dm2.status_code == 200
+    assert send_dm2.status_code == VALID
 
     messages1 = requests.get(config.url + "dm/messages/v1", params ={
         'token': user1_token,
@@ -397,7 +366,7 @@ def test_admin_remove_dm_coverage(global_owner, register_user2):
         'token': user1_token,
         'u_id': user2_id
     })
-    assert remove.status_code == 200
+    assert remove.status_code == VALID
 
     messages2 = requests.get(config.url + "dm/messages/v1", params ={
         'token': user1_token,
@@ -420,7 +389,7 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'channel_id': channel_id,
         'u_id': user2_id
     })
-    assert invite.status_code == 200
+    assert invite.status_code == VALID
 
     # user2 sends a message in the channel
     message = requests.post(config.url + "message/send/v1", json ={
@@ -428,7 +397,7 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'channel_id': channel_id,
         'message': 'hello there'
     })
-    assert message.status_code == 200
+    assert message.status_code == VALID
 
     # user1 sends a message in the channel
     message = requests.post(config.url + "message/send/v1", json ={
@@ -450,7 +419,7 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
         'token': user1_token,
         'u_id': user2_id
     })
-    assert remove.status_code == 200 
+    assert remove.status_code == VALID 
 
     messages2 = requests.get(config.url + "channel/messages/v2", params ={
         'token': user1_token,
@@ -459,243 +428,3 @@ def test_admin_remove_channel_coverage(global_owner, register_user2, create_chan
     })
     assert json.loads(messages2.text)['messages'][1]['message'] == 'Removed user'
     
-##########################################
-#### admin_userpermission_change tests ###
-##########################################
-
-# Access error: invalid token 
-def test_admin_perm_invalid_token(global_owner, register_user2):
-   
-    token = global_owner['token']
-    u_id = register_user2['auth_user_id']
-    requests.post(config.url + "auth/logout/v1", json = {
-        'token': token
-    })
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id,
-        'permission_id': 1
-    })
-    assert perm.status_code == 403
-
-# Input error: u_id does not refer to a valid user
-def test_admin_perm_invalid_u_id(global_owner, register_user2):
-
-    token = global_owner['token']
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': -1,
-        'permission_id': 1
-    })
-    assert perm.status_code == 400
-
-    perm1 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': '',
-        'permission_id': 1
-    })
-    assert perm1.status_code == 400
-
-    # Access error: u_id is invalid the authorised user is not a global owner
-    token2 = register_user2['token']
-    perm2 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token2,
-        'u_id': -1,
-        'permission_id': 1
-    })
-    assert perm2.status_code == 403
-
-    # Access error: invalid token and invalid u_id
-    requests.post(config.url + "auth/logout/v1", json = {
-        'token': token
-    })
-    perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': ' ',
-        'permission_id': 1
-    })
-    assert perm3.status_code == 403
-
-# Input error: u_id refers to a user who is the only global owner 
-# and they are being demoted to a user
-def test_admin_invalid_demote(global_owner):
-
-    token = global_owner['token']
-    u_id = global_owner['auth_user_id']
-
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id,
-        'permission_id': 2
-    })
-    assert perm.status_code == 400
-
-    # Access error: invalid token and demote the only owner
-    requests.post(config.url + "auth/logout/v1", json = {
-        'token': token
-    })
-    perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id,
-        'permission_id': 2
-    })
-    assert perm3.status_code == 403
-
-# more case for the only global owner is being demoted
-def test_admin_invalid_demote1(global_owner, register_user2):
-
-    user1_token = global_owner['token']
-    user1_id = global_owner['auth_user_id']
-
-    user2_token = register_user2['token']
-    user2_id = register_user2['auth_user_id']
-
-    # user1 promotes user2
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': user1_token,
-        'u_id': user2_id,
-        'permission_id': 1
-    })
-    assert perm.status_code == 200
-
-    # id2 demotes id1
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': user2_token,
-        'u_id': user1_id,
-        'permission_id': 2
-    })
-    assert perm.status_code == 200
-
-    # raise Input error if user2 demotes themselves 
-    # since user2 is now the only global owner
-    perm2 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': user2_token,
-        'u_id': user2_id,
-        'permission_id': 2
-    })
-    assert perm2.status_code == 400
-
-# Input error: permission id is invalid 
-def test_admin_invalid_permission_id(global_owner, register_user2):
-
-    token = global_owner['token']
-    u_id = global_owner['auth_user_id']
-
-    token2 = register_user2['token']
-    u_id2 = register_user2['auth_user_id']
-
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id2,
-        'permission_id': 100
-    })
-    assert perm.status_code == 400
-
-    perm1 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id2,
-        'permission_id': -100
-    })
-    assert perm1.status_code == 400
-
-    # Access error when permission id is invalid and the authorised user is not a global owner
-    perm2 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token2,
-        'u_id': u_id,
-        'permission_id': 100
-    })
-    assert perm2.status_code == 403
-
-    # Access error: invalid token and invalid permission id
-    requests.post(config.url + "auth/logout/v1", json = {
-        'token': token
-    })
-    perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id2,
-        'permission_id': -1100
-    })
-    assert perm3.status_code == 403
-
-# Access error: the authorised user is not a global owner
-def test_admin_perm_not_global_owner(global_owner, register_user2):
-
-    u_id = global_owner['auth_user_id']
-    token2 = register_user2['token']
-
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token2,
-        'u_id': u_id,
-        'permission_id': 1
-    })
-    assert perm.status_code == 403
-
-# valid case
-def test_valid_permission_change(global_owner, register_user2):
-
-    token = global_owner['token']
-    u_id = global_owner['auth_user_id']
-
-    token2 = register_user2['token']
-    u_id2 = register_user2['auth_user_id']
-
-    user3 = requests.post(config.url + "auth/register/v2", json ={
-        'email': 'cute@unsw.edu.au',
-        'password': 'password2',
-        'name_first': 'tina',
-        'name_last': 'huang'
-    })
-    user3_data = user3.json()
-    token3 = user3_data['token']
-    u_id3 = user3_data['auth_user_id']
-
-    # id1 promotes id2 and id3
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id2,
-        'permission_id': 1
-    })
-    assert perm.status_code == 200
-
-    perm1 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id3,
-        'permission_id': 1
-    })
-    assert perm1.status_code == 200
-
-    # now user3 has the permission to demote user1(the original owner)
-    perm2 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token3,
-        'u_id': u_id,
-        'permission_id': 2
-    })
-    assert perm2.status_code == 200
-
-    # user2 also has the permission to promote user1 back
-    perm3 = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token2,
-        'u_id': u_id,
-        'permission_id': 1
-    })
-    assert perm3.status_code == 200
-
-# Nothing happened when the changing the permission is the same as before
-def test_valid_permission_change1(global_owner, register_user2):
-
-    token = global_owner['token']
-    u_id = global_owner['auth_user_id']
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id,
-        'permission_id': 1
-    })
-    assert perm.status_code == 200
-
-    u_id2 = register_user2['auth_user_id']
-    perm = requests.post(config.url + 'admin/userpermission/change/v1', json ={
-        'token': token,
-        'u_id': u_id2,
-        'permission_id': 2
-    })
-    assert perm.status_code == 200

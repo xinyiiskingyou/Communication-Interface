@@ -3,6 +3,7 @@ import requests
 import json
 import smtplib
 from src import config
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
 ##########################################
 ########### auth_register tests ##########
@@ -23,8 +24,8 @@ def test_reg_invalid_email_h():
         'name_first': 'anna',
         'name_last': 'park'
     })
-    assert resp1.status_code == 400
-    assert resp2.status_code == 400
+    assert resp1.status_code == INPUTERROR
+    assert resp2.status_code == INPUTERROR
 
 # Input error for duplicate email
 def test_reg_duplicate_email_h():
@@ -35,7 +36,7 @@ def test_reg_duplicate_email_h():
         'name_first': 'anna',
         'name_last': 'park'
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
     resp2 = requests.post(config.url + "auth/register/v2", json = {
         'email': 'abc@gmail.com',
@@ -43,7 +44,7 @@ def test_reg_duplicate_email_h():
         'name_first': 'john',
         'name_last': 'doe'
     }) 
-    assert resp2.status_code == 400
+    assert resp2.status_code == INPUTERROR
 
 # Input error for invalid password
 def test_reg_invalid_password_h():
@@ -54,7 +55,7 @@ def test_reg_invalid_password_h():
         'name_first': 'anna',
         'name_last': 'park'
     }) 
-    assert resp1.status_code == 400 
+    assert resp1.status_code == INPUTERROR 
 
 # Input error for the name is not between 1 and 50 characters
 def test_reg_invalid_name_h():
@@ -71,8 +72,8 @@ def test_reg_invalid_name_h():
         'name_first': 'anna',
         'name_last': 'a' * 53
     }) 
-    assert resp1.status_code == 400 
-    assert resp2.status_code == 400 
+    assert resp1.status_code == INPUTERROR 
+    assert resp2.status_code == INPUTERROR 
 
 ##### Implementation #####
 
@@ -101,8 +102,8 @@ def test_reg_return_values_h():
     assert json.loads(resp1.text) == {'token': token1, 'auth_user_id': id1}
     assert json.loads(resp2.text) == {'token': token2, 'auth_user_id': id2}
     assert id1 != id2
-    assert resp1.status_code == 200
-    assert resp2.status_code == 200
+    assert resp1.status_code == VALID
+    assert resp2.status_code == VALID
 
 # test valid handle generation
 def test_reg_handle_h():
@@ -137,8 +138,6 @@ def test_reg_handle_h():
     handle2 = json.loads(profile2.text)['users'][1]['handle_str']
     assert handle2 == 'annabelleparkerparke'
 
-
-
 ##########################################
 ############ auth_login tests ############
 ##########################################
@@ -156,7 +155,7 @@ def test_login_email_not_belong_to_user():
         'email': 'def@gmail.dom',
         'password': 'password',
     })
-    assert resp2.status_code == 400
+    assert resp2.status_code == INPUTERROR
 
 # Input error when password is not correct
 def test_login_incorrect_password():
@@ -171,7 +170,7 @@ def test_login_incorrect_password():
         'email': 'abc@gmail.com',
         'password': 'wrong password',
     })
-    assert resp2.status_code == 400
+    assert resp2.status_code == INPUTERROR
 
 # valid case
 def test_login_valid():
@@ -188,7 +187,7 @@ def test_login_valid():
         'email': 'abc@gmail.com',
         'password': 'password',
     })
-    assert login.status_code == 200
+    assert login.status_code == VALID
 
 ##########################################
 ############ auth_logout tests ###########
@@ -208,12 +207,12 @@ def test_logout_invalid_token():
     logout = requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
-    assert logout.status_code == 200
+    assert logout.status_code == VALID
 
     logout1 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
-    assert logout1.status_code == 403
+    assert logout1.status_code == ACCESSERROR
 
 # valid case
 def test_logout():
@@ -241,195 +240,14 @@ def test_logout():
     logout1 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token1
     })
-    assert logout1.status_code == 200
+    assert logout1.status_code == VALID
 
     logout2 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token3
     })
-    assert logout2.status_code == 200
+    assert logout2.status_code == VALID
 
     logout3 = requests.post(config.url + "auth/logout/v1", json = {
         'token': token2
     })
-    assert logout3.status_code == 200
-
-
-##########################################
-#### auth_passwordreset_request tests ####
-##########################################
-
-'''def test_auth_passwordreset_request_valid():
-    requests.delete(config.url + "clear/v1")
-    register = requests.post(config.url + "auth/register/v2", json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'park'
-    })
-
-    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
-        'email': 'abc@gmail.com'
-    })
-
-    assert pass_request.status_code == 200
-
-##########################################
-##### auth_passwordreset_reset tests #####
-##########################################
-
-# Input Error: invalid code was given
-def test_auth_passwordrequest_reset_invalid_code():
-    requests.delete(config.url + "clear/v1")
-    register = requests.post(config.url + "auth/register/v2", json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'park'
-    })
-
-    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
-        'email': 'abc@gmail.com'
-    })
-
-    # Check invalid reset code
-    pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
-        'reset_code': '',
-        'new_password': 'new_password'
-    })
-
-    assert pass_reset.status_code == 400
-
-# Input Error: password length is < 6 characters long
-def test_auth_passwordrequest_reset_invalid_password_length():
-    requests.delete(config.url + "clear/v1")
-    register = requests.post(config.url + "auth/register/v2", json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'park'
-    })
-
-    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
-        'email': 'abc@gmail.com'
-    })
-
-    # Get reset code
-    reset_code = json.loads(register.text)['reset_code']
-
-    # Check invalid password length
-    pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
-        'reset_code': reset_code,
-        'new_password': '12345'
-    })
-
-    assert pass_reset.status_code == 400
-
-##### Implementation #####
-
-# Check that they are not able to log in with old password
-def test_auth_passwordreset_reset_old():
-    requests.delete(config.url + "clear/v1")
-    register = requests.post(config.url + "auth/register/v2", json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'park'
-    })
-
-    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
-        'email': 'abc@gmail.com'
-    })
-
-    # Get reset code
-    reset_code = json.loads(pass_request.text)['reset_code']
-
-    # Send in the code to the passwordrequest_reset function
-    pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
-        'reset_code': reset_code,
-        'new_password': 'new_password'
-    })
-
-    # Check they are logged out of all sessions
-    assert pass_reset == 200
-    
-    # Check old password is invalid
-    login = requests.post(config.url + "auth/login/v2",json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-    })
-    assert login.status_code == 400
-
-
-# Check that they are able to log in with new password
-def test_auth_passwordreset_reset_new():
-    requests.delete(config.url + "clear/v1")
-    register = requests.post(config.url + "auth/register/v2", json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'park'
-    })
-
-    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
-        'email': 'abc@gmail.com'
-    })
-
-    # Get reset code
-    reset_code = json.loads(register.text)['reset_code']
-
-    # Send in the code to the passwordrequest_reset function
-    pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
-        'reset_code': reset_code,
-        'new_password': 'new_password'
-    })
-
-    # Check they are logged out of all sessions
-    assert pass_reset == 200
-    
-    # Check new password is valid
-    login = requests.post(config.url + "auth/login/v2",json = {
-        'email': 'abc@gmail.com',
-        'password': 'new_password',
-    })
-    assert login.status_code == 200
-
-# Check that they are logged out of all sessions
-def test_auth_passwordreset_reset_sessions():
-    requests.delete(config.url + "clear/v1")
-    register = requests.post(config.url + "auth/register/v2", json = {
-        'email': 'abc@gmail.com',
-        'password': 'password',
-        'name_first': 'anna',
-        'name_last': 'park'
-    })
-
-    # Log user in several times
-    login1 = requests.post(config.url + "auth/login/v2",json = {
-        'email': 'abc@gmail.com',
-        'password': 'new_password',
-    })
-    login2 = requests.post(config.url + "auth/login/v2",json = {
-        'email': 'abc@gmail.com',
-        'password': 'new_password',
-    })
-    login3 = requests.post(config.url + "auth/login/v2",json = {
-        'email': 'abc@gmail.com',
-        'password': 'new_password',
-    })
-
-    pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
-        'email': 'abc@gmail.com'
-    })
-
-    # Get reset code
-    reset_code = json.loads(register.text)['reset_code']
-
-    # Send in the code to the passwordrequest_reset function
-    pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
-        'reset_code': reset_code,
-        'new_password': 'new_password'
-    })
-
-    # Check they are logged out of all sessions
-    assert pass_reset == 200'''
-    
+    assert logout3.status_code == VALID

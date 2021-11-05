@@ -4,7 +4,6 @@ from flask import Flask, request
 from flask_cors import CORS
 from src.error import InputError
 from src import config
-from src.data_store import save, get_data
 
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
 from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
@@ -12,7 +11,8 @@ from src.channels import channels_listall_v2,channels_create_v2, channels_list_v
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
 from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, message_senddm_v1, dm_messages_v1, dm_leave_v1
-from src.message import message_send_v1, message_edit_v1, message_remove_v1
+from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
+from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
 from src.other import clear_v1
 
@@ -246,6 +246,55 @@ def message_remove():
 def message_senddm():
     json = request.get_json()
     resp = message_senddm_v1(json['token'], json['dm_id'], json['message'])
+    return dumps(resp)
+
+# Add a "react" to that particular message.
+@APP.route("/message/react/v1", methods=['POST'])
+def message_react():
+    json = request.get_json()
+    resp = message_react_v1(json['token'], json['message_id'], json['react_id'])
+    return dumps(resp)
+
+# Remove a "react" to that particular message.
+@APP.route("/message/unreact/v1", methods=['POST'])
+def message_unreact():
+    json = request.get_json()
+    resp = message_unreact_v1(json['token'], json['message_id'], json['react_id'])
+    return dumps(resp)
+
+# Given a message within a channel or DM, mark it as "pinned".
+@APP.route("/message/pin/v1", methods=['POST'])
+def message_pin():
+    json = request.get_json()
+    resp = message_pin_v1(json['token'], json['message_id'])
+    return dumps(resp)
+
+# Given a message within a channel or DM, remove its mark as "pinned".
+@APP.route("/message/unpin/v1", methods=['POST'])
+def message_unpin():
+    json = request.get_json()
+    resp = message_unpin_v1(json['token'], json['message_id'])
+    return dumps(resp)
+
+# Send a message from auth_user to the channel automatically at a specified time in the future
+@APP.route("/message/sendlater/v1", methods=['POST'])
+def message_sendlater():
+    json = request.get_json()
+    resp = message_sendlater_v1(json['token'], json['channel_id'], json['message'], json['time_sent'])
+    return dumps(resp)
+
+# Send a message from auth_user to the dm automatically at a specified time in the future
+@APP.route("/message/sendlaterdm/v1", methods=['POST'])
+def message_sendlaterdm():
+    json = request.get_json()
+    resp = message_sendlaterdm_v1(json['token'], json['dm_id'], json['message'], json['time_sent'])
+    return dumps(resp)
+# Message is shared to another channel/DM. An optional message can be added 
+# onto the shared message
+@APP.route("/message/share/v1", methods=['POST'])
+def message_share():
+    json = request.get_json()
+    resp = message_share_v1(json['token'], json['og_message_id'], json['message'], json['channel_id'], json['dm_id'])
     return dumps(resp)
 
 
