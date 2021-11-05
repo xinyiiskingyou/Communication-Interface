@@ -1,7 +1,8 @@
 from src.server_helper import decode_token, valid_user
 from src.helper import channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
-from src.helper import check_valid_member_in_dm, check_valid_message
+from src.helper import check_valid_member_in_dm, check_valid_message, check_message_dm_tag
 from src.server_helper import decode_token, valid_user
+from src.notifications import activate_notification_tag_dm, activate_notification_dm_create
 from src.error import InputError, AccessError
 from src.data_store import get_data, save
 import time
@@ -74,6 +75,10 @@ def dm_create_v1(token, u_ids):
     })
 
     save()
+
+    # Activate notification for invite/add
+    activate_notification_dm_create(auth_user_id, dm_id, member_list)
+
     return {
         'dm_id': dm_id
     }
@@ -318,6 +323,11 @@ def message_senddm_v1(token, dm_id, message):
     # Invalid message: Less than 1 or over 1000 characters
     if not check_valid_message(message):
         raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
+    
+    # Checks if message contains a tag to an authorised user
+    tagged_user_list = check_message_dm_tag(message, dm_id)
+    if tagged_user_list != []:
+        activate_notification_tag_dm(auth_user_id, tagged_user_list, dm_id, message)
 
     # Creating unique message_id 
     dmsend_id = (len(get_data()['messages']) * 2) 

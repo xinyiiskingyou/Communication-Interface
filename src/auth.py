@@ -161,7 +161,8 @@ def auth_register_v2(email, password, name_first, name_last):
         'handle_str' : handle,
         'permission_id' : permission_id,
         'is_removed': bool(is_removed),
-        'time_stamp': time_created
+        'time_stamp': time_created,
+        'all_notifications': [],
     })
     save()
 
