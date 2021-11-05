@@ -31,3 +31,7 @@ Assume all parameters in every function is given input.
 
 # For admin_userpermission_change_v1:
 1. Assume no error will be raised when the global owner changes their permission id to be 1.
+
+# For notifications_get_v1:
+1. Assume when a user is tagged multiple times in one message, they get the corresponding number of multiple notifications
+2. Assume that users get a notification when they tag themselves

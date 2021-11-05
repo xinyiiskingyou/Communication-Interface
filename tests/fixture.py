@@ -87,3 +87,55 @@ def user1_send_dm(global_owner, create_dm):
     assert send_dm1_message.status_code == 200
     dm_message_id = json.loads(send_dm1_message.text)['message_id']
     return dm_message_id
+
+###### notifications ######
+# gets the handle_str of user 1 (global owner)
+@pytest.fixture
+def user1_handle_str(global_owner):
+    use1_profile = requests.get(config.url + "user/profile/v1", params = {
+        'token': global_owner['token'], 
+        'u_id': global_owner['auth_user_id'], 
+    })
+    user1_handle_str = json.loads(use1_profile.text)['user']['handle_str']
+    return user1_handle_str
+
+# gets the handle_str of user 2
+@pytest.fixture
+def user2_handle_str(register_user2):
+    use2_profile = requests.get(config.url + "user/profile/v1", params = {
+        'token': register_user2['token'], 
+        'u_id': register_user2['auth_user_id'], 
+    })
+    user2_handle_str = json.loads(use2_profile.text)['user']['handle_str']
+    return user2_handle_str
+    
+# gets the handle_str of user 3
+@pytest.fixture
+def user3_handle_str(register_user3):
+    use3_profile = requests.get(config.url + "user/profile/v1", params = {
+        'token': register_user3['token'], 
+        'u_id': register_user3['auth_user_id'], 
+    })
+    user3_handle_str = json.loads(use3_profile.text)['user']['handle_str']
+    return user3_handle_str
+
+# get channel name of global_owner's channel
+@pytest.fixture
+def channel1_name(global_owner, create_channel):
+    channel_details = requests.get(config.url + "channel/details/v2", params = {
+        'token': global_owner['token'], 
+        'channel_id': create_channel['channel_id'], 
+    })
+    channel_name = json.loads(channel_details.text)['name']
+    return channel_name
+
+# get dm name of global_onwer's DM
+@pytest.fixture
+def dm1_name(global_owner, create_dm):
+    dm_details = requests.get(config.url + "dm/details/v1", params = {
+        'token': global_owner['token'], 
+        'dm_id': create_dm['dm_id'], 
+    })
+    assert dm_details.status_code == 200
+    dm_name = json.loads(dm_details.text)['name']
+    return dm_name
