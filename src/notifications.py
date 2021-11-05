@@ -4,7 +4,7 @@ Notifications implementation
 
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
-from src.helper import channel_dm_of_message_id, u_id_to_handle_str, channel_id_to_channel_name, dm_id_to_dm_name
+from src.helper import channel_dm_of_message_id, get_handle, channel_id_to_channel_name, dm_id_to_dm_name
 from src.server_helper import decode_token, valid_user
 
 TAG_START = 0
@@ -21,7 +21,7 @@ TAG_END = 20
 def activate_notification_tag_channel(auth_user_id, handle_str_list, channel_id, message):
     # print(f"handle_str_list {handle_str_list}")
 
-    handle_str_notif_from = u_id_to_handle_str(auth_user_id)
+    handle_str_notif_from = get_handle(auth_user_id)
 
     channel_name = channel_id_to_channel_name(channel_id)
         
@@ -45,7 +45,7 @@ def activate_notification_tag_channel(auth_user_id, handle_str_list, channel_id,
 # Sends notification for when a user is tagged in a DM they are a member of
 def activate_notification_tag_dm(auth_user_id, handle_str_list, dm_id, message):
 
-    handle_str_notif_from = u_id_to_handle_str(auth_user_id)
+    handle_str_notif_from = get_handle(auth_user_id)
 
     dm_name = dm_id_to_dm_name(dm_id)
         
@@ -75,7 +75,7 @@ def activate_notification_react(auth_user_id, message_id):
     u_id = channel_dm_of_message_id(message_id)['u_id']
 
     # Find the handle_str of auth_user_id -> user that activated the notification
-    handle_str_notif_from = u_id_to_handle_str(auth_user_id)
+    handle_str_notif_from = get_handle(auth_user_id)
 
     if message_id % 2 == 1:
         # Message reacted is from channel
@@ -117,7 +117,7 @@ def activate_notification_channel_invite(auth_user_id, channel_id, u_id):
     channel_name = channel_id_to_channel_name(channel_id)
     
     # Find the handle_str of auth_user_id -> user that activated the notification
-    handle_str_notif_from = u_id_to_handle_str(auth_user_id)
+    handle_str_notif_from = get_handle(auth_user_id)
 
     notification_message = f"{handle_str_notif_from} added you to {channel_name}"
 
@@ -136,7 +136,7 @@ def activate_notification_dm_create(auth_user_id, dm_id, member_list):
 
     dm_name = dm_id_to_dm_name(dm_id)
 
-    handle_str_notif_from = u_id_to_handle_str(auth_user_id)
+    handle_str_notif_from = get_handle(auth_user_id)
 
     notification_message = f"{handle_str_notif_from} added you to {dm_name}"
 
