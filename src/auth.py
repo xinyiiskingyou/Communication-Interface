@@ -4,7 +4,9 @@ Auth implementation
 import re
 import string
 import random
+import smtplib 
 import hashlib
+from src.config import port
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
@@ -186,19 +188,25 @@ def auth_passwordreset_request_v1(email):
     Return Value:
         Returns <{}> when user successfully requests a password reset
     '''
-
+    reset_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_letters) for i in range(20)) 
     # Get valid user
     for user in get_data()['users']:
         if user['email'] == email:
-            # Generate code
-            reset_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_letters) for i in range(20)) 
+            # Assign reset code
             user['reset_code'] = reset_code
+
+            # Send email
+            mail = smtplib.SMTP('smtp.gmail.com', 587)
+            mail.ehlo()
+            mail.starttls()
+            mail.login('camel5363885@gmail.com', 'camel_password!')
+            mail.sendmail('camel5363885@gmail.com', email, reset_code)
+            mail.close
+
             # Log them out of all sessions
             user['session_list'].clear
             save()
-    
-    # Send email
-    
+   
     return {}
 
 def auth_passwordreset_reset_v1(reset_code, new_password):

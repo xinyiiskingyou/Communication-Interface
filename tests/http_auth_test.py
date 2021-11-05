@@ -251,3 +251,4 @@ def test_logout():
         'token': token2
     })
     assert logout3.status_code == VALID
+

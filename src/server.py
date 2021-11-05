@@ -99,7 +99,7 @@ def pass_request():
 @APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
 def pass_reset():
     json = request.get_json()
-    resp = auth_passwordreset_reset_v1(json['new_code'], json['new_password'])
+    resp = auth_passwordreset_reset_v1(json['reset_code'], json['new_password'])
     return dumps(resp)
 
 ############ CHANNELS #################
