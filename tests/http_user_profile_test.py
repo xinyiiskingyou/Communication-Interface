@@ -77,7 +77,8 @@ def test_user_profile_valid_own(global_owner):
         'email': 'cat@gmail.com',
         'name_first': 'anna',
         'name_last': 'lee',
-        'handle_str': 'annalee'
+        'handle_str': 'annalee',
+        'profile_img_url': 'profile_imgs/default_pic'
     })
 
 # Valid Case for looking at someone else's profile
@@ -98,5 +99,6 @@ def test_user_profile_valid_someone_else(global_owner, register_user2):
         'email': 'elephant@gmail.com',
         'name_first': 'sally',
         'name_last': 'li',
-        'handle_str': 'sallyli'
+        'handle_str': 'sallyli',
+        'profile_img_url': 'profile_imgs/default_pic'
     })

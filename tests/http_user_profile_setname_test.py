@@ -131,7 +131,8 @@ def test_user_set_name_valid_name_first(global_owner, create_dm, create_channel)
         'email': 'cat@gmail.com',
         'name_first': 'annabelle',
         'name_last': 'lee',
-        'handle_str': 'annalee'
+        'handle_str': 'annalee',
+        'profile_img_url': 'profile_imgs/default_pic'
     })
     assert name.status_code == VALID
 
@@ -174,7 +175,8 @@ def test_user_set_name_valid_name_last(global_owner):
         'email': 'cat@gmail.com',
         'name_first': 'anna',
         'name_last': 'park',
-        'handle_str': 'annalee'
+        'handle_str': 'annalee',
+        'profile_img_url': 'profile_imgs/default_pic'
     })
     assert name.status_code == VALID
 
@@ -256,7 +258,8 @@ def test_user_set_name_valid_name_first_and_last(global_owner):
         'email': 'cat@gmail.com',
         'name_first': 'annabelle',
         'name_last': 'parker',
-        'handle_str': 'annalee'
+        'handle_str': 'annalee',
+        'profile_img_url': 'profile_imgs/default_pic'
     })
     assert name.status_code == VALID
 
@@ -284,7 +287,8 @@ def test_user_set_name_not_in_channel_DM(global_owner, register_user2):
         'email': 'cat@gmail.com',
         'name_first': 'emily',
         'name_last': 'wong',
-        'handle_str': 'annalee'
+        'handle_str': 'annalee',
+        'profile_img_url': 'profile_imgs/default_pic'
     })
 
     channel2 = requests.post(config.url + "channels/create/v2", json ={

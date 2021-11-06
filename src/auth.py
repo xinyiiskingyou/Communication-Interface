@@ -7,6 +7,8 @@ import random
 import smtplib 
 import hashlib
 import time
+import urllib.request
+from PIL import Image
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
@@ -154,6 +156,12 @@ def auth_register_v2(email, password, name_first, name_last):
     is_removed = False
     # the time when the account create
     time_created = int(time.time())
+
+    # Deafult profile photo
+    img_url = "http://www.cse.unsw.edu.au/~richardb/index_files/RichardBuckland-200.png"
+    img_name = "profile_imgs/default_pic"
+    urllib.request.urlretrieve(img_url, img_name)
+
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
         'email' : email,
@@ -168,7 +176,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'reset_code': reset_code,
         'time_stamp': time_created,
         'all_notifications': [],
-        'profile_img_url': ""
+        'profile_img_url': img_name
     })
     save()
 

@@ -376,7 +376,6 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(description='img_url is not of type JPG.')
 
     # Creating unique img url
-    img_addr = 'http://localhost:5000/imgurl/' + str(token) + '.jpg'
     img_name = 'profile_imgs/profile_photo' + str(token) + '.jpg'
     urllib.request.urlretrieve(img_url, img_name)
     imageObject = Image.open(img_name)
@@ -392,7 +391,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     cropped.save(img_name)
     for user in get_data()['users']:
         if user['auth_user_id'] == auth_user_id:
-            user[img_name] = img_addr
+            user[profile_img_url] = img_name
             save()
     return {}
 
