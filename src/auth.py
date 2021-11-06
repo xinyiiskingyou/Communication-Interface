@@ -224,21 +224,25 @@ def auth_passwordreset_reset_v1(reset_code, new_password):
     Return Value:
         Returns <{}> when user successfully changes password
     '''
-    # Invalid reset code
-    for user in get_data()['users']:
-        if user['reset_code'] != reset_code:
-            raise InputError(description='Invalid reset_code')
 
     # Invalid password length
     if len(new_password) in range(6):
         raise InputError(description='Password entered is less then  6 characers in length')
-
+   
     # Get valid user
+    correct_user = None
     for user in get_data()['users']:
         if user['reset_code'] == reset_code:
-            new_password = hashlib.sha256(new_password.encode()).hexdigest() 
-            user['password'] = new_password
-            user['reset_code'] = ''
-            save()
-    
+            correct_user = user
+            break
+
+    # Invalid reset_code
+    if correct_user is None:
+        raise InputError(description='Invalid reset_code')
+
+    # Hashing new password and setting reset code to empty string
+    new_password = hashlib.sha256(new_password.encode()).hexdigest() 
+    user['password'] = new_password
+    user['reset_code'] = ''
+    save()
     return {}
