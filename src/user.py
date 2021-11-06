@@ -4,7 +4,7 @@ User implementation
 
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
-from src.helper import user_info
+from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
 
@@ -37,6 +37,93 @@ def users_all_v1(token):
 
     return {
         'users': (user_list)
+    }
+
+def user_stats_v1(token):
+
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
+    
+    # the first data point is 0 and 
+    # the time_stamp is the time that their account was created
+    channels_joined_details = {
+        'num_channels_joined': 0,
+        'time_stamp': get_user_details(auth_user_id)['time_stamp']
+    }
+    channels_joined = [channels_joined_details]
+    num_channels_joined = 0
+    num_channels = 0
+    for channel in get_data()['channels']:
+        # get the total number of existed channels
+        num_channels += 1
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                num_channels_joined += 1
+                channels_joined.append({
+                    'num_channels_joined': num_channels_joined,
+                    'time_stamp': get_channel_details(channel['channel_id'])['time_stamp']
+                })
+
+    dms_joined = []
+    num_dms_joined = 0
+    num_dms = 0
+    # the first data point is 0 and 
+    # the time_stamp is the time that their account was created
+    dms_joined_details = {
+        'num_dms_joined': 0,
+        'time_stamp': get_user_details(auth_user_id)['time_stamp']
+    }
+    dms_joined = [dms_joined_details]
+    for dm in get_data()['dms']:
+        # get the total number of existed dms
+        num_dms += 1
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                num_dms_joined += 1
+                dms_joined.append({
+                    'num_dms_joined': num_dms_joined,
+                    'time_stamp': get_dm_dict(dm['dm_id'])['time_stamp']
+                })
+
+    # the first data point is 0 and 
+    # the time_stamp is the time that their account was created
+    messages_sent_details = {
+        'num_messages_sent': 0,
+        'time_stamp': get_user_details(auth_user_id)['time_stamp']
+    }
+    messages_sent = [messages_sent_details]
+    num_msgs_sent = 0
+    num_msgs = 0
+    for message in get_data()['messages']:
+        # get the total number of existed messages
+        num_msgs += 1
+        if message['u_id'] == auth_user_id:
+            # get the number of message that the user sent
+            num_msgs_sent += 1
+            messages_sent.append({
+                'num_messages_sent': num_msgs_sent,
+                'time_stamp': message['time_created']
+            })
+    
+    try:
+        user_sum = num_msgs_sent + num_channels_joined + num_dms_joined
+        denominator = num_msgs + num_dms + num_channels
+        involvement_rate = user_sum / denominator
+    except ZeroDivisionError:
+        involvement_rate = 0 
+
+    if involvement_rate > 1:
+        involvement_rate = 1
+
+    return {
+        'user_stats': {
+            'channels_joined': channels_joined,
+            'dms_joined': dms_joined,
+            'messages_sent': messages_sent,
+            'involvement_rate': float(involvement_rate)
+        }
     }
 
 def user_profile_v1(token, u_id):

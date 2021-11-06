@@ -10,6 +10,24 @@ from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 ######### message/share/v1 tests #########
 ##########################################
 
+# Access error: invalid token in channel
+def test_share_invalid_token_channel(global_owner, user1_channel_message_id, create_channel, create_dm):
+    user1_token = global_owner['token']
+    message1_id = user1_channel_message_id
+
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+
+    share_message1 = requests.post(config.url + "message/share/v1", json ={
+        'token': user1_token,
+        'og_message_id': message1_id,
+        'message': 'hi', 
+        'channel_id': create_channel['channel_id'],
+        'dm_id': create_dm['dm_id']
+    })
+    assert share_message1.status_code == ACCESSERROR
+
 ###### Input Errors ######
 # Both channel_id and dm_id are invalid 
 def test_message_share_channel_and_dm_invalid(global_owner, create_channel, user1_channel_message_id):

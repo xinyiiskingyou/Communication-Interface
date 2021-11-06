@@ -14,6 +14,8 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, messag
 from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
 from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
+from src.user import user_stats_v1
+from src.notifications import notifications_get_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -125,7 +127,6 @@ def channels_list():
 def listall():
     return dumps(channels_listall_v2(request.args.get('token')))
 
-
 ############ CHANNEL #################
 
 # Invite new user to the channel
@@ -180,14 +181,15 @@ def channel_messages():
     start = int(request.args.get('start'))
     return dumps(channel_messages_v2(token, channel_id, start))
 
-
-############ USER #################
+############ USERS #################
 
 # Returns information about all users
 @APP.route("/users/all/v1", methods=['GET'])
 def user_all(): 
     token = (request.args.get('token'))
     return dumps(users_all_v1(token))
+
+############## USER #################
 
 # Returns information about 1 user
 @APP.route("/user/profile/v1", methods=['GET'])
@@ -216,6 +218,11 @@ def user_sethandle():
     resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
     return dumps(resp)
 
+# Returns information about 1 user
+@APP.route("/user/stats/v1", methods=['GET'])
+def user_stats(): 
+    result = user_stats_v1(request.args.get('token'))
+    return dumps(result)
 
 ############ MESSAGE ############
 
@@ -289,6 +296,7 @@ def message_sendlaterdm():
     json = request.get_json()
     resp = message_sendlaterdm_v1(json['token'], json['dm_id'], json['message'], json['time_sent'])
     return dumps(resp)
+
 # Message is shared to another channel/DM. An optional message can be added 
 # onto the shared message
 @APP.route("/message/share/v1", methods=['POST'])
@@ -296,7 +304,6 @@ def message_share():
     json = request.get_json()
     resp = message_share_v1(json['token'], json['og_message_id'], json['message'], json['channel_id'], json['dm_id'])
     return dumps(resp)
-
 
 ############ DM #################
 
@@ -344,7 +351,6 @@ def dm_leave():
     resp = dm_leave_v1(json['token'], json['dm_id'])
     return dumps(resp)
 
-
 ############ ADMIN #################
 
 # Given a user by their u_id, remove them from the Streams
@@ -361,6 +367,14 @@ def admin_userpermission():
     json = request.get_json()
     resp = admin_userpermission_change_v1(json['token'], json['u_id'], json['permission_id'])
     return dumps(resp)
+
+############ NOTIFICATIONS #################
+
+# Return the user's most recent 20 notifications, ordered from most recent to least recent.
+@APP.route("/notifications/get/v1", methods=['GET'])
+def notifications_get():
+    token = (request.args.get('token'))
+    return dumps(notifications_get_v1(token))
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 

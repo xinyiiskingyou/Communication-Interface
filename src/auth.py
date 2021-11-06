@@ -6,7 +6,7 @@ import string
 import random
 import smtplib 
 import hashlib
-from src.config import port
+import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
@@ -152,7 +152,8 @@ def auth_register_v2(email, password, name_first, name_last):
 
     # all the users are not be removed when they register
     is_removed = False
-
+    # the time when the account create
+    time_created = int(time.time())
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
         'email' : email,
@@ -165,6 +166,8 @@ def auth_register_v2(email, password, name_first, name_last):
         'permission_id' : permission_id,
         'is_removed': bool(is_removed),
         'reset_code': reset_code
+        'time_stamp': time_created,
+        'all_notifications': [],
     })
     save()
 

@@ -1,7 +1,6 @@
 '''
 Messages implementation
 '''
-
 import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
@@ -10,7 +9,9 @@ from src.helper import check_authorised_user_edit, check_valid_message_send_form
 from src.helper import get_message, check_valid_channel_dm_message_ids
 from src.helper import check_valid_dm, check_valid_member_in_dm, get_reacts, check_valid_message_id
 from src.helper import check_valid_channel_id_and_dm_id_format, check_share_message_authorised_user
+from src.helper import check_message_channel_tag
 from src.server_helper import decode_token, valid_user
+from src.notifications import activate_notification_tag_channel, activate_notification_react
 from src.dm import message_senddm_v1
 
 def message_send_v1(token, channel_id, message):
@@ -50,6 +51,11 @@ def message_send_v1(token, channel_id, message):
     if not check_valid_message(message):
         raise InputError(description="Message is invalid as length of message is less than 1 or over 1000 characters.")
 
+    # Checks if message contains a tag to an authorised user
+    tagged_user_list = check_message_channel_tag(message, channel_id)
+    if tagged_user_list != []:
+        activate_notification_tag_channel(auth_user_id, tagged_user_list, channel_id, message)
+    
     # Creating unique message_id 
     message_id = (len(get_data()['messages']) * 2) + 1
 
@@ -214,10 +220,33 @@ def message_remove_v1(token, message_id):
             if message['message_id'] == message_id:
                 dm['messages'].remove(message)
                 save()
-
     return {}
 
 def message_share_v1(token, og_message_id, message, channel_id, dm_id):
+    '''
+    Share an existing message to a channel/DM. An optional additional message in addition to the 
+    shared message may be made. 
+
+    Arguments:
+        <token>           (<string>)   - an authorisation hash
+        <og_message_id>   (<int>)      - unique id of a message
+        <message>         (<string>)   - the content of the additional optional message
+        <channel_id>      (<int>)      - unique id of a channel
+        <dm_id>           (<int>)      - unique id of a DM
+
+    Exceptions:
+        InputError      - Occurs when both channel_id and dm_id are invalid
+                        - Occurs when neither channel_id nor dm_id are -1
+                        - Occurs when og_message_id does not refer to a valid message within a 
+                        channel/DM that the authorised user has joined
+                        - Occurs when length of message is more than 1000 characters
+
+        AccessError     - Occurs when the pair of channel_id and dm_id are valid 
+                        (i.e. one is -1, the other is valid) and the authorised user has not 
+                        joined the channel or DM they are trying to share the message to
+    Return Value:
+        Returns <message_id> of the valid shared message
+    '''
 
     # Checks for invalid token
     if not valid_user(token):
@@ -305,6 +334,9 @@ def message_react_v1(token, message_id, react_id):
     react['u_ids'].append(int(auth_user_id))
     react['is_this_user_reacted'] = True
     save()
+
+    # Activate notification for react
+    activate_notification_react(auth_user_id, message_id)
     
     return {}
     

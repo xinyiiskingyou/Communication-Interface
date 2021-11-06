@@ -1,6 +1,7 @@
 '''
 Channels implementation
 '''
+import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import user_info, get_channel_member
@@ -97,7 +98,7 @@ def channels_create_v2(token, name, is_public):
         raise InputError(description='Name cannot be blank')
 
     channels = get_data()['channels']
-
+    time_created = int(time.time())
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
 
@@ -108,7 +109,8 @@ def channels_create_v2(token, name, is_public):
         'is_public': bool(is_public),
         'owner_members': [user],
         'all_members': [user],
-        'messages': []
+        'messages': [],
+        'time_stamp': time_created
     })
 
     save()
