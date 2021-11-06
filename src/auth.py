@@ -168,6 +168,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'reset_code': reset_code,
         'time_stamp': time_created,
         'all_notifications': [],
+        'profile_img_url': ""
     })
     save()
 

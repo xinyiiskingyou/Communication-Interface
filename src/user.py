@@ -1,7 +1,9 @@
 '''
 User implementation
 '''
-
+import os
+import urllib.request
+from PIL import Image
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
 from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
@@ -337,3 +339,60 @@ def user_profile_sethandle_v1(token, handle_str):
                 dm['creator']['handle_str'] = handle_str
         save()
     return {}
+
+def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
+    '''
+    Update the authorised user's handle (i.e. display name).
+
+    Arguments:
+        <token>          (<string>)      - an authorisation hash
+        <img_url>        (<string>)      - the url of an image 
+        <x_start>        (<int>)         - a boundary for the image  
+        <y_start>        (<int>)         - a boundary for the image   
+        <x_end>          (<int>)         - a boundary for the image   
+        <y_end>          (<int>)         - a boundary for the image  
+
+    Exceptions:
+        InputError  - Occurs when img_url returns a status other then 200
+                    - Occurs when any of x/y_start and x/y_end are not within the dimensions
+                    of the image at the url
+                    - Occurs when the x/y_end is less then either x_start or y_start
+                    - Occurs when image uploaded is not JPG
+    Return Value:
+        Returns N/A
+    '''
+    # Access Error: invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
+
+    # Input Error: img_url returns a status code other then 200
+    if urllib.request.urlopen(img_url).getcode() != 200:
+        raise InputError(description='img_url returns an HTTP status other than 200.')
+
+    # Input Error: image is not JPG
+    if not img_url.lower().endswith('.jpg'):
+        raise InputError(description='img_url is not of type JPG.')
+
+    # Creating unique img url
+    img_addr = 'http://localhost:5000/imgurl/' + str(token) + '.jpg'
+    img_name = 'profile_imgs/profile_photo' + str(token) + '.jpg'
+    urllib.request.urlretrieve(img_url, img_name)
+    imageObject = Image.open(img_name)
+    width, height = imageObject.size
+
+    # Check within given boundaries
+    if x_start not in range(x_end) or y_start not in range(y_end) or x_end not in range(width + 1) or y_end not in range(height + 1):
+        #os.remove(img_addr)
+        raise InputError(description='any of x_start, y_start, x_end, y_end are not within the dimensions of the image at the URL')
+
+    # Cropping img to given dimensions
+    cropped = imageObject.crop((x_start, y_start, x_end, y_end))
+    cropped.save(img_name)
+    for user in get_data()['users']:
+        if user['auth_user_id'] == auth_user_id:
+            user[img_name] = img_addr
+            save()
+    return {}
+
