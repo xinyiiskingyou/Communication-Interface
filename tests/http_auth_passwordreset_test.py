@@ -49,7 +49,7 @@ def test_auth_passwordrequest_reset_invalid_code():
     
     # Check invalid reset code
     pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
-        'reset_code': '',
+        'reset_code': None,
         'new_password': 'new_password'
     })
 
