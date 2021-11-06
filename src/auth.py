@@ -2,6 +2,9 @@
 Auth implementation
 '''
 import re
+import string
+import random
+import smtplib 
 import hashlib
 import time
 from src.data_store import get_data, save
@@ -118,6 +121,7 @@ def auth_register_v2(email, password, name_first, name_last):
     token = generate_token(auth_user_id, session_id)
 
     password = hashlib.sha256(password.encode()).hexdigest() 
+    reset_code = ''
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -161,6 +165,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'handle_str' : handle,
         'permission_id' : permission_id,
         'is_removed': bool(is_removed),
+        'reset_code': reset_code,
         'time_stamp': time_created,
         'all_notifications': [],
     })
@@ -170,3 +175,77 @@ def auth_register_v2(email, password, name_first, name_last):
         'token': token,
         'auth_user_id': auth_user_id
     }
+
+def auth_passwordreset_request_v1(email):
+    '''
+    Given a user's email address, if they are a registered user, sends an email containing a
+    reset code to passwordrequest_reset that when entered into the passwordrequest_reset function,
+    shows that the user trying to reset the password is the one who got sent the email
+
+    Arguments:
+        <email>      (<string>)    - correct format of an email of the user
+
+    Exceptions:
+        N/A
+
+    Return Value:
+        Returns <{}> when user successfully requests a password reset
+    '''
+    reset_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_letters) for i in range(20)) 
+    # Get valid user
+    for user in get_data()['users']:
+        if user['email'] == email:
+            # Assign reset code
+            user['reset_code'] = reset_code
+
+            # Send email
+            mail = smtplib.SMTP('smtp.gmail.com', 587)
+            mail.ehlo()
+            mail.starttls()
+            mail.login('camel5363885@gmail.com', 'camel_password!')
+            mail.sendmail('camel5363885@gmail.com', email, reset_code)
+            mail.close
+
+            # Log them out of all sessions
+            user['session_list'].clear
+            save()
+   
+    return {}
+
+def auth_passwordreset_reset_v1(reset_code, new_password):
+    '''
+    Given a reset code for a user, set that user's new password to the password provided
+
+    Arguments:
+        <reset_code>      (<string>)    - random length of string 20 consisting of uppercase
+                                        and lowercase letters
+
+    Exceptions:
+        InputError  - Occurs when reset_code entered is not valid
+                    - Occurs when new_password entered is < 6 characters in length 
+
+    Return Value:
+        Returns <{}> when user successfully changes password
+    '''
+
+    # Invalid password length
+    if len(new_password) in range(6):
+        raise InputError(description='Password entered is less then  6 characers in length')
+   
+    # Get valid user
+    correct_user = None
+    for user in get_data()['users']:
+        if user['reset_code'] == reset_code:
+            correct_user = user
+            break
+
+    # Invalid reset_code
+    if correct_user is None:
+        raise InputError(description='Invalid reset_code')
+
+    # Hashing new password and setting reset code to empty string
+    new_password = hashlib.sha256(new_password.encode()).hexdigest() 
+    user['password'] = new_password
+    user['reset_code'] = ''
+    save()
+    return {}
