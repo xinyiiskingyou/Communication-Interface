@@ -6,7 +6,7 @@ from src.error import InputError
 from src import config
 
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
-from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
+from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
@@ -14,6 +14,7 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, messag
 from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
 from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
+from src.user import user_stats_v1
 from src.notifications import notifications_get_v1
 from src.search import search_v1
 from src.other import clear_v1
@@ -89,6 +90,20 @@ def logout():
     resp = auth_logout_v1(json['token'])
     return dumps(resp)
 
+# Creates a random string of letters and numbers
+# Used to validify a user when reseting password
+@APP.route("/auth/passwordreset/request/v1", methods=['POST'])
+def pass_request():
+    json = request.get_json()
+    resp = auth_passwordreset_request_v1(json['email'])
+    return dumps(resp)
+
+# Uses code from passwordreset_request to change password
+@APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
+def pass_reset():
+    json = request.get_json()
+    resp = auth_passwordreset_reset_v1(json['reset_code'], json['new_password'])
+    return dumps(resp)
 
 ############ CHANNELS #################
 
@@ -112,7 +127,6 @@ def channels_list():
 @APP.route ("/channels/listall/v2", methods= ['GET'])
 def listall():
     return dumps(channels_listall_v2(request.args.get('token')))
-
 
 ############ CHANNEL #################
 
@@ -168,14 +182,15 @@ def channel_messages():
     start = int(request.args.get('start'))
     return dumps(channel_messages_v2(token, channel_id, start))
 
-
-############ USER #################
+############ USERS #################
 
 # Returns information about all users
 @APP.route("/users/all/v1", methods=['GET'])
 def user_all(): 
     token = (request.args.get('token'))
     return dumps(users_all_v1(token))
+
+############## USER #################
 
 # Returns information about 1 user
 @APP.route("/user/profile/v1", methods=['GET'])
@@ -204,6 +219,11 @@ def user_sethandle():
     resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
     return dumps(resp)
 
+# Returns information about 1 user
+@APP.route("/user/stats/v1", methods=['GET'])
+def user_stats(): 
+    result = user_stats_v1(request.args.get('token'))
+    return dumps(result)
 
 ############ MESSAGE ############
 
@@ -277,6 +297,7 @@ def message_sendlaterdm():
     json = request.get_json()
     resp = message_sendlaterdm_v1(json['token'], json['dm_id'], json['message'], json['time_sent'])
     return dumps(resp)
+
 # Message is shared to another channel/DM. An optional message can be added 
 # onto the shared message
 @APP.route("/message/share/v1", methods=['POST'])
@@ -284,7 +305,6 @@ def message_share():
     json = request.get_json()
     resp = message_share_v1(json['token'], json['og_message_id'], json['message'], json['channel_id'], json['dm_id'])
     return dumps(resp)
-
 
 ############ DM #################
 
@@ -331,7 +351,6 @@ def dm_leave():
     json = request.get_json()
     resp = dm_leave_v1(json['token'], json['dm_id'])
     return dumps(resp)
-
 
 ############ ADMIN #################
 

@@ -1,6 +1,7 @@
 import pytest
 import requests
 import json
+import smtplib
 from src import config
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
@@ -250,3 +251,4 @@ def test_logout():
         'token': token2
     })
     assert logout3.status_code == VALID
+

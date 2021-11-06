@@ -1,7 +1,6 @@
 '''
 Messages implementation
 '''
-
 import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
@@ -221,7 +220,6 @@ def message_remove_v1(token, message_id):
             if message['message_id'] == message_id:
                 dm['messages'].remove(message)
                 save()
-
     return {}
 
 def message_share_v1(token, og_message_id, message, channel_id, dm_id):
