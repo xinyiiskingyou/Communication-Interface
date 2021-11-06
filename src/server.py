@@ -15,6 +15,7 @@ from src.message import message_send_v1, message_edit_v1, message_remove_v1, mes
 from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
 from src.notifications import notifications_get_v1
+from src.search import search_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -349,6 +350,7 @@ def admin_userpermission():
     resp = admin_userpermission_change_v1(json['token'], json['u_id'], json['permission_id'])
     return dumps(resp)
 
+
 ############ NOTIFICATIONS #################
 
 # Return the user's most recent 20 notifications, ordered from most recent to least recent.
@@ -356,6 +358,17 @@ def admin_userpermission():
 def notifications_get():
     token = (request.args.get('token'))
     return dumps(notifications_get_v1(token))
+
+
+############ SEARCH #################
+
+# Given a query string, return a collection of messages in all of the channels/DMs that the
+# user has joined that contain the query.
+@APP.route("/search/v1", methods=['GET'])
+def search():
+    token = (request.args.get('token'))
+    query_str = (request.args.get('query_str'))
+    return dumps(search_v1(token, query_str))
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 

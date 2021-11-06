@@ -47,14 +47,14 @@ def test_search_invalid_query_str_format(global_owner):
 def test_search_not_member_of_channel_dm(global_owner, register_user2, register_user3, create_channel):
 
     user1_token = global_owner['token']
-    user2_token = register_user2['token']
+    register_user2['token']
     user2_id = register_user2['auth_user_id']
     user3_token = register_user3['token']
 
     # User 1 creates channel and sends message with query string
     channel1_id = create_channel['channel_id']
 
-    send_channel_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'hello'
@@ -65,9 +65,9 @@ def test_search_not_member_of_channel_dm(global_owner, register_user2, register_
         'token': user1_token,
         'u_ids': [user2_id]
     })
-    dm1_id = create_dm1['dm_id']
+    dm1_id = json.loads(create_dm1.text)['dm_id']
 
-    send_dm_message1 = requests.post(config.url + "message/senddm/v1",json = {	
+    requests.post(config.url + "message/senddm/v1",json = {	
         'token': user1_token,	
         'dm_id': dm1_id,	
         'message': 'hello'	
@@ -88,8 +88,7 @@ def test_search_member_of_some_channel_dm(global_owner, register_user2, register
 
     user1_token = global_owner['token']
     user2_token = register_user2['token']
-    user2_id = register_user2['auth_user_id']
-    user3_token = register_user3['token']
+    register_user2['auth_user_id']
 
     # Channels
     channel1_id = create_channel['channel_id']
@@ -99,17 +98,17 @@ def test_search_member_of_some_channel_dm(global_owner, register_user2, register
         'name': 'barry',
         'is_public': True
     })
-    channel2_id = channel2['channel_id']
+    channel2_id = json.loads(channel2.text)['channel_id']
 
     # User 2 is not member of User 1's channel
-    send_channel_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'hello'
     })
 
     # User 2 is member of channel
-    send_channel_message2 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user2_token,
         'channel_id': channel2_id, 
         'message': 'hello'
@@ -120,21 +119,21 @@ def test_search_member_of_some_channel_dm(global_owner, register_user2, register
         'token': user1_token,
         'u_ids': []
     })
-    dm1_id = create_dm1['dm_id']
+    dm1_id = json.loads(create_dm1.text)['dm_id']
 
     create_dm2 = requests.post(config.url + "dm/create/v1", json = {
         'token': user2_token,
         'u_ids': []
     })
-    dm2_id = create_dm2['dm_id']
+    dm2_id = json.loads(create_dm2.text)['dm_id']
 
-    send_dm_message1 = requests.post(config.url + "message/senddm/v1",json = {	
+    requests.post(config.url + "message/senddm/v1",json = {	
         'token': user1_token,	
         'dm_id': dm1_id,	
         'message': 'hello'	
     })	
 
-    send_dm_message2 = requests.post(config.url + "message/senddm/v1",json = {	
+    requests.post(config.url + "message/senddm/v1",json = {	
         'token': user2_token,	
         'dm_id': dm2_id,	
         'message': 'hello'	
@@ -155,37 +154,37 @@ def test_search_query_str_hello(global_owner, create_channel):
     channel1_id = create_channel['channel_id']
 
     # Messages 'search' picks up
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'hello'
     })
 
-    send_message2 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': ' hello   '
     })
 
-    send_message3 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'soidhhellohsoidhs'
     })
 
-    send_message4 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': '!@#3hello#%$'
     })
 
-    send_message5 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': '!HELLO!'
     })
 
-    send_message6 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': '#hElLo2'
@@ -196,16 +195,16 @@ def test_search_query_str_hello(global_owner, create_channel):
         'query_str': 'hello'
     })
     assert search1.status_code == VALID
-    assert len(json.loads(search1.text)['messages']) == 7
+    assert len(json.loads(search1.text)['messages']) == 6
 
     # Messages 'search' does not pick up 
-    send_message7 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'h1e1l1l1o'
     })
 
-    send_message8 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'h e l l o'
@@ -216,7 +215,7 @@ def test_search_query_str_hello(global_owner, create_channel):
         'query_str': 'hello'
     })
     assert search1.status_code == VALID
-    assert len(json.loads(search1.text)['messages']) == 7
+    assert len(json.loads(search1.text)['messages']) == 6
 
 # Number: Query string '345'
 # User has joined only one channel
@@ -225,7 +224,7 @@ def test_search_query_str_number(global_owner, create_channel):
     user1_token = global_owner['token']
     channel1_id = create_channel['channel_id']
 
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': '345'
@@ -244,13 +243,13 @@ def test_search_query_str_multiple_words(global_owner, create_channel):
     user1_token = global_owner['token']
     channel1_id = create_channel['channel_id']
 
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'Hello there!'
     })
 
-    send_message2 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'hello there '
@@ -263,7 +262,7 @@ def test_search_query_str_multiple_words(global_owner, create_channel):
     assert search.status_code == VALID
     assert len(json.loads(search.text)['messages']) == 2
 
-    send_message2 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': 'hello  there'
@@ -277,12 +276,12 @@ def test_search_query_str_multiple_words(global_owner, create_channel):
     assert len(json.loads(search.text)['messages']) == 2
 
 # Non-alphanumerical characters: Query string '!%#*{;?/<~='
-def test_search_query_str_multiple_words(global_owner, create_channel):
+def test_search_query_str_non_alphanumerical(global_owner, create_channel):
 
     user1_token = global_owner['token']
     channel1_id = create_channel['channel_id']
 
-    send_message1 = requests.post(config.url + "message/send/v1", json = {
+    requests.post(config.url + "message/send/v1", json = {
         'token': user1_token,
         'channel_id': channel1_id, 
         'message': '!%#*{;?/<~='
