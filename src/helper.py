@@ -313,7 +313,7 @@ def check_authorised_user_edit(auth_user_id, message_id):
     else:
         return False
 
-# Helper function for message_Edit
+# Helper function for message_edit
 # Returns true if valid message length
 # Returns false otherwise
 def check_valid_message_send_format(message):
