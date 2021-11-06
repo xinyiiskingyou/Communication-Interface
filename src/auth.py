@@ -158,7 +158,7 @@ def auth_register_v2(email, password, name_first, name_last):
     time_created = int(time.time())
 
     # Deafult profile photo
-    img_url = "http://www.cse.unsw.edu.au/~richardb/index_files/RichardBuckland-200.png"
+    img_url = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
     img_name = "profile_imgs/default_pic"
     urllib.request.urlretrieve(img_url, img_name)
 

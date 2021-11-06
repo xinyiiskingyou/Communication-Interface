@@ -391,7 +391,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     cropped.save(img_name)
     for user in get_data()['users']:
         if user['auth_user_id'] == auth_user_id:
-            user[profile_img_url] = img_name
+            user['profile_img_url'] = img_name
             save()
     return {}
 
