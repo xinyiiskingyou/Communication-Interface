@@ -39,7 +39,6 @@ def search_v1(token, query_str):
                     if query_str.lower() in message_dm['message'].lower():
                         messages_search_list.append(message_dm)
 
-    print(messages_search_list)
     return {
         'messages': messages_search_list
     }
