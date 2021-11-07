@@ -77,6 +77,7 @@ def test_valid_user_leave_channel(global_owner, create_channel):
         'token': token, 
         'channel_id': channel_id
     })
+    assert leave.status_code == VALID
     stats = requests.get(config.url + "users/stats/v1", params ={
         'token': token
     })
