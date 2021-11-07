@@ -44,3 +44,56 @@ def test_valid_user_no_channel_no_dm(global_owner):
     assert json.loads(stats.text)['user_stats']['messages_exist'][0]['time_stamp'] != 0
     assert len(json.loads(stats.text)['user_stats']['messages_exist']) == 1
     assert json.loads(stats.text)['user_stats']['utilization_rate'] == 0.0
+
+# Test when a channel is created in the stream
+def test_valid_user_one_channel(global_owner):
+    token = global_owner['token']
+    create_channel
+    stats = requests.get(config.url + "users/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+
+    assert json.loads(stats.text)['user_stats']['channels_exist'][1]['num_channels_exist'] == 1
+    assert len(json.loads(stats.text)['user_stats']['channels_exist']) == 2
+    # test the timestamp is not equal to 0
+    assert json.loads(stats.text)['user_stats']['channels_exist'][1]['time_stamp'] != 0
+
+    assert json.loads(stats.text)['user_stats']['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats.text)['user_stats']['dms_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats.text)['user_stats']['dms_exist']) == 1
+
+    assert json.loads(stats.text)['user_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats.text)['user_stats']['messages_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats.text)['user_stats']['messages_exist']) == 1
+    assert json.loads(stats.text)['user_stats']['utilization_rate'] == 1.0
+
+# Test when a channel is created in the stream
+def test_valid_user_leave_channel(global_owner):
+    token = global_owner['token']
+    channel_id = create_channel['channel_id']
+
+    leave = requests.post(config.url + "channel/leave/v1",json = { 
+        'token': token, 
+        'channel_id': channel_id
+    })
+    stats = requests.get(config.url + "users/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+
+    assert json.loads(stats.text)['user_stats']['channels_exist'][1]['num_channels_exist'] == 1
+    assert len(json.loads(stats.text)['user_stats']['channels_exist']) == 2
+    # test the timestamp is not equal to 0
+    assert json.loads(stats.text)['user_stats']['channels_exist'][1]['time_stamp'] != 0
+
+    assert json.loads(stats.text)['user_stats']['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats.text)['user_stats']['dms_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats.text)['user_stats']['dms_exist']) == 1
+
+    assert json.loads(stats.text)['user_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats.text)['user_stats']['messages_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats.text)['user_stats']['messages_exist']) == 1
+
+    # the only user not in any channel or dm
+    assert json.loads(stats.text)['user_stats']['utilization_rate'] == 0.0
