@@ -367,8 +367,6 @@ def users_stats_v1(token):
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
-    auth_user_id = decode_token(token)
-
     # get the number of users in the stream
     users = get_data()['users']
     num_users = len(users)
