@@ -9,6 +9,9 @@ from src.helper import check_join_channel_or_dm
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
 
+from src.other import clear_v1
+from src.auth import auth_register_v2
+from src.channels import channels_create_v2
 def users_all_v1(token): 
     '''
     Returns a list of all users and their associated details.
@@ -347,7 +350,7 @@ Dictionary of shape {
      utilization_rate 
     }
 '''
-def user_stats_v1(token):
+def users_stats_v1(token):
     '''
     Fetches the required statistics about the use of UNSW Streams.
 
@@ -366,8 +369,6 @@ def user_stats_v1(token):
 
     auth_user_id = decode_token(token)
 
-    # compute utilization rate
-
     # get the number of users in the stream
     users = get_data()['users']
     num_users = len(users)
@@ -377,12 +378,22 @@ def user_stats_v1(token):
     for i in range(len(users)):
         if check_join_channel_or_dm(users[i]['auth_user_id']):
             num_users_joined_atleast_one_channel_or_dm += 1
-    
+            
+    # compute utilization rate
     utilization_rate = 0.0
     if num_users != 0 and num_users_joined_atleast_one_channel_or_dm != 0:
         utilization_rate = float(num_users_joined_atleast_one_channel_or_dm) / float(num_users)
 
     get_data()['workspace_stats'][0]['utilization_rate'] = utilization_rate
+    save()
     return {
         'workspace_stats': get_data()['workspace_stats']
     }
+
+'''
+# for white box testing
+clear_v1()
+user1_reg = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
+channel_id4 = channels_create_v2(user1_reg['token'], '1531_CAMEL_3', False)
+users_stats_v1(user1_reg['token'])
+'''

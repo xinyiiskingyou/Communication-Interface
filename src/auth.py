@@ -144,6 +144,9 @@ def auth_register_v2(email, password, name_first, name_last):
         else:
             i += 1
 
+    # the time when the account create
+    time_created = int(time.time())
+
     # Permission id for streams users
     if auth_user_id == 1:
         permission_id = 1
@@ -151,15 +154,15 @@ def auth_register_v2(email, password, name_first, name_last):
             'channels_exist': [{'num_channels_exist': int(0), 'time_stamp': time_created}],
             'dms_exist': [{'num_dms_exist': int(0), 'time_stamp': time_created}],
             'messages_exist': [{'num_messages_exist': int(0), 'time_stamp': time_created}],
-            utilization_rate: float(0.0)
+            'utilization_rate': float(0.0)
         })
+        save()
     else:
         permission_id = 2
 
     # all the users are not be removed when they register
     is_removed = False
-    # the time when the account create
-    time_created = int(time.time())
+
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
         'email' : email,

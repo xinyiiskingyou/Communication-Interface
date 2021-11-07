@@ -112,15 +112,19 @@ def channels_create_v2(token, name, is_public):
         'messages': [],
         'time_stamp': time_created
     })
+    save()
+    #print(get_data()['workspace_stats'][0])
 
-    curr_num_channel_index = len(get_data()['workspace_stats'][0]['channels_exist'])
-    curr_num_channel = get_data()['workspace_stats'][0]['channels_exist'][curr_num_channel_index]
+    curr_num_channel_index = len(get_data()['workspace_stats'][0]['channels_exist']) - 1
+    curr_last_channel = get_data()['workspace_stats'][0]['channels_exist'][curr_num_channel_index]
+    most_recent_num_channel = curr_last_channel['num_channels_exist'] + 1
+
     get_data()['workspace_stats'][0]['channels_exist'].append({
-        'num_channels_exist': curr_num_channel + 1,
+        'num_channels_exist': most_recent_num_channel,
         'time_stamp': time_created
     })
-    
     save()
+    #print(get_data()['workspace_stats'])
     return {
         'channel_id': channel_id,
     }

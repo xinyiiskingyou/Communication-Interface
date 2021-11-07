@@ -31,45 +31,45 @@ def test_valid_user_no_channel_no_dm(global_owner):
     })
     assert stats.status_code == VALID
 
-    assert json.loads(stats.text)['users_stats'][0]['channels_exist'][0]['num_channels_exist'] == 0
-    assert len(json.loads(stats.text)['users_stats'][0]['channels_exist']) == 1
+    assert len(json.loads(stats.text)['workspace_stats'][0]['channels_exist']) == 1
+    assert json.loads(stats.text)['workspace_stats'][0]['channels_exist'][0]['num_channels_exist'] == 0
     # test the timestamp is not equal to 0
-    assert json.loads(stats.text)['users_stats'][0]['channels_exist'][0]['time_stamp'] != 0
+    assert json.loads(stats.text)['workspace_stats'][0]['channels_exist'][0]['time_stamp'] != 0
 
-    assert json.loads(stats.text)['users_stats'][0]['dms_exist'][0]['num_dms_exist'] == 0
-    assert json.loads(stats.text)['users_stats'][0]['dms_exist'][0]['time_stamp'] != 0
-    assert len(json.loads(stats.text)['users_stats']['dms_exist']) == 1
+    assert json.loads(stats.text)['workspace_stats'][0]['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats.text)['workspace_stats'][0]['dms_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats.text)['workspace_stats'][0]['dms_exist']) == 1
 
-    assert json.loads(stats.text)['users_stats'][0]['messages_exist'][0]['num_messages_exist'] == 0
-    assert json.loads(stats.text)['users_stats'][0]['messages_exist'][0]['time_stamp'] != 0
-    assert len(json.loads(stats.text)['users_stats'][0]['messages_exist']) == 1
-    assert json.loads(stats.text)['users_stats'][0]['utilization_rate'] == 0.0
+    assert json.loads(stats.text)['workspace_stats'][0]['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats.text)['workspace_stats'][0]['messages_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats.text)['workspace_stats'][0]['messages_exist']) == 1
+    assert json.loads(stats.text)['workspace_stats'][0]['utilization_rate'] == 0.0
 
 # Test when a channel is created in the stream
-def test_valid_user_one_channel(global_owner):
+def test_valid_user_one_channel(global_owner, create_channel):
     token = global_owner['token']
-    create_channel
+    assert create_channel['channel_id'] != None
     stats = requests.get(config.url + "users/stats/v1", params ={
         'token': token
     })
     assert stats.status_code == VALID
 
-    assert json.loads(stats.text)['users_stats'][0]['channels_exist'][1]['num_channels_exist'] == 1
-    assert len(json.loads(stats.text)['users_stats'][0]['channels_exist']) == 2
+    assert len(json.loads(stats.text)['workspace_stats'][0]['channels_exist']) == 2
+    assert json.loads(stats.text)['workspace_stats'][0]['channels_exist'][1]['num_channels_exist'] == 1
     # test the timestamp is not equal to 0
-    assert json.loads(stats.text)['users_stats'][0]['channels_exist'][1]['time_stamp'] != 0
+    assert json.loads(stats.text)['workspace_stats'][0]['channels_exist'][1]['time_stamp'] != 0
 
-    assert json.loads(stats.text)['users_stats'][0]['dms_exist'][0]['num_dms_exist'] == 0
-    assert json.loads(stats.text)['users_stats'][0]['dms_exist'][0]['time_stamp'] != 0
-    assert len(json.loads(stats.text)['users_stats'][0]['dms_exist']) == 1
+    assert len(json.loads(stats.text)['workspace_stats'][0]['dms_exist']) == 1
+    assert json.loads(stats.text)['workspace_stats'][0]['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats.text)['workspace_stats'][0]['dms_exist'][0]['time_stamp'] != 0
 
-    assert json.loads(stats.text)['users_stats'][0]['messages_exist'][0]['num_messages_exist'] == 0
-    assert json.loads(stats.text)['users_stats'][0]['messages_exist'][0]['time_stamp'] != 0
-    assert len(json.loads(stats.text)['users_stats'][0]['messages_exist']) == 1
-    assert json.loads(stats.text)['users_stats'][0]['utilization_rate'] == 1.0
+    assert len(json.loads(stats.text)['workspace_stats'][0]['messages_exist']) == 1
+    assert json.loads(stats.text)['workspace_stats'][0]['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats.text)['workspace_stats'][0]['messages_exist'][0]['time_stamp'] != 0
+    assert json.loads(stats.text)['workspace_stats'][0]['utilization_rate'] == 1.0
 
 # Test when a channel is created in the stream
-def test_valid_user_leave_channel(global_owner):
+def test_valid_user_leave_channel(global_owner, create_channel):
     token = global_owner['token']
     channel_id = create_channel['channel_id']
 
@@ -82,18 +82,18 @@ def test_valid_user_leave_channel(global_owner):
     })
     assert stats.status_code == VALID
 
-    assert json.loads(stats.text)['users_stats'][0]['channels_exist'][1]['num_channels_exist'] == 1
-    assert len(json.loads(stats.text)['users_stats'][0]['channels_exist']) == 2
+    assert len(json.loads(stats.text)['workspace_stats'][0]['channels_exist']) == 2
+    assert json.loads(stats.text)['workspace_stats'][0]['channels_exist'][1]['num_channels_exist'] == 1
     # test the timestamp is not equal to 0
-    assert json.loads(stats.text)['users_stats'][0]['channels_exist'][1]['time_stamp'] != 0
+    assert json.loads(stats.text)['workspace_stats'][0]['channels_exist'][1]['time_stamp'] != 0
 
-    assert json.loads(stats.text)['users_stats'][0]['dms_exist'][0]['num_dms_exist'] == 0
-    assert json.loads(stats.text)['users_stats'][0]['dms_exist'][0]['time_stamp'] != 0
-    assert len(json.loads(stats.text)['users_stats'][0]['dms_exist']) == 1
+    assert len(json.loads(stats.text)['workspace_stats'][0]['dms_exist']) == 1
+    assert json.loads(stats.text)['workspace_stats'][0]['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats.text)['workspace_stats'][0]['dms_exist'][0]['time_stamp'] != 0
 
-    assert json.loads(stats.text)['users_stats'][0]['messages_exist'][0]['num_messages_exist'] == 0
-    assert json.loads(stats.text)['users_stats'][0]['messages_exist'][0]['time_stamp'] != 0
-    assert len(json.loads(stats.text)['users_stats'][0]['messages_exist']) == 1
+    assert len(json.loads(stats.text)['workspace_stats'][0]['messages_exist']) == 1
+    assert json.loads(stats.text)['workspace_stats'][0]['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats.text)['workspace_stats'][0]['messages_exist'][0]['time_stamp'] != 0
 
     # the only user not in any channel or dm
-    assert json.loads(stats.text)['users_stats']['utilization_rate'] == 0.0
+    assert json.loads(stats.text)['workspace_stats'][0]['utilization_rate'] == 0.0

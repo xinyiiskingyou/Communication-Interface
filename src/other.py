@@ -23,6 +23,7 @@ def clear_v1():
     data['channels'] = []
     data['dms'] = []
     data['messages'] = []
+    data['workspace_stats'] = []
     save()
 
     return {}
