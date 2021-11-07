@@ -33,7 +33,7 @@ initial_object = {
     'channels': [],         # list of dictionaries of channels
     'messages': [],         # list of dictionaries of messages
     'dms': [],              # list of dictionaries of dms 
-    'complete_dms': []      # list of dictionaries of complete dms
+    'complete_dms': [],      # list of dictionaries of complete dms
     'workspace_stats': []             # workspace_stats
 }
 
