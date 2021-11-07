@@ -337,3 +337,30 @@ def user_profile_sethandle_v1(token, handle_str):
                 dm['creator']['handle_str'] = handle_str
         save()
     return {}
+
+'''
+Dictionary of shape {
+     channels_exist: [{num_channels_exist, time_stamp}], 
+     dms_exist: [{num_dms_exist, time_stamp}], 
+     messages_exist: [{num_messages_exist, time_stamp}], 
+     utilization_rate 
+    }
+'''
+def user_stats_v1(token):
+    '''
+    Fetches the required statistics about the use of UNSW Streams.
+
+    Arguments:
+        <token>          (<string>)      - an authorisation hash
+
+    Exceptions:
+        N/A
+
+    Return Value:
+        <work_space_stats> (<dict>)     - stores the channels_exist, dms_exist, 
+                                          messages_exist and utilization rate
+    '''
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
