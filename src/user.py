@@ -5,6 +5,7 @@ User implementation
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
 from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
+from src.helper import check_join_channel_or_dm
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
 
@@ -364,3 +365,24 @@ def user_stats_v1(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
+
+    # compute utilization rate
+
+    # get the number of users in the stream
+    users = get_data()['users']
+    num_users = len(users)
+    num_users_joined_atleast_one_channel_or_dm = 0
+
+    # for every user, check if they join at least one channel or dm
+    for i in range(len(users)):
+        if check_join_channel_or_dm(users[i]['auth_user_id']):
+            num_users_joined_atleast_one_channel_or_dm += 1
+    
+    utilization_rate = 0.0
+    if num_users != 0 and num_users_joined_atleast_one_channel_or_dm != 0:
+        utilization_rate = float(num_users_joined_atleast_one_channel_or_dm) / float(num_users)
+
+    get_data()['workspace_stats'][0]['utilization_rate'] = utilization_rate
+    return {
+        'workspace_stats': get_data()['workspace_stats']
+    }

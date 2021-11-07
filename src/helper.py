@@ -562,3 +562,21 @@ def channel_id_to_channel_name(channel_id):
 def dm_id_to_dm_name(dm_id):
     dm = get_dm_dict(dm_id)
     return dm['name']
+######################################################
+####### Helper functions for user.py #################
+###################################################### 
+
+# Helper function for users/stats
+# Check if this user at least joins one channel or dm
+def check_join_channel_or_dm(auth_user_id):
+    for channel in get_data()['channels']:
+        for member in channel['all_members']:
+            if member['auth_user_id'] == auth_user_id:
+                return True
+    
+    for dm in get_data()['dms']:
+        for member in dm['members']:
+            if member['auth_user_id'] == auth_user_id:
+                return True
+    
+    return False

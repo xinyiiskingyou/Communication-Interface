@@ -147,6 +147,12 @@ def auth_register_v2(email, password, name_first, name_last):
     # Permission id for streams users
     if auth_user_id == 1:
         permission_id = 1
+        get_data()['workspace_stats'].append({
+            'channels_exist': [{'num_channels_exist': int(0), 'time_stamp': time_created}],
+            'dms_exist': [{'num_dms_exist': int(0), 'time_stamp': time_created}],
+            'messages_exist': [{'num_messages_exist': int(0), 'time_stamp': time_created}],
+            utilization_rate: float(0.0)
+        })
     else:
         permission_id = 2
 
@@ -169,6 +175,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'time_stamp': time_created,
         'all_notifications': [],
     })
+
     save()
 
     return {

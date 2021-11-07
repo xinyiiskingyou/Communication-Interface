@@ -113,6 +113,13 @@ def channels_create_v2(token, name, is_public):
         'time_stamp': time_created
     })
 
+    curr_num_channel_index = len(get_data()['workspace_stats'][0]['channels_exist'])
+    curr_num_channel = get_data()['workspace_stats'][0]['channels_exist'][curr_num_channel_index]
+    get_data()['workspace_stats'][0]['channels_exist'].append({
+        'num_channels_exist': curr_num_channel + 1,
+        'time_stamp': time_created
+    })
+    
     save()
     return {
         'channel_id': channel_id,
