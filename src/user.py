@@ -1,7 +1,6 @@
 '''
 User implementation
 '''
-import os
 import urllib.request
 from PIL import Image
 from src.server_helper import decode_token, valid_user
@@ -376,15 +375,14 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(description='img_url is not of type JPG.')
 
     # Creating unique img url
-    img_name = 'profile_imgs/profile_photo' + str(token) + '.jpg'
+    img_name = 'static/profile_photo' + str(token) + '.jpg'
     urllib.request.urlretrieve(img_url, img_name)
     imageObject = Image.open(img_name)
     width, height = imageObject.size
 
     # Check within given boundaries
     if x_start not in range(x_end) or y_start not in range(y_end) or x_end not in range(width + 1) or y_end not in range(height + 1):
-        #os.remove(img_addr)
-        raise InputError(description='any of x_start, y_start, x_end, y_end are not within the dimensions of the image at the URL')
+        raise InputError(description='Any of x_start, y_start, x_end, y_end are not within the dimensions of the image at the URL')
 
     # Cropping img to given dimensions
     cropped = imageObject.crop((x_start, y_start, x_end, y_end))

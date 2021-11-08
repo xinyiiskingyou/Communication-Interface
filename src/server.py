@@ -1,6 +1,6 @@
 import signal
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 from src.error import InputError
 from src import config
@@ -33,7 +33,7 @@ def defaultHandler(err):
     response.content_type = 'application/json'
     return response
 
-APP = Flask(__name__)
+APP = Flask(__name__, static_url_path='/static/')
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
@@ -230,6 +230,10 @@ def user_uploadphoto():
     json = request.get_json()
     resp = user_profile_uploadphoto_v1(json['token'], json['img_url'], json['x_start'], json['y_start'], json['x_end'], json['y_end'])
     return dumps(resp)
+
+@APP.route('/static/<path:path>', methods = ['GET'])
+def display_photo(path):
+    return send_from_directory('', path)
 
 ############ MESSAGE ############
 

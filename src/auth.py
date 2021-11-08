@@ -159,7 +159,7 @@ def auth_register_v2(email, password, name_first, name_last):
 
     # Deafult profile photo
     img_url = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
-    img_name = "profile_imgs/default_pic"
+    img_name = "static/default_pic"
     urllib.request.urlretrieve(img_url, img_name)
 
     # Then append dictionary of user email onto initial_objects
