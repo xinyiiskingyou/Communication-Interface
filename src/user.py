@@ -1,10 +1,10 @@
 '''
 User implementation
 '''
-
+from requests.api import get
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
-from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
+from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details, get_messages_total_number
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
 
@@ -40,88 +40,65 @@ def users_all_v1(token):
     }
 
 def user_stats_v1(token):
+    '''
+    Fetches the required statistics about this user's use of UNSW Streams.
+
+    Arguments:
+        <token>     (<string>)    - an authorisation hash
+
+    Exceptions:
+        AccessError - Occurs when token is invalid
+
+    Return Value:
+        Returns a dictionary of shape {
+             channels_joined: [{num_channels_joined, time_stamp}],
+             dms_joined: [{num_dms_joined, time_stamp}], 
+             messages_sent: [{num_messages_sent, time_stamp}], 
+             involvement_rate 
+        }
+    '''
 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-    
-    # the first data point is 0 and 
-    # the time_stamp is the time that their account was created
-    channels_joined_details = {
-        'num_channels_joined': 0,
-        'time_stamp': get_user_details(auth_user_id)['time_stamp']
-    }
-    channels_joined = [channels_joined_details]
-    num_channels_joined = 0
-    num_channels = 0
-    for channel in get_data()['channels']:
-        # get the total number of existed channels
-        num_channels += 1
-        for member in channel['all_members']:
-            if member['u_id'] == auth_user_id:
-                num_channels_joined += 1
-                channels_joined.append({
-                    'num_channels_joined': num_channels_joined,
-                    'time_stamp': get_channel_details(channel['channel_id'])['time_stamp']
-                })
+    user = get_user_details(auth_user_id)
 
-    dms_joined = []
-    num_dms_joined = 0
-    num_dms = 0
-    # the first data point is 0 and 
-    # the time_stamp is the time that their account was created
-    dms_joined_details = {
-        'num_dms_joined': 0,
-        'time_stamp': get_user_details(auth_user_id)['time_stamp']
-    }
-    dms_joined = [dms_joined_details]
-    for dm in get_data()['dms']:
-        # get the total number of existed dms
-        num_dms += 1
-        for member in dm['members']:
-            if member['u_id'] == auth_user_id:
-                num_dms_joined += 1
-                dms_joined.append({
-                    'num_dms_joined': num_dms_joined,
-                    'time_stamp': get_dm_dict(dm['dm_id'])['time_stamp']
-                })
+    # get the total number of channels
+    num_channels = len(get_data()['channels'])
+    channel_length = len(user['channels_joined'])
+    # get the number of channels that the user joined
+    num_channels_joined = user['channels_joined'][channel_length - 1]['num_channels_joined']
 
-    # the first data point is 0 and 
-    # the time_stamp is the time that their account was created
-    messages_sent_details = {
-        'num_messages_sent': 0,
-        'time_stamp': get_user_details(auth_user_id)['time_stamp']
-    }
-    messages_sent = [messages_sent_details]
-    num_msgs_sent = 0
-    num_msgs = 0
-    for message in get_data()['messages']:
-        # get the total number of existed messages
-        num_msgs += 1
-        if message['u_id'] == auth_user_id:
-            # get the number of message that the user sent
-            num_msgs_sent += 1
-            messages_sent.append({
-                'num_messages_sent': num_msgs_sent,
-                'time_stamp': message['time_created']
-            })
-    
+    # get the total number of dms
+    num_dms = len(get_data()['dms'])
+    dm_length = len(user['dms_joined'])
+    # get the number of dms that the user joined
+    num_dms_joined = user['dms_joined'][dm_length - 1]['num_dms_joined']
+
+    # get the total number of messages
+    num_msgs = get_messages_total_number()
+    msg_length = len(user['messages_sent'])
+    # get the number of messages that the user sent
+    num_msgs_sent = user['messages_sent'][msg_length - 1]['num_messages_sent']
+            
     try:
         user_sum = num_msgs_sent + num_channels_joined + num_dms_joined
         denominator = num_msgs + num_dms + num_channels
         involvement_rate = user_sum / denominator
+    # raise exception when denominator is zero
     except ZeroDivisionError:
         involvement_rate = 0 
-
+    
+    # if the involvement is greater than 1, it should be capped at 1.
     if involvement_rate > 1:
         involvement_rate = 1
 
     return {
         'user_stats': {
-            'channels_joined': channels_joined,
-            'dms_joined': dms_joined,
-            'messages_sent': messages_sent,
+            'channels_joined': user['channels_joined'],
+            'dms_joined': user['dms_joined'],
+            'messages_sent': user['messages_sent'],
             'involvement_rate': float(involvement_rate)
         }
     }
