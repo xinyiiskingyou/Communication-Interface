@@ -1,10 +1,11 @@
 '''
 Channel implementation
 '''
+import time
 from src.error import InputError, AccessError
 from src.helper import check_valid_start, get_channel_details, check_valid_channel_id, user_info
-from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id
-from src.helper import channels_create_check_valid_user, check_valid_owner, check_channel_owner_permission
+from src.helper import check_valid_member_in_channel, check_channel_private, check_permision_id, get_user_details, get_user_leave_channel_stats
+from src.helper import channels_create_check_valid_user, check_valid_owner, check_channel_owner_permission, get_user_channel_stats
 from src.notifications import activate_notification_channel_invite
 from src.data_store import save, get_data
 from src.server_helper import decode_token, valid_user
@@ -57,12 +58,14 @@ def channel_invite_v2(token, channel_id, u_id):
         raise InputError(description = 'u_id is already a member of the channel')
 
     new_user = user_info(u_id)
+    get_user_channel_stats(auth_user_id)
+    save()
     for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
             # append the new user details to all_member
             channel['all_members'].append(new_user)
+            channel['time_stamp'] = int(time.time())
             save()
-
     # Activate notification for invite/add
     activate_notification_channel_invite(auth_user_id, channel_id, u_id)
 
@@ -227,11 +230,13 @@ def channel_join_v2(token, channel_id):
     if check_valid_member_in_channel(channel_id, auth_user_id):
         raise InputError(description = 'Already a member of this channel')
 
+    get_user_channel_stats(auth_user_id)
+    save()
     new_user = user_info(auth_user_id)
     channel = get_channel_details(channel_id)
     channel['all_members'].append(new_user)
+    channel['time_stamp'] = int(time.time())
     save()
-
     return {}
 
 def channel_leave_v1(token, channel_id):
@@ -268,15 +273,20 @@ def channel_leave_v1(token, channel_id):
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
 
+    get_user_leave_channel_stats(auth_user_id)
+    save()
     channels = get_channel_details(channel_id)
     for member in channels['all_members']: 
         if member['u_id'] == auth_user_id:
             channels['all_members'].remove(member)
+            member['is_removed'] = True
             save()
     for owner in channels['owner_members']: 
         if owner['u_id'] == auth_user_id:
             channels['owner_members'].remove(owner)
+            owner['is_removed'] = True
             save()
+    
     return {}
 
 def channel_addowner_v1(token, channel_id, u_id):
