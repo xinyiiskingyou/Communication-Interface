@@ -1,6 +1,6 @@
 import signal
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 from src.error import InputError
 from src import config
@@ -14,8 +14,8 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, messag
 from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
 from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
-from src.user import user_stats_v1 
 from src.standup import standup_start_v1, standup_active_v1, standup_send_v1
+from src.user import user_stats_v1, user_profile_uploadphoto_v1, users_stats_v1
 from src.notifications import notifications_get_v1
 from src.search import search_v1
 from src.other import clear_v1
@@ -35,7 +35,7 @@ def defaultHandler(err):
     response.content_type = 'application/json'
     return response
 
-APP = Flask(__name__)
+APP = Flask(__name__, static_url_path='/static/')
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
@@ -225,6 +225,21 @@ def user_sethandle():
 def user_stats(): 
     result = user_stats_v1(request.args.get('token'))
     return dumps(result)
+
+@APP.route("/users/stats/v1", methods=['GET'])
+def users_stats(): 
+    result = users_stats_v1(request.args.get('token'))
+    return dumps(result)
+# Uploads given photo to given dimensions
+@APP.route('/user/profile/uploadphoto/v1', methods=['POST'])
+def user_uploadphoto():
+    json = request.get_json()
+    resp = user_profile_uploadphoto_v1(json['token'], json['img_url'], json['x_start'], json['y_start'], json['x_end'], json['y_end'])
+    return dumps(resp)
+
+@APP.route('/static/<path:path>')
+def send_js(path):
+    return send_from_directory('', path)
 
 ############ MESSAGE ############
 
