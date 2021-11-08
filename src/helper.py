@@ -571,9 +571,6 @@ def check_join_channel_or_dm(auth_user_id):
                 return True
     
     return False
-    for dm in get_data()['dms']:
-        if dm['dm_id'] == dm_id:
-            return dm['name']
 
 ######################################################
 ########### Helper functions for user.py #############
