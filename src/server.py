@@ -365,9 +365,9 @@ def standup_start():
     return dumps(resp)
 
 @APP.route("/standup/send/v1", methods=['POST'])
-def standup_start(): 
+def standup_send(): 
     json = request.get_json() 
-    resp = standup_start(json['token'], json['channel_id'], json['message'])
+    resp = standup_send(json['token'], json['channel_id'], json['message'])
     return dumps(resp)
 
 @APP.route("/standup/active/v1", methods = ['GET'])
