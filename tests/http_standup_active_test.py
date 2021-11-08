@@ -76,7 +76,7 @@ def test_standup_valid_not_active(global_owner, create_channel):
     assert json.loads(resp1.text)['is_active'] == False
     assert json.loads(resp1.text)['time_finish'] == None
 
-def test_standup_valid_not_active(global_owner, create_channel):
+def test_standup_valid_active(global_owner, create_channel):
     token = global_owner['token']
 
     start = requests.post(config.url + "standup/start/v1", json ={
