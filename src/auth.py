@@ -7,6 +7,7 @@ import random
 import smtplib 
 import hashlib
 import time
+import urllib.request
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
@@ -144,9 +145,19 @@ def auth_register_v2(email, password, name_first, name_last):
         else:
             i += 1
 
+    # the time when the account create
+    time_created = int(time.time())
+
     # Permission id for streams users
     if auth_user_id == 1:
         permission_id = 1
+        get_data()['workspace_stats'].append({
+            'channels_exist': [{'num_channels_exist': int(0), 'time_stamp': time_created}],
+            'dms_exist': [{'num_dms_exist': int(0), 'time_stamp': time_created}],
+            'messages_exist': [{'num_messages_exist': int(0), 'time_stamp': time_created}],
+            'utilization_rate': float(0.0)
+        })
+        save()
     else:
         permission_id = 2
 
@@ -154,6 +165,12 @@ def auth_register_v2(email, password, name_first, name_last):
     is_removed = False
     # the time when the account create
     time_created = int(time.time())
+
+    # Deafult profile photo
+    img_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+    #img_name = "src/static/default_pic"
+    #urllib.request.urlretrieve(img_url, img_name)
+
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
         'email' : email,
@@ -168,6 +185,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'reset_code': reset_code,
         'time_stamp': time_created,
         'all_notifications': [],
+        'profile_img_url': img_url,
         # store the data for user/stats
         # the first time_stamp will be the time when a user registers
         'channels_joined': [{
@@ -184,6 +202,7 @@ def auth_register_v2(email, password, name_first, name_last):
         } 
         ]
     })
+
     save()
 
     return {
