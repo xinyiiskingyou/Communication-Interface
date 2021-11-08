@@ -110,7 +110,7 @@ def test_users_stats_valid_user_one_dm(global_owner, register_user2):
     stats1 = requests.get(config.url + "users/stats/v1", params ={
         'token': user1_token
     })
-    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 0.0
+    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 0.6666666666666666
 
 
 
