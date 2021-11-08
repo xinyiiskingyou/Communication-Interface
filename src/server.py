@@ -14,7 +14,7 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, messag
 from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
 from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
-from src.user import user_stats_v1
+from src.user import user_stats_v1 
 from src.notifications import notifications_get_v1
 from src.search import search_v1
 from src.other import clear_v1

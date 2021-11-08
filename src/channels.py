@@ -4,7 +4,7 @@ Channels implementation
 import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
-from src.helper import user_info, get_channel_member
+from src.helper import user_info, get_channel_member, get_user_channel_stats
 from src.server_helper import decode_token, valid_user
 
 def channels_list_v2(token):
@@ -102,6 +102,8 @@ def channels_create_v2(token, name, is_public):
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
 
+    get_user_channel_stats(auth_user_id)
+    save()
     user = user_info(auth_user_id)
     get_data()['channels'].append({
         'channel_id': channel_id,
@@ -112,7 +114,7 @@ def channels_create_v2(token, name, is_public):
         'messages': [],
         'time_stamp': time_created
     })
-
+    
     save()
     return {
         'channel_id': channel_id,

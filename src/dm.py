@@ -1,6 +1,7 @@
 from src.server_helper import decode_token, valid_user
 from src.helper import channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
-from src.helper import check_valid_member_in_dm, check_valid_message, check_message_dm_tag
+from src.helper import check_valid_member_in_dm, check_valid_message, check_message_dm_tag, get_user_dm_stats, get_user_leave_dm_stats
+from src.helper import get_user_message_stats
 from src.server_helper import decode_token, valid_user
 from src.notifications import activate_notification_tag_dm, activate_notification_dm_create
 from src.error import InputError, AccessError
@@ -64,6 +65,8 @@ def dm_create_v1(token, u_ids):
     separation = ", "
     name = separation.join(handle_list)
 
+    get_user_dm_stats(auth_user_id)
+    save()
     time_created = int(time.time())
     get_data()['dms'].append({
         'dm_id': dm_id,
@@ -73,7 +76,6 @@ def dm_create_v1(token, u_ids):
         'messages': [],
         'time_stamp': time_created
     })
-
     save()
 
     # Activate notification for invite/add
@@ -140,6 +142,8 @@ def dm_remove_v1(token, dm_id):
     if not check_creator(auth_user_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
+    get_user_leave_dm_stats(auth_user_id)
+    save()
     dms = get_data()['dms']
     for dm in dms:
         if dm['dm_id'] == dm_id:
@@ -216,6 +220,8 @@ def dm_leave_v1(token, dm_id):
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError(description="The user is not an authorised member of the DM")
 
+    get_user_leave_dm_stats(auth_user_id)
+    save()
     dm = get_dm_dict(dm_id)
     for member in dm['members']:
         if member['u_id'] == auth_user_id: 
@@ -367,6 +373,8 @@ def message_senddm_v1(token, dm_id, message):
         'is_pinned': bool(is_pinned)
     }
 
+    get_user_message_stats(auth_user_id)
+    save()
     # Append dictionary of message details into intital_objects['messages']
     get_data()['messages'].insert(0, dmsend_details_messages)
     save()
