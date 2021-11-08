@@ -1,7 +1,7 @@
 from src.server_helper import decode_token, valid_user
 from src.helper import channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message, check_message_dm_tag, get_user_dm_stats, get_user_leave_dm_stats
-from src.helper import get_user_message_stats
+from src.helper import get_user_message_stats, users_stats_update_dms, users_stats_update_messages
 from src.server_helper import decode_token, valid_user
 from src.notifications import activate_notification_tag_dm, activate_notification_dm_create
 from src.error import InputError, AccessError
@@ -81,6 +81,10 @@ def dm_create_v1(token, u_ids):
     # Activate notification for invite/add
     activate_notification_dm_create(auth_user_id, dm_id, member_list)
 
+    # For users/stats, append new stat in 'dms_exist'
+    users_stats_update_dms(1)
+    save()
+
     return {
         'dm_id': dm_id
     }
@@ -149,6 +153,11 @@ def dm_remove_v1(token, dm_id):
         if dm['dm_id'] == dm_id:
             dms.remove(dm)
             save()
+
+    # For users/stats, append new stat in 'dms_exist'
+    users_stats_update_dms(-1)
+    save()
+
     return {}
 
 def dm_details_v1(token, dm_id): 
@@ -377,6 +386,10 @@ def message_senddm_v1(token, dm_id, message):
     save()
     # Append dictionary of message details into intital_objects['messages']
     get_data()['messages'].insert(0, dmsend_details_messages)
+    save()
+
+    # For users/stats, append new stat in 'messages_exist'
+    users_stats_update_messages(1)
     save()
 
     return {

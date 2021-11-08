@@ -95,7 +95,7 @@ def test_users_stats_valid_user_one_channel(global_owner, create_dm):
 
 # Test when a channel is created in the stream then user leaves channel. 
 # workspace_stats channels should remain the same and utilisation rate is 0.0
-def test_users_stats_valid_user_leave_channel(global_owner):
+def test_users_stats_valid_user_leave_channel(global_owner, create_channel):
     user1_token = global_owner['token']
     channel_id = create_channel['channel_id']
 
@@ -137,7 +137,7 @@ def test_users_stats_valid_user_remove_dm(global_owner, register_user2, create_d
     })
     assert stats1.status_code == VALID
     assert len(json.loads(stats1.text)['workspace_stats']['dms_exist']) == 2
-    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 0.5
+    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 1.0
 
     remove_dm = requests.delete(config.url + "dm/remove/v1", json = {
         'token': user1_token,
@@ -216,13 +216,13 @@ def test_users_stats_valid_user_send_and_remove_message(global_owner, create_cha
     assert stats3.status_code == VALID
 
     assert json.loads(stats3.text)['workspace_stats']['channels_exist'][1]['num_channels_exist'] == 1
-    assert len(json.loads(stats3.text)['workspace_stats']['channels_exist']) == 1
+    assert len(json.loads(stats3.text)['workspace_stats']['channels_exist']) == 2
     # test the timestamp is not equal to 0
     assert json.loads(stats3.text)['workspace_stats']['channels_exist'][0]['time_stamp'] != 0
 
-    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][1]['num_dms_exist'] == 0
-    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][1]['time_stamp'] != 0
-    assert len(json.loads(stats3.text)['workspace_stats']['dms_exist']) == 2
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats3.text)['workspace_stats']['dms_exist']) == 1
 
     assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['num_messages_exist'] == 0
     assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['time_stamp'] != 1

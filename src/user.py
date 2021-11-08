@@ -15,6 +15,7 @@ from src.config import url
 from src.other import clear_v1
 from src.auth import auth_register_v2
 from src.channels import channels_create_v2
+
 def users_all_v1(token): 
     '''
     Returns a list of all users and their associated details.
@@ -344,7 +345,30 @@ def users_stats_v1(token):
         <work_space_stats> (<dict>)     - stores the channels_exist, dms_exist, 
                                           messages_exist and utilization rate
     '''
-    pass
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    # get the number of users in the stream
+    users = get_data()['users']
+    num_users = len(users)
+    num_users_joined_atleast_one_channel_or_dm = 0
+
+    # for every user, check if they join at least one channel or dm
+    for i in range(len(users)):
+        if check_join_channel_or_dm(users[i]['auth_user_id']):
+            num_users_joined_atleast_one_channel_or_dm += 1
+            
+    # compute utilization rate
+    utilization_rate = 0.0
+    if num_users != 0 and num_users_joined_atleast_one_channel_or_dm != 0:
+        utilization_rate = float(num_users_joined_atleast_one_channel_or_dm) / float(num_users)
+
+    get_data()['workspace_stats']['utilization_rate'] = utilization_rate
+    save()
+    return {
+        'workspace_stats': get_data()['workspace_stats']
+    }
+
 
 '''
 # for white box testing

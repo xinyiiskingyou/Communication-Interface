@@ -5,6 +5,7 @@ import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import user_info, get_channel_member, get_user_channel_stats
+from src.helper import users_stats_update_channels
 from src.server_helper import decode_token, valid_user
 
 def channels_list_v2(token):
@@ -114,6 +115,10 @@ def channels_create_v2(token, name, is_public):
         'messages': [],
         'time_stamp': time_created
     })
+    save()
+
+    # For users/stats, append new stat in 'channels_exist'
+    users_stats_update_channels(1)
     save()
 
     return {

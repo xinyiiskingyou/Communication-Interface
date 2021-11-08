@@ -10,6 +10,7 @@ from src.helper import get_message, check_valid_channel_dm_message_ids
 from src.helper import check_valid_dm, check_valid_member_in_dm, get_reacts, check_valid_message_id
 from src.helper import check_valid_channel_id_and_dm_id_format, check_share_message_authorised_user
 from src.helper import check_message_channel_tag, get_user_message_stats, get_user_message_remove_stats
+from src.helper import users_stats_update_messages
 from src.server_helper import decode_token, valid_user
 from src.notifications import activate_notification_tag_channel, activate_notification_react
 from src.dm import message_senddm_v1
@@ -99,6 +100,10 @@ def message_send_v1(token, channel_id, message):
     get_data()['messages'].insert(0, message_details_messages)
     save()
 
+    # For users/stats, append new stat in 'messages_exist'
+    users_stats_update_messages(1)
+    save()
+
     return {
         'message_id': message_id
     }
@@ -172,6 +177,11 @@ def message_edit_v1(token, message_id, message):
                 else:
                     iterate_message['message'] = message
             save()
+            
+    if message == '':
+        # For users/stats, append new stat in 'messages_exist'
+        users_stats_update_messages(1)
+        save()
     return {}
     
 def message_remove_v1(token, message_id):
@@ -225,6 +235,11 @@ def message_remove_v1(token, message_id):
             if message['message_id'] == message_id:
                 dm['messages'].remove(message)
                 save()
+
+    # For users/stats, append new stat in 'messages_exist'
+    users_stats_update_messages(-1)
+    save()
+
     return {}
 
 def message_share_v1(token, og_message_id, message, channel_id, dm_id):
@@ -287,6 +302,10 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         shared_message_id = message_send_v1(token, channel_id, shared_message)['message_id']
     elif dm_id != -1:
         shared_message_id = message_senddm_v1(token, dm_id, shared_message)['message_id']
+
+    # For users/stats, append new stat in 'messages_exist'
+    users_stats_update_messages(1)
+    save()
 
     return {
         'shared_message_id': shared_message_id
@@ -569,6 +588,10 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     get_data()['messages'].insert(0, message_details_messages)
     save()
 
+    # For users/stats, append new stat in 'messages_exist'
+    users_stats_update_messages(1)
+    save()
+
     return {
         'message_id': message_id
     }
@@ -662,6 +685,10 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
 
     # Append dictionary of message details into intital_objects['messages']
     get_data()['messages'].insert(0, message_details_messages)
+    save()
+
+    # For users/stats, append new stat in 'messages_exist'
+    users_stats_update_messages(1)
     save()
 
     return {
