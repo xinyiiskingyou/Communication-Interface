@@ -97,10 +97,11 @@ def user_stats_v1(token):
     except ZeroDivisionError:
         involvement_rate = 0 
     
+    '''
     # if the involvement is greater than 1, it should be capped at 1.
     if involvement_rate > 1:
         involvement_rate = 1
-
+    '''
     return {
         'user_stats': {
             'channels_joined': user['channels_joined'],

@@ -28,9 +28,9 @@ def test_user_profile_uploadphoto_invalid_token(global_owner):
         'y_end': 20,
     })
     assert upload_photo.status_code == ACCESSERROR
-
+'''
 # Input Error: img_url returns an HTTP status other then 200
-'''def test_user_profile_uploadphoto_invalid_status(global_owner):
+def test_user_profile_uploadphoto_invalid_status(global_owner):
     token = global_owner['token']
 
     invalid_url = "http://cdn.britannica.com/q:60/94/152294-050-92FE0C83/Arabian-dromedary-camel.jpg"
@@ -179,4 +179,33 @@ def test_user_profile_uploadphoto_not_jpg(global_owner):
         'y_end': 20,
     })
     assert upload_photo1.status_code == INPUTERROR
-  
+
+def test_user_profile_uploadphoto_valid(global_owner):
+    token = global_owner['token']
+    auth_user_id = global_owner['auth_user_id']
+    url_test = "http://www.cse.unsw.edu.au/~richardb/index_files/RichardBuckland-200.jpg"
+
+    upload_photo1 = requests.post(config.url + 'user/profile/uploadphoto/v1', json = {
+        'token': token,
+        'img_url': url_test,
+        'x_start': 20,
+        'y_start': 10,
+        'x_end': 30,
+        'y_end': 20,
+    })
+
+    all1 = requests.get(config.url + "users/all/v1", params ={
+        'token': token
+    })
+    assert all1.status_code == VALID
+    assert (json.loads(all1.text)['users'] == 
+    [{
+        'u_id': auth_user_id,
+        'email': 'cat@gmail.com',
+        'name_first': 'anna',
+        'name_last': 'lee',
+        'handle_str': 'annalee',
+        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+    }])
+    assert len(json.loads(all1.text)) == 1
+    assert upload_photo1.status_code == INPUTERROR

@@ -81,6 +81,16 @@ def dm_create_v1(token, u_ids):
     # Activate notification for invite/add
     activate_notification_dm_create(auth_user_id, dm_id, member_list)
 
+    curr_num_dm_index = len(get_data()['workspace_stats'][0]['dms_exist']) - 1
+    curr_last_dm = get_data()['workspace_stats'][0]['dms_exist'][curr_num_dm_index]
+    most_recent_num_dm = curr_last_dm['num_dms_exist'] + 1
+
+    get_data()['workspace_stats'][0]['dms_exist'].append({
+        'num_dms_exist': most_recent_num_dm,
+        'time_stamp': time_created
+    })
+    save()
+
     return {
         'dm_id': dm_id
     }
@@ -149,6 +159,16 @@ def dm_remove_v1(token, dm_id):
         if dm['dm_id'] == dm_id:
             dms.remove(dm)
             save()
+
+    curr_num_dm_index = len(get_data()['workspace_stats'][0]['dms_exist']) - 1
+    curr_last_dm = get_data()['workspace_stats'][0]['dms_exist'][curr_num_dm_index]
+    most_recent_num_dm = curr_last_dm['num_dms_exist'] - 1
+
+    get_data()['workspace_stats'][0]['dms_exist'].append({
+        'num_dms_exist': most_recent_num_dm,
+        'time_stamp': int(time.time())
+    })
+    save()
     return {}
 
 def dm_details_v1(token, dm_id): 
