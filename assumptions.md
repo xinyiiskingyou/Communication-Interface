@@ -33,5 +33,9 @@ Assume all parameters in every function is given input.
 1. Assume no error will be raised when the global owner changes their permission id to be 1.
 
 # For notifications_get_v1:
-1. Assume when a user is tagged multiple times in one message, they get the corresponding number of multiple notifications
+1. Assume when a user is tagged multiple times in one message, they only get one notification. 
 2. Assume that users get a notification when they tag themselves
+
+# For search/v1:
+1. Assume that the search is not case-sensitive. 
+2. Assume that message must contain the exact query string (i.e. ' ' or spaces affect the search)

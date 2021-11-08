@@ -155,6 +155,10 @@ def activate_notification_dm_create(auth_user_id, dm_id, member_list):
 
 
 def notifications_get_v1(token):
+    
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+        
     auth_user_id = decode_token(token)
 
     for user in get_data()['users']:
