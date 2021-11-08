@@ -127,4 +127,28 @@ def test_standup_active_invalid_token(register_user, create_public_channel):
     assert resp1.status_code == INPUTERROR
 
 
+def test_standup_valid(register_user, create_public_channel):
+    token = register_user['token']
+    channel = create_public_channel['channel_id']
+
+    start = requests.post(config.url + "standup/start/v1", json ={
+        'token': token,
+        'channel_id': channel,
+        'length': 10
+    })
+    assert start.status_code == VALID
+
+    send1 = requests.post(config.url + "standup/send/v1", json = { 
+        'token': token, 
+        'channel_id': channel,
+        'message': helohelo 
+    })
+    assert send1.status_code == VALID
+    send2 = requests.post(config.url + "standup/send/v1", json = { 
+        'token': token, 
+        'channel_id': channel,
+        'message': helohelomelo 
+    })
+    assert send2.status_code == VALID
+
     
