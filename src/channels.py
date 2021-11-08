@@ -106,6 +106,7 @@ def channels_create_v2(token, name, is_public):
     get_user_channel_stats(auth_user_id)
     save()
     user = user_info(auth_user_id)
+    is_active = False
     get_data()['channels'].append({
         'channel_id': channel_id,
         'name': name,
@@ -113,7 +114,12 @@ def channels_create_v2(token, name, is_public):
         'owner_members': [user],
         'all_members': [user],
         'messages': [],
-        'time_stamp': time_created
+        'time_stamp': time_created,
+        'standup':  {
+            'is_active': bool(is_active), 
+            'time_finish': 0,
+            'queue': ''
+        }
     })
     save()
 
