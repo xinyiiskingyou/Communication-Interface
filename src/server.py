@@ -357,6 +357,26 @@ def notifications_get():
     token = (request.args.get('token'))
     return dumps(notifications_get_v1(token))
 
+######## STANDUP ######## 
+@APP.route("/standup/start/v1", methods=['POST'])
+def standup_start(): 
+    json = request.get_json() 
+    resp = standup_start(json['token'], json['channel_id'], json['length'])
+    return dumps(resp)
+
+@APP.route("/standup/send/v1", methods=['POST'])
+def standup_start(): 
+    json = request.get_json() 
+    resp = standup_start(json['token'], json['channel_id'], json['message'])
+    return dumps(resp)
+
+@APP.route("/standup/active/v1", methods = ['GET'])
+def standup_active(): 
+    token = (request.args.get('token'))
+    channel_id = (request.args.get('channel_id'))
+    return dumps(standup_active(token, channel_id))
+
+
 #### NO NEED TO MODIFY BELOW THIS POINT
 
 if __name__ == "__main__":
