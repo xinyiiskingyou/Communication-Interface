@@ -78,7 +78,7 @@ def test_user_profile_valid_own(global_owner):
         'name_first': 'anna',
         'name_last': 'lee',
         'handle_str': 'annalee',
-        'profile_img_url': 'profile_imgs/default_pic'
+        'profile_img_url': 'static/default_pic'
     })
 
 # Valid Case for looking at someone else's profile
@@ -100,5 +100,5 @@ def test_user_profile_valid_someone_else(global_owner, register_user2):
         'name_first': 'sally',
         'name_last': 'li',
         'handle_str': 'sallyli',
-        'profile_img_url': 'profile_imgs/default_pic'
+        'profile_img_url': 'static/default_pic'
     })
