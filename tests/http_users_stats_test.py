@@ -215,14 +215,14 @@ def test_users_stats_valid_user_send_and_remove_message(global_owner, create_cha
     })
     assert stats3.status_code == VALID
 
+    assert len(json.loads(stats3.text)['workspace_stats'][0]['channels_exist']) == 2
     assert json.loads(stats3.text)['workspace_stats'][0]['channels_exist'][1]['num_channels_exist'] == 1
-    assert len(json.loads(stats3.text)['workspace_stats'][0]['channels_exist']) == 1
     # test the timestamp is not equal to 0
     assert json.loads(stats3.text)['workspace_stats'][0]['channels_exist'][0]['time_stamp'] != 0
 
-    assert json.loads(stats3.text)['workspace_stats'][0]['dms_exist'][1]['num_dms_exist'] == 0
-    assert json.loads(stats3.text)['workspace_stats'][0]['dms_exist'][1]['time_stamp'] != 0
-    assert len(json.loads(stats3.text)['workspace_stats'][0]['dms_exist']) == 2
+    assert len(json.loads(stats3.text)['workspace_stats'][0]['dms_exist']) == 1
+    assert json.loads(stats3.text)['workspace_stats'][0]['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats3.text)['workspace_stats'][0]['dms_exist'][0]['time_stamp'] != 0
 
     assert json.loads(stats3.text)['workspace_stats'][0]['messages_exist'][2]['num_messages_exist'] == 0
     assert json.loads(stats3.text)['workspace_stats'][0]['messages_exist'][2]['time_stamp'] != 1

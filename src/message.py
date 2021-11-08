@@ -99,6 +99,15 @@ def message_send_v1(token, channel_id, message):
     get_data()['messages'].insert(0, message_details_messages)
     save()
 
+    curr_num_message_index = len(get_data()['workspace_stats'][0]['messages_exist']) - 1
+    curr_last_message = get_data()['workspace_stats'][0]['messages_exist'][curr_num_message_index]
+    most_recent_num_message = curr_last_message['num_messages_exist'] + 1
+
+    get_data()['workspace_stats'][0]['messages_exist'].append({
+        'num_messages_exist': most_recent_num_message,
+        'time_stamp': time_created
+    })
+    save()
     return {
         'message_id': message_id
     }
@@ -225,6 +234,16 @@ def message_remove_v1(token, message_id):
             if message['message_id'] == message_id:
                 dm['messages'].remove(message)
                 save()
+
+    curr_num_message_index = len(get_data()['workspace_stats'][0]['messages_exist']) - 1
+    curr_last_message = get_data()['workspace_stats'][0]['messages_exist'][curr_num_message_index]
+    most_recent_num_message = curr_last_message['num_messages_exist'] - 1
+
+    get_data()['workspace_stats'][0]['messages_exist'].append({
+        'num_messages_exist': most_recent_num_message,
+        'time_stamp': int(time.time())
+    })
+    save()
     return {}
 
 def message_share_v1(token, og_message_id, message, channel_id, dm_id):
@@ -569,6 +588,15 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
     get_data()['messages'].insert(0, message_details_messages)
     save()
 
+    curr_num_message_index = len(get_data()['workspace_stats'][0]['messages_exist']) - 1
+    curr_last_message = get_data()['workspace_stats'][0]['messages_exist'][curr_num_message_index]
+    most_recent_num_message = curr_last_message['num_messages_exist'] + 1
+
+    get_data()['workspace_stats'][0]['messages_exist'].append({
+        'num_messages_exist': most_recent_num_message,
+        'time_stamp': time_sent
+    })
+    save()
     return {
         'message_id': message_id
     }
@@ -664,6 +692,14 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
     get_data()['messages'].insert(0, message_details_messages)
     save()
 
+    curr_num_message_index = len(get_data()['workspace_stats'][0]['messages_exist']) - 1
+    curr_last_message = get_data()['workspace_stats'][0]['messages_exist'][curr_num_message_index]
+    most_recent_num_message = curr_last_message['num_messages_exist'] + 1
+
+    get_data()['workspace_stats'][0]['messages_exist'].append({
+        'num_messages_exist': most_recent_num_message,
+        'time_stamp': time_sent
+    })
     return {
         'message_id': message_id
     }
