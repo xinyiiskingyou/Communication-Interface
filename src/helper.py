@@ -172,19 +172,6 @@ def check_channel_owner_permission(auth_user_id, channel_id):
         return True
     return False
 
-# Helper function for user_profile_setemail
-# Checks valid email
-# Returns true if valid
-# Returns empty dict otherwise
-def check_valid_email(email):
-    '''
-    check if the email is valid
-    '''
-    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
-    if re.search(search, email):
-        return True
-    return False
-
 # Helper function for admin_user_remove, admin_userpermisisons_change
 # Checks number of owners of a channel
 # Returns number
@@ -568,6 +555,19 @@ def dm_id_to_dm_name(dm_id):
 ######################################################
 ########### Helper functions for user.py #############
 ######################################################
+
+# Helper function for user_profile_setemail
+# Checks valid email
+# Returns true if valid
+# Returns empty dict otherwise
+def check_valid_email(email):
+    '''
+    check if the email is valid
+    '''
+    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
+    if re.search(search, email):
+        return True
+    return False
 
 # Helper function for user/stat
 # Appends num_channels_joined and time_stamp when 
