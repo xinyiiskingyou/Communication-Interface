@@ -87,7 +87,7 @@ def test_standup_send_invalid_message_length(global_owner, create_channel, regis
     assert send.status_code == ACCESSERROR
 
 # Input error: an active standup is not currently running in the channel
-def test_standup_send_invalid_message_length(global_owner, create_channel, register_user2):
+def test_standup_send_not_active(global_owner, create_channel, register_user2):
     
     token = global_owner['token']
     send = requests.post(config.url + "standup/send/v1", json = {
