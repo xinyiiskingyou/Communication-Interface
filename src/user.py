@@ -3,6 +3,7 @@ User implementation
 '''
 import urllib.request
 from PIL import Image
+from src.config import url
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
 from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
@@ -366,8 +367,8 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
 
     auth_user_id = decode_token(token)
 
-    # Input Error: img_url returns a status code other then 200
-    if urllib.request.urlopen(img_url).getcode() != 200:
+    # Input Error: img_url returns a status code other then 200 -> REDO IMPLEMENTATION
+    if urllib.request.urlopen(img_url).getcode() == False:
         raise InputError(description='img_url returns an HTTP status other than 200.')
 
     # Input Error: image is not JPG
@@ -389,7 +390,15 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     cropped.save(img_name)
     for user in get_data()['users']:
         if user['auth_user_id'] == auth_user_id:
-            user['profile_img_url'] = img_name
+            user['profile_img_url'] = url + img_name
             save()
+
+    for channel in get_data()['channel']:
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                member['profile_img_url'] = user['profile_img_url']
+        for owner in channel['owner_members']:
+            if owner['u_id'] == auth_user_id:
+                owner['profile_img_url'] = user['profile_img_url']
     return {}
 
