@@ -17,7 +17,8 @@ def user_info(auth_user_id):
         'email': user['email'],
         'name_first': user['name_first'],
         'name_last': user['name_last'],
-        'handle_str': user['handle_str']
+        'handle_str': user['handle_str'],
+        'profile_img_url': user['profile_img_url']
     }
 
 #################################################

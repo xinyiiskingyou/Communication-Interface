@@ -112,7 +112,8 @@ def test_details_return_values_pub_h(global_owner, create_channel):
                 'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
-                'handle_str': 'annalee'
+                'handle_str': 'annalee',
+                'profile_img_url': 'static/default_pic'
             }
         ],
         'all_members': [
@@ -121,7 +122,8 @@ def test_details_return_values_pub_h(global_owner, create_channel):
                 'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
-                'handle_str': 'annalee'
+                'handle_str': 'annalee',
+                'profile_img_url': 'static/default_pic'
             }
         ]
     })
@@ -157,7 +159,8 @@ def test_details_return_values_priv_h(global_owner):
                 'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
-                'handle_str': 'annalee'
+                'handle_str': 'annalee',
+                'profile_img_url': 'static/default_pic'
             }
         ],
         'all_members': [
@@ -166,7 +169,8 @@ def test_details_return_values_priv_h(global_owner):
                 'email': 'cat@gmail.com',
                 'name_first': 'anna',
                 'name_last': 'lee',
-                'handle_str': 'annalee'
+                'handle_str': 'annalee',
+                'profile_img_url': 'static/default_pic'
             }
         ]
     })

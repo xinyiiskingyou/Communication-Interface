@@ -37,7 +37,8 @@ def test_user_all_1_member(global_owner):
         'email': 'cat@gmail.com',
         'name_first': 'anna',
         'name_last': 'lee',
-        'handle_str': 'annalee'
+        'handle_str': 'annalee',
+        'profile_img_url': 'static/default_pic'
     }])
     assert len(json.loads(all1.text)) == 1
 

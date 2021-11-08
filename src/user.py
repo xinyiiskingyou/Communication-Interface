@@ -1,14 +1,16 @@
 '''
 User implementation
 '''
-
+import urllib.request
+from PIL import Image
+from flask import url_for
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
 from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
 from src.helper import check_join_channel_or_dm
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
-
+from src.config import url
 from src.other import clear_v1
 from src.auth import auth_register_v2
 from src.channels import channels_create_v2
@@ -394,4 +396,77 @@ clear_v1()
 user1_reg = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
 channel_id4 = channels_create_v2(user1_reg['token'], '1531_CAMEL_3', False)
 users_stats_v1(user1_reg['token'])
+'''
+def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
+    '''
+    Update the authorised user's handle (i.e. display name).
+
+    Arguments:
+        <token>          (<string>)      - an authorisation hash
+        <img_url>        (<string>)      - the url of an image 
+        <x_start>        (<int>)         - a boundary for the image  
+        <y_start>        (<int>)         - a boundary for the image   
+        <x_end>          (<int>)         - a boundary for the image   
+        <y_end>          (<int>)         - a boundary for the image  
+
+    Exceptions:
+        InputError  - Occurs when img_url returns a status other then 200
+                    - Occurs when any of x/y_start and x/y_end are not within the dimensions
+                    of the image at the url
+                    - Occurs when the x/y_end is less then either x_start or y_start
+                    - Occurs when image uploaded is not JPG
+    Return Value:
+        Returns N/A
+    '''
+    # Access Error: invalid token
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    auth_user_id = decode_token(token)
+
+    # Input Error: img_url returns a status code other then 200 -> REDO IMPLEMENTATION
+    if urllib.request.urlopen(img_url).getcode() != 200:
+        raise InputError(description='img_url returns an HTTP status other than 200.')
+
+    # Input Error: image is not JPG
+    if not img_url.lower().endswith('.jpg'):
+        raise InputError(description='img_url is not of type JPG.')
+
+    # Creating unique img url
+    img_name = 'src/static/' + token + '.jpg'
+    urllib.request.urlretrieve(img_url, img_name)
+    imageObject = Image.open(img_name)
+    width, height = imageObject.size
+
+    # Check within given boundaries
+    if x_start not in range(x_end) or y_start not in range(y_end) or x_end not in range(width + 1) or y_end not in range(height + 1):
+        raise InputError(description='Any of x_start, y_start, x_end, y_end are not within the dimensions of the image at the URL')
+
+    # Cropping img to given dimensions
+    cropped = imageObject.crop((x_start, y_start, x_end, y_end))
+    cropped.save(img_name, 'JPEG')
+    new_url = url + 'static/' + token + '.jpg' 
+
+    for user in get_data()['users']:
+        if user['auth_user_id'] == auth_user_id:
+            user['profile_img_url'] = new_url
+            save()
+
+    for channel in get_data()['channels']:
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                member['profile_img_url'] = new_url
+        for owner in channel['owner_members']:
+            if owner['u_id'] == auth_user_id:
+                owner['profile_img_url'] = new_url
+    save()
+    return {}
+
+'''
+# for white box testing
+clear_v1()
+user1_reg = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
+channel_id4 = channels_create_v2(user1_reg['token'], '1531_CAMEL_3', False)
+user_profile_uploadphoto_v1(user1_reg['token'], 'http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg', 1, 1, 159, 200)
+print(get_data()['users'])
 '''
