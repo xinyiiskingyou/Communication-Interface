@@ -14,6 +14,7 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, messag
 from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
 from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
+from src.standup import standup_start_v1, standup_active_v1, standup_send_v1
 from src.user import user_stats_v1, user_profile_uploadphoto_v1, users_stats_v1
 from src.notifications import notifications_get_v1
 from src.search import search_v1
@@ -393,7 +394,6 @@ def notifications_get():
     token = (request.args.get('token'))
     return dumps(notifications_get_v1(token))
 
-
 ############ SEARCH #################
 
 # Given a query string, return a collection of messages in all of the channels/DMs that the
@@ -403,6 +403,26 @@ def search():
     token = (request.args.get('token'))
     query_str = (request.args.get('query_str'))
     return dumps(search_v1(token, query_str))
+
+######## STANDUP ######## 
+@APP.route("/standup/start/v1", methods=['POST'])
+def standup_start(): 
+    json = request.get_json() 
+    resp = standup_start_v1(json['token'], json['channel_id'], json['length'])
+    return dumps(resp)
+
+@APP.route("/standup/send/v1", methods=['POST'])
+def standup_send(): 
+    json = request.get_json() 
+    resp = standup_send_v1(json['token'], json['channel_id'], json['message'])
+    return dumps(resp)
+
+@APP.route("/standup/active/v1", methods = ['GET'])
+def standup_active(): 
+    token = (request.args.get('token'))
+    channel_id = (request.args.get('channel_id'))
+    return dumps(standup_active_v1(token, channel_id))
+
 
 #### NO NEED TO MODIFY BELOW THIS POINT
 
