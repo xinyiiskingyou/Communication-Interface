@@ -564,7 +564,8 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
         'reacts':[reacts_details],
         'is_pinned': bool(is_pinned)
     }
-
+    get_user_message_stats(auth_user_id)
+    save()
     # Append dictionary of message details into intital_objects['messages']
     get_data()['messages'].insert(0, message_details_messages)
     save()
@@ -573,12 +574,6 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
         'message_id': message_id
     }
 
-'''
-print(int(time.time()))
-print(time.time())
-print(time.asctime(time.localtime(time.time())))
-print(time.asctime(time.localtime(time.time() + 600)))
-'''
 def message_sendlaterdm_v1(token, dm_id, message, time_sent):
     '''
     Send a message from the auth_user to dm specified by dm_id
@@ -659,7 +654,8 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
         'reacts':[reacts_details],
         'is_pinned': bool(is_pinned)
     }
-
+    get_user_message_stats(auth_user_id)
+    save()
     # Append dictionary of message details into intital_objects['messages']
     get_data()['messages'].insert(0, message_details_messages)
     save()
