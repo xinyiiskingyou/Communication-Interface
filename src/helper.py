@@ -551,26 +551,6 @@ def channel_id_to_channel_name(channel_id):
 def dm_id_to_dm_name(dm_id):
     dm = get_dm_dict(dm_id)
     return dm['name']
-######################################################
-####### Helper functions for user.py #################
-###################################################### 
-
-# Helper function for users/stats
-# Check if this user at least joins one channel or dm
-def check_join_channel_or_dm(auth_user_id):
-    for channel in get_data()['channels']:
-        #print('hi')
-        #print(channel['all_members'])
-        for member in channel['all_members']:
-            if member['u_id'] == auth_user_id:
-                return True
-    
-    for dm in get_data()['dms']:
-        for member in dm['members']:
-            if member['u_id'] == auth_user_id:
-                return True
-    
-    return False
 
 ######################################################
 ########### Helper functions for user.py #############
@@ -671,3 +651,47 @@ def get_messages_total_number():
             assert message != None
             number += 1
     return number
+
+
+# Helper function for users/stats
+# Check if this user at least joins one channel or dm
+def check_join_channel_or_dm(auth_user_id):
+    for channel in get_data()['channels']:
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                return True
+    
+    for dm in get_data()['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                return True
+    
+    return False
+
+# Helper function for users/stats
+# Appends new stat as 'num_channels_exist' and time stamp
+def users_stats_update_channels(update_type):
+    curr_num_channel = get_data()['workspace_stats']['channels_exist'][-1]['num_channels_exist']
+    get_data()['workspace_stats']['channels_exist'].append({
+        'num_channels_exist': curr_num_channel + update_type,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for users/stats
+# Appends new stat as 'num_messages_exist' and time stamp
+def users_stats_update_messages(update_type):
+    curr_num_message = get_data()['workspace_stats']['messages_exist'][-1]['num_messages_exist']
+    get_data()['workspace_stats']['messages_exist'].append({
+        'num_messages_exist': curr_num_message + update_type,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for users/stats
+# Appends new stat as 'num_dms_exist' and time stamp
+def users_stats_update_dms(update_type):
+    curr_num_dm = get_data()['workspace_stats']['dms_exist'][-1]['num_dms_exist']
+    get_data()['workspace_stats']['dms_exist'].append({
+        'num_dms_exist': curr_num_dm + update_type,
+        'time_stamp': int(time.time())
+    })
+

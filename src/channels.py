@@ -5,6 +5,7 @@ import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import user_info, get_channel_member, get_user_channel_stats
+from src.helper import users_stats_update_channels
 from src.server_helper import decode_token, valid_user
 
 def channels_list_v2(token):
@@ -122,14 +123,8 @@ def channels_create_v2(token, name, is_public):
     })
     save()
 
-    curr_num_channel_index = len(get_data()['workspace_stats'][0]['channels_exist']) - 1
-    curr_last_channel = get_data()['workspace_stats'][0]['channels_exist'][curr_num_channel_index]
-    most_recent_num_channel = curr_last_channel['num_channels_exist'] + 1
-
-    get_data()['workspace_stats'][0]['channels_exist'].append({
-        'num_channels_exist': most_recent_num_channel,
-        'time_stamp': time_created
-    })
+    # For users/stats, append new stat in 'channels_exist'
+    users_stats_update_channels(1)
     save()
 
     return {
