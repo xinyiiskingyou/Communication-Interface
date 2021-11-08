@@ -71,8 +71,15 @@ def test_users_stats_valid_user_one_channel(global_owner, create_channel):
     assert json.loads(stats.text)['workspace_stats']['utilization_rate'] == 1.0
 
 # Test when a DM is created in the stream
-def test_users_stats_valid_user_one_channel(global_owner, create_dm):
+def test_users_stats_valid_user_one_dm(global_owner, register_user2):
     user1_token = global_owner['token']
+    u_id2 = register_user2['auth_user_id']
+
+    requests.post(config.url + "dm/create/v1", json = {
+        'token': user1_token,
+        'u_ids': [u_id2]
+    })
+
     stats = requests.get(config.url + "users/stats/v1", params ={
         'token': user1_token
     })
@@ -92,6 +99,20 @@ def test_users_stats_valid_user_one_channel(global_owner, create_dm):
     assert len(json.loads(stats.text)['workspace_stats']['messages_exist']) == 1
 
     assert json.loads(stats.text)['workspace_stats']['utilization_rate'] == 1.0
+
+    requests.post(config.url + "auth/register/v2", json ={
+        'email': 'kellyh@gmail.com',
+        'password': 'password',
+        'name_first': 'kelly',
+        'name_last': 'huang'
+    })
+
+    stats1 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 0.0
+
+
 
 # Test when a channel is created in the stream then user leaves channel. 
 # workspace_stats channels should remain the same and utilisation rate is 0.0
@@ -139,7 +160,7 @@ def test_users_stats_valid_user_remove_dm(global_owner, register_user2, create_d
     assert len(json.loads(stats1.text)['workspace_stats']['dms_exist']) == 2
     assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 1.0
 
-    remove_dm = requests.delete(config.url + "dm/remove/v1", json = {
+    requests.delete(config.url + "dm/remove/v1", json = {
         'token': user1_token,
         'dm_id': dm1_id
     })

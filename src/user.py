@@ -362,8 +362,11 @@ def users_stats_v1(token):
     utilization_rate = 0.0
     if num_users != 0 and num_users_joined_atleast_one_channel_or_dm != 0:
         utilization_rate = float(num_users_joined_atleast_one_channel_or_dm) / float(num_users)
+        print(f"at least = {float(num_users_joined_atleast_one_channel_or_dm)}")
+        print(f"num_users = {float(num_users)}")
+        print(f"utilisation rate = {utilization_rate}")
 
-    get_data()['workspace_stats']['utilization_rate'] = utilization_rate
+    get_data()['workspace_stats']['utilization_rate'] = float(utilization_rate)
     save()
     return {
         'workspace_stats': get_data()['workspace_stats']
