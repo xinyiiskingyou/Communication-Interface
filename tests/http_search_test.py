@@ -11,6 +11,20 @@ from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 ############## search/v1 tests ################
 ###############################################
 
+# Access error: invalid token
+def test_user_set_email_invalid_token(global_owner):
+
+    token = global_owner['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+
+    search1 = requests.get(config.url + "search/v1", params = {
+        'token': token,
+        'query_str': 'hi'
+    })
+    assert search1.status_code == ACCESSERROR
+
 # Length of query string is less than 1 or over 1000 characters
 def test_search_invalid_query_str_format(global_owner):
 
@@ -40,6 +54,21 @@ def test_search_invalid_query_str_format(global_owner):
     })
     assert search4.status_code == VALID
 
+    # Access error: invalid token and invalid length
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': user1_token
+    })
+    search5 = requests.get(config.url + "search/v1", params = {
+        'token': user1_token,
+        'query_str': 'a' * 1001
+    })
+    assert search5.status_code == ACCESSERROR
+
+    search6 = requests.get(config.url + "search/v1", params = {
+        'token': user1_token,
+        'query_str': ''
+    })
+    assert search6.status_code == ACCESSERROR
 
 ###### Implementation ######
 

@@ -5,7 +5,7 @@ from src import config
 from tests.fixture import global_owner, register_user2, register_user3
 from tests.fixture import user1_channel_message_id, create_channel, user1_send_dm, create_dm
 from tests.fixture import user1_handle_str, user2_handle_str, channel1_name, dm1_name, user3_handle_str
-from tests.fixture import VALID, ACCESSERROR, INPUTERROR
+from tests.fixture import VALID, ACCESSERROR
 
 TAG_START = 0
 TAG_END = 20
@@ -13,6 +13,19 @@ TAG_END = 20
 ###############################################
 ########## notifications/get/v1 tests #########
 ###############################################
+
+# Access error: invalid token
+def test_user_set_email_invalid_token(global_owner):
+
+    token = global_owner['token']
+    requests.post(config.url + "auth/logout/v1", json = {
+        'token': token
+    })
+
+    get_notifications = requests.get(config.url + "notifications/get/v1", params = {
+        'token': token
+    })
+    assert get_notifications.status_code == ACCESSERROR
 
 ####### Tagged Notifications #######
 def test_notifications_get_tagged_channel(global_owner, user1_handle_str, 
@@ -458,8 +471,7 @@ create_dm, dm1_name):
     })
 
 # Mixed
-def test_notifications_get_mixed(global_owner, user1_handle_str, register_user2, 
-user2_handle_str, create_channel, channel1_name):
+def test_notifications_get_mixed(global_owner, register_user2, user2_handle_str, create_channel):
 
     user1_token = global_owner['token']
     user2_token = register_user2['token']
