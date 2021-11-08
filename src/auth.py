@@ -185,7 +185,22 @@ def auth_register_v2(email, password, name_first, name_last):
         'reset_code': reset_code,
         'time_stamp': time_created,
         'all_notifications': [],
-        'profile_img_url': img_url
+        'profile_img_url': img_url,
+        # store the data for user/stats
+        # the first time_stamp will be the time when a user registers
+        'channels_joined': [{
+            'num_channels_joined': 0,
+            'time_stamp': time_created
+        }],
+        'dms_joined': [{
+            'num_dms_joined': 0,
+            'time_stamp': time_created
+        }],
+        'messages_sent':[{
+            'num_messages_sent': 0,
+            'time_stamp': time_created
+        } 
+        ]
     })
 
     save()
@@ -250,21 +265,18 @@ def auth_passwordreset_reset_v1(reset_code, new_password):
     # Invalid password length
     if len(new_password) in range(6):
         raise InputError(description='Password entered is less then  6 characers in length')
-   
-    # Get valid user
-    correct_user = None
-    for user in get_data()['users']:
-        if user['reset_code'] == reset_code:
-            correct_user = user
-            break
 
     # Invalid reset_code
-    if correct_user is None:
+    if reset_code is None:
         raise InputError(description='Invalid reset_code')
 
-    # Hashing new password and setting reset code to empty string
-    new_password = hashlib.sha256(new_password.encode()).hexdigest() 
-    user['password'] = new_password
-    user['reset_code'] = ''
-    save()
+    # Get valid user
+    for user in get_data()['users']:
+        if user['reset_code'] == reset_code:
+            # Hashing new password and setting reset code to empty string
+            new_password = hashlib.sha256(new_password.encode()).hexdigest() 
+            user['password'] = new_password
+            user['reset_code'] = ''
+            save()
+    
     return {}

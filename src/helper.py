@@ -2,6 +2,7 @@
 Helper functions
 '''
 import re
+import time
 from src.data_store import get_data
 
 #Helper function for channels_create, channel_invite, channel_join
@@ -169,19 +170,6 @@ def check_channel_owner_permission(auth_user_id, channel_id):
         found_permission = 1
 
     if found_permission == 1:
-        return True
-    return False
-
-# Helper function for user_profile_setemail
-# Checks valid email
-# Returns true if valid
-# Returns empty dict otherwise
-def check_valid_email(email):
-    '''
-    check if the email is valid
-    '''
-    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
-    if re.search(search, email):
         return True
     return False
 
@@ -583,3 +571,106 @@ def check_join_channel_or_dm(auth_user_id):
                 return True
     
     return False
+    for dm in get_data()['dms']:
+        if dm['dm_id'] == dm_id:
+            return dm['name']
+
+######################################################
+########### Helper functions for user.py #############
+######################################################
+
+# Helper function for user_profile_setemail
+# Checks valid email
+# Returns true if valid
+# Returns empty dict otherwise
+def check_valid_email(email):
+    '''
+    check if the email is valid
+    '''
+    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
+    if re.search(search, email):
+        return True
+    return False
+
+# Helper function for user/stat
+# Appends num_channels_joined and time_stamp when 
+# the user joins/being invited to a channel 
+def get_user_channel_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['channels_joined'])
+    length = user['channels_joined'][number - 1]['num_channels_joined']
+    user['channels_joined'].append({
+        'num_channels_joined': length + 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_channels_joined and time_stamp when the user leave a channel 
+def get_user_leave_channel_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['channels_joined'])
+    length = user['channels_joined'][number - 1]['num_channels_joined']
+    user['channels_joined'].append({
+        'num_channels_joined': length - 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_dms_joined and time_stamp when the user creates a dm
+def get_user_dm_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['dms_joined'])
+    length = user['dms_joined'][number - 1]['num_dms_joined']
+    user['dms_joined'].append({
+        'num_dms_joined': length + 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_dms_joined and time_stamp when the user leaves/removes a dm
+def get_user_leave_dm_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['dms_joined'])
+    length = user['dms_joined'][number - 1]['num_dms_joined']
+    user['dms_joined'].append({
+        'num_dms_joined': length - 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_messages_sent and time_stamp when the user sends 
+# a message in dm/ channel
+def get_user_message_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['messages_sent'])
+    length = user['messages_sent'][number - 1]['num_messages_sent']
+    user['messages_sent'].append({
+        'num_messages_sent': length + 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_messages_sent and time_stamp when the user removes 
+# a message in dm/channel
+def get_user_message_remove_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['messages_sent'])
+    length = user['messages_sent'][number - 1]['num_messages_sent']
+    user['messages_sent'].append({
+        'num_messages_sent': length - 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Gets the total number of messages in dm and channels
+def get_messages_total_number():
+    number = 0
+    for channel in get_data()['channels']:
+        for message in channel['messages']:
+            assert message != None
+            number += 1
+    for dm in get_data()['dms']:
+        for message in dm['messages']:
+            assert message != None
+            number += 1
+    return number

@@ -9,7 +9,7 @@ from src.helper import check_authorised_user_edit, check_valid_message_send_form
 from src.helper import get_message, check_valid_channel_dm_message_ids
 from src.helper import check_valid_dm, check_valid_member_in_dm, get_reacts, check_valid_message_id
 from src.helper import check_valid_channel_id_and_dm_id_format, check_share_message_authorised_user
-from src.helper import check_message_channel_tag
+from src.helper import check_message_channel_tag, get_user_message_stats, get_user_message_remove_stats
 from src.server_helper import decode_token, valid_user
 from src.notifications import activate_notification_tag_channel, activate_notification_react
 from src.dm import message_senddm_v1
@@ -58,7 +58,6 @@ def message_send_v1(token, channel_id, message):
     
     # Creating unique message_id 
     message_id = (len(get_data()['messages']) * 2) + 1
-
     # Current time message was created and sent
     time_created = int(time.time())
 
@@ -94,7 +93,8 @@ def message_send_v1(token, channel_id, message):
         'reacts':[reacts_details],
         'is_pinned': bool(is_pinned)
     }
-
+    get_user_message_stats(auth_user_id)
+    save()
     # Append dictionary of message details into intital_objects['messages']
     get_data()['messages'].insert(0, message_details_messages)
     save()
@@ -152,6 +152,9 @@ def message_edit_v1(token, message_id, message):
     if not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError(description="The user is unauthorised to edit the message.")
 
+    get_user_message_remove_stats(auth_user_id)
+    save()
+    
     for channel in get_data()['channels']:
         for iterate_message in channel['messages']:
             if iterate_message['message_id'] == message_id:
@@ -208,6 +211,8 @@ def message_remove_v1(token, message_id):
     if not check_authorised_user_edit(auth_user_id, message_id):
         raise AccessError(description="The user is unauthorised to edit the message.")
 
+    get_user_message_remove_stats(auth_user_id)
+    save()
     # Given a message_id for a message, remove message from the channel/DM
     for channel in get_data()['channels']:
         for message in channel['messages']:
