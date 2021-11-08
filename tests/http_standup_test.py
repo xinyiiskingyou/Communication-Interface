@@ -1,16 +1,16 @@
 import pytest
 import json 
-from src.error import AccessError, InputError
 import requests
 from src import config
-import fixture 
+from tests.fixture import VALID, INPUTERROR, ACCESSERROR
+from tests.fixture import global_owner, create_channel
 
 ####ERROR TESTS FOR ALL STANDUP FUNCTIONS### 
 
 
 ##STANDUP START### 
-def test_standup_invalid_channel_id(register_user):
-    token1 = register_user['token']
+def test_standup_invalid_channel_id(global_owner):
+    token1 = global_owner['token']
 
     # Test invalid channel_id
     resp1 = requests.get(config.url + "standup/start/v1", params = {
@@ -46,10 +46,10 @@ def test_standup_invalid_channel_id(register_user):
     assert resp1.status_code == INPUTERROR
 
 
-def test_standup_invalid_token(register_user, create_public_channel):
+def test_standup_invalid_token(global_owner, create_channel):
 
-    token = register_user['token']
-    channel = create_public_channel['channel_id']
+    token = global_owner['token']
+    channel = create_channel['channel_id']
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -61,9 +61,9 @@ def test_standup_invalid_token(register_user, create_public_channel):
     })
     assert resp1.status_code == INPUTERROR
 
-def test_standup_negative_length(register_user, create_public_channel): 
-    token = register_user['token']
-    channel = create_public_channel['channel_id']
+def test_standup_negative_length(global_owner, create_channel): 
+    token = global_owner['token']
+    channel = create_channel['channel_id']
     resp1 = requests.get(config.url + "standup/start/v1", params ={
         'token': token,
         'channel_id': channel,
@@ -75,7 +75,7 @@ def test_standup_negative_length(register_user, create_public_channel):
 
 ###STANDUP ACTIVE### 
 def test_standup_active_invalid_channel(): 
-    token1 = register_user['token']
+    token1 = global_owner['token']
 
     # Test invalid channel_id
     resp1 = requests.get(config.url + "standup/active/v1", params = {
@@ -111,10 +111,10 @@ def test_standup_active_invalid_channel():
     assert resp1.status_code == INPUTERROR
 
 
-def test_standup_active_invalid_token(register_user, create_public_channel):
+def test_standup_active_invalid_token(global_owner, create_channel):
 
-    token = register_user['token']
-    channel = create_public_channel['channel_id']
+    token = global_owner['token']
+    channel = create_channel['channel_id']
     requests.post(config.url + "auth/logout/v1", json = {
         'token': token
     })
@@ -127,9 +127,9 @@ def test_standup_active_invalid_token(register_user, create_public_channel):
     assert resp1.status_code == INPUTERROR
 
 
-def test_standup_valid(register_user, create_public_channel):
-    token = register_user['token']
-    channel = create_public_channel['channel_id']
+def test_standup_valid(global_owner, create_channel):
+    token = global_user['token']
+    channel = create_channel['channel_id']
 
     start = requests.post(config.url + "standup/start/v1", json ={
         'token': token,
@@ -151,4 +151,3 @@ def test_standup_valid(register_user, create_public_channel):
     })
     assert send2.status_code == VALID
 
-    
