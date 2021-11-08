@@ -8,7 +8,6 @@ import smtplib
 import hashlib
 import time
 import urllib.request
-from PIL import Image
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id

@@ -375,7 +375,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(description='img_url is not of type JPG.')
 
     # Creating unique img url
-    img_name = 'static/profile_photo' + str(token) + '.jpg'
+    img_name = 'static/' + token + '.jpg'
     urllib.request.urlretrieve(img_url, img_name)
     imageObject = Image.open(img_name)
     width, height = imageObject.size

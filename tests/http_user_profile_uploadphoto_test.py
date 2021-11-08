@@ -149,7 +149,7 @@ def test_user_profile_uploadphoto_y_end_smaller(global_owner):
     assert upload_photo2.status_code == INPUTERROR
 
 # Input Error: both x and y end are smaller then x and y start
-def test_user_profile_uploadphoto_y_end_smaller(global_owner):
+def test_user_profile_uploadphoto_x_and_y_end_smaller(global_owner):
     token = global_owner['token']
 
     url_test = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
