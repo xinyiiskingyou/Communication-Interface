@@ -143,7 +143,7 @@ def test_users_stats_valid_user_remove_dm(global_owner, register_user2, create_d
         'token': user1_token,
         'dm_id': dm1_id
     })
-
+    assert remove_dm.status_code == VALID
     stats2 = requests.get(config.url + "users/stats/v1", params ={
         'token': user2_token
     })
