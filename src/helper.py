@@ -565,11 +565,13 @@ def dm_id_to_dm_name(dm_id):
         if dm['dm_id'] == dm_id:
             return dm['name']
 
-
 ######################################################
-########## Helper functions for users.py #############
+########### Helper functions for user.py #############
 ######################################################
 
+# Helper function for user/stat
+# Appends num_channels_joined and time_stamp when 
+# the user joins/being invited to a channel 
 def get_user_channel_stats(auth_user_id):
     user = get_user_details(auth_user_id)
     number = len(user['channels_joined'])
@@ -579,6 +581,8 @@ def get_user_channel_stats(auth_user_id):
         'time_stamp': int(time.time())
     })
 
+# Helper function for user/stat
+# Appends num_channels_joined and time_stamp when the user leave a channel 
 def get_user_leave_channel_stats(auth_user_id):
     user = get_user_details(auth_user_id)
     number = len(user['channels_joined'])
@@ -588,6 +592,8 @@ def get_user_leave_channel_stats(auth_user_id):
         'time_stamp': int(time.time())
     })
 
+# Helper function for user/stat
+# Appends num_dms_joined and time_stamp when the user creates a dm
 def get_user_dm_stats(auth_user_id):
     user = get_user_details(auth_user_id)
     number = len(user['dms_joined'])
@@ -597,6 +603,8 @@ def get_user_dm_stats(auth_user_id):
         'time_stamp': int(time.time())
     })
 
+# Helper function for user/stat
+# Appends num_dms_joined and time_stamp when the user leaves/removes a dm
 def get_user_leave_dm_stats(auth_user_id):
     user = get_user_details(auth_user_id)
     number = len(user['dms_joined'])
@@ -606,6 +614,9 @@ def get_user_leave_dm_stats(auth_user_id):
         'time_stamp': int(time.time())
     })
 
+# Helper function for user/stat
+# Appends num_messages_sent and time_stamp when the user sends 
+# a message in dm/ channel
 def get_user_message_stats(auth_user_id):
     user = get_user_details(auth_user_id)
     number = len(user['messages_sent'])
@@ -615,6 +626,9 @@ def get_user_message_stats(auth_user_id):
         'time_stamp': int(time.time())
     })
 
+# Helper function for user/stat
+# Appends num_messages_sent and time_stamp when the user removes 
+# a message in dm/channel
 def get_user_message_remove_stats(auth_user_id):
     user = get_user_details(auth_user_id)
     number = len(user['messages_sent'])
@@ -624,6 +638,8 @@ def get_user_message_remove_stats(auth_user_id):
         'time_stamp': int(time.time())
     })
 
+# Helper function for user/stat
+# Gets the total number of messages in dm and channels
 def get_messages_total_number():
     number = 0
     for channel in get_data()['channels']:
