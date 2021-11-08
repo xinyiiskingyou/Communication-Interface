@@ -113,7 +113,7 @@ def test_details_return_values_pub_h(global_owner, create_channel):
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee',
-                'profile_img_url': 'static/default_pic'
+                'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
             }
         ],
         'all_members': [
@@ -123,7 +123,7 @@ def test_details_return_values_pub_h(global_owner, create_channel):
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee',
-                'profile_img_url': 'static/default_pic'
+                'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
             }
         ]
     })
@@ -160,7 +160,7 @@ def test_details_return_values_priv_h(global_owner):
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee',
-                'profile_img_url': 'static/default_pic'
+                'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
             }
         ],
         'all_members': [
@@ -170,7 +170,7 @@ def test_details_return_values_priv_h(global_owner):
                 'name_first': 'anna',
                 'name_last': 'lee',
                 'handle_str': 'annalee',
-                'profile_img_url': 'static/default_pic'
+                'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
             }
         ]
     })

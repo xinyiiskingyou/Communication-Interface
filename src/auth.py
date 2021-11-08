@@ -167,9 +167,9 @@ def auth_register_v2(email, password, name_first, name_last):
     time_created = int(time.time())
 
     # Deafult profile photo
-    img_url = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
-    img_name = "src/static/default_pic"
-    urllib.request.urlretrieve(img_url, img_name)
+    img_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+    #img_name = "src/static/default_pic"
+    #urllib.request.urlretrieve(img_url, img_name)
 
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
