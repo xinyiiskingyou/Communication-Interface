@@ -188,7 +188,6 @@ def test_details_return_values_invite_h(global_owner, register_user2, create_cha
         'channel_id': channel_id1,
         'u_id': u_id
     })
-
     assert invite2.status_code == VALID
 
     # Get details of channel
