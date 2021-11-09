@@ -253,7 +253,7 @@ def test_search_query_str_number(global_owner, create_dm):
     user1_token = global_owner['token']
     dm_id = create_dm['dm_id']
 
-    send_message_dm = requests.post(config.url + "message/senddm/v1", json = {
+    requests.post(config.url + "message/senddm/v1", json = {
         'token': user1_token,
         'dm_id': dm_id, 
         'message': '345'
@@ -329,7 +329,7 @@ def test_search_query_str_not_found(global_owner, create_dm):
     user1_token = global_owner['token']
     dm_id = create_dm['dm_id']
 
-    send_message_dm = requests.post(config.url + "message/senddm/v1", json = {
+    requests.post(config.url + "message/senddm/v1", json = {
         'token': user1_token,
         'dm_id': dm_id, 
         'message': 'hello'
