@@ -125,3 +125,4 @@ def test_standup_valid_active(global_owner, create_channel):
 
     assert json.loads(resp1.text)['is_active'] == True
     assert json.loads(resp1.text)['time_finish'] != None
+    time.sleep(3)

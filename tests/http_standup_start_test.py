@@ -1,6 +1,7 @@
 import pytest
 import requests
 import json
+import time
 from src import config
 from tests.fixture import global_owner, register_user2, register_user3
 from tests.fixture import user1_channel_message_id, create_channel
@@ -137,3 +138,4 @@ def test_standup_valid_no_message(global_owner, create_channel):
     assert resp1.status_code == VALID
 
     assert json.loads(resp1.text)['time_finish'] != None
+    time.sleep(3)
