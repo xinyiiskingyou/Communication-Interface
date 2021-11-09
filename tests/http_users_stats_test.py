@@ -1,11 +1,13 @@
 import pytest
 import requests
 import json
+import time
 from src import config
 from tests.fixture import global_owner, register_user2, register_user3, create_channel
 from tests.fixture import user1_channel_message_id, user1_send_dm, create_dm
 from tests.fixture import VALID, ACCESSERROR
 
+TIME_WAIT = 3
 ##########################################
 ############ users_stats tests ############
 ##########################################
@@ -244,6 +246,208 @@ def test_users_stats_valid_user_send_and_remove_message(global_owner, create_cha
     assert json.loads(stats3.text)['workspace_stats']['dms_exist'][0]['num_dms_exist'] == 0
     assert json.loads(stats3.text)['workspace_stats']['dms_exist'][0]['time_stamp'] != 0
     assert len(json.loads(stats3.text)['workspace_stats']['dms_exist']) == 1
+
+    assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['num_messages_exist'] == 0
+    assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['time_stamp'] != 1
+    assert len(json.loads(stats3.text)['workspace_stats']['messages_exist']) == 3
+
+    assert json.loads(stats3.text)['workspace_stats']['utilization_rate'] == 1.0
+
+# Message is sent later in channel then message is removed
+def test_users_stats_valid_user_sendlater_and_remove_message(global_owner, create_channel):
+    user1_token = global_owner['token']
+    channel1_id = create_channel['channel_id']
+
+    stats1 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats1.status_code == VALID
+
+    assert json.loads(stats1.text)['workspace_stats']['channels_exist'][1]['num_channels_exist'] == 1
+    assert len(json.loads(stats1.text)['workspace_stats']['channels_exist']) == 2
+    # test the timestamp is not equal to 0
+    assert json.loads(stats1.text)['workspace_stats']['channels_exist'][1]['time_stamp'] != 0
+
+    assert json.loads(stats1.text)['workspace_stats']['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats1.text)['workspace_stats']['dms_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats1.text)['workspace_stats']['dms_exist']) == 1
+
+    assert json.loads(stats1.text)['workspace_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats1.text)['workspace_stats']['messages_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats1.text)['workspace_stats']['messages_exist']) == 1
+
+    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 1.0
+
+    time_sent = TIME_WAIT + int(time.time())
+    send_message = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': user1_token,
+        'channel_id': channel1_id, 
+        'message': 'hello there',
+        'time_sent': time_sent
+    })
+    message1_id = json.loads(send_message.text)['message_id']
+
+    stats2 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats2.status_code == VALID
+    assert json.loads(stats2.text)['workspace_stats']['messages_exist'][1]['num_messages_exist'] == 1
+    assert json.loads(stats2.text)['workspace_stats']['messages_exist'][1]['time_stamp'] != 1
+    assert len(json.loads(stats2.text)['workspace_stats']['messages_exist']) == 2
+
+    remove_message1 = requests.delete(config.url + "message/remove/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+    })
+    assert remove_message1.status_code == VALID
+
+    stats3 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats3.status_code == VALID
+
+    assert json.loads(stats3.text)['workspace_stats']['channels_exist'][1]['num_channels_exist'] == 1
+    assert len(json.loads(stats3.text)['workspace_stats']['channels_exist']) == 2
+    # test the timestamp is not equal to 0
+    assert json.loads(stats3.text)['workspace_stats']['channels_exist'][0]['time_stamp'] != 0
+
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][0]['num_dms_exist'] == 0
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats3.text)['workspace_stats']['dms_exist']) == 1
+
+    assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['num_messages_exist'] == 0
+    assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['time_stamp'] != 1
+    assert len(json.loads(stats3.text)['workspace_stats']['messages_exist']) == 3
+
+    assert json.loads(stats3.text)['workspace_stats']['utilization_rate'] == 1.0
+
+# Message is sent in dm then message is removed
+def test_users_stats_valid_user_senddm_and_remove_message(global_owner, create_dm):
+    user1_token = global_owner['token']
+    dm1_id = create_dm['dm_id']
+
+    stats1 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats1.status_code == VALID
+
+    assert json.loads(stats1.text)['workspace_stats']['channels_exist'][0]['num_channels_exist'] == 0
+    assert len(json.loads(stats1.text)['workspace_stats']['channels_exist']) == 1
+    # test the timestamp is not equal to 0
+    assert json.loads(stats1.text)['workspace_stats']['channels_exist'][0]['time_stamp'] != 0
+
+    assert json.loads(stats1.text)['workspace_stats']['dms_exist'][1]['num_dms_exist'] == 1
+    assert json.loads(stats1.text)['workspace_stats']['dms_exist'][1]['time_stamp'] != 0
+    assert len(json.loads(stats1.text)['workspace_stats']['dms_exist']) == 2
+
+    assert json.loads(stats1.text)['workspace_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats1.text)['workspace_stats']['messages_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats1.text)['workspace_stats']['messages_exist']) == 1
+
+    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 1.0
+
+    send_message = requests.post(config.url + "/message/senddm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm1_id, 
+        'message': 'hello there'
+    })
+    message1_id = json.loads(send_message.text)['message_id']
+
+    stats2 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats2.status_code == VALID
+    assert json.loads(stats2.text)['workspace_stats']['messages_exist'][1]['num_messages_exist'] == 1
+    assert json.loads(stats2.text)['workspace_stats']['messages_exist'][1]['time_stamp'] != 1
+    assert len(json.loads(stats2.text)['workspace_stats']['messages_exist']) == 2
+
+    remove_message1 = requests.delete(config.url + "message/remove/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+    })
+    assert remove_message1.status_code == VALID
+
+    stats3 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats3.status_code == VALID
+
+    assert json.loads(stats3.text)['workspace_stats']['channels_exist'][0]['num_channels_exist'] == 0
+    assert len(json.loads(stats3.text)['workspace_stats']['channels_exist']) == 1
+    # test the timestamp is not equal to 0
+    assert json.loads(stats3.text)['workspace_stats']['channels_exist'][0]['time_stamp'] != 0
+
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][1]['num_dms_exist'] == 1
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][1]['time_stamp'] != 0
+    assert len(json.loads(stats3.text)['workspace_stats']['dms_exist']) == 2
+
+    assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['num_messages_exist'] == 0
+    assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['time_stamp'] != 1
+    assert len(json.loads(stats3.text)['workspace_stats']['messages_exist']) == 3
+
+    assert json.loads(stats3.text)['workspace_stats']['utilization_rate'] == 1.0
+
+# Message is sent in dm later then message is removed
+def test_users_stats_valid_user_senddm_later_and_remove_message(global_owner, create_dm):
+    user1_token = global_owner['token']
+    dm1_id = create_dm['dm_id']
+
+    stats1 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats1.status_code == VALID
+
+    assert json.loads(stats1.text)['workspace_stats']['channels_exist'][0]['num_channels_exist'] == 0
+    assert len(json.loads(stats1.text)['workspace_stats']['channels_exist']) == 1
+    # test the timestamp is not equal to 0
+    assert json.loads(stats1.text)['workspace_stats']['channels_exist'][0]['time_stamp'] != 0
+
+    assert json.loads(stats1.text)['workspace_stats']['dms_exist'][1]['num_dms_exist'] == 1
+    assert json.loads(stats1.text)['workspace_stats']['dms_exist'][1]['time_stamp'] != 0
+    assert len(json.loads(stats1.text)['workspace_stats']['dms_exist']) == 2
+
+    assert json.loads(stats1.text)['workspace_stats']['messages_exist'][0]['num_messages_exist'] == 0
+    assert json.loads(stats1.text)['workspace_stats']['messages_exist'][0]['time_stamp'] != 0
+    assert len(json.loads(stats1.text)['workspace_stats']['messages_exist']) == 1
+
+    assert json.loads(stats1.text)['workspace_stats']['utilization_rate'] == 1.0
+
+    time_sent = TIME_WAIT + int(time.time())
+    send_message = requests.post(config.url + "/message/sendlaterdm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm1_id, 
+        'message': 'hello there',
+        'time_sent': time_sent
+    })
+    message1_id = json.loads(send_message.text)['message_id']
+
+    stats2 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats2.status_code == VALID
+    assert json.loads(stats2.text)['workspace_stats']['messages_exist'][1]['num_messages_exist'] == 1
+    assert json.loads(stats2.text)['workspace_stats']['messages_exist'][1]['time_stamp'] != 1
+    assert len(json.loads(stats2.text)['workspace_stats']['messages_exist']) == 2
+
+    remove_message1 = requests.delete(config.url + "message/remove/v1", json = {
+        'token': user1_token,
+        'message_id': message1_id,
+    })
+    assert remove_message1.status_code == VALID
+
+    stats3 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats3.status_code == VALID
+
+    assert json.loads(stats3.text)['workspace_stats']['channels_exist'][0]['num_channels_exist'] == 0
+    assert len(json.loads(stats3.text)['workspace_stats']['channels_exist']) == 1
+    # test the timestamp is not equal to 0
+    assert json.loads(stats3.text)['workspace_stats']['channels_exist'][0]['time_stamp'] != 0
+
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][1]['num_dms_exist'] == 1
+    assert json.loads(stats3.text)['workspace_stats']['dms_exist'][1]['time_stamp'] != 0
+    assert len(json.loads(stats3.text)['workspace_stats']['dms_exist']) == 2
 
     assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['num_messages_exist'] == 0
     assert json.loads(stats3.text)['workspace_stats']['messages_exist'][2]['time_stamp'] != 1
