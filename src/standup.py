@@ -1,11 +1,10 @@
-from src.error import InputError, AccessError
-from src.auth import auth_register_v2
-from src.helper import check_valid_channel_id
-from src.server_helper import valid_user, decode_token
-import threading 
 import time 
+from src.data_store import get_data, save
+from src.error import InputError, AccessError
+from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_channel_details, get_handle
+from src.server_helper import valid_user, decode_token
+from src.message import message_sendlater_v1
 from datetime import datetime, timezone
-
 
 def standup_start_v1(token, channel_id, length):
     '''
@@ -26,7 +25,6 @@ def standup_start_v1(token, channel_id, length):
         Returns time_finish when the time is up. 
     ''' 
 
-
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
@@ -35,29 +33,30 @@ def standup_start_v1(token, channel_id, length):
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int) or not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel_id does not refer to a valid channel')
-    
+
+    channel = get_data()['channels']
+    # channel_id is valid and the authorised user is not a member of the channel
+    if not check_valid_member_in_channel(channel_id, auth_user_id):
+        raise AccessError(description = 'The authorised user is not a member of the channel')
+
+    # length is a negative integer
     if length < 0: 
         raise InputError(description = 'Length` cannot be a negative number')
-    
-    for user in get_data()['users']: 
-        if user['u_id'] = auth_user_id: 
-            channel['standup']['u_id_start'] = user
-    
-     for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id: 
-            time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
-            t1 = threading.Thread(target = thread_helper, arg[length, auth_user_id, channel_id])
-            t1.daemon = True
-            channel['standup']['standup_active'] = True
-            t1.start()
-            channel['standup']['time_finished'] = time_finish
-            return {'time_finish': time_finish
 
-            
+    for channel in get_data()['channels']:
+        if channel['channel_id'] == channel_id:
+            if channel['standup']['is_active'] == True:
+                raise InputError('An active standup is currently running in the channel')
+            else:
+                channel['standup']['is_active'] = True
+                time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
+                channel['standup']['time_finish'] = int(time_finish)
+                save()
+    return {'time_finish': time_finish}
 
 def standup_active_v1(token, channel_id):
-        '''
-    <Gives the status of the standup as well as the time it will finish>
+    '''
+    For a given channel, return whether a standup is active in it, and what time the standup finishes. 
 
     Arguments:
         token (string)    - a user's unique token 
@@ -77,25 +76,35 @@ def standup_active_v1(token, channel_id):
     auth_user_id = decode_token(token)
 
     # Input error when channel_id does not refer to a valid channel
-    if not isinstance(channel_id, int) or not check_valid_channel_id(channel_id):
+    if not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel_id does not refer to a valid channel')
+
+    # channel_id is valid and the authorised user is not a member of the channel
+    if not check_valid_member_in_channel(channel_id, auth_user_id):
+        raise AccessError(description = 'The authorised user is not a member of the channel')
 
     for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
-            is_active = channel['standup']['standup_active']
-            time_finish = channel['standup']['time_finished']
+            # If no standup is active, then time_finish returns None.
+            if channel['standup']['is_active'] == False:
+                return {
+                    'is_active': False,
+                    'time_finish': None
+                }
 
-            
+            # if standup has finished
+            current_time = int(time.time())
+            if channel['standup']['time_finish'] < current_time:
+                return {
+                    'is_active': False,
+                    'time_finish': None
+                }
+    
+        return {'is_active': True, 'time_finish': channel['standup']['time_finish']}
 
-
-    return {is_active, time_finish}
-
-###can process them in here### and then send them through a thread 
 def standup_send_v1(token, channel_id, message): 
-            '''
-    <takes the messages sent during the standup and queues them 
-        once the timer is up, compiles the messaages into a single message
-        and sent by the user who started the standup >
+    '''
+    Sending a message to get buffered in the standup queue, assuming a standup is currently active.
 
     Arguments:
         token (string)    - a user's unique token 
@@ -108,51 +117,32 @@ def standup_send_v1(token, channel_id, message):
     Return Value:
         Returns if the standup is active and the time is finishes(finished)
     '''  
-    # queue  = [] 
     if not valid_user(token):
         raise AccessError(description='User is not valid')
 
     auth_user_id = decode_token(token)
-
+    
     # Input error when channel_id does not refer to a valid channel
     if not isinstance(channel_id, int) or not check_valid_channel_id(channel_id):
         raise InputError(description = 'Channel_id does not refer to a valid channel')
 
+    # channel_id is valid and the authorised user is not a member of the channel
+    if not check_valid_member_in_channel(channel_id, auth_user_id):
+        raise AccessError(description = 'The authorised user is not a member of the channel')
+    
+    # message is over 1000 characters long
     if len(message) > 1000: 
         raise InputError(description = 'message is over 1000 characters long')
+    
+    # an active standup is not currently running in the channel
+    for channel in get_data()['channels']:
+        if channel['channel_id'] == channel_id:
+            if channel['standup']['is_active'] == False:
+                raise InputError(description = 'Standup is not currently running in the channel')
+            else:
+                handle = get_handle(auth_user_id)
+                standup_message = handle + ': ' + message
+                channel['standup']['queue'] += standup_message
+                save()
 
-    if standup_active_v1(token, channel_id) == False: 
-        raise InputError 
-        queue = []
-        for channel in get_data()['channels']:
-            if channel['channel_id'] == channel_id:
-                if channel['standup']['standup_active'] == True: 
-                    standup_message_queue(token, message, channel_id)
     return {}
-
-
-#### scrap code ### 
-
- 
-##helper function for storing the messages that aren't the last one## 
-
-def standup_message_queue(token, message, channel_id):
-    if not valid_user(token):
-        raise AccessError(description='User is not valid')
-
-    auth_user_id = decode_token(token)
-    for user in get_data()['users']: 
-        if user['u_id'] = auth_user_id: 
-            newuser = user['handle_str'] 
-    standup_mess = newuser + ":" + message + '\n'
-    for channel in get_data()['channels']: 
-        if channel['channel_id'] == channel_id: 
-            channel['standup']['message'] = channel['standup']['message'] + message
-
-##pause and then after it's done grab the messages from standup_messages and send them 
-def thread_helper(length, token, channel_id):
-    time.sleep(length)
-    auth_user_id = decode_token(token)
-    channel['standup']['standup_active'] = False
-    s_message = channel['standup']['standup_message']
-    message_send_v1(token, channel_id, s_message)

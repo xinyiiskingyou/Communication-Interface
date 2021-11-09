@@ -1,12 +1,12 @@
 import signal
 from json import dumps
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
 from src.error import InputError
 from src import config
 
 from src.admin import admin_user_remove_v1, admin_userpermission_change_v1
-from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1
+from src.auth import auth_register_v2, auth_login_v2, auth_logout_v1, auth_passwordreset_request_v1, auth_passwordreset_reset_v1
 from src.channels import channels_listall_v2,channels_create_v2, channels_list_v2
 from src.channel import channel_join_v2, channel_details_v2, channel_invite_v2, channel_leave_v1
 from src.channel import channel_removeowner_v1, channel_addowner_v1, channel_messages_v2
@@ -14,7 +14,10 @@ from src.dm import dm_create_v1, dm_list_v1, dm_remove_v1, dm_details_v1, messag
 from src.message import message_send_v1, message_edit_v1, message_remove_v1, message_react_v1, message_unreact_v1, message_pin_v1
 from src.message import message_unpin_v1, message_sendlater_v1, message_sendlaterdm_v1, message_share_v1
 from src.user import user_profile_sethandle_v1, user_profile_setemail_v1, user_profile_setname_v1, user_profile_v1, users_all_v1
+from src.standup import standup_start_v1, standup_active_v1, standup_send_v1
+from src.user import user_stats_v1, user_profile_uploadphoto_v1, users_stats_v1
 from src.notifications import notifications_get_v1
+from src.search import search_v1
 from src.other import clear_v1
 
 def quit_gracefully(*args):
@@ -32,7 +35,7 @@ def defaultHandler(err):
     response.content_type = 'application/json'
     return response
 
-APP = Flask(__name__)
+APP = Flask(__name__, static_url_path='/static/')
 CORS(APP)
 
 APP.config['TRAP_HTTP_EXCEPTIONS'] = True
@@ -88,6 +91,20 @@ def logout():
     resp = auth_logout_v1(json['token'])
     return dumps(resp)
 
+# Creates a random string of letters and numbers
+# Used to validify a user when reseting password
+@APP.route("/auth/passwordreset/request/v1", methods=['POST'])
+def pass_request():
+    json = request.get_json()
+    resp = auth_passwordreset_request_v1(json['email'])
+    return dumps(resp)
+
+# Uses code from passwordreset_request to change password
+@APP.route("/auth/passwordreset/reset/v1", methods=['POST'])
+def pass_reset():
+    json = request.get_json()
+    resp = auth_passwordreset_reset_v1(json['reset_code'], json['new_password'])
+    return dumps(resp)
 
 ############ CHANNELS #################
 
@@ -111,7 +128,6 @@ def channels_list():
 @APP.route ("/channels/listall/v2", methods= ['GET'])
 def listall():
     return dumps(channels_listall_v2(request.args.get('token')))
-
 
 ############ CHANNEL #################
 
@@ -167,14 +183,15 @@ def channel_messages():
     start = int(request.args.get('start'))
     return dumps(channel_messages_v2(token, channel_id, start))
 
-
-############ USER #################
+############ USERS #################
 
 # Returns information about all users
 @APP.route("/users/all/v1", methods=['GET'])
 def user_all(): 
     token = (request.args.get('token'))
     return dumps(users_all_v1(token))
+
+############## USER #################
 
 # Returns information about 1 user
 @APP.route("/user/profile/v1", methods=['GET'])
@@ -203,6 +220,26 @@ def user_sethandle():
     resp = user_profile_sethandle_v1(json['token'], json['handle_str'])
     return dumps(resp)
 
+# Returns information about 1 user
+@APP.route("/user/stats/v1", methods=['GET'])
+def user_stats(): 
+    result = user_stats_v1(request.args.get('token'))
+    return dumps(result)
+
+@APP.route("/users/stats/v1", methods=['GET'])
+def users_stats(): 
+    result = users_stats_v1(request.args.get('token'))
+    return dumps(result)
+# Uploads given photo to given dimensions
+@APP.route('/user/profile/uploadphoto/v1', methods=['POST'])
+def user_uploadphoto():
+    json = request.get_json()
+    resp = user_profile_uploadphoto_v1(json['token'], json['img_url'], json['x_start'], json['y_start'], json['x_end'], json['y_end'])
+    return dumps(resp)
+
+@APP.route('/static/<path:path>')
+def send_js(path):
+    return send_from_directory('', path)
 
 ############ MESSAGE ############
 
@@ -276,6 +313,7 @@ def message_sendlaterdm():
     json = request.get_json()
     resp = message_sendlaterdm_v1(json['token'], json['dm_id'], json['message'], json['time_sent'])
     return dumps(resp)
+
 # Message is shared to another channel/DM. An optional message can be added 
 # onto the shared message
 @APP.route("/message/share/v1", methods=['POST'])
@@ -283,7 +321,6 @@ def message_share():
     json = request.get_json()
     resp = message_share_v1(json['token'], json['og_message_id'], json['message'], json['channel_id'], json['dm_id'])
     return dumps(resp)
-
 
 ############ DM #################
 
@@ -331,7 +368,6 @@ def dm_leave():
     resp = dm_leave_v1(json['token'], json['dm_id'])
     return dumps(resp)
 
-
 ############ ADMIN #################
 
 # Given a user by their u_id, remove them from the Streams
@@ -349,6 +385,7 @@ def admin_userpermission():
     resp = admin_userpermission_change_v1(json['token'], json['u_id'], json['permission_id'])
     return dumps(resp)
 
+
 ############ NOTIFICATIONS #################
 
 # Return the user's most recent 20 notifications, ordered from most recent to least recent.
@@ -357,24 +394,34 @@ def notifications_get():
     token = (request.args.get('token'))
     return dumps(notifications_get_v1(token))
 
+############ SEARCH #################
+
+# Given a query string, return a collection of messages in all of the channels/DMs that the
+# user has joined that contain the query.
+@APP.route("/search/v1", methods=['GET'])
+def search():
+    token = (request.args.get('token'))
+    query_str = (request.args.get('query_str'))
+    return dumps(search_v1(token, query_str))
+
 ######## STANDUP ######## 
 @APP.route("/standup/start/v1", methods=['POST'])
 def standup_start(): 
     json = request.get_json() 
-    resp = standup_start(json['token'], json['channel_id'], json['length'])
+    resp = standup_start_v1(json['token'], json['channel_id'], json['length'])
     return dumps(resp)
 
 @APP.route("/standup/send/v1", methods=['POST'])
 def standup_send(): 
     json = request.get_json() 
-    resp = standup_send(json['token'], json['channel_id'], json['message'])
+    resp = standup_send_v1(json['token'], json['channel_id'], json['message'])
     return dumps(resp)
 
 @APP.route("/standup/active/v1", methods = ['GET'])
 def standup_active(): 
     token = (request.args.get('token'))
     channel_id = (request.args.get('channel_id'))
-    return dumps(standup_active(token, channel_id))
+    return dumps(standup_active_v1(token, channel_id))
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT

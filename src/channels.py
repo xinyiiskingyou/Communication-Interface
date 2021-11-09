@@ -1,9 +1,11 @@
 '''
 Channels implementation
 '''
+import time
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
-from src.helper import user_info, get_channel_member
+from src.helper import user_info, get_channel_member, get_user_channel_stats
+from src.helper import users_stats_update_channels
 from src.server_helper import decode_token, valid_user
 
 def channels_list_v2(token):
@@ -97,11 +99,14 @@ def channels_create_v2(token, name, is_public):
         raise InputError(description='Name cannot be blank')
 
     channels = get_data()['channels']
-
+    time_created = int(time.time())
     # generate channel_id according the number of existing channels
     channel_id = len(channels) + 1
-    standups = {'standup_active': False, 'time_finished': None, "message":"", 'u_id_start': 0, 'message_sent': True}
+
+    get_user_channel_stats(auth_user_id)
+    save()
     user = user_info(auth_user_id)
+    is_active = False
     get_data()['channels'].append({
         'channel_id': channel_id,
         'name': name,
@@ -109,10 +114,19 @@ def channels_create_v2(token, name, is_public):
         'owner_members': [user],
         'all_members': [user],
         'messages': [],
-        'standup': standups
+        'time_stamp': time_created,
+        'standup':  {
+            'is_active': bool(is_active), 
+            'time_finish': 0,
+            'queue': ''
+        }
     })
-
     save()
+
+    # For users/stats, append new stat in 'channels_exist'
+    users_stats_update_channels(1)
+    save()
+
     return {
         'channel_id': channel_id,
     }

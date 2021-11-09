@@ -29,11 +29,12 @@ Example usage:
 
 ## YOU SHOULD MODIFY THIS OBJECT BELOW
 initial_object = {
-    'users': [],
-    'channels': [],     # list of dictionaries of channels
-    'messages': [],     # list of dictionaries of messages
-    'dms': [],           # list of dictionaries of dms 
-    'complete_dms': []
+    'users': [],            # list of dictionaries of users
+    'channels': [],         # list of dictionaries of channels
+    'messages': [],         # list of dictionaries of messages
+    'dms': [],              # list of dictionaries of dms 
+    'complete_dms': [],     # list of dictionaries of complete dms
+    'workspace_stats': {}   # workspace_stats
 }
 
 ##### Persistence #####

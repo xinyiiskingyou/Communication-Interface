@@ -128,7 +128,7 @@ def test_standup_active_invalid_token(global_owner, create_channel):
 
 
 def test_standup_valid(global_owner, create_channel):
-    token = global_user['token']
+    token = global_owner['token']
     channel = create_channel['channel_id']
 
     start = requests.post(config.url + "standup/start/v1", json ={

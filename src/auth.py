@@ -2,7 +2,12 @@
 Auth implementation
 '''
 import re
+import string
+import random
+import smtplib 
 import hashlib
+import time
+import urllib.request
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.server_helper import generate_token, generate_sess_id
@@ -117,6 +122,7 @@ def auth_register_v2(email, password, name_first, name_last):
     token = generate_token(auth_user_id, session_id)
 
     password = hashlib.sha256(password.encode()).hexdigest() 
+    reset_code = ''
 
     # Creating handle and adding to dict_user
     handle = (name_first + name_last).lower()
@@ -139,14 +145,31 @@ def auth_register_v2(email, password, name_first, name_last):
         else:
             i += 1
 
+    # the time when the account create
+    time_created = int(time.time())
+
     # Permission id for streams users
     if auth_user_id == 1:
         permission_id = 1
+        get_data()['workspace_stats'] = {
+            'channels_exist': [{'num_channels_exist': int(0), 'time_stamp': time_created}],
+            'dms_exist': [{'num_dms_exist': int(0), 'time_stamp': time_created}],
+            'messages_exist': [{'num_messages_exist': int(0), 'time_stamp': time_created}],
+            'utilization_rate': float(0.0)
+        }
+        save()
     else:
         permission_id = 2
 
     # all the users are not be removed when they register
     is_removed = False
+    # the time when the account create
+    time_created = int(time.time())
+
+    # Deafult profile photo
+    img_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+    #img_name = "src/static/default_pic"
+    #urllib.request.urlretrieve(img_url, img_name)
 
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
@@ -159,11 +182,101 @@ def auth_register_v2(email, password, name_first, name_last):
         'handle_str' : handle,
         'permission_id' : permission_id,
         'is_removed': bool(is_removed),
+        'reset_code': reset_code,
+        'time_stamp': time_created,
         'all_notifications': [],
+        'profile_img_url': img_url,
+        # store the data for user/stats
+        # the first time_stamp will be the time when a user registers
+        'channels_joined': [{
+            'num_channels_joined': 0,
+            'time_stamp': time_created
+        }],
+        'dms_joined': [{
+            'num_dms_joined': 0,
+            'time_stamp': time_created
+        }],
+        'messages_sent':[{
+            'num_messages_sent': 0,
+            'time_stamp': time_created
+        } 
+        ]
     })
+
     save()
 
     return {
         'token': token,
         'auth_user_id': auth_user_id
     }
+
+def auth_passwordreset_request_v1(email):
+    '''
+    Given a user's email address, if they are a registered user, sends an email containing a
+    reset code to passwordrequest_reset that when entered into the passwordrequest_reset function,
+    shows that the user trying to reset the password is the one who got sent the email
+
+    Arguments:
+        <email>      (<string>)    - correct format of an email of the user
+
+    Exceptions:
+        N/A
+
+    Return Value:
+        Returns <{}> when user successfully requests a password reset
+    '''
+    reset_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_letters) for i in range(20)) 
+    # Get valid user
+    for user in get_data()['users']:
+        if user['email'] == email:
+            # Assign reset code
+            user['reset_code'] = reset_code
+
+            # Send email
+            mail = smtplib.SMTP('smtp.gmail.com', 587)
+            mail.ehlo()
+            mail.starttls()
+            mail.login('camel5363885@gmail.com', 'camel_password!')
+            mail.sendmail('camel5363885@gmail.com', email, reset_code)
+            mail.close
+
+            # Log them out of all sessions
+            user['session_list'].clear
+            save()
+   
+    return {}
+
+def auth_passwordreset_reset_v1(reset_code, new_password):
+    '''
+    Given a reset code for a user, set that user's new password to the password provided
+
+    Arguments:
+        <reset_code>      (<string>)    - random length of string 20 consisting of uppercase
+                                        and lowercase letters
+
+    Exceptions:
+        InputError  - Occurs when reset_code entered is not valid
+                    - Occurs when new_password entered is < 6 characters in length 
+
+    Return Value:
+        Returns <{}> when user successfully changes password
+    '''
+
+    # Invalid password length
+    if len(new_password) in range(6):
+        raise InputError(description='Password entered is less then  6 characers in length')
+
+    # Invalid reset_code
+    if reset_code is None:
+        raise InputError(description='Invalid reset_code')
+
+    # Get valid user
+    for user in get_data()['users']:
+        if user['reset_code'] == reset_code:
+            # Hashing new password and setting reset code to empty string
+            new_password = hashlib.sha256(new_password.encode()).hexdigest() 
+            user['password'] = new_password
+            user['reset_code'] = ''
+            save()
+    
+    return {}

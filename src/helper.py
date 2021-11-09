@@ -2,6 +2,7 @@
 Helper functions
 '''
 import re
+import time
 from src.data_store import get_data
 
 #Helper function for channels_create, channel_invite, channel_join
@@ -17,13 +18,13 @@ def user_info(auth_user_id):
         'email': user['email'],
         'name_first': user['name_first'],
         'name_last': user['name_last'],
-        'handle_str': user['handle_str']
+        'handle_str': user['handle_str'],
+        'profile_img_url': user['profile_img_url']
     }
 
 #################################################
 ####### Helper functions for channels.py ########
 #################################################
-
 
 # Helper function for channel_list, channel_listall, channel_create
 # Checks if the auth_user_id given is registered
@@ -109,11 +110,10 @@ def check_valid_member_in_channel(channel_id, auth_user_id):
     '''
     return type: bool
     '''
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            for member in channel['all_members']:
-                if member['u_id'] == auth_user_id:
-                    return True
+    channel = get_channel_details(channel_id)
+    for member in channel['all_members']:
+        if member['u_id'] == auth_user_id:
+            return True
     return False
 
 # Helper function for channel_join
@@ -124,10 +124,9 @@ def check_channel_private(channel_id):
     '''
     return type: bool
     '''
-    for channels in get_data()['channels']:
-        if channels['channel_id'] == channel_id:
-            if not channels['is_public']:
-                return True
+    channel = get_channel_details(channel_id)
+    if not channel['is_public']:
+        return True
     return False
 
 # Helper function for channel_join
@@ -138,11 +137,10 @@ def check_permision_id(auth_user_id):
     '''
     return type: bool
     '''
-    for user in get_data()['users']:
-        if user['auth_user_id'] == auth_user_id:
-            # If the user is a global owner
-            if user['permission_id'] == 1:
-                return True
+    user = get_user_details(auth_user_id)
+    # If the user is a global owner
+    if user['permission_id'] == 1:
+        return True
     return False
 
 # Helper function for channel_join
@@ -150,11 +148,10 @@ def check_permision_id(auth_user_id):
 # Returns true if owner
 # Returns false otherwise
 def check_valid_owner(auth_user_id, channel_id):
-    for channels in get_data()['channels']:
-        if channels['channel_id'] == channel_id:
-            for member in channels['owner_members']:
-                if member['u_id'] == auth_user_id:
-                    return True
+    channel = get_channel_details(channel_id)
+    for member in channel['owner_members']:
+        if member['u_id'] == auth_user_id:
+            return True
     return False
 
 # Helper function for channel_addowner, channel_removeowner
@@ -164,30 +161,15 @@ def check_valid_owner(auth_user_id, channel_id):
 def check_channel_owner_permission(auth_user_id, channel_id):
     found_permission = 0
 
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            for member in channel['all_members']:
-                if member['u_id'] == auth_user_id:
-                    if check_permision_id(member['u_id']):
-                        found_permission = 1
-            for owner in channel['owner_members']:
-                if owner['u_id'] == auth_user_id:
-                    found_permission = 1
+    channel = get_channel_details(channel_id)
+    for member in channel['all_members']:
+        if member['u_id'] == auth_user_id:
+            if check_permision_id(member['u_id']):
+                found_permission = 1
+    if check_valid_owner(auth_user_id, channel_id):
+        found_permission = 1
 
     if found_permission == 1:
-        return True
-    return False
-
-# Helper function for user_profile_setemail
-# Checks valid email
-# Returns true if valid
-# Returns empty dict otherwise
-def check_valid_email(email):
-    '''
-    check if the email is valid
-    '''
-    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
-    if re.search(search, email):
         return True
     return False
 
@@ -248,20 +230,14 @@ def check_valid_message_id(auth_user_id, message_id):
     # Go through channels to determine if user is part of channel of that message_id
     found_user = 0
     if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            if channel['channel_id'] == channel_dm_id:
-                for member in channel['all_members']:
-                    if member['u_id'] == auth_user_id:
-                        found_user = 1
+        if check_valid_member_in_channel(channel_dm_id, auth_user_id):
+            found_user = 1
 
     # If message_id is odd, message is from DM
     # Go through DMs to determine if user is part of DM of that message_id
     elif message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            if dm['dm_id'] == channel_dm_id:
-                for member in dm['members']:
-                    if member['u_id'] == auth_user_id:
-                        found_user = 1
+        if check_valid_member_in_dm(channel_dm_id, auth_user_id):
+            found_user = 1
 
     # In the case where message being edited is part of a channel, 
     # check if auth_user_id is global owner of Streams
@@ -305,18 +281,13 @@ def check_authorised_user_edit(auth_user_id, message_id):
     # If channel_dm_id is odd, this means that message is from channel
     found_owner_creator = 0
     if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            if channel['channel_id'] == channel_dm_id:
-                for owner in channel['owner_members']:
-                    if owner['u_id'] == auth_user_id:
-                        found_owner_creator = 1
+        if check_valid_owner(auth_user_id, channel_dm_id):
+            found_owner_creator = 1
 
     # If channel_dm_id is even, this means that message is from DM
     elif message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            if len(dm['creator']) > 0:
-                if dm['creator']['u_id'] == auth_user_id:
-                    found_owner_creator = 1
+        if check_creator(auth_user_id):
+            found_owner_creator = 1
 
     # In the case where message being edited is part of a channel, 
     # check if auth_user_id is global owner of Streams
@@ -331,7 +302,7 @@ def check_authorised_user_edit(auth_user_id, message_id):
     else:
         return False
 
-# Helper function for message_Edit
+# Helper function for message_edit
 # Returns true if valid message length
 # Returns false otherwise
 def check_valid_message_send_format(message):
@@ -371,37 +342,18 @@ def check_authorised_user_pin(message_id, auth_user_id):
                 if owner['u_id'] == auth_user_id:
                     found = 1
             for member in channel['all_members']:         
-                if member['u_id'] ==  auth_user_id:
+                if member['u_id'] == auth_user_id:
                     if check_permision_id(member['u_id']):
                         found = 1
     if message_id % 2 == 0:
-        for dm in get_data()['dms']:
-            if len(dm['creator']) > 0:
-                if dm['creator']['u_id'] == auth_user_id:
-                    found = 1
+        if check_creator(auth_user_id):
+            found = 1
     if found == 1:
         return True
     return False
 
-# Helper function for message/react and message/unreact
-# Returns a dict of react in the channel/dm
-def get_reacts(message_id, react_id):
-    if message_id % 2 == 1:
-        for channel in get_data()['channels']:
-            for message in channel['messages']:
-                if message['message_id'] == int(message_id):
-                    for react in message['reacts']:
-                        if react['react_id'] == react_id:
-                            return react
-    for dm in get_data()['dms']:
-        for message in dm['messages']:
-            if message['message_id'] == message_id:
-                for react in message['reacts']:
-                    if react['react_id'] == react_id:
-                        return react
-
-# Helper function for message/pin
-# Returns a dict of message in the channel/dm
+# Helper function for message/pin, message/react and message/unreact
+# Returns a dict of message in the channel or dm 
 def get_message(message_id):
     if message_id % 2 == 1:
         for channel in get_data()['channels']:
@@ -413,6 +365,14 @@ def get_message(message_id):
             if message['message_id'] == message_id:
                 return message
 
+# Helper function for message/react and message/unreact
+# Returns a dict of react in the channel/dm
+def get_reacts(message_id, react_id):
+    message = get_message(message_id)
+    for react in message['reacts']:
+        if react['react_id'] == react_id:
+            return react
+
 # Helper function for message_share
 # Checks both channel_id and dm_id are valid 
 # Return true if both are valid and false otherwise
@@ -420,13 +380,11 @@ def check_valid_channel_id_and_dm_id_format(channel_id, dm_id):
     found_channel = 0
     found_dm = 0
 
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            found_channel = 1
+    if check_valid_channel_id(channel_id):
+        found_channel = 1
 
-    for dm in get_data()['dms']:
-        if dm['dm_id'] == dm_id:
-            found_dm = 1
+    if check_valid_dm(dm_id):
+        found_dm = 1
 
     if ((found_channel == 1 and dm_id == -1) or 
     (channel_id == -1 and found_dm == 1)):
@@ -439,21 +397,14 @@ def check_valid_channel_id_and_dm_id_format(channel_id, dm_id):
 # trying to share the message to
 def check_share_message_authorised_user(auth_user_id, channel_id, dm_id):
     if channel_id != -1:
-        for channel in get_data()['channels']:
-            if channel['channel_id'] == channel_id:
-                for member in channel['all_members']:
-                    if member['u_id'] == auth_user_id:
-                        return True
+        if check_valid_member_in_channel(channel_id, auth_user_id):
+            return True
 
     if dm_id != -1:
-        for dm in get_data()['dms']:
-            if dm['dm_id'] == dm_id:
-                for member in dm['members']:
-                    if member['u_id'] == auth_user_id:
-                        return True
+        if check_valid_member_in_dm(dm_id, auth_user_id):
+            return True
     
     return False
-
 
 #################################################
 ######## Helper functions for dm.py      ########
@@ -466,11 +417,10 @@ def check_valid_member_in_dm(dm_id, auth_user_id):
     '''
     return type: bool
     '''
-    for dm in get_data()['dms']:
-        if dm['dm_id'] == dm_id:
-            for member in dm['members']:
-                if member['u_id'] == auth_user_id:
-                    return True
+    dm = get_dm_dict(dm_id)
+    for member in dm['members']:
+        if member['u_id'] == auth_user_id:
+            return True
     return False
 
 # Helper function for message_senddm
@@ -483,15 +433,14 @@ def check_valid_message(message):
     else:
         return True 
 
-# Helper function for dm_create
+# Helper function for dm_create, notification
 # Returns handle of user
 def get_handle(auth_user_id):
     '''
     return type: <string>
     '''
-    for user in get_data()['users']:
-        if user['auth_user_id'] == auth_user_id:
-            return user['handle_str']
+    user = get_user_details(auth_user_id)
+    return user['handle_str']
 
 # Helper function for dm_remove
 # Returns true if creator of dm
@@ -528,11 +477,9 @@ def get_dm_dict(dm_id):
         if dm['dm_id'] == dm_id:
             return dm
 
-
 ######################################################
 ####### Helper functions for notifications.py ########
 ######################################################
-
 
 # Helper function in message_send_v1 
 # Checks if a member of channel has been tagged
@@ -545,12 +492,11 @@ def check_message_channel_tag(message, channel_id):
         if '@' in word:
             handle_str = word[1:]
             # print(handle_str)
-            for channel in get_data()['channels']:
-                if channel['channel_id'] == channel_id:
-                    for member in channel['all_members']:
-                        # print(f"member = {member}")
-                        if member['handle_str'] == handle_str:
-                            handle_str_list.append(handle_str)
+            channel = get_channel_details(channel_id)
+            for member in channel['all_members']:
+                # print(f"member = {member}")
+                if member['handle_str'] == handle_str:
+                    handle_str_list.append(handle_str)
     # print(f"handle_str_list before {handle_str_list}")                     
     # print(f"handle_str_list after {list(set(handle_str_list))}")
     return list(set(handle_str_list))
@@ -564,13 +510,11 @@ def check_message_dm_tag(message, dm_id):
     for word in alpha_numeric_str.split():
         if '@' in word:
             handle_str = word[1:]
-            print(handle_str)
-            for dm in get_data()['dms']:
-                if dm['dm_id'] == dm_id:
-                    for member in dm['members']:
-                        # print(f"member = {member}")
-                        if member['handle_str'] == handle_str:
-                            handle_str_list.append(handle_str)
+            dm = get_dm_dict(dm_id)
+            for member in dm['members']:
+                # print(f"member = {member}")
+                if member['handle_str'] == handle_str:
+                    handle_str_list.append(handle_str)
     # print(f"handle_str_list before {handle_str_list}")                     
     # print(f"handle_str_list after {list(set(handle_str_list))}")
     return list(set(handle_str_list))
@@ -596,23 +540,158 @@ def channel_dm_of_message_id(message_id):
                         'u_id': message['u_id'],
                     }
 
-# Helper function for activate_notification_react
-# Finds the handle_str of a user from their u_id
-def u_id_to_handle_str(u_id):
-    for user in get_data()['users']:
-        if user['auth_user_id'] == u_id:
-            return user['handle_str']
-
 # Helper function for activate_notification_tag_channel
 # Finds the name of the channel from channel_id
 def channel_id_to_channel_name(channel_id):
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            return channel['name']
+    channel = get_channel_details(channel_id)
+    return channel['name']
 
 # Helper function for activate_notification_tag_dm
 # Finds the name of the DM from dm_id
 def dm_id_to_dm_name(dm_id):
+    dm = get_dm_dict(dm_id)
+    return dm['name']
+
+######################################################
+########### Helper functions for user.py #############
+######################################################
+
+# Helper function for user_profile_setemail
+# Checks valid email
+# Returns true if valid
+# Returns empty dict otherwise
+def check_valid_email(email):
+    '''
+    check if the email is valid
+    '''
+    search = r'\b^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$\b'
+    if re.search(search, email):
+        return True
+    return False
+
+# Helper function for user/stat
+# Appends num_channels_joined and time_stamp when 
+# the user joins/being invited to a channel 
+def get_user_channel_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['channels_joined'])
+    length = user['channels_joined'][number - 1]['num_channels_joined']
+    user['channels_joined'].append({
+        'num_channels_joined': length + 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_channels_joined and time_stamp when the user leave a channel 
+def get_user_leave_channel_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['channels_joined'])
+    length = user['channels_joined'][number - 1]['num_channels_joined']
+    user['channels_joined'].append({
+        'num_channels_joined': length - 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_dms_joined and time_stamp when the user creates a dm
+def get_user_dm_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['dms_joined'])
+    length = user['dms_joined'][number - 1]['num_dms_joined']
+    user['dms_joined'].append({
+        'num_dms_joined': length + 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_dms_joined and time_stamp when the user leaves/removes a dm
+def get_user_leave_dm_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['dms_joined'])
+    length = user['dms_joined'][number - 1]['num_dms_joined']
+    user['dms_joined'].append({
+        'num_dms_joined': length - 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_messages_sent and time_stamp when the user sends 
+# a message in dm/ channel
+def get_user_message_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['messages_sent'])
+    length = user['messages_sent'][number - 1]['num_messages_sent']
+    user['messages_sent'].append({
+        'num_messages_sent': length + 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Appends num_messages_sent and time_stamp when the user removes 
+# a message in dm/channel
+def get_user_message_remove_stats(auth_user_id):
+    user = get_user_details(auth_user_id)
+    number = len(user['messages_sent'])
+    length = user['messages_sent'][number - 1]['num_messages_sent']
+    user['messages_sent'].append({
+        'num_messages_sent': length - 1,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for user/stat
+# Gets the total number of messages in dm and channels
+def get_messages_total_number():
+    number = 0
+    for channel in get_data()['channels']:
+        for message in channel['messages']:
+            assert message != None
+            number += 1
     for dm in get_data()['dms']:
-        if dm['dm_id'] == dm_id:
-            return dm['name']
+        for message in dm['messages']:
+            assert message != None
+            number += 1
+    return number
+
+
+# Helper function for users/stats
+# Check if this user at least joins one channel or dm
+def check_join_channel_or_dm(auth_user_id):
+    for channel in get_data()['channels']:
+        for member in channel['all_members']:
+            if member['u_id'] == auth_user_id:
+                return True
+    
+    for dm in get_data()['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                return True
+    
+    return False
+
+# Helper function for users/stats
+# Appends new stat as 'num_channels_exist' and time stamp
+def users_stats_update_channels(update_type):
+    curr_num_channel = get_data()['workspace_stats']['channels_exist'][-1]['num_channels_exist']
+    get_data()['workspace_stats']['channels_exist'].append({
+        'num_channels_exist': curr_num_channel + update_type,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for users/stats
+# Appends new stat as 'num_messages_exist' and time stamp
+def users_stats_update_messages(update_type):
+    curr_num_message = get_data()['workspace_stats']['messages_exist'][-1]['num_messages_exist']
+    get_data()['workspace_stats']['messages_exist'].append({
+        'num_messages_exist': curr_num_message + update_type,
+        'time_stamp': int(time.time())
+    })
+
+# Helper function for users/stats
+# Appends new stat as 'num_dms_exist' and time stamp
+def users_stats_update_dms(update_type):
+    curr_num_dm = get_data()['workspace_stats']['dms_exist'][-1]['num_dms_exist']
+    get_data()['workspace_stats']['dms_exist'].append({
+        'num_dms_exist': curr_num_dm + update_type,
+        'time_stamp': int(time.time())
+    })
+
