@@ -373,6 +373,59 @@ def get_reacts(message_id, react_id):
         if react['react_id'] == react_id:
             return react
 
+# Helper function for message/send, message/sendlater, 
+# message/sendlaterdm, dm/message_senddm
+# Return the new react dictionary
+def new_react(is_this_user_reacted):
+    reacts_details = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': bool(is_this_user_reacted)
+    }
+    return reacts_details
+
+# Helper function for message/send, message/sendlater, 
+# message/sendlaterdm, dm/message_senddm
+# Return the new message details dictionary
+def get_msg_details(mg_id, u_id, msg, time, react, is_pinned):
+    message_details_channels = {
+        'message_id': mg_id,
+        'u_id': u_id, 
+        'message': msg,
+        'time_created': time,
+        'reacts':[react],
+        'is_pinned': bool(is_pinned)
+    }
+    return message_details_channels
+
+# Helper function for message/send, message/sendlater
+# Return the new message details dictionary for channels
+def get_msg_details_channels(mg_id, u_id, msg, time, ch_id, react, is_pinned):
+    message_details_channels = {
+        'message_id': mg_id,
+        'u_id': u_id, 
+        'message': msg,
+        'time_created': time,
+        'channel_id': ch_id,
+        'reacts':[react],
+        'is_pinned': bool(is_pinned)
+    }
+    return message_details_channels
+
+# Helper function for dm/message_senddm, message/sendlaterdm
+# Return the new message details dictionary for dm
+def get_msg_details_dm(mg_id, u_id, msg, time, dm_id, react, is_pinned):
+    message_details_dm = {
+        'message_id': mg_id,
+        'u_id': u_id, 
+        'message': msg,
+        'time_created': time,
+        'dm_id': dm_id,
+        'reacts':[react],
+        'is_pinned': bool(is_pinned)
+    }
+    return message_details_dm
+
 # Helper function for message_share
 # Checks both channel_id and dm_id are valid 
 # Return true if both are valid and false otherwise
