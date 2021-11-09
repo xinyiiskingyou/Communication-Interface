@@ -78,13 +78,13 @@ def message_send_v1(token, channel_id, message):
         'reacts':[reacts_details],
         'is_pinned': bool(is_pinned)
     }
-
+    
     # Append dictionary of message details into initial_objects['channels']['messages']
     for channel in get_data()['channels']:
         if channel['channel_id'] == channel_id:
             channel['messages'].insert(0, message_details_channels)
             save()
-
+    
     message_details_messages = {
         'message_id': message_id,
         'u_id': auth_user_id, 

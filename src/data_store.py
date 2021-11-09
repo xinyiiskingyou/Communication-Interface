@@ -34,7 +34,7 @@ initial_object = {
     'messages': [],         # list of dictionaries of messages
     'dms': [],              # list of dictionaries of dms 
     'complete_dms': [],     # list of dictionaries of complete dms
-    'workspace_stats': {}   # workspace_stats
+    'workspace_stats': {},   # workspace_stats
 }
 
 ##### Persistence #####
@@ -75,6 +75,3 @@ class Datastore:
 print('Loading Datastore...')
 
 DATASTORE = Datastore()
-
-
-
