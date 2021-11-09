@@ -48,7 +48,6 @@ def standup_start_v1(token, channel_id, length):
     if channel['standup']['is_active'] == True:
         raise InputError('An active standup is currently running in the channel')
         
-    channel = get_channel_details(channel_id)
     time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
     t1 = threading.Timer(length, thread_helper, [token, length, channel_id])
     t1.start()
@@ -85,19 +84,18 @@ def standup_active_v1(token, channel_id):
     # channel_id is valid and the authorised user is not a member of the channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
-    
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            # If no standup is active, then time_finish returns None.
-            current_time = int(time.time())
-            if channel['standup']['is_active'] == False or channel['standup']['time_finish'] < current_time:
-                channel['standup']['is_active'] = False
-                save()
-                return {
-                    'is_active': False,
-                    'time_finish': None
-                }
-        return {'is_active': True, 'time_finish': channel['standup']['time_finish']}
+
+    channel = get_channel_details(channel_id)
+    # If no standup is active, then time_finish returns None.
+    current_time = int(time.time())
+    if channel['standup']['is_active'] == False or channel['standup']['time_finish'] < current_time:
+        channel['standup']['is_active'] = False
+        save()
+        return {
+            'is_active': False,
+            'time_finish': None
+        }
+    return {'is_active': True, 'time_finish': channel['standup']['time_finish']}
 
 def standup_send_v1(token, channel_id, message): 
     '''
@@ -159,4 +157,4 @@ def thread_helper(token, length, channel_id):
             except InputError:
                 pass
             save()
-    print(get_data()['channels'])
+
