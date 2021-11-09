@@ -1,3 +1,4 @@
+import time
 import pytest
 import requests
 import json
@@ -64,18 +65,55 @@ def test_standup_user_not_member(global_owner, register_user3, create_channel):
     })
     assert resp1.status_code == ACCESSERROR
 
-def test_standup_valid_not_active(global_owner, create_channel):
+def test_standup_valid_not_active_no_start(global_owner):
     token = global_owner['token']
 
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': token,
+        'name': 'nono',
+        'is_public': False
+    })
+    channel_data = channel.json()
+    channel_id = channel_data['channel_id']
     resp1 = requests.get(config.url + "standup/active/v1", params ={
         'token': token,
-        'channel_id': create_channel['channel_id'],
+        'channel_id': channel_id,
+    })
+    assert resp1.status_code == VALID
+    print(json.loads(resp1.text))
+
+    # assert json.loads(resp1.text)['is_active'] == False
+    assert json.loads(resp1.text)['time_finish'] == None
+
+def test_standup_valid_not_active_with_start(global_owner):
+    token = global_owner['token']
+
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': token,
+        'name': 'nono',
+        'is_public': False
+    })
+    channel_data = channel.json()
+    channel_id = channel_data['channel_id']
+
+    start = requests.post(config.url + "standup/start/v1", json ={
+        'token': token,
+        'channel_id': channel_id,
+        'length': 1
+    })
+    assert start.status_code == VALID
+
+    time.sleep(6)
+    resp1 = requests.get(config.url + "standup/active/v1", params ={
+        'token': token,
+        'channel_id': channel_id,
     })
     assert resp1.status_code == VALID
 
-    #assert json.loads(resp1.text)['is_active'] == False
-    #assert json.loads(resp1.text)['time_finish'] == None
+    assert json.loads(resp1.text)['is_active'] == False
+    assert json.loads(resp1.text)['time_finish'] == None
 
+# Valid case: active
 def test_standup_valid_active(global_owner, create_channel):
     token = global_owner['token']
 
@@ -92,7 +130,5 @@ def test_standup_valid_active(global_owner, create_channel):
     })
     assert resp1.status_code == VALID
 
-    #assert json.loads(resp1.text)['is_active'] == True
-    #assert json.loads(resp1.text)['time_finish'] != None
-
-    
+    assert json.loads(resp1.text)['is_active'] == True
+    assert json.loads(resp1.text)['time_finish'] != None

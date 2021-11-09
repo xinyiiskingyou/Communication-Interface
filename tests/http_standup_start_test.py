@@ -106,7 +106,7 @@ def test_standup_user_not_member(global_owner, register_user2, create_channel):
     })
     assert resp1.status_code == ACCESSERROR
 
-def test_standup_valid(global_owner, create_channel):
+def test_standup_valid_no_message(global_owner, create_channel):
     token = global_owner['token']
     channel_id = create_channel['channel_id']
 
@@ -115,6 +115,6 @@ def test_standup_valid(global_owner, create_channel):
         'channel_id': channel_id,
         'length': 1
     })
-    assert resp1.status_code == 200
+    assert resp1.status_code == VALID
 
-    assert json.loads(resp1.text)['time_finish'] != 0
+    assert json.loads(resp1.text)['time_finish'] != None
