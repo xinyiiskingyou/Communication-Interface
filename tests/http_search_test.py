@@ -247,15 +247,15 @@ def test_search_query_str_hello(global_owner, create_channel):
     assert len(json.loads(search1.text)['messages']) == 6
 
 # Number: Query string '345'
-# User has joined only one channel
-def test_search_query_str_number(global_owner, create_channel):
+# User has joined only one DM
+def test_search_query_str_number(global_owner, create_dm):
 
     user1_token = global_owner['token']
-    channel1_id = create_channel['channel_id']
+    dm_id = create_dm['dm_id']
 
-    requests.post(config.url + "message/send/v1", json = {
+    send_message_dm = requests.post(config.url + "message/senddm/v1", json = {
         'token': user1_token,
-        'channel_id': channel1_id, 
+        'dm_id': dm_id, 
         'message': '345'
     })
 
@@ -322,3 +322,22 @@ def test_search_query_str_non_alphanumerical(global_owner, create_channel):
     })
     assert search.status_code == VALID
     assert len(json.loads(search.text)['messages']) == 1
+
+# Query_str does not exist in DM that user has joined
+def test_search_query_str_not_found(global_owner, create_dm):
+
+    user1_token = global_owner['token']
+    dm_id = create_dm['dm_id']
+
+    send_message_dm = requests.post(config.url + "message/senddm/v1", json = {
+        'token': user1_token,
+        'dm_id': dm_id, 
+        'message': 'hello'
+    })
+
+    search = requests.get(config.url + "search/v1", params = {
+        'token': user1_token,
+        'query_str': 'hllo'
+    })
+    assert search.status_code == VALID
+    assert len(json.loads(search.text)['messages']) == 0
