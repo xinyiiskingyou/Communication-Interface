@@ -512,7 +512,7 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
         <token>        (<string>)   - an authorisation hash
         <channel_id>   (<int>)      - unique id of a message
         <message>      (<string>)   - an authorisation hash
-        <time_sent>    (<int>)      - unique id of a message
+        <time_sent>    (<int>)      - time to send out the message
 
     Exceptions:
         InputError      - Occurs when channel_id is not valid
@@ -606,7 +606,7 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
         <token>        (<string>)   - an authorisation hash
         <dm_id>        (<int>)      - unique id of a message
         <message>      (<string>)   - an authorisation hash
-        <time_sent>    (<int>)      - unique id of a message
+        <time_sent>    (<int>)      - time to send out the message
 
     Exceptions:
         InputError      - Occurs when dm_id is not valid
