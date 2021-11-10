@@ -52,6 +52,7 @@ def create_channel(global_owner):
     channel_data = channel.json()
     return channel_data
 
+# global owner sends a message in channel
 @pytest.fixture
 def user1_channel_message_id(global_owner, create_channel):
 
@@ -73,6 +74,7 @@ def create_dm(global_owner, register_user2, register_user3):
         'token': token,
         'u_ids': [u_id2, u_id3]
     })
+    assert dm.status_code == VALID
     dm_data = dm.json()
     return dm_data
 
@@ -84,7 +86,7 @@ def user1_send_dm(global_owner, create_dm):
         'dm_id': create_dm['dm_id'],
         'message': 'hello'
     })
-    assert send_dm1_message.status_code == 200
+    assert send_dm1_message.status_code == VALID
     dm_message_id = json.loads(send_dm1_message.text)['message_id']
     return dm_message_id
 
@@ -136,6 +138,6 @@ def dm1_name(global_owner, create_dm):
         'token': global_owner['token'], 
         'dm_id': create_dm['dm_id'], 
     })
-    assert dm_details.status_code == 200
+    assert dm_details.status_code == VALID
     dm_name = json.loads(dm_details.text)['name']
     return dm_name
