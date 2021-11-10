@@ -1,6 +1,7 @@
 '''
 User implementation
 '''
+import requests
 import urllib.request
 from PIL import Image
 from flask import url_for
@@ -405,8 +406,10 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     auth_user_id = decode_token(token)
 
     # Input Error: img_url returns a status code other then 200 -> REDO IMPLEMENTATION
-    if urllib.request.urlopen(img_url).getcode() != 200:
-        raise InputError(description='img_url returns an HTTP status other than 200.')
+    try:
+        requests.get(img_url, stream=True).status_code != 200
+    except Exception as invalid_url:
+        raise InputError(description='invalid url') from invalid_url
 
     # Input Error: image is not JPG
     if not img_url.lower().endswith('.jpg'):

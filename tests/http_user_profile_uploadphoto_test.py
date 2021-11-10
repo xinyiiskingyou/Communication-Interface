@@ -30,10 +30,10 @@ def test_user_profile_uploadphoto_invalid_token(global_owner):
     assert upload_photo.status_code == ACCESSERROR
 
 # Input Error: img_url returns an HTTP status other then 200
-'''def test_user_profile_uploadphoto_invalid_status(global_owner):
+def test_user_profile_uploadphoto_invalid_status(global_owner):
     token = global_owner['token']
 
-    invalid_url = "http://cdn.britannica.com/q:60/94/152294-050-92FE0C83/Arabian-dromedary-camel.jpg"
+    invalid_url = "http://invalid"
     upload_photo = requests.post(config.url + 'user/profile/uploadphoto/v1', json = {
         'token': token,
         'img_url': invalid_url,
@@ -43,7 +43,7 @@ def test_user_profile_uploadphoto_invalid_token(global_owner):
         'y_end': 10,
     })
 
-    assert upload_photo.status_code == INPUTERROR'''
+    assert upload_photo.status_code == INPUTERROR
 
 # Input Error: values outside of call boundary
 def test_user_profile_uploadphoto_outside_boundary_big(global_owner):
