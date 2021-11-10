@@ -29,7 +29,7 @@ def test_user_profile_uploadphoto_invalid_token(global_owner):
     })
     assert upload_photo.status_code == ACCESSERROR
 
-# Input Error: img_url returns an HTTP status other then 200
+# Input Error: img_url returns an HTTP status other then VALID
 '''def test_user_profile_uploadphoto_invalid_status(global_owner):
     token = global_owner['token']
 
@@ -168,7 +168,7 @@ def test_user_profile_uploadphoto_x_and_y_end_smaller(global_owner):
 def test_user_profile_uploadphoto_not_jpg(global_owner):
     token = global_owner['token']
 
-    url_test = "http://www.cse.unsw.edu.au/~richardb/index_files/RichardBuckland-200.png"
+    url_test = "http://www.cse.unsw.edu.au/~richardb/index_files/RichardBuckland-VALID.png"
 
     upload_photo1 = requests.post(config.url + 'user/profile/uploadphoto/v1', json = {
         'token': token,
