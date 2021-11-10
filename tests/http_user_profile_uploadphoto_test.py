@@ -2,8 +2,8 @@ import pytest
 import requests
 import json
 from src import config
-from tests.fixture import global_owner, register_user2
-from tests.fixture import VALID, ACCESSERROR, INPUTERROR
+from tests.fixture import global_owner, register_user2, create_channel
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR, DEFAULT_IMG_URL
 
 ##########################################
 ##### user_profile_upload_photo tests ####
@@ -182,7 +182,7 @@ def test_user_profile_uploadphoto_not_jpg(global_owner):
 
 
 ###### Implementation ######
-def test_user_profile_uploadphoto_valid(global_owner):
+def test_user_profile_uploadphoto_valid(global_owner, create_channel):
     token = global_owner['token']
 
     url_test = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
@@ -196,4 +196,13 @@ def test_user_profile_uploadphoto_valid(global_owner):
         'y_end': 20,
     })
     assert upload_photo1.status_code == VALID
-  
+
+    resp1 = requests.get(config.url + "channel/details/v2", params ={
+        'token': token,
+        'channel_id': create_channel['channel_id'],
+    })
+    assert resp1.status_code == VALID
+
+    # the image has successfully updated
+    assert json.loads(resp1.text)['owner_members'][0]['profile_img_url'] != DEFAULT_IMG_URL
+    assert json.loads(resp1.text)['all_members'][0]['profile_img_url'] != DEFAULT_IMG_URL

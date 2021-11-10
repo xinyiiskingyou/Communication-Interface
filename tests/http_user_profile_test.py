@@ -3,7 +3,7 @@ import requests
 import json
 from src import config
 from tests.fixture import global_owner, register_user2
-from tests.fixture import VALID, ACCESSERROR, INPUTERROR
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR, DEFAULT_IMG_URL
 
 ##########################################
 ########## user_profile tests ############
@@ -78,7 +78,7 @@ def test_user_profile_valid_own(global_owner):
         'name_first': 'anna',
         'name_last': 'lee',
         'handle_str': 'annalee',
-        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        'profile_img_url': DEFAULT_IMG_URL
     })
 
 # Valid Case for looking at someone else's profile
@@ -100,5 +100,5 @@ def test_user_profile_valid_someone_else(global_owner, register_user2):
         'name_first': 'sally',
         'name_last': 'li',
         'handle_str': 'sallyli',
-        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        'profile_img_url': DEFAULT_IMG_URL
     })

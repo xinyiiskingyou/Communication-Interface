@@ -7,6 +7,8 @@ VALID = 200
 ACCESSERROR = 403
 INPUTERROR = 400
 
+DEFAULT_IMG_URL = 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+
 @pytest.fixture
 def global_owner():
     requests.delete(config.url + "clear/v1")
