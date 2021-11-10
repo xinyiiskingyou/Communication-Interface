@@ -153,7 +153,7 @@ def thread_helper(token, length, channel_id):
             save()
             try:
                 message_send_v1(token, channel_id, message)
-            except InputError or AccessError:
+            except InputError:
                 pass
             save()
 
