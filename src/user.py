@@ -393,7 +393,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
             user['profile_img_url'] = url + img_name
             save()
 
-    for channel in get_data()['channel']:
+    for channel in get_data()['channels']:
         for member in channel['all_members']:
             if member['u_id'] == auth_user_id:
                 member['profile_img_url'] = user['profile_img_url']

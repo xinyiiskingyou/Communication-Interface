@@ -33,7 +33,7 @@ def test_user_profile_uploadphoto_invalid_token(global_owner):
 '''def test_user_profile_uploadphoto_invalid_status(global_owner):
     token = global_owner['token']
 
-    invalid_url = "http://cdn.britannica.com/q:60/94/152294-050-92FE0C83/Arabian-dromedary-camel.jpg"
+    invalid_url = "https://cdn.britannica.com/q:60/94/152294-050-92FE0C83/Arabian-dromedary-camel.jpg"
     upload_photo = requests.post(config.url + 'user/profile/uploadphoto/v1', json = {
         'token': token,
         'img_url': invalid_url,
