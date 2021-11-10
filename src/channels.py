@@ -115,7 +115,7 @@ def channels_create_v2(token, name, is_public):
         'time_stamp': time_created,
         'standup':  {
             'is_active': bool(is_active), 
-            'time_finish': 0,
+            'time_finish': None,
             'queue': ''
         }
     })

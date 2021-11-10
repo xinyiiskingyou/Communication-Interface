@@ -210,7 +210,7 @@ def test_message_share_message_not_member_of_channel_sharing_to(global_owner, re
     user2_token = register_user2['token']
 
     # User 1 (global owner) creates a channel
-    user1_channel_id = create_channel['channel_id']
+    create_channel = create_channel['channel_id']
 
     # User 2 creates a channel
     user2_channel = requests.post(config.url + "channels/create/v2", json ={
@@ -231,7 +231,7 @@ def test_message_share_message_not_member_of_channel_sharing_to(global_owner, re
         'token': user2_token,
         'og_message_id': message1_id,
         'message': '', 
-        'channel_id': user1_channel_id,
+        'channel_id': create_channel,
         'dm_id': -1
     })
     assert share_message1.status_code == ACCESSERROR
