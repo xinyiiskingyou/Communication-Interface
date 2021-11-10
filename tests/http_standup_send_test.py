@@ -201,3 +201,64 @@ def test_standup_valid_more_messages(global_owner, create_channel):
         'start': 0
     })
     assert json.loads(message.text)['messages'][0]['message'] == 'annalee: message1\nannalee: message2\nannalee: message3\n'
+
+
+def test_standup_loop_valid(global_owner, create_channel): 
+    channel_id = create_channel['channel_id']
+    token = global_owner['token']
+
+
+    channel2 = requests.post(config.url + "channels/create/v2", json = { 
+        'token': token,
+        'name': 'annie', 
+        'is_public': True
+    })
+    channel_id1  =  json.loads(channel2.text)['channel_id']
+
+    resp1 = requests.post(config.url + "standup/start/v1", json ={
+        'token': token,
+        'channel_id': channel_id,
+        'length': 1
+    })
+    assert resp1.status_code == VALID
+
+    assert json.loads(resp1.text)['time_finish'] != 0
+
+    send = requests.post(config.url + "standup/send/v1", json = {
+        'token': token,
+        'channel_id': create_channel['channel_id'],
+        'message': 'message1'
+    })
+    assert send.status_code == VALID
+
+    time.sleep(10)
+    message = requests.get(config.url + "channel/messages/v2", params ={
+        'token': token,
+        'channel_id': create_channel['channel_id'],
+        'start': 0
+    })
+    assert json.loads(message.text)['messages'][0]['message'] == 'annalee: message1\n'
+
+    resp2 = requests.post(config.url + "standup/start/v1", json ={
+        'token': token,
+        'channel_id': channel_id1,
+        'length': 1
+    })
+    assert resp2.status_code == VALID
+
+    assert json.loads(resp1.text)['time_finish'] != 0
+
+    send = requests.post(config.url + "standup/send/v1", json = {
+        'token': token,
+        'channel_id': channel_id1,
+        'message': 'message1'
+    })
+    assert send.status_code == VALID
+
+    time.sleep(10)
+    message = requests.get(config.url + "channel/messages/v2", params ={
+        'token': token,
+        'channel_id': channel_id1,
+        'start': 0
+    })
+    assert json.loads(message.text)['messages'][0]['message'] == 'annalee: message1\n'
