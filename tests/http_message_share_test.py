@@ -363,7 +363,7 @@ create_dm, user1_send_dm):
     register_user2['token']
 
     channel1_id = create_channel['channel_id']
-    create_dm['dm_id']
+    assert create_dm['dm_id'] != -1
 
     message1_id = user1_send_dm
 

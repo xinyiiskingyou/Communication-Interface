@@ -221,7 +221,7 @@ def check_valid_message_id(auth_user_id, message_id):
             if message_id % 2 == 1:
                 # Odd message_id means it is a message in a channel
                 channel_dm_id = message['channel_id']
-            elif message_id % 2 == 0:
+            else:
                 # Even message_id means it is a message in a DM
                 channel_dm_id = message['dm_id']
             found_message_id = 1
@@ -235,7 +235,7 @@ def check_valid_message_id(auth_user_id, message_id):
 
     # If message_id is odd, message is from DM
     # Go through DMs to determine if user is part of DM of that message_id
-    elif message_id % 2 == 0:
+    else:
         if check_valid_member_in_dm(channel_dm_id, auth_user_id):
             found_user = 1
 
@@ -283,9 +283,8 @@ def check_authorised_user_edit(auth_user_id, message_id):
     if message_id % 2 == 1:
         if check_valid_owner(auth_user_id, channel_dm_id):
             found_owner_creator = 1
-
     # If channel_dm_id is even, this means that message is from DM
-    elif message_id % 2 == 0:
+    else:
         if check_creator(auth_user_id):
             found_owner_creator = 1
 
@@ -584,7 +583,7 @@ def channel_dm_of_message_id(message_id):
                         'u_id': message['u_id'], 
                     }
 
-    elif message_id % 2 == 0:
+    else:
         for dm in get_data()['dms']:
             for message in dm['messages']:
                 if message['message_id'] == message_id:
@@ -673,9 +672,8 @@ def get_messages_total_number():
 # Check if this user at least joins one channel or dm
 def check_join_channel_or_dm(auth_user_id):
     for channel in get_data()['channels']:
-        for member in channel['all_members']:
-            if member['u_id'] == auth_user_id:
-                return True
+        if get_channel_member(auth_user_id, channel):
+            return True
     
     for dm in get_data()['dms']:
         for member in dm['members']:
