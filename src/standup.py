@@ -1,6 +1,6 @@
 import threading
 import time 
-from src.data_store import get_data, save, DATASTORE
+from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_channel_details, get_handle
 from src.server_helper import valid_user, decode_token
@@ -89,8 +89,6 @@ def standup_active_v1(token, channel_id):
     # If no standup is active, then time_finish returns None.
     current_time = int(time.time())
     if channel['standup']['is_active'] == False or channel['standup']['time_finish'] < current_time:
-        channel['standup']['is_active'] = False
-        save()
         return {
             'is_active': False,
             'time_finish': None
@@ -143,6 +141,7 @@ def standup_send_v1(token, channel_id, message):
                 save()
     return {}
 
+# Helper function for threading
 def thread_helper(token, length, channel_id):
     time.sleep(length)
     for channel in get_data()['channels']:
@@ -154,7 +153,7 @@ def thread_helper(token, length, channel_id):
             save()
             try:
                 message_send_v1(token, channel_id, message)
-            except InputError:
+            except InputError or AccessError:
                 pass
             save()
 
