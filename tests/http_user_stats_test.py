@@ -323,13 +323,13 @@ def test_valid_user_message_share(global_owner, user1_send_dm, create_channel, u
     token = global_owner['token']
 
     assert user1_channel_message_id != None
-    
+
     # user 1 sends a message in dm
     assert user1_send_dm != None
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
-    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
     share_message1 = requests.post(config.url + "message/share/v1", json ={
         'token': token,
