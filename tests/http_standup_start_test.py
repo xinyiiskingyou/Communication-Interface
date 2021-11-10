@@ -126,6 +126,7 @@ def test_standup_user_not_member(global_owner, register_user2, create_channel):
     })
     assert resp1.status_code == ACCESSERROR
 
+# Valid case: start a standup but do not send any messages
 def test_standup_valid_no_message(global_owner, create_channel):
     token = global_owner['token']
     channel_id = create_channel['channel_id']
@@ -138,4 +139,27 @@ def test_standup_valid_no_message(global_owner, create_channel):
     assert resp1.status_code == VALID
 
     assert json.loads(resp1.text)['time_finish'] != None
+    time.sleep(3)
+
+# Valid case: start the standup for multiple times
+def test_standup_valid_multiple_starts(global_owner, create_channel):
+    token = global_owner['token']
+    channel_id = create_channel['channel_id']
+
+    resp1 = requests.post(config.url + "standup/start/v1", json ={
+        'token': token,
+        'channel_id': channel_id,
+        'length': 1
+    })
+    assert resp1.status_code == VALID
+
+    assert json.loads(resp1.text)['time_finish'] != None
+    time.sleep(3)
+
+    resp1 = requests.post(config.url + "standup/start/v1", json ={
+        'token': token,
+        'channel_id': channel_id,
+        'length': 1
+    })
+    assert resp1.status_code == VALID
     time.sleep(3)
