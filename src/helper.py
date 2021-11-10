@@ -373,6 +373,59 @@ def get_reacts(message_id, react_id):
         if react['react_id'] == react_id:
             return react
 
+# Helper function for message/send, message/sendlater, 
+# message/sendlaterdm, dm/message_senddm
+# Return the new react dictionary
+def new_react(is_this_user_reacted):
+    reacts_details = {
+        'react_id': 1,
+        'u_ids': [],
+        'is_this_user_reacted': bool(is_this_user_reacted)
+    }
+    return reacts_details
+
+# Helper function for message/send, message/sendlater, 
+# message/sendlaterdm, dm/message_senddm
+# Return the new message details dictionary
+def get_msg_details(mg_id, u_id, msg, time, react, is_pinned):
+    message_details_channels = {
+        'message_id': mg_id,
+        'u_id': u_id, 
+        'message': msg,
+        'time_created': time,
+        'reacts':[react],
+        'is_pinned': bool(is_pinned)
+    }
+    return message_details_channels
+
+# Helper function for message/send, message/sendlater
+# Return the new message details dictionary for channels
+def get_msg_details_channels(mg_id, u_id, msg, time, ch_id, react, is_pinned):
+    message_details_channels = {
+        'message_id': mg_id,
+        'u_id': u_id, 
+        'message': msg,
+        'time_created': time,
+        'channel_id': ch_id,
+        'reacts':[react],
+        'is_pinned': bool(is_pinned)
+    }
+    return message_details_channels
+
+# Helper function for dm/message_senddm, message/sendlaterdm
+# Return the new message details dictionary for dm
+def get_msg_details_dm(mg_id, u_id, msg, time, dm_id, react, is_pinned):
+    message_details_dm = {
+        'message_id': mg_id,
+        'u_id': u_id, 
+        'message': msg,
+        'time_created': time,
+        'dm_id': dm_id,
+        'reacts':[react],
+        'is_pinned': bool(is_pinned)
+    }
+    return message_details_dm
+
 # Helper function for message_share
 # Checks both channel_id and dm_id are valid 
 # Return true if both are valid and false otherwise
@@ -571,70 +624,34 @@ def check_valid_email(email):
 
 # Helper function for user/stat
 # Appends num_channels_joined and time_stamp when 
-# the user joins/being invited to a channel 
-def get_user_channel_stats(auth_user_id):
+# the user joins/being invited to a channel or when user leaves the channel
+def user_stats_update_channels(auth_user_id, update_type):
     user = get_user_details(auth_user_id)
-    number = len(user['channels_joined'])
-    length = user['channels_joined'][number - 1]['num_channels_joined']
+    length = user['channels_joined'][-1]['num_channels_joined']
     user['channels_joined'].append({
-        'num_channels_joined': length + 1,
+        'num_channels_joined': length + update_type,
         'time_stamp': int(time.time())
     })
 
 # Helper function for user/stat
-# Appends num_channels_joined and time_stamp when the user leave a channel 
-def get_user_leave_channel_stats(auth_user_id):
+# Appends num_dms_joined and time_stamp when the user creates a dm or 
+# when user leaves/removes a dm
+def user_stats_update_dms(auth_user_id, update_type):
     user = get_user_details(auth_user_id)
-    number = len(user['channels_joined'])
-    length = user['channels_joined'][number - 1]['num_channels_joined']
-    user['channels_joined'].append({
-        'num_channels_joined': length - 1,
-        'time_stamp': int(time.time())
-    })
-
-# Helper function for user/stat
-# Appends num_dms_joined and time_stamp when the user creates a dm
-def get_user_dm_stats(auth_user_id):
-    user = get_user_details(auth_user_id)
-    number = len(user['dms_joined'])
-    length = user['dms_joined'][number - 1]['num_dms_joined']
+    length = user['dms_joined'][-1]['num_dms_joined']
     user['dms_joined'].append({
-        'num_dms_joined': length + 1,
-        'time_stamp': int(time.time())
-    })
-
-# Helper function for user/stat
-# Appends num_dms_joined and time_stamp when the user leaves/removes a dm
-def get_user_leave_dm_stats(auth_user_id):
-    user = get_user_details(auth_user_id)
-    number = len(user['dms_joined'])
-    length = user['dms_joined'][number - 1]['num_dms_joined']
-    user['dms_joined'].append({
-        'num_dms_joined': length - 1,
+        'num_dms_joined': length + update_type,
         'time_stamp': int(time.time())
     })
 
 # Helper function for user/stat
 # Appends num_messages_sent and time_stamp when the user sends 
-# a message in dm/ channel
-def get_user_message_stats(auth_user_id):
+# a message in dm/ channel or when user removes a message in dm/channel
+def user_stats_update_messages(auth_user_id, update_type):
     user = get_user_details(auth_user_id)
-    number = len(user['messages_sent'])
-    length = user['messages_sent'][number - 1]['num_messages_sent']
+    length = user['messages_sent'][-1]['num_messages_sent']
     user['messages_sent'].append({
-        'num_messages_sent': length + 1,
-        'time_stamp': int(time.time())
-    })
-
-# Helper function for user/stat
-# Appends num_messages_sent and time_stamp when the user removes 
-# a message in dm/channel
-def get_user_message_remove_stats(auth_user_id):
-    user = get_user_details(auth_user_id)
-    number = len(user['messages_sent'])
-    length = user['messages_sent'][number - 1]['num_messages_sent']
-    user['messages_sent'].append({
-        'num_messages_sent': length - 1,
+        'num_messages_sent': length + update_type,
         'time_stamp': int(time.time())
     })
 

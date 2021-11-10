@@ -1,7 +1,8 @@
 from src.server_helper import decode_token, valid_user
 from src.helper import channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
-from src.helper import check_valid_member_in_dm, check_valid_message, check_message_dm_tag, get_user_dm_stats, get_user_leave_dm_stats
-from src.helper import get_user_message_stats, users_stats_update_dms, users_stats_update_messages
+from src.helper import check_valid_member_in_dm, check_valid_message, check_message_dm_tag
+from src.helper import user_stats_update_dms, user_stats_update_messages, users_stats_update_dms, users_stats_update_messages
+from src.helper import new_react, get_msg_details, get_msg_details_dm
 from src.server_helper import decode_token, valid_user
 from src.notifications import activate_notification_tag_dm, activate_notification_dm_create
 from src.error import InputError, AccessError
@@ -65,8 +66,6 @@ def dm_create_v1(token, u_ids):
     separation = ", "
     name = separation.join(handle_list)
 
-    get_user_dm_stats(auth_user_id)
-    save()
     time_created = int(time.time())
     get_data()['dms'].append({
         'dm_id': dm_id,
@@ -80,6 +79,10 @@ def dm_create_v1(token, u_ids):
 
     # Activate notification for invite/add
     activate_notification_dm_create(auth_user_id, dm_id, member_list)
+
+    # For user/stats, append a new stat in 'dms_joined'
+    user_stats_update_dms(auth_user_id, 1)
+    save()
 
     # For users/stats, append new stat in 'dms_exist'
     users_stats_update_dms(1)
@@ -146,13 +149,15 @@ def dm_remove_v1(token, dm_id):
     if not check_creator(auth_user_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
-    get_user_leave_dm_stats(auth_user_id)
-    save()
     dms = get_data()['dms']
     for dm in dms:
         if dm['dm_id'] == dm_id:
             dms.remove(dm)
             save()
+
+    # For user/stats, append new stat in 'dms_joined'
+    user_stats_update_dms(auth_user_id, -1)
+    save()
 
     # For users/stats, append new stat in 'dms_exist'
     users_stats_update_dms(-1)
@@ -229,8 +234,6 @@ def dm_leave_v1(token, dm_id):
     if not check_valid_member_in_dm(dm_id, auth_user_id): 
         raise AccessError(description="The user is not an authorised member of the DM")
 
-    get_user_leave_dm_stats(auth_user_id)
-    save()
     dm = get_dm_dict(dm_id)
     for member in dm['members']:
         if member['u_id'] == auth_user_id: 
@@ -241,6 +244,11 @@ def dm_leave_v1(token, dm_id):
         if dm['creator']['u_id'] == auth_user_id:
             dm['creator'].clear()
             save()
+
+    # For user/stats, append new stat in 'dms_joined'
+    user_stats_update_dms(auth_user_id, -1)
+    save()
+
     return{}
 
 def dm_messages_v1(token, dm_id, start): 
@@ -352,19 +360,10 @@ def message_senddm_v1(token, dm_id, message):
 
     is_this_user_reacted = False
     is_pinned = False
-    reacts_details = {
-        'react_id': 1,
-        'u_ids': [],
-        'is_this_user_reacted': bool(is_this_user_reacted)
-    }
-    dmsend_details_dm = {
-        'message_id': dmsend_id,
-        'u_id': auth_user_id, 
-        'message': message,
-        'time_created': time_created,
-        'reacts':[reacts_details],
-        'is_pinned': bool(is_pinned)
-    }
+    reacts_details = new_react(is_this_user_reacted)
+
+    dmsend_details_dm = get_msg_details(dmsend_id, auth_user_id, message, 
+                                        time_created, reacts_details, is_pinned)
 
     # Append dictionary of message details into initial_objects['dm']['messages']
     for dm in get_data()['dms']:
@@ -372,20 +371,15 @@ def message_senddm_v1(token, dm_id, message):
             dm['messages'].insert(0, dmsend_details_dm)
             save()
 
-    dmsend_details_messages = {
-        'message_id': dmsend_id,
-        'u_id': auth_user_id, 
-        'message': message,
-        'time_created': time_created, 
-        'dm_id': dm_id,
-        'reacts':[reacts_details],
-        'is_pinned': bool(is_pinned)
-    }
+    dmsend_details_msgs = get_msg_details_dm(dmsend_id, auth_user_id, message, time_created, 
+                                                    dm_id, reacts_details, is_pinned)
 
-    get_user_message_stats(auth_user_id)
-    save()
     # Append dictionary of message details into intital_objects['messages']
-    get_data()['messages'].insert(0, dmsend_details_messages)
+    get_data()['messages'].insert(0, dmsend_details_msgs)
+    save()
+
+    # For user/stats, append a new stat in 'messages_sent'
+    user_stats_update_messages(auth_user_id, 1)
     save()
 
     # For users/stats, append new stat in 'messages_exist'

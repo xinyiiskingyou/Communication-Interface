@@ -31,8 +31,6 @@ def test_valid_user_no_channel_no_dm(global_owner):
         'token': token
     })
     assert stats.status_code == VALID
-    print(json.loads(stats.text)['user_stats']['channels_joined'])
-    print(json.loads(stats.text)['user_stats']['channels_joined'][0]['num_channels_joined'])
     assert json.loads(stats.text)['user_stats']['channels_joined'][0]['num_channels_joined'] == 0
     
     # test the timestamp is not equal to 0
@@ -186,7 +184,7 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
     assert stats.status_code == VALID
     # len = {num: 0 (initially no messages)}, {num: 1 (sends a message)}, 
     # {num: 0 (deletes a message)}
-    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
 
     # user1 sends a message again
     send_message = requests.post(config.url + "message/send/v1", json = {
@@ -202,7 +200,7 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
     assert stats.status_code == VALID
     # len = {num: 0 (initially no messages)}, {num: 1 (sends a message)}, 
     # {num: 0 (deletes a message)}, {num: 1 (resends a message)}, 
-    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 4
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
     # but the total number of message in the channel will decrease
     messages = requests.get(config.url + "channel/messages/v2", params ={
@@ -319,3 +317,26 @@ def test_valid_user_send_later_dm_channel(global_owner, create_dm, create_channe
     assert len(json.loads(stats.text)['user_stats']['channels_joined']) == 2
     assert len(json.loads(stats.text)['user_stats']['dms_joined']) == 2
     assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
+# Involvement rate is > 1 so is capped at 1
+def test_valid_involvement_rate_capped_at_1(global_owner, create_channel, user1_channel_message_id):
+
+    create_channel['channel_id']
+    message1_id = user1_channel_message_id
+
+    requests.post(config.url + "message/send/v1", json = {
+        'token': global_owner['token'],
+        'channel_id': create_channel['channel_id'],
+        'message': 'goodbye'
+    })
+
+    requests.delete(config.url + "message/remove/v1", json = {
+        'token': global_owner['token'],
+        'message_id': message1_id,
+    })
+
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': global_owner['token']
+    })
+
+    assert json.loads(stats.text)['user_stats']['involvement_rate'] == 1
+
