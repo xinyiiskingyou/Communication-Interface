@@ -669,7 +669,6 @@ def get_messages_total_number():
             number += 1
     return number
 
-
 # Helper function for users/stats
 # Check if this user at least joins one channel or dm
 def check_join_channel_or_dm(auth_user_id):

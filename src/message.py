@@ -6,7 +6,7 @@ from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, check_valid_message
 from src.helper import check_authorised_user_edit, check_valid_message_send_format, check_authorised_user_pin
-from src.helper import get_message, check_valid_channel_dm_message_ids
+from src.helper import get_message, check_valid_channel_dm_message_ids, get_channel_details
 from src.helper import check_valid_dm, check_valid_member_in_dm, get_reacts, check_valid_message_id
 from src.helper import check_valid_channel_id_and_dm_id_format, check_share_message_authorised_user
 from src.helper import check_message_channel_tag, user_stats_update_messages
@@ -165,6 +165,9 @@ def message_edit_v1(token, message_id, message):
         # For users/stats, append new stat in 'messages_exist'
         users_stats_update_messages(1)
         save()
+        # For user/stat, append new stat in 'messages_sent'
+        user_stats_update_messages(auth_user_id, -1)
+        save()
 
     return {}
     
@@ -221,7 +224,9 @@ def message_remove_v1(token, message_id):
     # For users/stats, append new stat in 'messages_exist'
     users_stats_update_messages(-1)
     save()
-
+    # For user/stat, append new stat in 'messages_sent'
+    user_stats_update_messages(auth_user_id, -1)
+    save()
     return {}
 
 def message_share_v1(token, og_message_id, message, channel_id, dm_id):
@@ -284,14 +289,6 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
         shared_message_id = message_send_v1(token, channel_id, shared_message)['message_id']
     elif dm_id != -1:
         shared_message_id = message_senddm_v1(token, dm_id, shared_message)['message_id']
-
-    # For user/stats, append a new stat in 'messages_sent'
-    user_stats_update_messages(auth_user_id, 1)
-    save()
-
-    # For users/stats, append new stat in 'messages_exist'
-    users_stats_update_messages(1)
-    save()
 
     return {
         'shared_message_id': shared_message_id
