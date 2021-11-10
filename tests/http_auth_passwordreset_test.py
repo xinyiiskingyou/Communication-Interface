@@ -18,13 +18,13 @@ def test_auth_passwordreset_request_valid():
         'name_last': 'park'
     })
 
-    assert register.status_code == 200
+    assert register.status_code == VALID
 
     pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
         'email': 'camel5363885.2@gmail.com'
     })
 
-    assert pass_request.status_code == 200
+    assert pass_request.status_code == VALID
 
 ##########################################
 ##### auth_passwordreset_reset tests #####
@@ -39,13 +39,13 @@ def test_auth_passwordrequest_reset_invalid_code():
         'name_first': 'anna',
         'name_last': 'park'
     })
-    assert register.status_code == 200
+    assert register.status_code == VALID
 
     pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
         'email': 'camel5363885.2@gmail.com'
     })
 
-    assert pass_request.status_code == 200
+    assert pass_request.status_code == VALID
     
     # Check invalid reset code
     pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
@@ -53,7 +53,7 @@ def test_auth_passwordrequest_reset_invalid_code():
         'new_password': 'new_password'
     })
 
-    assert pass_reset.status_code == 400
+    assert pass_reset.status_code == INPUTERROR
 
 # Input Error: password length is < 6 characters long
 def test_auth_passwordrequest_reset_invalid_password_length():
@@ -64,12 +64,12 @@ def test_auth_passwordrequest_reset_invalid_password_length():
         'name_first': 'anna',
         'name_last': 'park'
     })
-    assert register.status_code == 200
+    assert register.status_code == VALID
 
     pass_request = requests.post(config.url + 'auth/passwordreset/request/v1', json = {
         'email': 'abc@gmail.com'
     })
-    assert pass_request.status_code == 200
+    assert pass_request.status_code == VALID
 
     # Check invalid password length
     pass_reset = requests.post(config.url + 'auth/passwordreset/reset/v1', json = {
@@ -77,5 +77,5 @@ def test_auth_passwordrequest_reset_invalid_password_length():
         'new_password': '12345'
     })
 
-    assert pass_reset.status_code == 400
+    assert pass_reset.status_code == INPUTERROR
     
