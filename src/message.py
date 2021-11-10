@@ -165,6 +165,7 @@ def message_edit_v1(token, message_id, message):
         # For users/stats, append new stat in 'messages_exist'
         users_stats_update_messages(1)
         save()
+        # For user/stat, append new stat in 'messages_sent'
         user_stats_update_messages(auth_user_id, -1)
         save()
 
@@ -223,6 +224,7 @@ def message_remove_v1(token, message_id):
     # For users/stats, append new stat in 'messages_exist'
     users_stats_update_messages(-1)
     save()
+    # For user/stat, append new stat in 'messages_sent'
     user_stats_update_messages(auth_user_id, -1)
     save()
     return {}
