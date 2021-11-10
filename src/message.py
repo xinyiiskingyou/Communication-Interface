@@ -290,14 +290,6 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
     elif dm_id != -1:
         shared_message_id = message_senddm_v1(token, dm_id, shared_message)['message_id']
 
-    # For user/stats, append a new stat in 'messages_sent'
-    user_stats_update_messages(auth_user_id, 1)
-    save()
-
-    # For users/stats, append new stat in 'messages_exist'
-    users_stats_update_messages(1)
-    save()
-
     return {
         'shared_message_id': shared_message_id
     }
