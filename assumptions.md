@@ -42,3 +42,4 @@ Assume all parameters in every function is given input.
 
 # For user/profile/uploadphoto/v1:
 1. Assume that user always inputs x_start, y_start, x_end, y_end when uploading new photo. 
+2. Assume that user cannot change their profile picture more than once. 
