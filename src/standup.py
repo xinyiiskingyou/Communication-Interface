@@ -1,5 +1,8 @@
 import threading
-import time 
+import time
+from requests.api import get
+
+from werkzeug import exceptions 
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_channel_details, get_handle
@@ -128,32 +131,30 @@ def standup_send_v1(token, channel_id, message):
         raise InputError(description = 'message is over 1000 characters long')
 
     handle = get_handle(auth_user_id)
+    channel = get_channel_details(channel_id)
     # an active standup is not currently running in the channel
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:        
-            if channel['standup']['is_active'] == False:
-                raise InputError(description = 'Standup is not currently running in the channel')
-            else:
-                standup = channel['standup']
-                standup_message = standup['queue']
-                standup_message += handle + ": " + message + '\n'
-                standup['queue'] = standup_message
-                save()
+    if channel['standup']['is_active'] == False:
+        raise InputError(description = 'Standup is not currently running in the channel')
+    else:
+        standup = channel['standup']
+        standup_message = standup['queue']
+        standup_message += handle + ": " + message + '\n'
+        standup['queue'] = standup_message
+        save()
     return {}
 
 # Helper function for threading
 def thread_helper(token, length, channel_id):
     time.sleep(length)
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            channel['standup']['is_active'] = False
-            channel['standup']['time_finish'] = None
-            message = channel['standup']['queue']
-            channel['standup']['queue'] = ''
-            save()
-            try:
-                message_send_v1(token, channel_id, message)
-            except InputError:
-                pass
-            save()
-
+    channel = get_channel_details(channel_id)
+    channel['standup']['is_active'] = False
+    channel['standup']['time_finish'] = None
+    message = channel['standup']['queue']
+    channel['standup']['queue'] = ''
+    save()
+    try:
+        message_send_v1(token, channel_id, message)
+        save()
+    except InputError:
+        pass
+            
