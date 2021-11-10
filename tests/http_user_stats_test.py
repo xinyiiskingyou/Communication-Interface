@@ -319,17 +319,16 @@ def test_valid_user_send_later_dm_channel(global_owner, create_dm, create_channe
     assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
 # test the length will increase when the user shares message
-def test_valid_user_message_share(global_owner, user1_send_dm, create_channel, user1_channel_message_id):
+def test_valid_user_message_share(global_owner, user1_send_dm, create_channel):
     token = global_owner['token']
-
-    assert user1_channel_message_id != None
 
     # user 1 sends a message in dm
     assert user1_send_dm != None
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
-    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
+    # len = {num: 0 (initially no msg)} {num: 1 (send a msg in dm)}
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
 
     share_message1 = requests.post(config.url + "message/share/v1", json ={
         'token': token,
@@ -343,7 +342,8 @@ def test_valid_user_message_share(global_owner, user1_send_dm, create_channel, u
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
-    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 4
+    # len = {num: 0 (initially no msg)} {num: 1 (send a msg in dm)} {num: 2 (share a message to channel)}
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
 # Involvement rate is > 1 so is capped at 1
 def test_valid_involvement_rate_capped_at_1(global_owner, create_channel, user1_channel_message_id):
