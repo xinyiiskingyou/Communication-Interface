@@ -456,7 +456,7 @@ def test_users_stats_valid_user_senddm_later_and_remove_message(global_owner, cr
     assert json.loads(stats3.text)['workspace_stats']['utilization_rate'] == 1.0
 
 # Valid case: after the dm is removed, the num_message_exists will decrease
-def test_users_stats_valid_user_remove_dm(global_owner, create_dm):
+def test_users_stats_valid_user_remove_dm_messages(global_owner, create_dm):
     token = global_owner['token']
     dm_id = create_dm['dm_id']
 
