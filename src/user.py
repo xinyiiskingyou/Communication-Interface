@@ -1,6 +1,7 @@
 '''
 User implementation
 '''
+import time
 import requests
 import urllib.request
 from PIL import Image
@@ -397,7 +398,8 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(description='img_url is not of type JPG.')
 
     # Creating unique img url
-    img_name = 'src/static/' + token + '.jpg'
+    updated_time = str(time.time())
+    img_name = 'src/static/' + token + updated_time + '.jpg'
     urllib.request.urlretrieve(img_url, img_name)
     imageObject = Image.open(img_name)
     width, height = imageObject.size
@@ -409,7 +411,7 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     # Cropping img to given dimensions
     cropped = imageObject.crop((x_start, y_start, x_end, y_end))
     cropped.save(img_name, 'JPEG')
-    new_url = url + 'static/' + token + '.jpg' 
+    new_url = url + 'static/' + token + updated_time + '.jpg' 
     
     user = get_user_details(auth_user_id)
     user['profile_img_url'] = new_url
