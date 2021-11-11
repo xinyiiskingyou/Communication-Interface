@@ -163,7 +163,7 @@ def message_edit_v1(token, message_id, message):
             
     if message == '':
         # For users/stats, append new stat in 'messages_exist'
-        users_stats_update_messages(1)
+        users_stats_update_messages(-1)
         save()
 
     return {}
