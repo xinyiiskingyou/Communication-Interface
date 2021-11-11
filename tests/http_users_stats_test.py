@@ -502,7 +502,7 @@ def test_users_stats_valid_user_remove_dm_messages(global_owner, create_dm):
 # Valid case: utilization_rate will decrease after the user has been removed
 def test_users_stats_removed_user(global_owner, register_user2):
     user1_token = global_owner['token']
-    user2_token = global_owner['token']
+    user2_token = register_user2['token']
     user2_id = register_user2['auth_user_id']
 
     # user2 creates a channel
@@ -531,5 +531,5 @@ def test_users_stats_removed_user(global_owner, register_user2):
     })
     assert stats2.status_code == VALID
     rate2 = json.loads(stats2.text)['workspace_stats']['utilization_rate']
-    # since num_user has been decreased 
-    assert rate1 < rate2
+    assert rate2 == 0.0
+    assert rate1 > rate2
