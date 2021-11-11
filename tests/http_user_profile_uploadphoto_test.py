@@ -195,5 +195,9 @@ def test_user_profile_uploadphoto_valid(global_owner):
         'x_end': 20,
         'y_end': 20,
     })
+
+
+    
     assert upload_photo1.status_code == VALID
+
   
