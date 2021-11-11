@@ -9,7 +9,7 @@ from flask import url_for
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
 from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
-from src.helper import check_join_channel_or_dm, get_messages_total_number
+from src.helper import check_join_channel_or_dm, get_messages_total_number, get_current_user
 from requests.api import get
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
@@ -65,13 +65,18 @@ def users_stats_v1(token):
 
     # get the number of users in the stream
     users = get_data()['users']
-    num_users = len(users)
+    num_users = 0
+    for user in users:
+        if user['is_removed'] == False:
+            num_users += 1
+    
     num_users_joined_atleast_one_channel_or_dm = 0
 
     # for every user, check if they join at least one channel or dm
     for i in range(len(users)):
-        if check_join_channel_or_dm(users[i]['auth_user_id']):
-            num_users_joined_atleast_one_channel_or_dm += 1
+        if users[i]['is_removed'] == False:
+            if check_join_channel_or_dm(users[i]['auth_user_id']):
+                num_users_joined_atleast_one_channel_or_dm += 1
             
     # compute utilization rate
     utilization_rate = 0.0
