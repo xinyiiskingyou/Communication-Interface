@@ -498,3 +498,38 @@ def test_users_stats_valid_user_remove_dm(global_owner, create_dm):
     length = len(json.loads(stats.text)['workspace_stats']['messages_exist'])
     assert json.loads(stats.text)['workspace_stats']['messages_exist'][length - 1]['num_messages_exist'] == 0
     assert json.loads(stats.text)['workspace_stats']['dms_exist'][2]['num_dms_exist'] == 0
+
+# Valid case: utilization_rate will decrease after the user has been removed
+def test_users_stats_removed_user(global_owner, register_user2):
+    user1_token = global_owner['token']
+    user2_token = global_owner['token']
+    user2_id = register_user2['auth_user_id']
+
+    # user2 creates a channel
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': user2_token,
+        'name': 'anna',
+        'is_public': True
+    })
+    assert channel.status_code == VALID
+
+    stats = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats.status_code == VALID
+    rate1 = json.loads(stats.text)['workspace_stats']['utilization_rate']
+
+    # user2 is removed by global owner
+    remove = requests.delete(config.url + 'admin/user/remove/v1', json ={
+        'token': user1_token,
+        'u_id': user2_id
+    })
+    assert remove.status_code == VALID
+
+    stats2 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats2.status_code == VALID
+    rate2 = json.loads(stats2.text)['workspace_stats']['utilization_rate']
+    # since num_user has been decreased 
+    assert rate1 < rate2
