@@ -422,6 +422,15 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
         for owner in channel['owner_members']:
             if owner['u_id'] == auth_user_id:
                 owner['profile_img_url'] = new_url
-    save()
-    return {}
+        save()
+    
+    for dm in get_data()['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                member['profile_img_url'] = new_url
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == auth_user_id:
+                dm['creator']['profile_img_url'] = new_url
+        save()
 
+    return {}

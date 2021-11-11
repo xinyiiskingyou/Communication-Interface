@@ -2,7 +2,7 @@ import pytest
 import requests
 import json
 from src import config
-from tests.fixture import global_owner, register_user2, create_channel
+from tests.fixture import global_owner, register_user2, register_user3, create_channel, create_dm
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR, DEFAULT_IMG_URL
 
 ##########################################
@@ -182,11 +182,13 @@ def test_user_profile_uploadphoto_not_jpg(global_owner):
 
 
 ###### Implementation ######
-def test_user_profile_uploadphoto_valid(global_owner, create_channel):
+def test_user_profile_uploadphoto_valid(global_owner, create_channel, create_dm):
     token = global_owner['token']
 
     url_test = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
 
+    # creates a dm
+    assert create_dm['dm_id'] != None
     upload_photo1 = requests.post(config.url + 'user/profile/uploadphoto/v1', json = {
         'token': token,
         'img_url': url_test,
@@ -206,3 +208,43 @@ def test_user_profile_uploadphoto_valid(global_owner, create_channel):
     # the image has successfully updated
     assert json.loads(resp1.text)['owner_members'][0]['profile_img_url'] != DEFAULT_IMG_URL
     assert json.loads(resp1.text)['all_members'][0]['profile_img_url'] != DEFAULT_IMG_URL
+
+    profile = requests.get(config.url + "user/profile/v1", params ={
+        'token': token,
+        'u_id': global_owner['auth_user_id']
+    })
+
+    assert json.loads(profile.text)['user']['profile_img_url'] != DEFAULT_IMG_URL
+
+def test_user_profile_uploadphoto_valid_dm(global_owner, register_user2, create_dm):
+    token = global_owner['token']
+    token2 = register_user2['token']
+
+    url_test = "http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg"
+
+    # creates a dm
+    assert create_dm['dm_id'] != None
+
+    # dm creator leaves the dm
+    respo = requests.post(config.url + "dm/leave/v1", json = { 
+        'token': token, 
+        'dm_id': create_dm['dm_id']
+    })  
+    assert respo.status_code == VALID
+
+    upload_photo1 = requests.post(config.url + 'user/profile/uploadphoto/v1', json = {
+        'token': token2,
+        'img_url': url_test,
+        'x_start': 10,
+        'y_start': 10,
+        'x_end': 20,
+        'y_end': 20,
+    })
+    assert upload_photo1.status_code == VALID
+
+    profile = requests.get(config.url + "user/profile/v1", params ={
+        'token': token2,
+        'u_id': register_user2['auth_user_id']
+    })
+
+    assert json.loads(profile.text)['user']['profile_img_url'] != DEFAULT_IMG_URL
