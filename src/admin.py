@@ -88,6 +88,12 @@ def admin_user_remove_v1(token, u_id):
             # so that it can be reusable.
             user['handle_str'] = ''
             user['email'] = ''
+            user['profile_img_url'] = ''
+            user['time_stamp'] = ''
+            user['all_notifications'] = []
+            user['channels_joined'].clear()
+            user['dms_joined'].clear()
+            user['messages_sent'].clear()
             # invalidate user's token
             user['session_list'].clear()
             save()
