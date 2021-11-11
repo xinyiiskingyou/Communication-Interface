@@ -152,7 +152,7 @@ def test_standup_valid_message(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(10)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -195,7 +195,7 @@ def test_standup_valid_more_messages(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(10)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -223,7 +223,7 @@ def test_standup_valid_react_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(10)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -279,7 +279,7 @@ def test_standup_valid_pin_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(10)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -335,7 +335,7 @@ def test_standup_valid_edit_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(10)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -383,7 +383,7 @@ def test_standup_valid_share_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(10)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
