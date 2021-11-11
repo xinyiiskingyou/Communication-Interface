@@ -8,8 +8,8 @@ from PIL import Image
 from flask import url_for
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
-from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
-from src.helper import check_join_channel_or_dm, get_messages_total_number, get_current_user
+from src.helper import user_info, get_user_details
+from src.helper import check_join_channel_or_dm, get_messages_total_number
 from requests.api import get
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
