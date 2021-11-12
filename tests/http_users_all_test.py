@@ -3,7 +3,7 @@ import requests
 import json
 from src import config
 from tests.fixture import global_owner, register_user2
-from tests.fixture import VALID, ACCESSERROR, INPUTERROR
+from tests.fixture import VALID, ACCESSERROR, DEFAULT_IMG_URL
 
 ##########################################
 ############ users_all tests #############
@@ -38,7 +38,7 @@ def test_user_all_1_member(global_owner):
         'name_first': 'anna',
         'name_last': 'lee',
         'handle_str': 'annalee',
-        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        'profile_img_url': DEFAULT_IMG_URL
     }])
     assert len(json.loads(all1.text)) == 1
 
