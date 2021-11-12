@@ -1,21 +1,19 @@
 '''
 User implementation
 '''
+import time
 import requests
 import urllib.request
 from PIL import Image
 from flask import url_for
 from src.server_helper import decode_token, valid_user
 from src.helper import check_valid_email, channels_create_check_valid_user
-from src.helper import user_info, get_channel_details, get_dm_dict, get_user_details
+from src.helper import user_info, get_user_details
 from src.helper import check_join_channel_or_dm, get_messages_total_number
 from requests.api import get
 from src.error import AccessError, InputError
 from src.data_store import get_data, save
 from src.config import url
-from src.other import clear_v1
-from src.auth import auth_register_v2
-from src.channels import channels_create_v2
 
 def users_all_v1(token): 
     '''
@@ -46,6 +44,49 @@ def users_all_v1(token):
 
     return {
         'users': (user_list)
+    }
+
+def users_stats_v1(token):
+    '''
+    Fetches the required statistics about the use of UNSW Streams.
+
+    Arguments:
+        <token>          (<string>)      - an authorisation hash
+
+    Exceptions:
+        N/A
+
+    Return Value:
+        <work_space_stats> (<dict>)     - stores the channels_exist, dms_exist, 
+                                          messages_exist and utilization rate
+    '''
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+
+    # get the number of users in the stream
+    users = get_data()['users']
+    num_users = 0
+    for user in users:
+        if user['is_removed'] == False:
+            num_users += 1
+    
+    num_users_joined_atleast_one_channel_or_dm = 0
+
+    # for every user, check if they join at least one channel or dm
+    for i in range(len(users)):
+        if users[i]['is_removed'] == False:
+            if check_join_channel_or_dm(users[i]['auth_user_id']):
+                num_users_joined_atleast_one_channel_or_dm += 1
+            
+    # compute utilization rate
+    utilization_rate = 0.0
+    if num_users != 0 and num_users_joined_atleast_one_channel_or_dm != 0:
+        utilization_rate = float(num_users_joined_atleast_one_channel_or_dm) / float(num_users)
+
+    get_data()['workspace_stats']['utilization_rate'] = float(utilization_rate)
+    save()
+    return {
+        'workspace_stats': get_data()['workspace_stats']
     }
 
 def user_stats_v1(token):
@@ -324,60 +365,6 @@ def user_profile_sethandle_v1(token, handle_str):
         save()
     return {}
 
-'''
-Dictionary of shape {
-     channels_exist: [{num_channels_exist, time_stamp}], 
-     dms_exist: [{num_dms_exist, time_stamp}], 
-     messages_exist: [{num_messages_exist, time_stamp}], 
-     utilization_rate 
-    }
-'''
-def users_stats_v1(token):
-    '''
-    Fetches the required statistics about the use of UNSW Streams.
-
-    Arguments:
-        <token>          (<string>)      - an authorisation hash
-
-    Exceptions:
-        N/A
-
-    Return Value:
-        <work_space_stats> (<dict>)     - stores the channels_exist, dms_exist, 
-                                          messages_exist and utilization rate
-    '''
-    if not valid_user(token):
-        raise AccessError(description='User is not valid')
-
-    # get the number of users in the stream
-    users = get_data()['users']
-    num_users = len(users)
-    num_users_joined_atleast_one_channel_or_dm = 0
-
-    # for every user, check if they join at least one channel or dm
-    for i in range(len(users)):
-        if check_join_channel_or_dm(users[i]['auth_user_id']):
-            num_users_joined_atleast_one_channel_or_dm += 1
-            
-    # compute utilization rate
-    utilization_rate = 0.0
-    if num_users != 0 and num_users_joined_atleast_one_channel_or_dm != 0:
-        utilization_rate = float(num_users_joined_atleast_one_channel_or_dm) / float(num_users)
-
-    get_data()['workspace_stats']['utilization_rate'] = float(utilization_rate)
-    save()
-    return {
-        'workspace_stats': get_data()['workspace_stats']
-    }
-
-
-'''
-# for white box testing
-clear_v1()
-user1_reg = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
-channel_id4 = channels_create_v2(user1_reg['token'], '1531_CAMEL_3', False)
-users_stats_v1(user1_reg['token'])
-'''
 def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     '''
     Update the authorised user's handle (i.e. display name).
@@ -416,7 +403,8 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
         raise InputError(description='img_url is not of type JPG.')
 
     # Creating unique img url
-    img_name = 'src/static/' + token + '.jpg'
+    updated_time = str(time.time())
+    img_name = 'src/static/' + token + updated_time + '.jpg'
     urllib.request.urlretrieve(img_url, img_name)
     imageObject = Image.open(img_name)
     width, height = imageObject.size
@@ -428,12 +416,11 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     # Cropping img to given dimensions
     cropped = imageObject.crop((x_start, y_start, x_end, y_end))
     cropped.save(img_name, 'JPEG')
-    new_url = url + 'static/' + token + '.jpg' 
-
-    for user in get_data()['users']:
-        if user['auth_user_id'] == auth_user_id:
-            user['profile_img_url'] = new_url
-            save()
+    new_url = url + 'static/' + token + updated_time + '.jpg' 
+    
+    user = get_user_details(auth_user_id)
+    user['profile_img_url'] = new_url
+    save()
 
     for channel in get_data()['channels']:
         for member in channel['all_members']:
@@ -442,14 +429,15 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
         for owner in channel['owner_members']:
             if owner['u_id'] == auth_user_id:
                 owner['profile_img_url'] = new_url
-    save()
-    return {}
+        save()
+    
+    for dm in get_data()['dms']:
+        for member in dm['members']:
+            if member['u_id'] == auth_user_id:
+                member['profile_img_url'] = new_url
+        if len(dm['creator']) > 0:
+            if dm['creator']['u_id'] == auth_user_id:
+                dm['creator']['profile_img_url'] = new_url
+        save()
 
-'''
-# for white box testing
-clear_v1()
-user1_reg = auth_register_v2('abc@unsw.edu.au', 'password', 'afirst', 'alast')
-channel_id4 = channels_create_v2(user1_reg['token'], '1531_CAMEL_3', False)
-user_profile_uploadphoto_v1(user1_reg['token'], 'http://cgi.cse.unsw.edu.au/~jas/home/pics/jas.jpg', 1, 1, 159, 200)
-print(get_data()['users'])
-'''
+    return {}

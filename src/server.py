@@ -191,6 +191,12 @@ def user_all():
     token = (request.args.get('token'))
     return dumps(users_all_v1(token))
 
+# Fetches the required statistics about the use of UNSW Streams
+@APP.route("/users/stats/v1", methods=['GET'])
+def users_stats(): 
+    result = users_stats_v1(request.args.get('token'))
+    return dumps(result)
+
 ############## USER #################
 
 # Returns information about 1 user
@@ -226,10 +232,6 @@ def user_stats():
     result = user_stats_v1(request.args.get('token'))
     return dumps(result)
 
-@APP.route("/users/stats/v1", methods=['GET'])
-def users_stats(): 
-    result = users_stats_v1(request.args.get('token'))
-    return dumps(result)
 # Uploads given photo to given dimensions
 @APP.route('/user/profile/uploadphoto/v1', methods=['POST'])
 def user_uploadphoto():
@@ -385,7 +387,6 @@ def admin_userpermission():
     resp = admin_userpermission_change_v1(json['token'], json['u_id'], json['permission_id'])
     return dumps(resp)
 
-
 ############ NOTIFICATIONS #################
 
 # Return the user's most recent 20 notifications, ordered from most recent to least recent.
@@ -405,23 +406,27 @@ def search():
     return dumps(search_v1(token, query_str))
 
 ######## STANDUP ######## 
+
+# Start the standup period for a given channel
 @APP.route("/standup/start/v1", methods=['POST'])
 def standup_start(): 
     json = request.get_json() 
     resp = standup_start_v1(json['token'], json['channel_id'], json['length'])
     return dumps(resp)
 
-@APP.route("/standup/send/v1", methods=['POST'])
-def standup_send(): 
-    json = request.get_json() 
-    resp = standup_send_v1(json['token'], json['channel_id'], json['message'])
-    return dumps(resp)
-
+# For a given channel, return whether a standup is active in it
 @APP.route("/standup/active/v1", methods = ['GET'])
 def standup_active(): 
     token = (request.args.get('token'))
     channel_id = (request.args.get('channel_id'))
     return dumps(standup_active_v1(token, channel_id))
+
+# Sending a message to get buffered in the standup queue,
+@APP.route("/standup/send/v1", methods=['POST'])
+def standup_send(): 
+    json = request.get_json() 
+    resp = standup_send_v1(json['token'], json['channel_id'], json['message'])
+    return dumps(resp)
 
 
 #### NO NEED TO MODIFY BELOW THIS POINT

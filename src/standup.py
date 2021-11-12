@@ -1,9 +1,13 @@
-import time 
+import threading
+import time
+from requests.api import get
+
+from werkzeug import exceptions 
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
 from src.helper import check_valid_channel_id, check_valid_member_in_channel, get_channel_details, get_handle
 from src.server_helper import valid_user, decode_token
-from src.message import message_sendlater_v1
+from src.message import message_send_v1
 from datetime import datetime, timezone
 
 def standup_start_v1(token, channel_id, length):
@@ -41,17 +45,18 @@ def standup_start_v1(token, channel_id, length):
 
     # length is a negative integer
     if length < 0: 
-        raise InputError(description = 'Length` cannot be a negative number')
+        raise InputError(description = 'Length cannot be a negative number')
 
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            if channel['standup']['is_active'] == True:
-                raise InputError('An active standup is currently running in the channel')
-            else:
-                channel['standup']['is_active'] = True
-                time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
-                channel['standup']['time_finish'] = int(time_finish)
-                save()
+    channel = get_channel_details(channel_id)
+    if channel['standup']['is_active'] == True:
+        raise InputError('An active standup is currently running in the channel')
+        
+    time_finish = datetime.utcnow().replace(tzinfo=timezone.utc).timestamp() + length
+    t1 = threading.Timer(length, thread_helper, [token, length, channel_id])
+    t1.start()
+    channel['standup']['is_active'] = True
+    channel['standup']['time_finish'] = time_finish
+    save()
     return {'time_finish': time_finish}
 
 def standup_active_v1(token, channel_id):
@@ -83,24 +88,15 @@ def standup_active_v1(token, channel_id):
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')
 
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            # If no standup is active, then time_finish returns None.
-            if channel['standup']['is_active'] == False:
-                return {
-                    'is_active': False,
-                    'time_finish': None
-                }
-
-            # if standup has finished
-            current_time = int(time.time())
-            if channel['standup']['time_finish'] < current_time:
-                return {
-                    'is_active': False,
-                    'time_finish': None
-                }
-    
-        return {'is_active': True, 'time_finish': channel['standup']['time_finish']}
+    channel = get_channel_details(channel_id)
+    # If no standup is active, then time_finish returns None.
+    current_time = int(time.time())
+    if channel['standup']['is_active'] == False or channel['standup']['time_finish'] < current_time:
+        return {
+            'is_active': False,
+            'time_finish': None
+        }
+    return {'is_active': True, 'time_finish': channel['standup']['time_finish']}
 
 def standup_send_v1(token, channel_id, message): 
     '''
@@ -133,16 +129,33 @@ def standup_send_v1(token, channel_id, message):
     # message is over 1000 characters long
     if len(message) > 1000: 
         raise InputError(description = 'message is over 1000 characters long')
-    
-    # an active standup is not currently running in the channel
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            if channel['standup']['is_active'] == False:
-                raise InputError(description = 'Standup is not currently running in the channel')
-            else:
-                handle = get_handle(auth_user_id)
-                standup_message = handle + ': ' + message
-                channel['standup']['queue'] += standup_message
-                save()
 
+    handle = get_handle(auth_user_id)
+    channel = get_channel_details(channel_id)
+    # an active standup is not currently running in the channel
+    if channel['standup']['is_active'] == False:
+        raise InputError(description = 'Standup is not currently running in the channel')
+    else:
+        standup = channel['standup']
+        standup_message = standup['queue']
+        standup_message += handle + ": " + message + '\n'
+        standup['queue'] = standup_message
+        save()
     return {}
+
+# Helper function for threading
+def thread_helper(token, length, channel_id):
+    time.sleep(length)
+    channel = get_channel_details(channel_id)
+    channel['standup']['is_active'] = False
+    channel['standup']['time_finish'] = None
+    message = channel['standup']['queue']
+    channel['standup']['queue'] = ''
+    save()
+    try:
+        message_send_v1(token, channel_id, message)
+        save()
+    except InputError:
+        pass
+   
+    

@@ -94,7 +94,7 @@ def activate_notification_react(auth_user_id, message_id):
                 user['all_notifications'].insert(0, notification)
                 save()
 
-    elif message_id % 2 == 0:
+    else:
         # Message reacted is from DM
         dm_name = dm_id_to_dm_name(channel_dm_id)
 

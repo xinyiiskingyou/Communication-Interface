@@ -1,6 +1,7 @@
 import pytest
 import requests
 import json
+import time
 from src import config
 from tests.fixture import global_owner, register_user2, register_user3, create_channel
 from tests.fixture import user1_channel_message_id, user1_send_dm, create_dm
@@ -176,13 +177,12 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
     })
     assert remove_message1.status_code == VALID
 
-    # test the number will be increased by 1 since the number of message drops
+    # test the number will not change for messages_sent
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
     assert stats.status_code == VALID
     # len = {num: 0 (initially no messages)}, {num: 1 (sends a message)}, 
-    # {num: 0 (deletes a message)}
     assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
 
     # user1 sends a message again
@@ -198,7 +198,7 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
     })
     assert stats.status_code == VALID
     # len = {num: 0 (initially no messages)}, {num: 1 (sends a message)}, 
-    # {num: 0 (deletes a message)}, {num: 1 (resends a message)}, 
+    # {num: 2 (resends a message)}, 
     assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
     # but the total number of message in the channel will decrease
@@ -237,6 +237,112 @@ def test_valid_involvement_rate_less_than_1(global_owner, register_user2, create
     assert stats.status_code == VALID
     assert json.loads(stats.text)['user_stats']['involvement_rate'] < 1
     assert json.loads(stats.text)['user_stats']['involvement_rate'] > 0
+
+# Valid case: use send later to send a message in channel
+def test_valid_user_send_later_channel(global_owner, create_channel):
+
+    token = global_owner['token']
+
+    # send a message after 3 seconds
+    time_sent = int(time.time()) + 3
+    send = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': token,
+        'channel_id': create_channel['channel_id'],
+        'message': 'Hello world!',
+        'time_sent': time_sent
+    })
+    assert send.status_code == VALID
+
+    time.sleep(5)
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+
+    # test if the length of the message_sent list has increased
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
+
+# Valid case: use send later to send a message in dm
+def test_valid_user_send_later_dm(global_owner, create_dm):
+
+    token = global_owner['token']
+
+    # send a message after 3 seconds in dm
+    time_sent = int(time.time()) + 3
+    send = requests.post(config.url + "message/sendlaterdm/v1", json = {
+        'token': token,
+        'dm_id': create_dm['dm_id'],
+        'message': 'Hello, World!',
+        'time_sent': time_sent
+    })
+    assert send.status_code == VALID
+
+    time.sleep(5)
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+
+    # test if the length of the message_sent list has increased
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
+
+# test send a message in dm and channel at the same time
+def test_valid_user_send_later_dm_channel(global_owner, create_dm, create_channel):
+    token = global_owner['token']
+
+    # send a message after 3 seconds in dm
+    time_sent = int(time.time()) + 3
+    send = requests.post(config.url + "message/sendlaterdm/v1", json = {
+        'token': token,
+        'dm_id': create_dm['dm_id'],
+        'message': 'Hello, World!',
+        'time_sent': time_sent
+    })
+    assert send.status_code == VALID
+
+    send = requests.post(config.url + "message/sendlater/v1", json = {
+        'token': token,
+        'channel_id': create_channel['channel_id'],
+        'message': 'Hello world!',
+        'time_sent': time_sent
+    })
+    assert send.status_code == VALID
+
+    time.sleep(5)
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+    assert len(json.loads(stats.text)['user_stats']['channels_joined']) == 2
+    assert len(json.loads(stats.text)['user_stats']['dms_joined']) == 2
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
+
+# test the length will increase when the user shares message
+def test_valid_user_message_share(global_owner, user1_send_dm, create_channel):
+    token = global_owner['token']
+
+    # user 1 sends a message in dm
+    assert user1_send_dm != None
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    # len = {num: 0 (initially no msg)} {num: 1 (send a msg in dm)}
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
+
+    share_message1 = requests.post(config.url + "message/share/v1", json ={
+        'token': token,
+        'og_message_id': user1_send_dm,
+        'message': '', 
+        'channel_id': create_channel['channel_id'],
+        'dm_id': -1
+    })
+    assert share_message1.status_code == VALID
+
+    stats = requests.get(config.url + "user/stats/v1", params ={
+        'token': token
+    })
+    # len = {num: 0 (initially no msg)} {num: 1 (send a msg in dm)} {num: 2 (share a message to channel)}
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
 # Involvement rate is > 1 so is capped at 1
 def test_valid_involvement_rate_capped_at_1(global_owner, create_channel, user1_channel_message_id):
