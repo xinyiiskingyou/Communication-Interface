@@ -7,9 +7,9 @@ import random
 import smtplib 
 import hashlib
 import time
-import urllib.request
 from src.data_store import get_data, save
 from src.error import InputError, AccessError
+from src.helper import auth_register_handle_generator
 from src.server_helper import generate_token, generate_sess_id
 from src.server_helper import decode_token, decode_token_session_id, valid_user
 
@@ -125,25 +125,8 @@ def auth_register_v2(email, password, name_first, name_last):
     reset_code = ''
 
     # Creating handle and adding to dict_user
-    handle = (name_first + name_last).lower()
-    handle = re.sub(r'[^a-z0-9]', '', handle)
-    if len(handle) > 20:
-        handle = handle[0:20]
-
-    new_len = len(handle)
-
-    # Check for duplicate handles
-    num_dup = 0
-    i = 0
-    while i < len(get_data()['users']):
-        user = get_data()['users'][i]
-        if user['handle_str'] == handle:
-            handle = handle[0:new_len]
-            handle = handle[0:20] + str(num_dup)
-            num_dup += 1
-            i = 0
-        else:
-            i += 1
+    len_users = len(get_data()['users'])
+    handle = auth_register_handle_generator(name_first, name_last, len_users)
 
     # the time when the account create
     time_created = int(time.time())
@@ -167,9 +150,7 @@ def auth_register_v2(email, password, name_first, name_last):
     time_created = int(time.time())
 
     # Deafult profile photo
-    img_url = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-    #img_name = "src/static/default_pic"
-    #urllib.request.urlretrieve(img_url, img_name)
+    img_url = str("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png")
 
     # Then append dictionary of user email onto initial_objects
     get_data()['users'].append({
@@ -185,7 +166,7 @@ def auth_register_v2(email, password, name_first, name_last):
         'reset_code': reset_code,
         'time_stamp': time_created,
         'all_notifications': [],
-        'profile_img_url': img_url,
+        'profile_img_url': str(img_url),
         # store the data for user/stats
         # the first time_stamp will be the time when a user registers
         'channels_joined': [{
@@ -209,6 +190,8 @@ def auth_register_v2(email, password, name_first, name_last):
         'token': token,
         'auth_user_id': auth_user_id
     }
+
+
 
 def auth_passwordreset_request_v1(email):
     '''

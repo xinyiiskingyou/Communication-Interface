@@ -23,6 +23,34 @@ def user_info(auth_user_id):
     }
 
 #################################################
+######### Helper functions for auth.py ##########
+#################################################
+# Helper function for auth_register
+# Creates handle from given name_first and name_last
+def auth_register_handle_generator(name_first, name_last, len_users):
+    # Creating handle and adding to dict_user
+    handle = (name_first + name_last).lower()
+    handle = re.sub(r'[^a-z0-9]', '', handle)
+    if len(handle) > 20:
+        handle = handle[0:20]
+
+    new_len = len(handle)
+
+    # Check for duplicate handles
+    num_dup = 0
+    i = 0
+    while i < len_users:
+        user = get_data()['users'][i]
+        if user['handle_str'] == handle:
+            handle = handle[0:new_len]
+            handle = handle[0:20] + str(num_dup)
+            num_dup += 1
+            i = 0
+        else:
+            i += 1
+    return str(handle)
+
+#################################################
 ####### Helper functions for channels.py ########
 #################################################
 
