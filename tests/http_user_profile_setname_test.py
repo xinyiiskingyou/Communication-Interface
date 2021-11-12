@@ -4,7 +4,7 @@ import json
 from src import config
 from tests.fixture import global_owner, register_user2, register_user3, create_channel
 from tests.fixture import user1_channel_message_id, user1_send_dm, create_dm
-from tests.fixture import VALID, ACCESSERROR, INPUTERROR
+from tests.fixture import VALID, ACCESSERROR, INPUTERROR, DEFAULT_IMG_URL
 
 ##########################################
 ###### user_profile_set_name tests #######
@@ -132,7 +132,7 @@ def test_user_set_name_valid_name_first(global_owner, create_dm, create_channel)
         'name_first': 'annabelle',
         'name_last': 'lee',
         'handle_str': 'annalee',
-        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        'profile_img_url': DEFAULT_IMG_URL
     })
     assert name.status_code == VALID
 
@@ -176,7 +176,7 @@ def test_user_set_name_valid_name_last(global_owner):
         'name_first': 'anna',
         'name_last': 'park',
         'handle_str': 'annalee',
-        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        'profile_img_url': DEFAULT_IMG_URL
     })
     assert name.status_code == VALID
 
@@ -259,7 +259,7 @@ def test_user_set_name_valid_name_first_and_last(global_owner):
         'name_first': 'annabelle',
         'name_last': 'parker',
         'handle_str': 'annalee',
-        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        'profile_img_url': DEFAULT_IMG_URL
     })
     assert name.status_code == VALID
 
@@ -288,7 +288,7 @@ def test_user_set_name_not_in_channel_DM(global_owner, register_user2):
         'name_first': 'emily',
         'name_last': 'wong',
         'handle_str': 'annalee',
-        'profile_img_url': 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        'profile_img_url': DEFAULT_IMG_URL
     })
 
     channel2 = requests.post(config.url + "channels/create/v2", json ={

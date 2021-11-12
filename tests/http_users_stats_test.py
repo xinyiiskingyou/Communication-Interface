@@ -454,3 +454,82 @@ def test_users_stats_valid_user_senddm_later_and_remove_message(global_owner, cr
     assert len(json.loads(stats3.text)['workspace_stats']['messages_exist']) == 3
 
     assert json.loads(stats3.text)['workspace_stats']['utilization_rate'] == 1.0
+
+# Valid case: after the dm is removed, the num_message_exists will decrease
+def test_users_stats_valid_user_remove_dm_messages(global_owner, create_dm):
+    token = global_owner['token']
+    dm_id = create_dm['dm_id']
+
+    requests.post(config.url + "message/senddm/v1",json = {	
+        'token': token,	
+        'dm_id': dm_id,	
+        'message': 'hi1'	
+    })	
+    requests.post(config.url + "message/senddm/v1",json = {	
+        'token': token,	
+        'dm_id': dm_id,	
+        'message': 'hi2'	
+    })	
+    requests.post(config.url + "message/senddm/v1",json = {	
+        'token': token,	
+        'dm_id': dm_id,	
+        'message': 'hi3'	
+    })	
+
+    stats = requests.get(config.url + "users/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+
+    length = len(json.loads(stats.text)['workspace_stats']['messages_exist'])
+    assert json.loads(stats.text)['workspace_stats']['messages_exist'][length - 1]['num_messages_exist'] == 3
+
+    remove_dm = requests.delete(config.url + "dm/remove/v1", json = {
+        'token': token,
+        'dm_id': dm_id
+    })
+    assert remove_dm.status_code == VALID
+
+    # all the messages are deleted after the dm is removed
+    stats = requests.get(config.url + "users/stats/v1", params ={
+        'token': token
+    })
+    assert stats.status_code == VALID
+    length = len(json.loads(stats.text)['workspace_stats']['messages_exist'])
+    assert json.loads(stats.text)['workspace_stats']['messages_exist'][length - 1]['num_messages_exist'] == 0
+    assert json.loads(stats.text)['workspace_stats']['dms_exist'][2]['num_dms_exist'] == 0
+
+# Valid case: utilization_rate will decrease after the user has been removed
+def test_users_stats_removed_user(global_owner, register_user2):
+    user1_token = global_owner['token']
+    user2_token = register_user2['token']
+    user2_id = register_user2['auth_user_id']
+
+    # user2 creates a channel
+    channel = requests.post(config.url + "channels/create/v2", json ={
+        'token': user2_token,
+        'name': 'anna',
+        'is_public': True
+    })
+    assert channel.status_code == VALID
+
+    stats = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats.status_code == VALID
+    rate1 = json.loads(stats.text)['workspace_stats']['utilization_rate']
+
+    # user2 is removed by global owner
+    remove = requests.delete(config.url + 'admin/user/remove/v1', json ={
+        'token': user1_token,
+        'u_id': user2_id
+    })
+    assert remove.status_code == VALID
+
+    stats2 = requests.get(config.url + "users/stats/v1", params ={
+        'token': user1_token
+    })
+    assert stats2.status_code == VALID
+    rate2 = json.loads(stats2.text)['workspace_stats']['utilization_rate']
+    assert rate2 == 0.0 
+    assert rate1 > rate2

@@ -177,14 +177,13 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
     })
     assert remove_message1.status_code == VALID
 
-    # test the number will be increased by 1 since the number of message drops
+    # test the number will not change for messages_sent
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
     assert stats.status_code == VALID
     # len = {num: 0 (initially no messages)}, {num: 1 (sends a message)}, 
-    # {num: 0 (deletes a message)}
-    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 2
 
     # user1 sends a message again
     send_message = requests.post(config.url + "message/send/v1", json = {
@@ -199,8 +198,8 @@ def test_valid_message_length(global_owner, user1_channel_message_id, create_cha
     })
     assert stats.status_code == VALID
     # len = {num: 0 (initially no messages)}, {num: 1 (sends a message)}, 
-    # {num: 0 (deletes a message)}, {num: 1 (resends a message)}, 
-    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 4
+    # {num: 2 (resends a message)}, 
+    assert len(json.loads(stats.text)['user_stats']['messages_sent']) == 3
 
     # but the total number of message in the channel will decrease
     messages = requests.get(config.url + "channel/messages/v2", params ={
