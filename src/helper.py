@@ -567,8 +567,8 @@ def get_dm_dict(dm_id):
 # and an empty string if no users are tagged in message
 def check_message_channel_tag(message, channel_id):
     handle_str_list = []
-    re.sub("[^0-9a-zA-Z@]+", " ", message)
-    alpha_numeric_str2 = re.sub("@", " @", message)
+    alpha_numeric_str1 = re.sub("[^0-9a-zA-Z@]+", " ", message)
+    alpha_numeric_str2 = re.sub("@", " @", alpha_numeric_str1)
     for word in alpha_numeric_str2.split():
         if '@' in word:
             handle_str = word[1:]
@@ -588,8 +588,8 @@ def check_message_channel_tag(message, channel_id):
 # Return true if valid member has been tagged, false otherwise
 def check_message_dm_tag(message, dm_id):
     handle_str_list = []
-    re.sub("[^0-9a-zA-Z@]+", " ", message)
-    alpha_numeric_str2 = re.sub("@", " @", message)
+    alpha_numeric_str1 = re.sub("[^0-9a-zA-Z@]+", " ", message)
+    alpha_numeric_str2 = re.sub("@", " @", alpha_numeric_str1)
     for word in alpha_numeric_str2.split():
         if '@' in word:
             handle_str = word[1:]
