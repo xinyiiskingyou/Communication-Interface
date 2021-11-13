@@ -9,7 +9,7 @@ from src.helper import check_authorised_user_edit, check_valid_message_send_form
 from src.helper import get_message, check_valid_channel_dm_message_ids, get_channel_details
 from src.helper import check_valid_dm, check_valid_member_in_dm, get_reacts, check_valid_message_id
 from src.helper import check_valid_channel_id_and_dm_id_format, check_share_message_authorised_user
-from src.helper import check_message_channel_tag, user_stats_update_messages
+from src.helper import check_message_channel_tag, user_stats_update_messages, get_dm_dict
 from src.helper import users_stats_update_messages, new_react, get_msg_details, get_msg_details_channels
 from src.helper import get_msg_details_dm
 from src.server_helper import decode_token, valid_user
@@ -163,10 +163,7 @@ def message_edit_v1(token, message_id, message):
             
     if message == '':
         # For users/stats, append new stat in 'messages_exist'
-        users_stats_update_messages(1)
-        save()
-        # For user/stat, append new stat in 'messages_sent'
-        user_stats_update_messages(auth_user_id, -1)
+        users_stats_update_messages(-1)
         save()
 
     return {}
@@ -223,9 +220,6 @@ def message_remove_v1(token, message_id):
 
     # For users/stats, append new stat in 'messages_exist'
     users_stats_update_messages(-1)
-    save()
-    # For user/stat, append new stat in 'messages_sent'
-    user_stats_update_messages(auth_user_id, -1)
     save()
     return {}
 
@@ -287,7 +281,7 @@ def message_share_v1(token, og_message_id, message, channel_id, dm_id):
 
     if channel_id != -1:
         shared_message_id = message_send_v1(token, channel_id, shared_message)['message_id']
-    elif dm_id != -1:
+    if dm_id != -1:
         shared_message_id = message_senddm_v1(token, dm_id, shared_message)['message_id']
 
     return {
@@ -543,10 +537,9 @@ def message_sendlater_v1(token, channel_id, message, time_sent):
                                                 time_sent, reacts_details, is_pinned)
 
     # Append dictionary of message details into initial_objects['channels']['messages']
-    for channel in get_data()['channels']:
-        if channel['channel_id'] == channel_id:
-            channel['messages'].insert(0, msg_details_channels)
-            save()
+    channel = get_channel_details(channel_id)
+    channel['messages'].insert(0, msg_details_channels)
+    save()
 
     msg_details_msgs = get_msg_details_channels(message_id, auth_user_id, message, time_sent, 
                                                         channel_id, reacts_details, is_pinned)
@@ -624,10 +617,9 @@ def message_sendlaterdm_v1(token, dm_id, message, time_sent):
                                         time_sent, reacts_details, is_pinned)
 
     # Append dictionary of message details into initial_objects['dms']['messages']
-    for dm in get_data()['dms']:
-        if dm['dm_id'] == dm_id:
-            dm['messages'].insert(0, msg_details_dm)
-            save()
+    dm = get_dm_dict(dm_id)
+    dm['messages'].insert(0, msg_details_dm)
+    save()
 
     msg_details_msgs = get_msg_details_dm(message_id, auth_user_id, message, time_sent, 
                                                     dm_id, reacts_details, is_pinned)

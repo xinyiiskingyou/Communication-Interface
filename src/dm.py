@@ -1,3 +1,4 @@
+from re import S
 from src.server_helper import decode_token, valid_user
 from src.helper import channels_create_check_valid_user, get_handle, user_info, check_creator, check_valid_dm, get_dm_dict, check_valid_start
 from src.helper import check_valid_member_in_dm, check_valid_message, check_message_dm_tag
@@ -149,12 +150,14 @@ def dm_remove_v1(token, dm_id):
     if not check_creator(auth_user_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
+    num_message = 0
     dms = get_data()['dms']
     for dm in dms:
         if dm['dm_id'] == dm_id:
+            num_message = len(dm['messages'])
             dms.remove(dm)
             save()
-
+    
     # For user/stats, append new stat in 'dms_joined'
     user_stats_update_dms(auth_user_id, -1)
     save()
@@ -162,6 +165,13 @@ def dm_remove_v1(token, dm_id):
     # For users/stats, append new stat in 'dms_exist'
     users_stats_update_dms(-1)
     save()
+
+    # For users/stats, append new stat in 'num_messages_exist'
+    # the messages in dm will all be removed as dm is removed
+    for i in range(0, num_message):
+        users_stats_update_messages(-1)
+        i += 1
+        save()
 
     return {}
 
