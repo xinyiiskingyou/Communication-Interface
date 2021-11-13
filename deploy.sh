@@ -2,8 +2,8 @@
 
 WORKING_DIRECTORY="~/www/cs1531deploy"
 
-USERNAME="tues11acamel"
-SSH_HOST="ssh-tues11acamel.alwaysdata.net"
+USERNAME="tuesd11acamel"
+SSH_HOST="ssh-tuesd11acamel.alwaysdata.net"
 
 rm -rf ./**/__pycache__ ./**/.pytest_cache > /dev/null
 scp -r ./requirements.txt ./src "$USERNAME@$SSH_HOST:$WORKING_DIRECTORY"
