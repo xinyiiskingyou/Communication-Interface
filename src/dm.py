@@ -85,6 +85,9 @@ def dm_create_v1(token, u_ids):
     user_stats_update_dms(auth_user_id, 1)
     save()
 
+    for i in range(len(u_ids)):
+        user_stats_update_dms(u_ids[i], 1)
+        save()
     # For users/stats, append new stat in 'dms_exist'
     users_stats_update_dms(1)
     save()
@@ -150,6 +153,7 @@ def dm_remove_v1(token, dm_id):
     if not check_creator(auth_user_id):
         raise AccessError(description= 'The user is not the original DM creator')
 
+
     num_message = 0
     dms = get_data()['dms']
     for dm in dms:
@@ -157,10 +161,9 @@ def dm_remove_v1(token, dm_id):
             num_message = len(dm['messages'])
             dms.remove(dm)
             save()
-    
-    # For user/stats, append new stat in 'dms_joined'
-    user_stats_update_dms(auth_user_id, -1)
-    save()
+            for j in range(len(dm['members'])):
+                user_stats_update_dms(dm['members'][j]['u_id'], -1)
+                save()
 
     # For users/stats, append new stat in 'dms_exist'
     users_stats_update_dms(-1)
