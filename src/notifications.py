@@ -165,8 +165,6 @@ def notifications_get_v1(token):
         if user['auth_user_id'] == auth_user_id:
             notifications = user['all_notifications'][0:20]
 
-    print(notifications)
-
     return {
         'notifications': notifications
     }
