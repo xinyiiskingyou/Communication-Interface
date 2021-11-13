@@ -77,7 +77,7 @@ def users_stats_v1(token):
         if users[i]['is_removed'] == False:
             if check_join_channel_or_dm(users[i]['auth_user_id']):
                 num_users_joined_atleast_one_channel_or_dm += 1
-            
+
     # compute utilization rate
     utilization_rate = 0.0
     if num_users != 0 and num_users_joined_atleast_one_channel_or_dm != 0:
