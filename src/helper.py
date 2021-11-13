@@ -576,11 +576,10 @@ def check_message_channel_tag(message, channel_id):
             print(f"handle_stry {handle_str}")
             channel = get_channel_details(channel_id)
             for member in channel['all_members']:
-                # print(f"member = {member}")
+
                 if member['handle_str'] == handle_str:
                     handle_str_list.append(handle_str)
-    # print(f"handle_str_list before {handle_str_list}")                     
-    # print(f"handle_str_list after {list(set(handle_str_list))}")
+
     return list(set(handle_str_list))
 
 # Helper function in message_senddm_v1
@@ -595,11 +594,9 @@ def check_message_dm_tag(message, dm_id):
             handle_str = word[1:]
             dm = get_dm_dict(dm_id)
             for member in dm['members']:
-                # print(f"member = {member}")
                 if member['handle_str'] == handle_str:
                     handle_str_list.append(handle_str)
-    # print(f"handle_str_list before {handle_str_list}")                     
-    # print(f"handle_str_list after {list(set(handle_str_list))}")
+
     return list(set(handle_str_list))
 
 # Helper function in message_react_v1

@@ -19,7 +19,6 @@ TAG_END = 20
 # auth_user_id is the user that completed the above action to activate the notification
 # handle_str_list is the list of users the notification is going to be sent to
 def activate_notification_tag_channel(auth_user_id, handle_str_list, channel_id, message):
-    # print(f"handle_str_list {handle_str_list}")
 
     handle_str_notif_from = get_handle(auth_user_id)
 
@@ -35,10 +34,8 @@ def activate_notification_tag_channel(auth_user_id, handle_str_list, channel_id,
 
     for tagged_user in handle_str_list:
         for user2 in get_data()['users']:
-            # print(f"handle1 {user2['handle_str']}")
-            # print(f"tagged user {tagged_user}")
+
             if user2['handle_str'] == tagged_user:
-                # print("HELLO")
                 user2['all_notifications'].insert(0, notification)
                 save()
 
@@ -59,10 +56,8 @@ def activate_notification_tag_dm(auth_user_id, handle_str_list, dm_id, message):
 
     for tagged_user in handle_str_list:
         for user2 in get_data()['users']:
-            # print(f"handle1 {user2['handle_str']}")
-            # print(f"tagged user {tagged_user}")
+
             if user2['handle_str'] == tagged_user:
-                # print("HELLO")
                 user2['all_notifications'].insert(0, notification)
                 save()
 
