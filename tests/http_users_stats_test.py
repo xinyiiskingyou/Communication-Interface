@@ -531,5 +531,5 @@ def test_users_stats_removed_user(global_owner, register_user2):
     })
     assert stats2.status_code == VALID
     rate2 = json.loads(stats2.text)['workspace_stats']['utilization_rate']
-    assert rate2 == 0.0
+    assert rate2 == 0.0 
     assert rate1 > rate2
