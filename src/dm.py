@@ -164,10 +164,6 @@ def dm_remove_v1(token, dm_id):
             for j in range(len(dm['members'])):
                 user_stats_update_dms(dm['members'][j]['u_id'], -1)
                 save()
-    
-    # For user/stats, append new stat in 'dms_joined'
-    #user_stats_update_dms(auth_user_id, -1)
-    save()
 
     # For users/stats, append new stat in 'dms_exist'
     users_stats_update_dms(-1)
