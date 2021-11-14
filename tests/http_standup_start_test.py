@@ -112,11 +112,7 @@ def test_standup_already_active(global_owner, create_channel):
         'length': 1
     })
     assert resp1.status_code == INPUTERROR
-<<<<<<< HEAD
-    time.sleep(3)
-=======
     time.sleep(2)
->>>>>>> master
 
 # Access error: user is not a member of channel
 def test_standup_user_not_member(global_owner, register_user2, create_channel):
