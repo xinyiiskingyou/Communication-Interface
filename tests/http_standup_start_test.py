@@ -112,7 +112,7 @@ def test_standup_already_active(global_owner, create_channel):
         'length': 1
     })
     assert resp1.status_code == INPUTERROR
-    time.sleep(4)
+    time.sleep(3)
 
 # Access error: user is not a member of channel
 def test_standup_user_not_member(global_owner, register_user2, create_channel):
@@ -155,7 +155,7 @@ def test_standup_valid_multiple_starts(global_owner, create_channel):
     assert resp1.status_code == VALID
 
     assert json.loads(resp1.text)['time_finish'] != None
-    time.sleep(5)
+    time.sleep(3)
 
     resp1 = requests.post(config.url + "standup/start/v1", json ={
         'token': token,
