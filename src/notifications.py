@@ -10,6 +10,34 @@ from src.server_helper import decode_token, valid_user
 TAG_START = 0
 TAG_END = 20
 
+def notifications_get_v1(token):
+    '''
+    Return the user's most recent 20 notifications, ordered from most recent to least recent.
+
+    Arguments:
+        <token>        (<string>)   - an authorisation hash
+
+    Exceptions:
+        Access Error - invalid token
+
+    Return Value:
+        {notifcations}
+    '''
+    if not valid_user(token):
+        raise AccessError(description='User is not valid')
+        
+    auth_user_id = decode_token(token)
+
+    for user in get_data()['users']:
+        if user['auth_user_id'] == auth_user_id:
+            notifications = user['all_notifications'][0:20]
+
+    return {
+        'notifications': notifications
+    }
+
+
+##### Helper functions for notifications_get_v1 #######
 # Activates a notification if either of these 3 cases occur: 
     # 1. Authorised user of channel is tagged by other member in a message in channel/DM
     # 2. Valid member of channel reacts to authorised user's message in channel/DM
@@ -19,7 +47,6 @@ TAG_END = 20
 # auth_user_id is the user that completed the above action to activate the notification
 # handle_str_list is the list of users the notification is going to be sent to
 def activate_notification_tag_channel(auth_user_id, handle_str_list, channel_id, message):
-    # print(f"handle_str_list {handle_str_list}")
 
     handle_str_notif_from = get_handle(auth_user_id)
 
@@ -35,10 +62,8 @@ def activate_notification_tag_channel(auth_user_id, handle_str_list, channel_id,
 
     for tagged_user in handle_str_list:
         for user2 in get_data()['users']:
-            # print(f"handle1 {user2['handle_str']}")
-            # print(f"tagged user {tagged_user}")
+
             if user2['handle_str'] == tagged_user:
-                # print("HELLO")
                 user2['all_notifications'].insert(0, notification)
                 save()
 
@@ -59,10 +84,8 @@ def activate_notification_tag_dm(auth_user_id, handle_str_list, dm_id, message):
 
     for tagged_user in handle_str_list:
         for user2 in get_data()['users']:
-            # print(f"handle1 {user2['handle_str']}")
-            # print(f"tagged user {tagged_user}")
+
             if user2['handle_str'] == tagged_user:
-                # print("HELLO")
                 user2['all_notifications'].insert(0, notification)
                 save()
 
@@ -152,21 +175,3 @@ def activate_notification_dm_create(auth_user_id, dm_id, member_list):
                 if user['auth_user_id'] == dm_member['u_id']:
                     user['all_notifications'].insert(0, notification)
                     save()
-
-
-def notifications_get_v1(token):
-    
-    if not valid_user(token):
-        raise AccessError(description='User is not valid')
-        
-    auth_user_id = decode_token(token)
-
-    for user in get_data()['users']:
-        if user['auth_user_id'] == auth_user_id:
-            notifications = user['all_notifications'][0:20]
-
-    print(notifications)
-
-    return {
-        'notifications': notifications
-    }

@@ -244,7 +244,7 @@ def test_valid_user_send_later_channel(global_owner, create_channel):
     token = global_owner['token']
 
     # send a message after 3 seconds
-    time_sent = int(time.time()) + 3
+    time_sent = int(time.time()) + 1
     send = requests.post(config.url + "message/sendlater/v1", json = {
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -253,7 +253,7 @@ def test_valid_user_send_later_channel(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(1)
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
@@ -268,7 +268,7 @@ def test_valid_user_send_later_dm(global_owner, create_dm):
     token = global_owner['token']
 
     # send a message after 3 seconds in dm
-    time_sent = int(time.time()) + 3
+    time_sent = int(time.time()) + 1
     send = requests.post(config.url + "message/sendlaterdm/v1", json = {
         'token': token,
         'dm_id': create_dm['dm_id'],
@@ -277,7 +277,7 @@ def test_valid_user_send_later_dm(global_owner, create_dm):
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(1)
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
@@ -291,7 +291,7 @@ def test_valid_user_send_later_dm_channel(global_owner, create_dm, create_channe
     token = global_owner['token']
 
     # send a message after 3 seconds in dm
-    time_sent = int(time.time()) + 3
+    time_sent = int(time.time()) + 1
     send = requests.post(config.url + "message/sendlaterdm/v1", json = {
         'token': token,
         'dm_id': create_dm['dm_id'],
@@ -308,7 +308,7 @@ def test_valid_user_send_later_dm_channel(global_owner, create_dm, create_channe
     })
     assert send.status_code == VALID
 
-    time.sleep(5)
+    time.sleep(1)
     stats = requests.get(config.url + "user/stats/v1", params ={
         'token': token
     })
