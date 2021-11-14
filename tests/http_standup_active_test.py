@@ -96,7 +96,7 @@ def test_standup_valid_not_active_with_start(global_owner):
     })
     assert start.status_code == VALID
 
-    time.sleep(6)
+    time.sleep(3)
     resp1 = requests.get(config.url + "standup/active/v1", params ={
         'token': token,
         'channel_id': channel_id,

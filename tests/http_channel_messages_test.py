@@ -4,11 +4,15 @@ import json
 from src import config
 from tests.fixture import global_owner, register_user2, create_channel
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR
-
+'''
 NUM_MESSAGE_EXACT = 50
 NUM_MESSAGE_MORE = 100
 NUM_MESSAGE_LESS = 25
-
+'''
+NUM_MESSAGE_EXACT = 5
+NUM_MESSAGE_MORE = 51
+NUM_MESSAGE_LESS = 2
+NUM_MESSAGE_END = 50
 ##############################################
 ########## channel/messages/v2 tests #########
 ##############################################
@@ -191,8 +195,8 @@ def test_channel_messages_start0__no_least_recent(global_owner, create_channel):
     messages_start = json.loads(messages.text)['start']
     messages_end = json.loads(messages.text)['end']
     assert messages_start == 0
-    assert messages_end == 50
-    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_EXACT
+    assert messages_end == NUM_MESSAGE_END
+    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_END
 
     assert messages.status_code == VALID
 
@@ -275,14 +279,14 @@ def test_channel_messages_start_neither__no_least_recent(global_owner, create_ch
     messages = requests.get(config.url + "channel/messages/v2", params ={
         'token': user1_token,
         'channel_id': channel1_id,
-        'start': 10
+        'start': 1
     })
 
     messages_start = json.loads(messages.text)['start']
     messages_end = json.loads(messages.text)['end']
-    assert messages_start == 10
-    assert messages_end == 50 + 10
-    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_EXACT
+    assert messages_start == 1
+    assert messages_end == -1
+    assert len(json.loads(messages.text)['messages']) == NUM_MESSAGE_END
 
     assert messages.status_code == VALID
 
@@ -305,14 +309,14 @@ def test_channel_messages_start_neither__least_recent(global_owner, create_chann
     messages = requests.get(config.url + "channel/messages/v2", params ={
         'token': user1_token,
         'channel_id': channel1_id,
-        'start': 10
+        'start': 1
     })
 
     messages_start = json.loads(messages.text)['start']
     messages_end = json.loads(messages.text)['end']
-    assert messages_start == 10
+    assert messages_start == 1
     assert messages_end == -1
-    assert len(json.loads(messages.text)['messages']) == 15
+    assert len(json.loads(messages.text)['messages']) == 1
 
     assert messages.status_code == VALID
 
@@ -364,12 +368,12 @@ def test_channel_messages_start_least_recent(global_owner, create_channel):
     messages = requests.get(config.url + "channel/messages/v2", params ={
         'token': user1_token,
         'channel_id': channel1_id,
-        'start': 49
+        'start': 4
     })
 
     messages_start = json.loads(messages.text)['start']
     messages_end = json.loads(messages.text)['end']
-    assert messages_start == 49
+    assert messages_start == 4
     assert messages_end == -1
     assert len(json.loads(messages.text)['messages']) == 1
 

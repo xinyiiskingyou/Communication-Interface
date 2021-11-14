@@ -7,7 +7,7 @@ from tests.fixture import global_owner, register_user2, register_user3, create_c
 from tests.fixture import user1_channel_message_id, user1_send_dm, create_dm
 from tests.fixture import VALID, ACCESSERROR
 
-TIME_WAIT = 3
+TIME_WAIT = 1
 ##########################################
 ############ users_stats tests ############
 ##########################################
