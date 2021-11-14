@@ -39,6 +39,7 @@ def standup_start_v1(token, channel_id, length):
         raise InputError(description = 'Channel_id does not refer to a valid channel')
 
     channel = get_data()['channels']
+    
     # channel_id is valid and the authorised user is not a member of the channel
     if not check_valid_member_in_channel(channel_id, auth_user_id):
         raise AccessError(description = 'The authorised user is not a member of the channel')

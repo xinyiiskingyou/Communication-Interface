@@ -7,8 +7,8 @@ from tests.fixture import global_owner, register_user2, register_user3
 from tests.fixture import create_dm, user1_send_dm
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
-# 3 seconds
-TIME_WAIT = 3
+# 1 second
+TIME_WAIT = 1
 
 ##########################################
 ####### message/sendlaterdm/v1 tests #####
