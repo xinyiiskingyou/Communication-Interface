@@ -4,11 +4,7 @@ import json
 from src import config
 from tests.fixture import global_owner, register_user2, register_user3, create_dm
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR
-'''
-NUM_MESSAGE_EXACT = 50
-NUM_MESSAGE_MORE = 100
-NUM_MESSAGE_LESS = 10
-'''
+
 NUM_MESSAGE_EXACT = 5
 NUM_MESSAGE_MORE = 51
 NUM_MESSAGE_LESS = 2
