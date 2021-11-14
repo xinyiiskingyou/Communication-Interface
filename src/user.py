@@ -416,7 +416,8 @@ def user_profile_uploadphoto_v1(token, img_url, x_start, y_start, x_end, y_end):
     # Cropping img to given dimensions
     cropped = imageObject.crop((x_start, y_start, x_end, y_end))
     cropped.save(img_name, 'JPEG')
-    new_url = url + 'static/' + token + updated_time + '.jpg' 
+    #new_url = url + 'static/' + token + updated_time + '.jpg' 
+    new_url = 'http://tues11acameltesting.alwaysdata.net/' + 'static/' + token + updated_time + '.jpg'
     
     user = get_user_details(auth_user_id)
     user['profile_img_url'] = new_url
