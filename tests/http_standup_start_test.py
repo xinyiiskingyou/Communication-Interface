@@ -102,7 +102,7 @@ def test_standup_already_active(global_owner, create_channel):
     resp1 = requests.post(config.url + "standup/start/v1", json ={
         'token': token1,
         'channel_id': channel_id,
-        'length': 10
+        'length': 1
     })
     assert resp1.status_code == VALID
 
@@ -112,7 +112,7 @@ def test_standup_already_active(global_owner, create_channel):
         'length': 1
     })
     assert resp1.status_code == INPUTERROR
-    time.sleep(4)
+    time.sleep(2)
 
 # Access error: user is not a member of channel
 def test_standup_user_not_member(global_owner, register_user2, create_channel):
@@ -140,27 +140,4 @@ def test_standup_valid_no_message(global_owner, create_channel):
     assert resp1.status_code == VALID
 
     assert json.loads(resp1.text)['time_finish'] != None
-    time.sleep(3)
-
-# Valid case: start the standup for multiple times
-def test_standup_valid_multiple_starts(global_owner, create_channel):
-    token = global_owner['token']
-    channel_id = create_channel['channel_id']
-
-    resp1 = requests.post(config.url + "standup/start/v1", json ={
-        'token': token,
-        'channel_id': channel_id,
-        'length': 1
-    })
-    assert resp1.status_code == VALID
-
-    assert json.loads(resp1.text)['time_finish'] != None
-    time.sleep(5)
-
-    resp1 = requests.post(config.url + "standup/start/v1", json ={
-        'token': token,
-        'channel_id': channel_id,
-        'length': 1
-    })
-    assert resp1.status_code == VALID
-    time.sleep(5)
+    time.sleep(2)

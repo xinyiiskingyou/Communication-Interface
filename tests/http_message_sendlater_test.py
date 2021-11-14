@@ -7,8 +7,8 @@ from tests.fixture import global_owner, register_user2, register_user3
 from tests.fixture import user1_channel_message_id, create_channel
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR
 
-# 10 minute
-TIME_WAIT = 3
+# 1 second
+TIME_WAIT = 1
 
 ##########################################
 ######## message/sendlater/v1 tests ######

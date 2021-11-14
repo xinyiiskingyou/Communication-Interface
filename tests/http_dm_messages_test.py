@@ -4,11 +4,15 @@ import json
 from src import config
 from tests.fixture import global_owner, register_user2, register_user3, create_dm
 from tests.fixture import VALID, ACCESSERROR, INPUTERROR
-
+'''
 NUM_MESSAGE_EXACT = 50
 NUM_MESSAGE_MORE = 100
-NUM_MESSAGE_LESS = 25
-
+NUM_MESSAGE_LESS = 10
+'''
+NUM_MESSAGE_EXACT = 5
+NUM_MESSAGE_MORE = 51
+NUM_MESSAGE_LESS = 2
+NUM_MESSAGE_END = 50
 ##########################################
 ### dm_messages & message_senddm tests ###
 ##########################################
@@ -203,12 +207,12 @@ def test_dm_message_valid_start0(global_owner, register_user2):
     message_start = json.loads(message.text)['start']
     message_end = json.loads(message.text)['end']
     assert message_start == 0 
-    assert message_end == 50 
-    assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_EXACT
+    assert message_end == NUM_MESSAGE_END
+    assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_END
 
     assert message.status_code == VALID 
 
-# Valid case: sending 50 messages
+# Valid case: sending 5 messages
 def test_dm_message_valid_recent_exact(global_owner, register_user2): 
 
     user1_token = global_owner['token']
@@ -241,7 +245,7 @@ def test_dm_message_valid_recent_exact(global_owner, register_user2):
     assert message_end == -1 
     assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_EXACT
  
-# Valid case: sending 100 messages
+# Valid case: sending 8 messages
 def test_dm_message_valid_no_recent(global_owner, register_user2): 
 
     user1_token = global_owner['token']
@@ -264,18 +268,18 @@ def test_dm_message_valid_no_recent(global_owner, register_user2):
     message = requests.get(config.url + "dm/messages/v1",params = { 
         'token': user1_token,
         'dm_id': dm_id1, 
-        'start': 10 
+        'start': 1 
     })
     
     message_start = json.loads(message.text)['start']
     message_end = json.loads(message.text)['end']
-    assert message_start == 10 
-    assert message_end == 50+10 
-    assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_EXACT
+    assert message_start == 1
+    assert message_end == -1 
+    assert len(json.loads(message.text)['messages']) == NUM_MESSAGE_END
 
     assert message.status_code == VALID 
 
-# Valid case: sending 25 messages
+# Valid case: sending 2 messages
 def test_dm_message_valid_neither(global_owner, register_user2): 
 
     user1_token = global_owner['token']
@@ -298,14 +302,14 @@ def test_dm_message_valid_neither(global_owner, register_user2):
     message = requests.get(config.url + "dm/messages/v1",params = { 
         'token': user1_token,
         'dm_id': dm_id1, 
-        'start': 10 
+        'start': 1 
     })
     
     message_start = json.loads(message.text)['start']
     message_end = json.loads(message.text)['end']
-    assert message_start == 10 
+    assert message_start == 1
     assert message_end == -1 
-    assert len(json.loads(message.text)['messages']) == 15
+    assert len(json.loads(message.text)['messages']) == 1
 
     assert message.status_code == VALID 
 

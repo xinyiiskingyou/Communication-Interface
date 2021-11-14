@@ -11,7 +11,22 @@ from src.dm import dm_list_v1
 
 
 def search_v1(token, query_str):
+    '''
+    Given a query string, return a collection of messages in 
+    all of the channels/DMs that the user has joined that contain the query.
 
+    Arguments:
+        token       (<string>)        - a user's unique token 
+        query_str   (<string>)        - a string that user wants to search
+        ...
+
+    Exceptions:
+        InputError  - Occurs when length of query_str is less than 1 or over 1000 characters 
+        AccessError - Occurs when token is invalid
+
+    Return Value:
+        { messages }
+    '''
     if not valid_user(token):
         raise AccessError(description='User is not valid')
     
