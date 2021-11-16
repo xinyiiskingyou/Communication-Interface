@@ -181,7 +181,9 @@ def channel_messages():
     token = (request.args.get('token'))
     channel_id = int(request.args.get('channel_id'))
     start = int(request.args.get('start'))
-    return dumps(channel_messages_v2(token, channel_id, start))
+    message = channel_messages_v2(token, channel_id, start)
+    print(f"{message}")
+    return dumps(message)
 
 ############ USERS #################
 

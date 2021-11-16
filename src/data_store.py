@@ -41,7 +41,8 @@ initial_object = {
 def get_data():
     global initial_object
     if os.path.exists('database.json'):
-        initial_object = json.load(open('database.json', 'r'))
+        with open('database.json', 'r') as FILE:
+            initial_object = json.load(FILE)
     return initial_object
 
 def save():

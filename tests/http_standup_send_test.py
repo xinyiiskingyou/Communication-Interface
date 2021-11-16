@@ -152,12 +152,13 @@ def test_standup_valid_message(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(10)
+    time.sleep(2)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
         'start': 0
     })
+    print(json.loads(message.text))
     assert json.loads(message.text)['messages'][0]['message'] == 'annalee: message1\n'
     
 # Valid case: sending more messages in standup
@@ -195,7 +196,7 @@ def test_standup_valid_more_messages(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(10)
+    time.sleep(2)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -223,7 +224,7 @@ def test_standup_valid_react_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(10)
+    time.sleep(3)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -279,7 +280,7 @@ def test_standup_valid_pin_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(10)
+    time.sleep(2)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -335,7 +336,7 @@ def test_standup_valid_edit_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(10)
+    time.sleep(3)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],
@@ -383,7 +384,7 @@ def test_standup_valid_share_standup(global_owner, create_channel):
     })
     assert send.status_code == VALID
 
-    time.sleep(10)
+    time.sleep(2)
     message = requests.get(config.url + "channel/messages/v2", params ={
         'token': token,
         'channel_id': create_channel['channel_id'],

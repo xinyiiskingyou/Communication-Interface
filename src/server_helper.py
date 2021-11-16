@@ -39,7 +39,6 @@ def decode_token_session_id(token):
 
 # Check token is valid with valid session_id
 def valid_user(token):
-    
     for user in get_data()['users']:
         if user['auth_user_id'] == decode_token(token):
             for session in range(len(user['session_list'])):

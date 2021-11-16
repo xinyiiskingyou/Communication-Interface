@@ -151,7 +151,7 @@ def thread_helper(token, length, channel_id):
     channel['standup']['time_finish'] = None
     message = channel['standup']['queue']
     channel['standup']['queue'] = ''
-    save()
+    #save()
     try:
         message_send_v1(token, channel_id, message)
         save()
