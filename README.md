@@ -1435,3 +1435,4 @@ Relevant scholarship authorities will be informed if students holding scholarshi
 Do not provide or show your project work to any other person, except for your group and the teaching staff of COMP1531. If you knowingly provide or show your assignment work to another person for any reason, and work derived from it is submitted you may be penalized, even if the work was submitted without your knowledge or consent. This may apply even if your work is submitted by a third party unknown to you.
 
 Note, you will not be penalized if your work has the potential to be taken without your consent or knowledge.
+# 1531-Project
